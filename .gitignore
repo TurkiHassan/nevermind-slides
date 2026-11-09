@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+node_modules/
+resources/engine/anatomy/examples/**/*.html
+resources/engine/anatomy/examples/**/*.svg
+resources/engine/anatomy/examples/**/*.png
+resources/engine/anatomy/examples/**/*.pdf
