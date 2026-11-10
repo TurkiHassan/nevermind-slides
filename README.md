@@ -42,6 +42,7 @@
 
 * **Python `>= 3.10`** (مكتبة قياسية فقط — لا يتطلب `pip install`).
 * **Node.js `>= 20`** (لتوليد وفحص مجسمات `anatomy` الأيزومترية عبر `node build.mjs --audit`).
+* **محرّر Nevermind Studio `nm-studio` (اختياري — لأمرَي `edit` و`notes` فقط):** يُبحث عنه في المتغير `NM_STUDIO` (ملف تنفيذي أو مسار `dist/nm-studio.mjs`) ثم في `PATH`؛ وعند غيابه يطبع الأمر رسالة واضحة ويخرج بالرمز `2`، ويبقى عمل المهارة كاملًا بلا المحرّر.
 
 ```bash
 # تثبيت المهارة في جميع بيئات الوكلاء (Install globally across all agents)
@@ -52,6 +53,13 @@ python3 scripts/deck_helper.py stage-fonts --target-dir /path/to/project
 
 # فحص جودة العرض التقديمي (Zero Emojis + @font-face + Assets + SVG Motion)
 python3 scripts/deck_helper.py audit-deck --html-path /path/to/project/deck.html
+
+# فتح العرض في محرّر Nevermind Studio للتعديل اليدوي (اختياري — يتطلب nm-studio)
+python3 scripts/deck_helper.py edit --html-path /path/to/project/deck.html
+
+# ملاحظات المستخدم المثبّتة من المحرّر: عرضها وإغلاق المنفَّذة (اختياري)
+python3 scripts/deck_helper.py notes list --html-path /path/to/project/deck.html
+python3 scripts/deck_helper.py notes done --html-path /path/to/project/deck.html <note-id>
 
 # إزالة المهارة والروابط الرمزية (Uninstall)
 python3 scripts/deck_helper.py uninstall

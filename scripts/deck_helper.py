@@ -26,6 +26,11 @@ Subcommands:
                     after the user approves the final deck.
   open-files        Open one or more HTML files in the user's default browser across
                     macOS, Windows, and Linux.
+  edit              Open a finished deck in Nevermind Studio (`nm-studio edit`), the local
+                    visual editor, so the user can adjust text, images, and layout by hand.
+                    Optional: reports a clear message when nm-studio is not installed.
+  notes             List or close the pinned notes the user left for the agent in Nevermind
+                    Studio (`nm-studio notes list|done`).
 """
 
 from __future__ import annotations
@@ -512,6 +517,62 @@ def cmd_open_files(args: argparse.Namespace) -> int:
     return 0
 
 
+NM_STUDIO_HINT = (
+    "Nevermind Studio (nm-studio) was not found. Install it, or point NM_STUDIO at either the "
+    "`nm-studio` executable or its dist/nm-studio.mjs bundle."
+)
+
+
+def _find_nm_studio() -> list[str] | None:
+    """Return the argv prefix that runs nm-studio, or None when it is not installed."""
+    override = os.environ.get("NM_STUDIO")
+    if override:
+        path = Path(override).expanduser()
+        if not path.exists():
+            return None
+        if path.suffix in (".mjs", ".js"):
+            node = shutil.which("node")
+            return [node, str(path)] if node else None
+        return [str(path)]
+    found = shutil.which("nm-studio")
+    return [found] if found else None
+
+
+def cmd_edit(args: argparse.Namespace) -> int:
+    html_path = Path(args.html_path).expanduser().resolve()
+    if not html_path.is_file():
+        print(f"Error: deck not found: {html_path}", file=sys.stderr)
+        return 1
+    runner = _find_nm_studio()
+    if runner is None:
+        print(f"Error: {NM_STUDIO_HINT}", file=sys.stderr)
+        return 2
+    command = [*runner, "edit", str(html_path)]
+    if args.port is not None:
+        command += ["--port", str(args.port)]
+    if args.no_open:
+        command.append("--no-open")
+    # The editor runs until the user presses Ctrl+C; its URL is printed on stdout.
+    return subprocess.call(command)
+
+
+def cmd_notes(args: argparse.Namespace) -> int:
+    html_path = Path(args.html_path).expanduser().resolve()
+    runner = _find_nm_studio()
+    if runner is None:
+        print(f"Error: {NM_STUDIO_HINT}", file=sys.stderr)
+        return 2
+    command = [*runner, "notes", args.action, str(html_path)]
+    if args.action == "done":
+        if not args.note_id:
+            print("Error: `notes done` needs a note id.", file=sys.stderr)
+            return 1
+        command.append(args.note_id)
+    elif args.all:
+        command.append("--all")
+    return subprocess.call(command)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="deck_helper.py",
@@ -588,6 +649,25 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_open.add_argument("files", nargs="+", help="HTML file path(s) to open in the browser.")
     p_open.set_defaults(func=cmd_open_files)
+
+    p_edit = subparsers.add_parser(
+        "edit",
+        help="Open a finished deck in Nevermind Studio, the local visual editor (requires nm-studio).",
+    )
+    p_edit.add_argument("--html-path", required=True, help="Path to the HTML deck to edit.")
+    p_edit.add_argument("--port", type=int, default=None, help="Local port for the editor (default: any free port).")
+    p_edit.add_argument("--no-open", action="store_true", help="Do not open the browser automatically.")
+    p_edit.set_defaults(func=cmd_edit)
+
+    p_notes = subparsers.add_parser(
+        "notes",
+        help="List or close the pinned notes left for the agent in Nevermind Studio (requires nm-studio).",
+    )
+    p_notes.add_argument("action", choices=["list", "done"])
+    p_notes.add_argument("--html-path", required=True, help="Path to the HTML deck.")
+    p_notes.add_argument("note_id", nargs="?", default=None, help="Note id (for `done`).")
+    p_notes.add_argument("--all", action="store_true", help="With `list`: include completed notes.")
+    p_notes.set_defaults(func=cmd_notes)
 
     return parser
 

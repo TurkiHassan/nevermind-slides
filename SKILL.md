@@ -9,7 +9,7 @@ metadata:
 
 # Nevermind Slides (`nevermind-slides`)
 
-> **Note:** Throughout this file, `<SKILL_DIR>` refers to the folder containing this `SKILL.md` file. This skill is **100% self-contained**: all 25 Arabic font files (`Thmanyah Serif Display`, `KOMission`, `Thmanyah Sans`, `Qahwa Arabic`, `Setabr Display`, `Alkhalil Kufi`, `ZIAN`, `IBM Plex Sans Arabic`, `Zain Rounded`, `Readex Pro`), the `anatomy` isometric SVG engine (`resources/engine/anatomy/`), and the `frontend-slides` 1920×1080 layout engine (`resources/engine/frontend-slides/`) are bundled directly inside `<SKILL_DIR>/resources/`.
+> **Note:** Throughout this file, `<SKILL_DIR>` refers to the folder containing this `SKILL.md` file. The Nevermind Studio integration (`edit` / `notes` subcommands) is **optional**: it degrades gracefully with exit code `2` when `nm-studio` is not installed. This skill is **100% self-contained**: all 25 Arabic font files (`Thmanyah Serif Display`, `KOMission`, `Thmanyah Sans`, `Qahwa Arabic`, `Setabr Display`, `Alkhalil Kufi`, `ZIAN`, `IBM Plex Sans Arabic`, `Zain Rounded`, `Readex Pro`), the `anatomy` isometric SVG engine (`resources/engine/anatomy/`), and the `frontend-slides` 1920×1080 layout engine (`resources/engine/frontend-slides/`) are bundled directly inside `<SKILL_DIR>/resources/`.
 
 ---
 
@@ -209,3 +209,46 @@ python3 "<SKILL_DIR>/scripts/deck_helper.py" audit-deck \
      --target-dir "<project_dir>"
    ```
 4. Open the verified final presentation in the browser (`python3 "<SKILL_DIR>/scripts/deck_helper.py" open-files "<project_dir>/<topic>-slides.html"`) and present a concise Arabic summary.
+5. **Offer the visual editor (optional):** After the audit passes and the summary is delivered, tell the user they can fine-tune the deck by hand in Nevermind Studio and offer to open it:
+
+   ```bash
+   python3 "<SKILL_DIR>/scripts/deck_helper.py" edit \
+     --html-path "<project_dir>/<topic>-slides.html"
+   ```
+
+   - If the command exits with code `2`, Nevermind Studio (`nm-studio`) is not installed: say so once and continue. Never install it or ask the user to install dependencies for it.
+   - While the editor is open, the user can pin notes to the agent. Check them with `deck_helper.py notes list` before making any further change (see the next section).
+   - Never edit `.nevermind/notes.json` or `.nevermind/current.json` by hand.
+
+---
+
+## Applying the User's Pinned Notes (Nevermind Studio)
+
+When a `.nevermind/notes.json` file exists next to the deck, apply the open notes **before any unrequested improvement**. Use `nm-studio` commands through `deck_helper.py`; never hand-edit the state files.
+
+1. List the open notes:
+
+   ```bash
+   python3 "<SKILL_DIR>/scripts/deck_helper.py" notes list --html-path "<deck.html>"
+   ```
+
+2. Read `.nevermind/current.json` if present. It holds the current slide, the selected element context, and the deck file fingerprint from the last context update.
+
+3. Handle each note separately:
+   - Use the note's element context to locate the node. Prefer `dataNid` when present, then tag, text, classes, and slide.
+   - Use the region note's rectangle and coordinates inside the `1920×1080` stage to understand the intended position.
+   - Inspect the slide when needed: `nm-studio inspect <deck.html> --slide <n>`.
+   - Apply the smallest surgical batch through `nm-studio apply`. Pass `--expect <fingerprint>` when the fingerprint in `current.json` still matches the file.
+   - Never rewrite the whole deck, and never add a `style` attribute when the change can be expressed with the Tailwind classes already used in the deck.
+
+4. Re-audit the deck after each application (`deck_helper.py audit-deck`). Leave a note open when it cannot be executed or needs a user decision.
+
+5. Close only the note that was carried out:
+
+   ```bash
+   python3 "<SKILL_DIR>/scripts/deck_helper.py" notes done --html-path "<deck.html>" <note-id>
+   ```
+
+6. Repeat `notes list` until no open notes remain. Use `--all` to view completed notes.
+
+The open editor pushes deck edits and note completions automatically. Do not ask the user to close or reopen the editor.
