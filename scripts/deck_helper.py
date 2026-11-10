@@ -28,7 +28,7 @@ Subcommands:
                     macOS, Windows, and Linux.
   edit              Open a finished deck in Nevermind Studio (`nm-studio edit`), the local
                     visual editor, so the user can adjust text, images, and layout by hand.
-                    Optional: reports a clear message when nm-studio is not installed.
+                    Uses the bundled build in resources/nm-studio/ when nm-studio is not on PATH.
   notes             List or close the pinned notes the user left for the agent in Nevermind
                     Studio (`nm-studio notes list|done`).
 """
@@ -57,7 +57,9 @@ BUNDLED_FRONTEND_SLIDES_DIR = SKILL_ROOT / "resources" / "engine" / "frontend-sl
 TEMP_DIR = Path(tempfile.gettempdir())
 
 # Copy filter to exclude git metadata, caches, and OS junk during installation
-COPY_IGNORE = shutil.ignore_patterns(".git", "__pycache__", ".DS_Store", "*.pyc", ".pytest_cache")
+COPY_IGNORE = shutil.ignore_patterns(
+    ".git", "__pycache__", ".DS_Store", "*.pyc", ".pytest_cache", "node_modules"
+)
 
 # Comprehensive Unicode emoji pattern (Regional Indicator Flags, Pictographs,
 # Emoticons, Transport, Supplemental Symbols, Dingbats, Miscellaneous Symbols)
@@ -518,24 +520,35 @@ def cmd_open_files(args: argparse.Namespace) -> int:
 
 
 NM_STUDIO_HINT = (
-    "Nevermind Studio (nm-studio) was not found. Install it, or point NM_STUDIO at either the "
-    "`nm-studio` executable or its dist/nm-studio.mjs bundle."
+    "Nevermind Studio (nm-studio) is unavailable. The bundled copy needs Node.js >= 20 on PATH. "
+    "Install Node, or point NM_STUDIO at either the `nm-studio` executable or a dist/nm-studio.mjs "
+    "bundle."
+)
+
+# Single-file editor build shipped with this skill; see resources/nm-studio/ and editor/.
+BUNDLED_NM_STUDIO = (
+    Path(__file__).resolve().parent.parent / "resources" / "nm-studio" / "nm-studio.mjs"
 )
 
 
+def _node_runner(path: Path) -> list[str] | None:
+    """Run a .mjs/.js bundle with node, or None when node or the bundle is missing."""
+    node = shutil.which("node")
+    return [node, str(path)] if node and path.is_file() else None
+
+
 def _find_nm_studio() -> list[str] | None:
-    """Return the argv prefix that runs nm-studio, or None when it is not installed."""
+    """Return the argv prefix that runs nm-studio: NM_STUDIO, then PATH, then the bundled build."""
     override = os.environ.get("NM_STUDIO")
     if override:
         path = Path(override).expanduser()
-        if not path.exists():
-            return None
         if path.suffix in (".mjs", ".js"):
-            node = shutil.which("node")
-            return [node, str(path)] if node else None
-        return [str(path)]
+            return _node_runner(path)
+        return [str(path)] if path.is_file() else None
     found = shutil.which("nm-studio")
-    return [found] if found else None
+    if found:
+        return [found]
+    return _node_runner(BUNDLED_NM_STUDIO)
 
 
 def cmd_edit(args: argparse.Namespace) -> int:

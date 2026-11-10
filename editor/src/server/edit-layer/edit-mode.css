@@ -1,0 +1,71 @@
+/* Edit mode (from spike S2b). Active only under html[data-nm-edit]; removing the attribute returns the deck to itself. */
+
+/* Time stops: CSS animations pause, transitions are off (state changes land at once). */
+html[data-nm-edit] *,
+html[data-nm-edit] *::before,
+html[data-nm-edit] *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
+/* One slide: the one the editor chose, not the deck's own index. */
+html[data-nm-edit] .slide:not([data-nm-current]) {
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+html[data-nm-edit] .slide[data-nm-current] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 2 !important;
+}
+
+/* Entrance choreography at its final state (not !important, so an inline style still wins). */
+html[data-nm-edit] .slide[data-nm-current] .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+/* Camera: no zoom transform, no dimming of the other cards. */
+html[data-nm-edit] .camera-rig {
+  transform: none !important;
+}
+html[data-nm-edit] .slide.is-camera-zoomed [data-zoom-step] {
+  opacity: 1 !important;
+  filter: none !important;
+}
+html[data-nm-edit] .slide[data-nm-motion-preview='zoom'] [data-zoom-step]:not(.zoom-focused) {
+  opacity: 0.22 !important;
+  filter: saturate(0.35) !important;
+}
+html[data-nm-edit] .slide[data-nm-motion-preview='zoom'] [data-zoom-step].zoom-focused {
+  opacity: 1 !important;
+  filter: none !important;
+  outline: 5px solid rgba(214, 63, 34, 0.72) !important;
+  outline-offset: 10px !important;
+}
+
+/* Everything in the current slide can be hit-tested, including decoration with pointer-events: none. */
+html[data-nm-edit] .slide[data-nm-current],
+html[data-nm-edit] .slide[data-nm-current] * {
+  pointer-events: auto !important;
+}
+
+html[data-nm-edit] [contenteditable='plaintext-only'][data-nm-text-session] {
+  white-space: pre-wrap !important;
+  caret-color: #d63f22 !important;
+  outline: 2px solid #d63f22 !important;
+  outline-offset: 4px !important;
+  cursor: text !important;
+  user-select: text !important;
+}
+html[data-nm-edit] [contenteditable='plaintext-only'][data-nm-text-session]::selection {
+  color: inherit;
+  background: rgba(214, 63, 34, 0.24);
+}
+
+/* S2b: the deck's own chrome (nav bar, edit toggle, edit badge, hotzones) is not part of a slide.
+   In the nevermind structure it is every body child outside .deck-viewport. Guarded with :has so a deck
+   without that wrapper is left alone instead of being blanked. */
+html[data-nm-edit] body:has(> .deck-viewport) > :not(.deck-viewport):not(script):not(style):not(link) {
+  display: none !important;
+}

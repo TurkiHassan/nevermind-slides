@@ -1,0 +1,38 @@
+{
+  "name": "nevermind-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "nm-studio": "src/cli/nm-studio.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "fixtures": "node scripts/sync-fixtures.mjs",
+    "typecheck": "tsc --noEmit -p .",
+    "nm-studio": "node src/cli/nm-studio.ts",
+    "gate": "node scripts/phase1-gate.mjs",
+    "build": "node scripts/build.mjs",
+    "gate:2a": "node scripts/phase2a-gate.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "fast-check": "^4.10.2",
+    "moveable": "^0.53.0",
+    "parse5": "^8.1.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.11.4",
+    "acorn": "^8.19.0",
+    "preact": "^11.2.0"
+  }
+}

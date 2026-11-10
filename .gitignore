@@ -8,3 +8,7 @@ resources/engine/anatomy/examples/**/*.html
 resources/engine/anatomy/examples/**/*.svg
 resources/engine/anatomy/examples/**/*.png
 resources/engine/anatomy/examples/**/*.pdf
+editor/dist/
+editor/test-results/
+editor/playwright-report/
+editor/fixtures/real/

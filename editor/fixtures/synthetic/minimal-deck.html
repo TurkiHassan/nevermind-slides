@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عرض تجريبي صغير</title>
+<style data-fake-tailwind>
+/* Plain CSS for the handful of utility classes this fixture uses (no Tailwind runtime). */
+.absolute { position: absolute; }
+.relative { position: relative; }
+.inset-0 { inset: 0; }
+.block { display: block; }
+.flex { display: flex; }
+.grid { display: grid; }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.items-center { align-items: center; }
+.gap-\[24px\] { gap: 24px; }
+.right-\[104px\] { right: 104px; }
+.top-\[132px\] { top: 132px; }
+.left-\[80px\] { left: 80px; }
+.top-\[640px\] { top: 640px; }
+.top-\[160px\] { top: 160px; }
+.right-\[120px\] { right: 120px; }
+.w-\[900px\] { width: 900px; }
+.w-\[480px\] { width: 480px; }
+.w-\[1680px\] { width: 1680px; }
+.h-\[300px\] { height: 300px; }
+.mt-\[32px\] { margin-top: 32px; }
+.p-\[28px\] { padding: 28px; }
+.text-right { text-align: right; }
+.text-\[120px\] { font-size: 120px; line-height: 1; }
+.text-\[64px\] { font-size: 64px; line-height: 1.2; }
+.text-\[30px\] { font-size: 30px; line-height: 1.6; }
+.text-\[24px\] { font-size: 24px; line-height: 1.5; }
+.bg-cream { background: #fbf8f0; }
+.bg-navy { background: #111f56; }
+.text-cream { color: #fbf8f0; }
+.text-ink { color: #171614; }
+.border-2 { border-width: 2px; border-style: solid; }
+.border-ink { border-color: #171614; }
+</style>
+<style>
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+    font-family: sans-serif;
+}
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: #000; }
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: #f2f0ea;
+}
+.slide {
+    position: absolute !important;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: #f2f0ea;
+    transition: opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+.camera-rig { transform-origin: 0 0; transition: transform 1.55s cubic-bezier(0.25, 1, 0.35, 1); }
+[data-zoom-step] { position: relative; transition: opacity 1.2s cubic-bezier(0.25, 1, 0.35, 1); }
+.slide.is-camera-zoomed [data-zoom-step]:not(.zoom-focused) { opacity: 0.25 !important; }
+
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
+.slide.active .reveal { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: .08s; } .d2 { transition-delay: .18s; } .d3 { transition-delay: .28s; }
+
+@keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.mg-spin { transform-box: fill-box; transform-origin: center; animation: spinSlow 6s linear infinite; }
+.runtime-probe { position: absolute; left: 40px; top: 40px; width: 120px; height: 60px; background: #f04b2a; }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+
+    <!-- SLIDE 1 -->
+    <section class="slide active" data-slide="1">
+      <div class="camera-rig absolute inset-0">
+        <div class="absolute right-[104px] top-[132px] w-[900px]" id="title-block">
+          <h1 class="reveal d1 text-right text-ink" data-morph="hero-title">
+            <span class="block text-[120px]">الانتباه</span>
+            <span class="block text-[64px]">هو كل ما تحتاجه</span>
+          </h1>
+          <p class="reveal d2 text-[30px] mt-[32px]" id="lede">حقق النموذج <span dir="ltr">28.4</span> نقطة في اختبار الترجمة.</p>
+          <div class="reveal d3 flex items-center gap-[24px] mt-[32px]" id="flex-row">
+            <div class="p-[28px] bg-cream border-2 border-ink">الاستعلام</div>
+            <div class="p-[28px] bg-cream border-2 border-ink">المفتاح</div>
+            <div class="p-[28px] bg-cream border-2 border-ink">القيمة</div>
+          </div>
+        </div>
+
+        <div class="absolute left-[80px] top-[640px] w-[480px] h-[300px] bg-navy" id="runtime-host"></div>
+
+        <svg class="absolute left-[80px] top-[160px]" width="420" height="420" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .svg-ring { fill: none; stroke: url(#ringGradient); stroke-width: 6; }
+          </style>
+          <defs>
+            <linearGradient id="ringGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#1f3bff"/>
+              <stop offset="100%" stop-color="#f04b2a"/>
+            </linearGradient>
+          </defs>
+          <circle class="svg-ring" cx="210" cy="210" r="180"/>
+          <rect class="mg-spin" x="160" y="160" width="100" height="100" fill="url(#ringGradient)"/>
+          <circle id="rafDot" cx="210" cy="40" r="14" fill="#171614"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide" data-slide="2">
+      <div class="camera-rig absolute inset-0">
+        <h2 class="absolute right-[120px] top-[132px] text-[64px] text-ink" data-morph="hero-title">الانتباه في سطر</h2>
+        <div class="absolute right-[120px] top-[640px] w-[1680px] grid grid-cols-3 gap-[24px]" id="grid">
+          <div class="p-[28px] bg-cream border-2 border-ink text-[24px]" data-zoom-step="1" data-zoom-label="الاستعلام">كل كلمة تسأل</div>
+          <div class="p-[28px] bg-cream border-2 border-ink text-[24px]" data-zoom-step="2" data-zoom-label="المفتاح">كل كلمة تجيب</div>
+          <div class="p-[28px] bg-cream border-2 border-ink text-[24px]">والقيمة تمر</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide" data-slide="3">
+      <div class="camera-rig absolute inset-0">
+        <div class="absolute right-[104px] top-[132px] w-[900px]">
+          <h2 class="reveal d1 text-[64px] text-ink">الخلاصة</h2>
+          <p class="reveal d2 text-[30px]">ثماني رؤوس انتباه، وكل رأس ينظر من زاوية.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.current = 0;
+    this.stage = document.getElementById('deckStage');
+    this.setupStageScale();
+    this.setupKeyboard();
+    this.show(0);
+  }
+
+  setupStageScale() {
+    const scale = () => {
+      const f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+      const x = (window.innerWidth - 1920 * f) / 2;
+      const y = (window.innerHeight - 1080 * f) / 2;
+      this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();
+    window.addEventListener('resize', scale);
+  }
+
+  show(index) {
+    this.current = Math.max(0, Math.min(index, this.slides.length - 1));
+    this.slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === this.current);
+      slide.classList.toggle('visible', i === this.current);
+      slide.setAttribute('aria-hidden', i === this.current ? 'false' : 'true');
+    });
+  }
+
+  next() { this.show(this.current + 1); }
+  prev() { this.show(this.current - 1); }
+
+  setupKeyboard() {
+    window.addEventListener('keydown', (event) => {
+      if (event.target && event.target.isContentEditable) return;
+      const key = event.key;
+      if (key === 'ArrowLeft' || key === 'ArrowDown' || key === ' ' || key === 'PageDown') {
+        event.preventDefault(); this.next();
+      } else if (key === 'ArrowRight' || key === 'ArrowUp' || key === 'PageUp') {
+        event.preventDefault(); this.prev();
+      } else if (key === 'Home') { event.preventDefault(); this.show(0); }
+      else if (key === 'End') { event.preventDefault(); this.show(this.slides.length - 1); }
+    });
+  }
+}
+
+const deck = new SlidePresentation();
+
+// A node created by script at runtime: it has no source node.
+const probe = document.createElement('div');
+probe.className = 'runtime-probe';
+document.getElementById('runtime-host').appendChild(probe);
+
+// A requestAnimationFrame loop that mutates an attribute every frame.
+const rafDot = document.getElementById('rafDot');
+function orbit(t) {
+  const a = t / 400;
+  rafDot.setAttribute('cx', (210 + 170 * Math.sin(a)).toFixed(2));
+  rafDot.setAttribute('cy', (210 - 170 * Math.cos(a)).toFixed(2));
+  requestAnimationFrame(orbit);
+}
+requestAnimationFrame(orbit);
+</script>
+</body>
+</html>

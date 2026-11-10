@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حالات حدية للمحلل</title>
+</head>
+<body>
+<table id="no-tbody"><tr><td>خلية أولى</td><td>خلية ثانية</td></tr></table>
+<p id="unclosed">فقرة بلا وسم إغلاق
+<div id="after-unclosed">قسم يغلق الفقرة ضمنيا</div>
+<div class='single-quoted' data-bare=unquoted class="duplicate-class" id="attr-styles">سمات بأنماط اقتباس مختلفة</div>
+<p id="entities">أ &amp; ب&nbsp;ج&#x200F;د</p>
+<p id="astral-host">حرف خارج المستوى الأساسي &#x1D54F; ثم 𝕏 قبل <span id="after-astral" class="target">هدف التعديل</span></p>
+<template id="tpl"><div class="tpl-child">محتوى قالب</div></template>
+<ul id="list"><li>الأول</li><!-- تعليق بين شقيقين --><li>الثاني</li></ul>
+<svg id="edge-svg" viewBox="0 0 10 10" width="10" height="10"><path d="M0 0L10 10"/></svg>
+<img src="x.png" alt="صورة">
+</body>
+</html>
+نص بعد نهاية المستند
+<p id="after-body">فقرة بعد نهاية الجسم</p>

@@ -9,7 +9,7 @@ metadata:
 
 # Nevermind Slides (`nevermind-slides`)
 
-> **Note:** Throughout this file, `<SKILL_DIR>` refers to the folder containing this `SKILL.md` file. The Nevermind Studio integration (`edit` / `notes` subcommands) is **optional**: it degrades gracefully with exit code `2` when `nm-studio` is not installed. This skill is **100% self-contained**: all 25 Arabic font files (`Thmanyah Serif Display`, `KOMission`, `Thmanyah Sans`, `Qahwa Arabic`, `Setabr Display`, `Alkhalil Kufi`, `ZIAN`, `IBM Plex Sans Arabic`, `Zain Rounded`, `Readex Pro`), the `anatomy` isometric SVG engine (`resources/engine/anatomy/`), and the `frontend-slides` 1920×1080 layout engine (`resources/engine/frontend-slides/`) are bundled directly inside `<SKILL_DIR>/resources/`.
+> **Note:** Throughout this file, `<SKILL_DIR>` refers to the folder containing this `SKILL.md` file. Nevermind Studio ships as a bundled single-file build (`<SKILL_DIR>/resources/nm-studio/nm-studio.mjs`, run with `node`), so the `edit` / `notes` subcommands work without a separate install; they exit with code `2` only when Node.js `>= 20` is missing. This skill is **100% self-contained**: all 25 Arabic font files (`Thmanyah Serif Display`, `KOMission`, `Thmanyah Sans`, `Qahwa Arabic`, `Setabr Display`, `Alkhalil Kufi`, `ZIAN`, `IBM Plex Sans Arabic`, `Zain Rounded`, `Readex Pro`), the `anatomy` isometric SVG engine (`resources/engine/anatomy/`), and the `frontend-slides` 1920×1080 layout engine (`resources/engine/frontend-slides/`) are bundled directly inside `<SKILL_DIR>/resources/`.
 
 ---
 
@@ -209,14 +209,14 @@ python3 "<SKILL_DIR>/scripts/deck_helper.py" audit-deck \
      --target-dir "<project_dir>"
    ```
 4. Open the verified final presentation in the browser (`python3 "<SKILL_DIR>/scripts/deck_helper.py" open-files "<project_dir>/<topic>-slides.html"`) and present a concise Arabic summary.
-5. **Offer the visual editor (optional):** After the audit passes and the summary is delivered, tell the user they can fine-tune the deck by hand in Nevermind Studio and offer to open it:
+5. **Offer the visual editor:** After the audit passes and the summary is delivered, tell the user they can fine-tune the deck by hand in Nevermind Studio and offer to open it:
 
    ```bash
    python3 "<SKILL_DIR>/scripts/deck_helper.py" edit \
      --html-path "<project_dir>/<topic>-slides.html"
    ```
 
-   - If the command exits with code `2`, Nevermind Studio (`nm-studio`) is not installed: say so once and continue. Never install it or ask the user to install dependencies for it.
+   - If the command exits with code `2`, Node.js `>= 20` is missing (or `NM_STUDIO` points at a broken path): say so once and continue. Never ask the user to install dependencies for the editor; the bundled build is already inside the skill.
    - While the editor is open, the user can pin notes to the agent. Check them with `deck_helper.py notes list` before making any further change (see the next section).
    - Never edit `.nevermind/notes.json` or `.nevermind/current.json` by hand.
 
