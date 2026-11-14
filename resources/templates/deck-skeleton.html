@@ -146,5 +146,34 @@
 <script src="assets/nm/nm-deck.js"></script>
 <script src="assets/nm/nm-focus.js"></script>
 <script src="assets/nm/nm-diagram.js"></script>
+<script>
+  /* Scaffold helper: figure.nm-diagram[data-node-steps="id:step:act,..."] gives a rendered diagram node
+     its data-step and data-act (diagram nodes are created by nm-diagram.js, so they cannot carry them in the HTML). */
+  (function () {
+    function apply(deck) {
+      document.querySelectorAll('[data-node-steps]').forEach(function (fig) {
+        var changed = false;
+        fig.getAttribute('data-node-steps').split(',').forEach(function (part) {
+          var p = part.trim().split(':');
+          if (p.length < 3) return;
+          var el = fig.querySelector('[data-node="' + p[0] + '"]');
+          if (el && !el.hasAttribute('data-step')) { el.setAttribute('data-step', p[1]); el.setAttribute('data-act', p[2]); changed = true; }
+        });
+        var slide = fig.closest('.slide');
+        if (changed && slide && deck && deck.refreshSteps) deck.refreshSteps(slide);
+      });
+    }
+    if (!window.NM || !NM.use) return;
+    NM.use({
+      name: 'nm-node-steps',
+      init: function (deck) {
+        apply(deck);
+        deck.on('ready', function () { apply(deck); });
+        deck.on('slidechange', function () { apply(deck); });
+        setTimeout(function () { apply(deck); }, 400);
+      }
+    });
+  })();
+</script>
 </body>
 </html>

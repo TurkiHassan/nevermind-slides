@@ -53,7 +53,9 @@ Other commands: `stage-runtime --target-dir DIR [--inline]` copies `assets/nm/` 
 
 `morph` lists shared element ids. Conventional ids: `title` (headline), `kicker`, `visual`, `stat`, `body1..bodyN`. The same id must be on the previous or the next slide.
 
-Step `target`: `headline`, `kicker`, `visual`, `stat`, `body` (the whole list), `bodyN` (item N), or `node:<id>` (a diagram node, created for you). Steps are numbered in the order you write them. Default target is `visual`. One element carries one step; give two steps to two elements.
+Step `target`: `headline`, `kicker`, `visual`, `stat`, `body` (the whole list), `bodyN` (item N), or `node:<id>` (a node of a flow, tree, cycle or hub diagram; the node is created in the starter diagram). Steps are numbered in the order you write them. Default target is `visual`. One element carries one step; give two steps to two elements.
+
+On a diagram or chart, `reveal` or `draw` on `visual` builds the whole figure in one step. Write `visual:rank` (graph diagrams) or `visual:series` (charts) to build it piece by piece; the diagram then takes a block of step numbers, so later steps are renumbered for you. If you edit the diagram by hand afterwards, renumber the other `data-step` values on that slide.
 
 ## Design rules (plan-lint)
 
@@ -101,7 +103,7 @@ Placeholders you must replace (each is marked `data-nm-todo` and explained in th
 
 - image: `assets/img/_placeholders/<slide>.svg` stands in; save the real file as `assets/img/<ref>.jpg`, set `src`, and record it in `assets/img/credits.json` (`scripts/image_fetch.py` does this for web images).
 - anatomy: a `div` with `data-anatomy="<ref>"`; build the figure with the anatomy engine and save `<ref>.brief.json`.
-- diagram and chart: a `figure.nm-diagram` with a starter text DSL; edit labels and values.
+- diagram and chart: a `figure.nm-diagram` whose `<script type="text/nm-diagram">` holds a starter text DSL (for example `a[Label] -> b[Label]` for flows, `Label: value` lines for charts); edit labels and values.
 - motion: an inline SVG placeholder; draw the motion graphic.
 
 When you change the plan after editing the HTML, do not rerun `scaffold --force` over your edits; copy the new slide by hand, or keep the old file (it is saved as `.bak`).

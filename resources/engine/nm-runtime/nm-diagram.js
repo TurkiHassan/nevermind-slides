@@ -768,5 +768,575 @@
     });
   };
 
+  /* ------------------------------------------------------------------ layouts: graphs */
+  var LAYOUTS = {};
+
+  Diagram.prototype.syn = function (id, props) {
+    this.synth = this.synth || {};
+    var n = this.synth[id] || (this.synth[id] = { id: id });
+    n.label = ''; n.sub = ''; n.shape = 'rect'; n.icon = null; n.tone = []; n.cls = ''; n.html = '';
+    for (var k in props) n[k] = props[k];
+    if (!Array.isArray(n.tone)) n.tone = n.tone ? [n.tone] : [];
+    return n;
+  };
+
+  function rankGraph(M) {
+    var N = M.nodes.length, idx = {}, i;
+    M.nodes.forEach(function (n, k) { idx[n.id] = k; });
+    var E = [];
+    M.edges.forEach(function (e) { var u = idx[e.from], v = idx[e.to]; if (u == null || v == null) return; E.push({ e: e, u: u, v: v, rev: false, self: u === v }); });
+    var adj = M.nodes.map(function () { return []; });
+    E.forEach(function (x, k) { if (!x.self) adj[x.u].push(k); });
+    var state = new Array(N).fill(0), indeg = new Array(N).fill(0);
+    E.forEach(function (x) { if (!x.self) indeg[x.v]++; });
+    function dfs(u) { state[u] = 1; adj[u].forEach(function (k) { var x = E[k]; if (state[x.v] === 1) x.rev = true; else if (state[x.v] === 0) dfs(x.v); }); state[u] = 2; }
+    for (i = 0; i < N; i++) if (!indeg[i] && !state[i]) dfs(i);
+    for (i = 0; i < N; i++) if (!state[i]) dfs(i);
+    var dag = E.filter(function (x) { return !x.self; }).map(function (x) { return x.rev ? { a: x.v, b: x.u, x: x } : { a: x.u, b: x.v, x: x }; });
+    var rank = new Array(N).fill(0), ind = new Array(N).fill(0), out = M.nodes.map(function () { return []; }), hasIn = new Array(N).fill(false);
+    dag.forEach(function (d) { ind[d.b]++; out[d.a].push(d); hasIn[d.b] = true; });
+    var q = [], order = [];
+    for (i = 0; i < N; i++) if (!ind[i]) q.push(i);
+    while (q.length) {
+      var u = q.shift(); order.push(u);
+      out[u].forEach(function (d) { rank[d.b] = Math.max(rank[d.b], rank[u] + 1); if (--ind[d.b] === 0) q.push(d.b); });
+    }
+    order.slice().reverse().forEach(function (u) {
+      if (hasIn[u] || !out[u].length) return;
+      rank[u] = Math.max(rank[u], Math.min.apply(null, out[u].map(function (d) { return rank[d.b]; })) - 1);
+    });
+    return { E: E, dag: dag, rank: rank, out: out, order: order, idx: idx };
+  }
+
+  /* direction helpers: (p = along the flow, c = across) -> (x, y) */
+  function mapper(dir, rtl, Ptot, Ctot) {
+    return function (p, c) {
+      switch (dir) {
+        case 'ltr': return pt(p, c);
+        case 'ttb': return pt(rtl ? Ctot - c : c, p);
+        case 'btt': return pt(rtl ? Ctot - c : c, Ptot - p);
+        default: return pt(Ptot - p, c);
+      }
+    };
+  }
+  function primaryVec(dir) { return dir === 'ltr' ? pt(1, 0) : dir === 'ttb' ? pt(0, 1) : dir === 'btt' ? pt(0, -1) : pt(-1, 0); }
+
+  function placeLayer(L, des, sepFn) {
+    var n = L.length, a = new Array(n), b = new Array(n), m = new Array(n), i;
+    if (!n) return;
+    a[0] = des[0];
+    for (i = 1; i < n; i++) a[i] = Math.max(des[i], a[i - 1] + sepFn(L[i - 1], L[i]));
+    b[n - 1] = des[n - 1];
+    for (i = n - 2; i >= 0; i--) b[i] = Math.min(des[i], b[i + 1] - sepFn(L[i], L[i + 1]));
+    for (i = 0; i < n; i++) m[i] = (a[i] + b[i]) / 2;
+    for (i = 1; i < n; i++) m[i] = Math.max(m[i], m[i - 1] + sepFn(L[i - 1], L[i]));
+    var shift = 0;
+    for (i = 0; i < n; i++) shift += des[i] - m[i];
+    shift /= n;
+    for (i = 0; i < n; i++) L[i].c = m[i] + shift;
+  }
+
+  LAYOUTS.flow = function (M, D) {
+    var cd = D.ctxDir('row'), dir = cd.dir, rtl = cd.rtl, horiz = dir === 'rtl' || dir === 'ltr';
+    var nodes = M.nodes;
+    if (!nodes.length) return;
+    var edgeMode = (D.opt('edges', 'ortho') || 'ortho').toLowerCase();
+    var G = rankGraph(M), rank = G.rank;
+    var R = Math.max.apply(null, rank) + 1;
+    var counts = new Array(R).fill(0);
+    rank.forEach(function (r) { counts[r]++; });
+    var maxCount = Math.max.apply(null, counts);
+    var maxW = horiz ? clamp((D.W - (R - 1) * 90) / R, 150, 320) : clamp((D.W - (maxCount - 1) * 48) / maxCount, 150, 320);
+    nodes.forEach(function (n) { D.measure(n, maxW); });
+    equalize(nodes);
+    nodes.forEach(function (n, i) { n.rank = rank[i]; });
+    var PS = function (n) { return horiz ? n.w : n.h; }, CS = function (n) { return horiz ? n.h : n.w; };
+    var gid = {};
+    M.groups.forEach(function (g, gi) { g.ids.forEach(function (id) { if (gid[id] == null) gid[id] = gi; }); });
+    var V = nodes.map(function (n, i) { return { i: i, n: n, r: rank[i], ps: PS(n), cs: CS(n), g: gid[n.id] == null ? -1 : gid[n.id], pred: [], succ: [] }; });
+    var chains = [], loops = [], selfs = [];
+    G.dag.forEach(function (d) {
+      if (d.x.rev) { loops.push(d.x); return; }
+      var chain = [V[d.a]];
+      for (var r = rank[d.a] + 1; r < rank[d.b]; r++) { var dv = { dummy: true, r: r, ps: 0, cs: 0, g: -2, pred: [], succ: [] }; V.push(dv); chain.push(dv); }
+      chain.push(V[d.b]);
+      chains.push({ x: d.x, chain: chain });
+    });
+    G.E.forEach(function (x) { if (x.self) selfs.push(x); });
+    chains.forEach(function (c) { for (var k = 0; k < c.chain.length - 1; k++) { c.chain[k].succ.push(c.chain[k + 1]); c.chain[k + 1].pred.push(c.chain[k]); } });
+    var layers = [];
+    for (var r = 0; r < R; r++) layers.push(V.filter(function (v) { return v.r === r; }));
+    function setO() { layers.forEach(function (L) { L.forEach(function (v, i) { v.o = i; }); }); }
+    function crossings() {
+      var c = 0;
+      for (var r = 0; r < R - 1; r++) {
+        var es = [];
+        layers[r].forEach(function (v) { v.succ.forEach(function (w) { es.push([v.o, w.o]); }); });
+        for (var i = 0; i < es.length; i++) for (var j = i + 1; j < es.length; j++) if ((es[i][0] - es[j][0]) * (es[i][1] - es[j][1]) < 0) c++;
+      }
+      return c;
+    }
+    function bary(v, list) { if (!list.length) return v.o; var s = 0; list.forEach(function (w) { s += w.o; }); return s / list.length + (v.g >= 0 ? v.g * 0.001 : 0); }
+    setO();
+    var best = layers.map(function (L) { return L.slice(); }), bestC = crossings();
+    for (var it = 0; it < 18 && bestC > 0; it++) {
+      if (it % 2 === 0) for (r = 1; r < R; r++) { layers[r].forEach(function (v) { v.b = bary(v, v.pred); }); layers[r].sort(function (a, b) { return a.b - b.b || a.o - b.o; }); layers[r].forEach(function (v, i) { v.o = i; }); }
+      else for (r = R - 2; r >= 0; r--) { layers[r].forEach(function (v) { v.b = bary(v, v.succ); }); layers[r].sort(function (a, b) { return a.b - b.b || a.o - b.o; }); layers[r].forEach(function (v, i) { v.o = i; }); }
+      var cc = crossings();
+      if (cc < bestC) { bestC = cc; best = layers.map(function (L) { return L.slice(); }); }
+    }
+    layers = best; setO();
+
+    /* primary axis */
+    var T = layers.map(function (L) { return Math.max.apply(null, [0].concat(L.map(function (v) { return v.ps; }))); });
+    var labGap = new Array(R).fill(0);
+    chains.forEach(function (c) {
+      if (!c.x.e.label) return;
+      var L = D.label('el:f' + c.x.e.idx, esc(c.x.e.label), 'nm-dg-elabel', 300);
+      var a = c.chain[0].r;
+      labGap[a] = Math.max(labGap[a], (horiz ? L.w : L.h) + (horiz ? 44 : 40));
+    });
+    var sumT = T.reduce(function (s, v) { return s + v; }, 0);
+    var baseGap = R > 1 ? clamp(((horiz ? D.W : D.H) - sumT) / (R - 1), 70, horiz ? 190 : 140) : 0;
+    var gaps = [];
+    for (r = 0; r < R - 1; r++) {
+      var gg = Math.max(baseGap, labGap[r]);
+      if (M.groups.length) {
+        var boundary = M.groups.some(function (g, gi) { var a = layers[r].some(function (v) { return v.g === gi; }), b = layers[r + 1].some(function (v) { return v.g === gi; }); return a !== b; });
+        if (boundary) gg += horiz ? 40 : 64;
+      }
+      gaps.push(gg);
+    }
+    var P = [], acc = 0;
+    for (r = 0; r < R; r++) { P.push(acc + T[r] / 2); acc += T[r] + (gaps[r] || 0); }
+    var Ptot = acc;
+    V.forEach(function (v) { v.p = P[v.r]; });
+
+    /* cross axis */
+    function sep(a, b) {
+      var s = (a.dummy || b.dummy) ? 22 : (horiz ? 44 : 48);
+      if (a.g !== b.g && !(a.dummy || b.dummy)) s += (a.g >= 0 || b.g >= 0) ? 58 : 0;
+      return a.cs / 2 + b.cs / 2 + s;
+    }
+    layers.forEach(function (L) { var c = 0; L.forEach(function (v, i) { if (i) c += sep(L[i - 1], v); v.c = c; }); var mid = c / 2; L.forEach(function (v) { v.c -= mid; }); });
+    for (it = 0; it < 10; it++) {
+      var down = it % 2 === 0;
+      for (var k = 0; k < R; k++) {
+        var rr = down ? k : R - 1 - k, L = layers[rr];
+        var des = L.map(function (v) {
+          var nb = down ? v.pred : v.succ;
+          if (!nb.length) nb = down ? v.succ : v.pred;
+          if (!nb.length) return v.c;
+          var s = 0; nb.forEach(function (w) { s += w.c; }); return s / nb.length;
+        });
+        placeLayer(L, des, sep);
+      }
+    }
+    var cmin = Infinity, cmax = -Infinity;
+    V.forEach(function (v) { cmin = Math.min(cmin, v.c - v.cs / 2); cmax = Math.max(cmax, v.c + v.cs / 2); });
+    V.forEach(function (v) { v.c -= cmin; });
+    var Ctot = cmax - cmin;
+    var map = mapper(dir, rtl, Ptot, Ctot), pv = primaryVec(dir);
+    var ordList = V.filter(function (v) { return !v.dummy; }).sort(function (a, b) { return a.r - b.r || a.o - b.o; });
+    ordList.forEach(function (v, i) { v.n.ord = i; });
+    V.forEach(function (v) { if (v.dummy) return; var q = map(v.p, v.c); D.place(v.n, q.x, q.y); });
+
+    /* groups (drawn behind) */
+    M.groups.forEach(function (g, gi) {
+      var mem = g.ids.map(function (id) { return M.byId[id]; }).filter(Boolean);
+      if (!mem.length) return;
+      var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      mem.forEach(function (n) { x0 = Math.min(x0, n.x - n.w / 2); y0 = Math.min(y0, n.y - n.h / 2); x1 = Math.max(x1, n.x + n.w / 2); y1 = Math.max(y1, n.y + n.h / 2); });
+      var padS = 28, padT = 60;
+      x0 -= padS; x1 += padS; y0 -= padT; y1 += 26;
+      D.shape('g' + gi, 'rect', { x: r1(x0), y: r1(y0), width: r1(x1 - x0), height: r1(y1 - y0), rx: 22, 'class': 'nm-dg-group' + (g.tone ? ' is-' + g.tone : '') }, D.gBack, { attach: mem });
+      var GL = D.label('g' + gi, esc(g.name) + (g.sub ? ' <span>' + esc(g.sub) + '</span>' : ''), 'nm-dg-glabel', x1 - x0 - 40);
+      D.put(GL, rtl ? x1 - 20 - GL.w / 2 : x0 + 20 + GL.w / 2, y0 + 16 + GL.h / 2, { attach: mem });
+    });
+
+    /* ports */
+    function hopsOut(v) { return v.hopsOut || (v.hopsOut = []); }
+    function hopsIn(v) { return v.hopsIn || (v.hopsIn = []); }
+    var hops = [];
+    chains.forEach(function (c) {
+      c.hops = [];
+      for (var k = 0; k < c.chain.length - 1; k++) {
+        var hp = { a: c.chain[k], b: c.chain[k + 1], oa: 0, ob: 0, chain: c };
+        c.hops.push(hp); hops.push(hp);
+        hopsOut(hp.a).push(hp); hopsIn(hp.b).push(hp);
+      }
+    });
+    V.forEach(function (v) {
+      if (v.dummy) return;
+      [['hopsOut', 'b', 'oa'], ['hopsIn', 'a', 'ob']].forEach(function (cfg) {
+        var list = v[cfg[0]];
+        if (!list || list.length < 2) return;
+        list.sort(function (x, y) { return x[cfg[1]].c - y[cfg[1]].c; });
+        var span = v.cs * (v.n.shape === 'circle' || v.n.shape === 'diamond' ? 0.4 : 0.62);
+        var step = Math.min(24, span / (list.length - 1));
+        list.forEach(function (hp, i) { hp[cfg[2]] = (i - (list.length - 1) / 2) * step; });
+      });
+    });
+    /* snap almost-straight hops */
+    hops.forEach(function (hp) {
+      var ca = hp.a.c + hp.oa, cb = hp.b.c + hp.ob;
+      if (Math.abs(ca - cb) < 10 && Math.abs(ca - cb) > 0) {
+        var t = hp.a.dummy ? ca : hp.b.dummy ? cb : (ca + cb) / 2;
+        if (!hp.a.dummy && Math.abs(t - hp.a.c) < hp.a.cs * 0.4) hp.oa = t - hp.a.c;
+        if (!hp.b.dummy && Math.abs(t - hp.b.c) < hp.b.cs * 0.4) hp.ob = t - hp.b.c;
+      }
+    });
+    /* channels */
+    for (r = 0; r < R - 1; r++) {
+      var g0 = P[r] + T[r] / 2, g1 = P[r + 1] - T[r + 1] / 2, mid = (g0 + g1) / 2;
+      var turning = hops.filter(function (hp) { return hp.a.r === r && Math.abs((hp.a.c + hp.oa) - (hp.b.c + hp.ob)) > 1; });
+      turning.forEach(function (hp) { var ca = hp.a.c + hp.oa, cb = hp.b.c + hp.ob; hp.key = cb > ca ? -ca : ca + 1e5; });
+      turning.sort(function (x, y) { return x.key - y.key; });
+      var cw = Math.min(18, (g1 - g0) * 0.5 / Math.max(1, turning.length));
+      hops.forEach(function (hp) { if (hp.a.r === r) hp.ch = mid; });
+      turning.forEach(function (hp, i) { hp.ch = mid + (i - (turning.length - 1) / 2) * cw; });
+    }
+    function portXY(v, off, sign) {
+      var q = map(v.p, v.c + off);
+      return exitPoint(v.n, q.x, q.y, pv.x * sign, pv.y * sign);
+    }
+    var eord = 0;
+    chains.forEach(function (c) {
+      var e = c.x.e, a = c.chain[0], b = c.chain[c.chain.length - 1];
+      var sp = { from: a.n, to: b.n, arrow: e.arrow, style: e.style, label: e.label, eord: a.r * 1000 + e.idx, cls: e.style === 'thick' ? 'is-accent' : '' };
+      if (edgeMode === 'straight') {
+        sp.pts = [toward(a.n, b.n.x, b.n.y), toward(b.n, a.n.x, a.n.y)];
+      } else if (edgeMode === 'curve') {
+        var segs = [], prev = portXY(a, c.hops[0].oa, 1);
+        c.hops.forEach(function (hp, k) {
+          var endP = hp.b.dummy ? map(hp.b.p, hp.b.c) : portXY(hp.b, hp.ob, -1);
+          var pa = hp.a.dummy ? hp.a.p : hp.a.p, pb = hp.b.p;
+          var m1 = map((pa + pb) / 2, hp.a.c + hp.oa), m2 = map((pa + pb) / 2, hp.b.c + hp.ob);
+          var c1 = horiz ? pt(m1.x, prev.y) : pt(prev.x, m1.y), c2 = horiz ? pt(m2.x, endP.y) : pt(endP.x, m2.y);
+          segs.push([prev, c1, c2, endP]);
+          prev = endP;
+        });
+        sp.bezs = segs;
+      } else {
+        var pts = [portXY(a, c.hops[0].oa, 1)];
+        c.hops.forEach(function (hp) {
+          var ca = hp.a.c + hp.oa, cb = hp.b.c + hp.ob;
+          if (Math.abs(ca - cb) > 1) { pts.push(map(hp.ch, ca)); pts.push(map(hp.ch, cb)); }
+          if (hp.b.dummy) pts.push(map(hp.b.p, cb));
+        });
+        pts.push(portXY(b, c.hops[c.hops.length - 1].ob, -1));
+        sp.pts = pts;
+      }
+      D.edge('f' + e.idx, sp);
+      eord++;
+    });
+    /* back edges: loop around the "after" side */
+    var loopCount = {};
+    loops.forEach(function (x, k) {
+      var e = x.e, a = V[x.u], b = V[x.v];
+      var lo = Math.min(a.r, b.r), hi = Math.max(a.r, b.r), cm = 0;
+      V.forEach(function (v) { if (v.r >= lo && v.r <= hi) cm = Math.max(cm, v.c + v.cs / 2); });
+      var Lc = cm + 46 + k * 26;
+      loopCount[x.u] = (loopCount[x.u] || 0) + 1; loopCount[x.v] = (loopCount[x.v] || 0) + 1;
+      var offA = (loopCount[x.u] - 1) * 22, offB = -(loopCount[x.v] - 1) * 22;
+      var sv0 = map(a.p + offA, a.c), tv0 = map(b.p + offB, b.c), cvec = horiz ? pt(0, 1) : pt(rtl ? -1 : 1, 0);
+      var S = exitPoint(a.n, sv0.x, sv0.y, cvec.x, cvec.y), Tt = exitPoint(b.n, tv0.x, tv0.y, cvec.x, cvec.y);
+      var A1 = map(a.p + offA, Lc), B1 = map(b.p + offB, Lc);
+      var sp = { from: a.n, to: b.n, arrow: e.arrow, style: e.style, label: e.label, eord: 1e6 + e.idx, cls: 'is-back' };
+      if (edgeMode === 'curve') {
+        var ext = map(0, Lc + 18), A2 = horiz ? pt(S.x, ext.y) : pt(ext.x, S.y), B2 = horiz ? pt(Tt.x, ext.y) : pt(ext.x, Tt.y);
+        sp.bez = [S, A2, B2, Tt];
+      } else sp.pts = [S, horiz ? pt(S.x, A1.y) : pt(A1.x, S.y), horiz ? pt(Tt.x, B1.y) : pt(B1.x, Tt.y), Tt];
+      sp.radius = 22;
+      D.edge('f' + e.idx, sp);
+    });
+    selfs.forEach(function (x) {
+      var n = V[x.u].n, cvec = horiz ? pt(0, 1) : pt(rtl ? -1 : 1, 0);
+      var q1 = map(V[x.u].p - 18, V[x.u].c), q2 = map(V[x.u].p + 18, V[x.u].c);
+      var S = exitPoint(n, q1.x, q1.y, cvec.x, cvec.y), Tt = exitPoint(n, q2.x, q2.y, cvec.x, cvec.y);
+      D.edge('f' + x.e.idx, { from: n, to: n, arrow: x.e.arrow, style: x.e.style, label: x.e.label, pts: [S, pt(S.x + cvec.x * 40, S.y + cvec.y * 40), pt(Tt.x + cvec.x * 40, Tt.y + cvec.y * 40), Tt], radius: 12, eord: 2e6 });
+    });
+  };
+
+  /* tidy tree: subtree boxes, bus connectors */
+  LAYOUTS.tree = function (M, D) {
+    var cd = D.ctxDir('ttb'), dir = cd.dir, rtl = cd.rtl, horiz = dir === 'rtl' || dir === 'ltr';
+    var nodes = M.nodes;
+    if (!nodes.length) return;
+    var edgeMode = (D.opt('edges', 'ortho') || 'ortho').toLowerCase();
+    var parent = {}, kids = {}, extra = [];
+    nodes.forEach(function (n) { kids[n.id] = []; });
+    function isAnc(a, b) { while (b) { if (b === a) return true; b = parent[b]; } return false; }
+    M.edges.forEach(function (e) {
+      if (parent[e.to] == null && e.to !== e.from && !isAnc(e.to, e.from)) { parent[e.to] = e.from; kids[e.from].push({ id: e.to, e: e }); }
+      else extra.push(e);
+    });
+    var roots = nodes.filter(function (n) { return parent[n.id] == null; });
+    var depth = {}, maxD = 0, leaves = 0;
+    function walk(id, d) { depth[id] = d; maxD = Math.max(maxD, d); if (!kids[id].length) leaves++; kids[id].forEach(function (k) { walk(k.id, d + 1); }); }
+    roots.forEach(function (n) { walk(n.id, 0); });
+    var maxW = horiz ? clamp((D.W - maxD * 90) / (maxD + 1), 140, 300) : clamp((D.W - (leaves - 1) * 28) / Math.max(1, leaves), 120, 300);
+    nodes.forEach(function (n) { D.measure(n, maxW); });
+    equalize(nodes, { ratio: 1.5 });
+    var PS = function (n) { return horiz ? n.w : n.h; }, CS = function (n) { return horiz ? n.h : n.w; };
+    var T = new Array(maxD + 1).fill(0);
+    nodes.forEach(function (n) { T[depth[n.id]] = Math.max(T[depth[n.id]], PS(n)); });
+    var sumT = T.reduce(function (s, v) { return s + v; }, 0);
+    var gap = maxD ? clamp(((horiz ? D.W : D.H) - sumT) / maxD, 64, 150) : 0;
+    var P = [], acc = 0;
+    for (var d = 0; d <= maxD; d++) { P.push(acc + T[d] / 2); acc += T[d] + gap; }
+    var Ptot = acc - gap;
+    var SIB = horiz ? 22 : 28, SUB = horiz ? 30 : 44;
+    var ext = {};
+    function size(id) {
+      var n = M.byId[id], ks = kids[id], s = 0;
+      ks.forEach(function (k, i) { s += size(k.id) + (i ? (kids[k.id].length || kids[ks[i - 1].id].length ? SUB : SIB) : 0); });
+      ext[id] = { kids: s, all: Math.max(CS(n), s) };
+      return ext[id].all;
+    }
+    var cpos = {};
+    function lay(id, start) {
+      var ks = kids[id], e = ext[id], c0 = start + (e.all - e.kids) / 2;
+      ks.forEach(function (k, i) { if (i) c0 += kids[k.id].length || kids[ks[i - 1].id].length ? SUB : SIB; lay(k.id, c0); c0 += ext[k.id].all; });
+      cpos[id] = ks.length ? (cpos[ks[0].id] + cpos[ks[ks.length - 1].id]) / 2 : start + e.all / 2;
+      if (!ks.length) cpos[id] = start + e.all / 2;
+    }
+    var cstart = 0;
+    roots.forEach(function (n) { size(n.id); lay(n.id, cstart); cstart += ext[n.id].all + SUB * 1.5; });
+    var Ctot = cstart - SUB * 1.5;
+    var map = mapper(dir, rtl, Ptot, Ctot), pv = primaryVec(dir);
+    var ord = 0;
+    function order(id) { M.byId[id].ord = ord++; kids[id].forEach(function (k) { order(k.id); }); }
+    roots.forEach(function (n) { order(n.id); });
+    nodes.forEach(function (n) { n.rank = depth[n.id]; var q = map(P[depth[n.id]], cpos[n.id]); D.place(n, q.x, q.y); });
+    nodes.forEach(function (n) {
+      var ks = kids[n.id];
+      if (!ks.length) return;
+      var d0 = depth[n.id], chan = P[d0] + T[d0] / 2 + gap / 2;
+      var start = exitPoint(n, n.x, n.y, pv.x, pv.y);
+      ks.forEach(function (k) {
+        var c = M.byId[k.id], e = k.e;
+        var end = exitPoint(c, c.x, c.y, -pv.x, -pv.y);
+        var sp = { from: n, to: c, arrow: e.implicit ? 'none' : e.arrow, style: e.style, label: e.label, eord: c.ord };
+        if (edgeMode === 'curve') {
+          var m = map(chan, 0), c1 = horiz ? pt(m.x, start.y) : pt(start.x, m.y), c2 = horiz ? pt(m.x, end.y) : pt(end.x, m.y);
+          sp.bez = [start, c1, c2, end];
+        } else if (edgeMode === 'straight') sp.pts = [toward(n, c.x, c.y), toward(c, n.x, n.y)];
+        else {
+          var mm = map(chan, 0);
+          sp.pts = horiz ? [start, pt(mm.x, start.y), pt(mm.x, end.y), end] : [start, pt(start.x, mm.y), pt(end.x, mm.y), end];
+          sp.radius = 14;
+        }
+        D.edge('t' + e.idx, sp);
+      });
+    });
+    extra.forEach(function (e) {
+      var a = M.byId[e.from], b = M.byId[e.to];
+      var p0 = toward(a, b.x, b.y), p3 = toward(b, a.x, a.y), mx = (p0.x + p3.x) / 2, my = (p0.y + p3.y) / 2;
+      var off = horiz ? pt(0, -60) : pt(60, 0);
+      D.edge('t' + e.idx, { from: a, to: b, arrow: e.arrow, style: e.style === 'solid' ? 'dashed' : e.style, label: e.label, bez: [p0, pt(mx + off.x, p0.y + off.y), pt(mx + off.x, p3.y + off.y), p3], eord: 1e5 + e.idx });
+    });
+  };
+
+  /* swimlanes: lanes as rows, columns from ranks */
+  LAYOUTS.swimlane = function (M, D) {
+    var rtl = D.ctxDir('row').rtl, nodes = M.nodes;
+    if (!nodes.length) return;
+    var lanes = M.lanes.slice(), laneOf = {};
+    lanes.forEach(function (l, li) { l.ids.forEach(function (id) { if (laneOf[id] == null) laneOf[id] = li; }); });
+    var stray = nodes.filter(function (n) { return laneOf[n.id] == null; });
+    if (stray.length) { lanes.push({ name: '', sub: '', ids: stray.map(function (n) { return n.id; }) }); stray.forEach(function (n) { laneOf[n.id] = lanes.length - 1; }); }
+    var G = rankGraph(M), col = {}, occ = {};
+    var order = G.order.slice();
+    nodes.forEach(function (n, i) { if (order.indexOf(i) < 0) order.push(i); });
+    order.forEach(function (i) {
+      var n = nodes[i], c = G.rank[i];
+      G.dag.forEach(function (d) { if (d.b === i && col[nodes[d.a].id] != null) c = Math.max(c, col[nodes[d.a].id] + 1); });
+      while (occ[laneOf[n.id] + ':' + c]) c++;
+      occ[laneOf[n.id] + ':' + c] = 1; col[n.id] = c;
+    });
+    var ncol = 0;
+    nodes.forEach(function (n) { ncol = Math.max(ncol, col[n.id] + 1); n.rank = col[n.id]; });
+    var heads = lanes.map(function (l, li) { return D.label('lane' + li, '<b>' + esc(l.name) + '</b>' + (l.sub ? '<span>' + esc(l.sub) + '</span>' : ''), 'nm-dg-lanehead', 220); });
+    var hw = Math.max.apply(null, heads.map(function (L) { return L.w; }).concat([120])) + 48;
+    var areaW = D.W - hw;
+    var maxW = clamp(areaW / ncol - 70, 120, 280);
+    nodes.forEach(function (n) { D.measure(n, maxW); });
+    equalize(nodes);
+    var nw = Math.max.apply(null, nodes.map(function (n) { return n.w; }));
+    var colW = Math.max(areaW / ncol, nw + 72);
+    var laneH = lanes.map(function (l, li) {
+      var hmax = 0; nodes.forEach(function (n) { if (laneOf[n.id] === li) hmax = Math.max(hmax, n.h); });
+      return Math.max(hmax + 64, heads[li].h + 40);
+    });
+    var sumH = laneH.reduce(function (s, v) { return s + v; }, 0);
+    if (sumH < D.H) { var extra = Math.min((D.H - sumH) / lanes.length, 120); laneH = laneH.map(function (v) { return v + extra; }); }
+    var totalW = hw + colW * ncol, y = 0, laneY = [];
+    var X = function (x) { return rtl ? totalW - x : x; };
+    lanes.forEach(function (l, li) {
+      laneY.push(y);
+      var hgt = laneH[li];
+      D.shape('lane' + li, 'rect', { x: 0, y: r1(y), width: r1(totalW), height: r1(hgt), 'class': 'nm-dg-lane' + (li % 2 ? ' is-alt' : '') });
+      D.shape('lanehd' + li, 'rect', { x: r1(rtl ? totalW - hw : 0), y: r1(y), width: r1(hw), height: r1(hgt), 'class': 'nm-dg-lanehd' });
+      D.put(heads[li], X(hw / 2), y + hgt / 2, false);
+      y += hgt;
+    });
+    nodes.forEach(function (n) {
+      var li = laneOf[n.id];
+      D.place(n, X(hw + colW * (col[n.id] + 0.5)), laneY[li] + laneH[li] / 2);
+    });
+    var ordered = nodes.slice().sort(function (a, b) { return col[a.id] - col[b.id] || laneOf[a.id] - laneOf[b.id]; });
+    ordered.forEach(function (n, i) { n.ord = i; });
+    var fwd = rtl ? -1 : 1;
+    M.edges.forEach(function (e) {
+      var a = M.byId[e.from], b = M.byId[e.to];
+      if (!a || !b || a === b) return;
+      var ca = col[a.id], cb = col[b.id], pts;
+      if (cb > ca) {
+        var S = exitPoint(a, a.x, a.y, fwd, 0), Tt = exitPoint(b, b.x, b.y, -fwd, 0);
+        var mx = X(hw + colW * (ca + 1));
+        if (cb === ca + 1) mx = (S.x + Tt.x) / 2;
+        pts = Math.abs(S.y - Tt.y) < 2 ? [S, Tt] : [S, pt(mx, S.y), pt(mx, Tt.y), Tt];
+      } else {
+        var down = b.y > a.y ? 1 : -1;
+        var S2 = exitPoint(a, a.x, a.y, 0, down), T2 = exitPoint(b, b.x, b.y, 0, -down);
+        if (ca === cb) pts = [S2, T2];
+        else {
+          var la = laneOf[a.id], ym = down > 0 ? laneY[la] + laneH[la] - 12 : laneY[la] + 12;
+          if (la === laneOf[b.id]) { S2 = exitPoint(a, a.x, a.y, 0, 1); T2 = exitPoint(b, b.x, b.y, 0, 1); ym = laneY[la] + laneH[la] - 14; }
+          pts = [S2, pt(S2.x, ym), pt(T2.x, ym), T2];
+        }
+      }
+      D.edge('s' + e.idx, { from: a, to: b, arrow: e.arrow, style: e.style, label: e.label, pts: pts, eord: col[a.id] * 1000 + e.idx });
+    });
+  };
+
+  function findEdge(M, a, b) { for (var i = 0; i < M.edges.length; i++) if (M.edges[i].from === a && M.edges[i].to === b) return M.edges[i]; return null; }
+
+  LAYOUTS.cycle = function (M, D) {
+    var nodes = M.nodes, N = nodes.length;
+    if (!N) return;
+    var ccw = /ccw|counter/.test(D.opt('dir', '') || '');
+    var sg = ccw ? -1 : 1;
+    var maxW = clamp(Math.min(D.W, D.H) * 0.34, 150, 280);
+    nodes.forEach(function (n) { D.measure(n, maxW); });
+    equalize(nodes, { ratio: 1.6 });
+    var maxNW = Math.max.apply(null, nodes.map(function (n) { return n.w; })), maxNH = Math.max.apply(null, nodes.map(function (n) { return n.h; }));
+    var diag = Math.max.apply(null, nodes.map(function (n) { return Math.hypot(n.w, n.h); }));
+    var Rmin = N > 1 ? (diag + 70) / (2 * Math.sin(Math.PI / N)) : 0;
+    var Rfit = Math.min(D.W - maxNW, D.H - maxNH) / 2 - 6;
+    var CL = null;
+    if (M.opts.center) {
+      var cp = splitPipe(M.opts.center);
+      CL = D.label('center', '<b>' + esc(cp.label) + '</b>' + (cp.sub ? '<span>' + esc(cp.sub) + '</span>' : ''), 'nm-dg-center', Math.max(180, Rfit * 0.9));
+      Rmin = Math.max(Rmin, Math.hypot(CL.w, CL.h) / 2 + Math.max(maxNW, maxNH) / 2 + 40);
+    }
+    var R = Math.max(Rmin, Math.min(Rfit, 460));
+    var cx = D.W / 2, cy = D.H / 2, step = 2 * Math.PI / N;
+    nodes.forEach(function (n, i) {
+      var a = -Math.PI / 2 + sg * i * step;
+      n.ang = a; n.rank = i; n.ord = i;
+      D.place(n, cx + R * Math.cos(a), cy + R * Math.sin(a));
+    });
+    if (CL) D.put(CL, cx, cy, { attach: nodes[0], fixed: true });
+    D.shape('ring', 'circle', { cx: r1(cx), cy: r1(cy), r: r1(R), 'class': 'nm-dg-ring' });
+    var gapA = 10 / R;
+    function clearAngle(n, a, dirn) {
+      var lo = 0, hi = step * 0.5;
+      for (var k = 0; k < 30; k++) { var m = (lo + hi) / 2; if (inside(n, cx + R * Math.cos(a + dirn * m), cy + R * Math.sin(a + dirn * m))) lo = m; else hi = m; }
+      return hi;
+    }
+    if (N < 2) return;
+    nodes.forEach(function (n, i) {
+      var m = nodes[(i + 1) % N];
+      var e = findEdge(M, n.id, m.id) || { arrow: 'end', style: 'solid', label: '', idx: 1000 + i };
+      var a0 = n.ang + sg * (clearAngle(n, n.ang, sg) + gapA);
+      var a1 = n.ang + sg * step - sg * (clearAngle(m, m.ang, -sg) + gapA);
+      if ((a1 - a0) * sg <= 0.02) return;
+      D.edge('c' + i, { from: n, to: m, arrow: e.arrow, style: e.style, label: e.label, arc: { cx: cx, cy: cy, R: R, a0: a0, a1: a1 }, eord: i });
+    });
+  };
+
+  LAYOUTS.hub = function (M, D) {
+    var nodes = M.nodes;
+    if (!nodes.length) return;
+    var hub = null, c = M.opts.center;
+    if (c) hub = M.byId[c] || nodes.filter(function (n) { return n.label === c; })[0];
+    if (!hub && !c && M.edges.length) {
+      var deg = {}; M.edges.forEach(function (e) { deg[e.from] = (deg[e.from] || 0) + 1; deg[e.to] = (deg[e.to] || 0) + 1; });
+      hub = nodes.slice().sort(function (a, b) { return (deg[b.id] || 0) - (deg[a.id] || 0) || a.idx - b.idx; })[0];
+    }
+    if (!hub && c) hub = D.syn('_hub', { label: splitPipe(c).label, sub: splitPipe(c).sub, shape: 'circle', tone: ['accent'] });
+    if (!hub) hub = nodes[0];
+    var spokes = nodes.filter(function (n) { return n !== hub; }), K = spokes.length;
+    if (hub.shapeAuto || hub.id === '_hub') hub.shape = 'circle';
+    D.measure(hub, 280);
+    var maxW = clamp(D.W / (K > 6 ? 4.6 : 3.8), 150, 300);
+    spokes.forEach(function (n) { D.measure(n, maxW); });
+    equalize(spokes, { ratio: 1.6 });
+    var mw = Math.max.apply(null, spokes.map(function (n) { return n.w; }).concat([0])), mh = Math.max.apply(null, spokes.map(function (n) { return n.h; }).concat([0]));
+    var rx = Math.max((D.W - mw) / 2 - 6, hub.w / 2 + mw / 2 + 90), ry = Math.max((D.H - mh) / 2 - 6, hub.h / 2 + mh / 2 + 56);
+    var cx = D.W / 2, cy = D.H / 2, step = 2 * Math.PI / Math.max(1, K);
+    var start = -Math.PI / 2 + (K % 2 === 0 ? step / 2 : 0);
+    if (K === 2) start = 0;
+    var pos = function (s) { return spokes.map(function (n, i) { var a = start + i * step; return pt(cx + rx * s * Math.cos(a), cy + ry * s * Math.sin(a)); }); };
+    var s = 1, ps = pos(1);
+    for (var it = 0; it < 12; it++) {
+      var bad = false;
+      for (var i = 0; i < K && !bad; i++) for (var j = i + 1; j < K; j++) {
+        var A = spokes[i], B = spokes[j];
+        if (Math.abs(ps[i].x - ps[j].x) < (A.w + B.w) / 2 + 24 && Math.abs(ps[i].y - ps[j].y) < (A.h + B.h) / 2 + 20) { bad = true; break; }
+      }
+      if (!bad) break;
+      s *= 1.12; ps = pos(s);
+    }
+    hub.rank = 0; hub.ord = 0;
+    D.place(hub, cx, cy);
+    spokes.forEach(function (n, i) { n.rank = 1 + (D.opt('steps') === 'rank' ? 0 : i); n.ord = i + 1; D.place(n, ps[i].x, ps[i].y); });
+    spokes.forEach(function (n, i) {
+      var e = findEdge(M, hub.id, n.id), rev = false;
+      if (!e) { e = findEdge(M, n.id, hub.id); rev = !!e; }
+      e = e || { arrow: 'none', style: 'solid', label: '', idx: 500 + i };
+      var a = rev ? n : hub, b = rev ? hub : n;
+      D.edge('h' + i, { from: a, to: b, arrow: e.arrow, style: e.style, label: e.label, pts: [toward(a, b.x, b.y), toward(b, a.x, a.y)], eord: i });
+    });
+    M.edges.forEach(function (e) {
+      if (e.from === hub.id || e.to === hub.id) return;
+      var a = M.byId[e.from], b = M.byId[e.to];
+      D.edge('x' + e.idx, { from: a, to: b, arrow: e.arrow, style: e.style, label: e.label, pts: [toward(a, b.x, b.y), toward(b, a.x, a.y)], eord: 100 + e.idx });
+    });
+  };
+
+  LAYOUTS.sequence = function (M, D) {
+    var rtl = D.ctxDir('row').rtl;
+    var ids = M.opts.actors && M.opts.actors.length ? M.opts.actors.slice() : [];
+    M.nodes.forEach(function (n) { if (ids.indexOf(n.id) < 0) ids.push(n.id); });
+    var actors = ids.map(function (id) { return M.byId[id]; }), K = actors.length;
+    if (!K) return;
+    var msgs = M.edges, m = msgs.length;
+    var maxW = clamp(D.W / K - 48, 130, 280);
+    actors.forEach(function (n) { D.measure(n, maxW); });
+    equalize(actors, { ratio: 3 });
+    var aw = actors[0].w, ah = Math.max.apply(null, actors.map(function (n) { return n.h; }));
+    var span = Math.max(D.W - aw, (K - 1) * (aw + 40));
+    var xs = actors.map(function (n, i) { var x = aw / 2 + (K > 1 ? span * i / (K - 1) : span / 2); return rtl ? aw + span - x : x; });
+    var rowH = clamp((D.H - ah - 70) / Math.max(1, m), 74, 130);
+    var top = ah + 34, bottom = top + rowH * m + 26;
+    actors.forEach(function (n, i) {
+      n.rank = 0; n.ord = i;
+      D.place(n, xs[i], ah / 2);
+      D.shape('life' + i, 'line', { x1: r1(xs[i]), y1: r1(ah), x2: r1(xs[i]), y2: r1(bottom), 'class': 'nm-dg-lifeline' }, D.gBack, { attach: n });
+    });
+    var pos = {}; actors.forEach(function (n, i) { pos[n.id] = xs[i]; });
+    msgs.forEach(function (e, k) {
+      var y = top + rowH * (k + 0.62), xa = pos[e.from], xb = pos[e.to], pts;
+      if (xa == null || xb == null) return;
+      if (e.from === e.to) { var o = rtl ? -64 : 64; pts = [pt(xa, y - 16), pt(xa + o, y - 16), pt(xa + o, y + 18), pt(xa, y + 18)]; }
+      else pts = [pt(xa, y), pt(xb, y)];
+      D.edge('q' + k, { from: null, to: null, free: true, arrow: e.arrow, style: e.style, label: e.label, labelCls: 'is-above', pts: pts, radius: 10, eord: k, seq: k, labelAbove: true });
+    });
+    D.stepHint = 'edge';
+  };
+
   /*__CONTINUE__*/
 })();

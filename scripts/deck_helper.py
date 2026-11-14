@@ -1059,36 +1059,64 @@ def _placeholder_svg(label: str) -> str:
     )
 
 
-def _step_targets(slide: dict[str, Any]) -> tuple[dict[str, tuple[int, dict[str, Any]]], list[str]]:
-    """Map element key -> (step number, step). Collect notes about conflicts."""
-    mapping: dict[str, tuple[int, dict[str, Any]]] = {}
-    todos: list[str] = []
-    for k, step in enumerate(_slide_steps(slide), start=1):
+GRAPH_DIAGRAM_TYPES = ("flow", "tree", "cycle", "hub", "swimlane", "sequence")
+PROGRESSIVE_MODES = ("rank", "node", "edge", "series")
+_ORDINALS = ("الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس")
+
+
+def _diagram_kind(slide: dict[str, Any]) -> str | None:
+    """'graph' for node/edge diagrams, 'data' for charts and lists, None when the slide has no diagram."""
+    vtype = _visual_type(slide)
+    if vtype not in ("diagram", "chart"):
+        return None
+    dtype = _visual_of(slide).get("diagram_type") or ("bar" if vtype == "chart" else "flow")
+    return "graph" if dtype in GRAPH_DIAGRAM_TYPES else "data"
+
+
+def _plan_steps(slide: dict[str, Any]) -> dict[str, Any]:
+    """Number the plan steps and decide where each one lands in the HTML.
+
+    Returns {"elements": {key: (number, step)}, "diagram": {mode, start} | None,
+             "node_steps": [(id, number, act)], "todos": [...], "node_ids": [...]}.
+    A diagram builds its own steps (data-steps / data-step-from): `visual` with reveal or draw becomes one
+    step ("all") or a block of steps when the target is written visual:rank or visual:series.
+    """
+    kind = _diagram_kind(slide)
+    out: dict[str, Any] = {"elements": {}, "diagram": None, "node_steps": [], "todos": [], "node_ids": []}
+    counter = 1
+    for step in _slide_steps(slide):
+        act = str(step.get("act") or "reveal")
         target = str(step.get("target") or "visual").strip()
-        key = target
-        if key in ("title",):
-            key = "headline"
-        if key in mapping:
-            todos.append(f"step {k} ({step.get('act')}) targets \"{target}\" again; split it onto another element by hand")
+        hint = None
+        if target.startswith("visual:"):
+            target, hint = "visual", target.split(":", 1)[1]
+        key = "headline" if target == "title" else target
+        if key.startswith("node:") and kind == "graph" and key.split(":", 1)[1]:
+            nid = key.split(":", 1)[1]
+            out["node_steps"].append((nid, counter, act))
+            if nid not in out["node_ids"]:
+                out["node_ids"].append(nid)
+            counter += 1
             continue
-        mapping[key] = (k, step)
-    return mapping, todos
+        if key == "visual" and kind and act in ("reveal", "draw") and out["diagram"] is None and "visual" not in out["elements"]:
+            mode = hint if hint in PROGRESSIVE_MODES else "all"
+            if hint and hint not in PROGRESSIVE_MODES:
+                out["todos"].append(f"visual:{hint} is not a diagram step mode; used a single step (modes: {', '.join(PROGRESSIVE_MODES)})")
+            if mode == "series" and kind == "graph" or mode in ("rank", "node", "edge") and kind == "data":
+                out["todos"].append(f"step mode {mode} does not fit this diagram type; used a single step")
+                mode = "all"
+            out["diagram"] = {"mode": mode, "start": counter, "number": counter}
+            counter += _starter_step_count(slide, mode, out["node_ids"])
+            continue
+        if key in out["elements"]:
+            out["todos"].append(f"step {counter} ({act}) targets \"{target}\" again; split it onto another element by hand")
+            continue
+        out["elements"][key] = (counter, step)
+        counter += 1
+    return out
 
 
-def _diagram_html(slide: dict[str, Any], sid: str, node_ids: list[str], attr_extra: str) -> str:
-    visual = _visual_of(slide)
-    dtype = visual.get("diagram_type") or ("bar" if visual.get("type") == "chart" else "flow")
-    is_chart = dtype in ("bar", "line", "area", "donut", "pie", "gauge", "scatter")
-    label = _esc(slide.get("title") or sid)
-    if is_chart:
-        body = (
-            '  <!-- TODO: replace the sample values with real data (one value per label) -->\n'
-            '  <div class="nm-ph-label">sample data</div>\n'
-        )
-        return (
-            f'<figure class="nm-diagram" data-type="{_esc(dtype)}" data-labels="A|B|C|D" data-values="30|55|42|70" '
-            f'aria-label="{label}" data-nm-todo{attr_extra}>\n{body}</figure>'
-        )
+def _starter_nodes(slide: dict[str, Any], node_ids: list[str]) -> list[str]:
     ids = list(node_ids)
     k = 1
     while len(ids) < 3:
@@ -1096,12 +1124,42 @@ def _diagram_html(slide: dict[str, Any], sid: str, node_ids: list[str], attr_ext
         k += 1
         if cand not in ids:
             ids.append(cand)
-    links = " ".join(f"{a}>{b}" for a, b in zip(ids, ids[1:]))
-    nodes = "\n".join(f'  <div class="nm-node" data-node="{_esc(i)}"{{ATTR_{i}}}>TODO label {_esc(i)}</div>' for i in ids)
-    return (
-        f'<figure class="nm-diagram" data-type="{_esc(dtype)}" data-links="{_esc(links)}" aria-label="{label}" '
-        f"data-nm-todo{attr_extra}>\n{nodes}\n</figure>"
-    )
+    return ids
+
+
+def _starter_step_count(slide: dict[str, Any], mode: str, node_ids: list[str]) -> int:
+    if mode == "all":
+        return 1
+    if mode == "series":
+        return 4
+    n = len(_starter_nodes(slide, node_ids))
+    return n - 1 if mode == "edge" else n
+
+
+def _diagram_html(slide: dict[str, Any], sid: str, node_ids: list[str], attr_extra: str) -> str:
+    visual = _visual_of(slide)
+    dtype = str(visual.get("diagram_type") or ("bar" if visual.get("type") == "chart" else "flow"))
+    label = _esc(slide.get("title") or sid)
+    head = f'<figure class="nm-diagram" data-type="{_esc(dtype)}" aria-label="{label}" data-nm-todo{attr_extra}>'
+    if dtype in GRAPH_DIAGRAM_TYPES:
+        ids = _starter_nodes(slide, node_ids)
+        names = {i: f"العنصر {_ORDINALS[k]}" if k < len(_ORDINALS) else f"عنصر {k + 1}" for k, i in enumerate(ids)}
+        if dtype == "hub":
+            lines = [f"center: {slide.get('title') or 'الفكرة'}"] + [f"{names[i]}" for i in ids]
+        elif dtype == "tree":
+            lines = [f"{ids[0]}[{names[ids[0]]}]"] + [f"  {i}[{names[i]}]" for i in ids[1:]]
+        else:
+            chain = " -> ".join(f"{i}[{names[i]}]" for i in ids)
+            if dtype == "cycle":
+                chain += f" -> {ids[0]}"
+            lines = [chain]
+    elif dtype == "stat":
+        lines = ["value: 70%", "label: اكتب وصف الرقم"]
+    else:
+        lines = [f"{_ORDINALS[k]}: {v}" for k, v in enumerate((30, 55, 42, 70))]
+        lines = [f"العنصر {l}" for l in lines]
+    body = "\n".join("  " + l if not l.startswith("  ") else l for l in lines)
+    return f'{head}\n<script type="text/nm-diagram">\n{body}\n</script>\n</figure>'
 
 
 def _build_slide(
@@ -1116,8 +1174,9 @@ def _build_slide(
     todos: list[str] = []
     extra_files: list[tuple[Path, str]] = []
 
-    steps_map, step_todos = _step_targets(slide)
-    todos.extend(step_todos)
+    plan_steps = _plan_steps(slide)
+    steps_map: dict[str, tuple[int, dict[str, Any]]] = plan_steps["elements"]
+    todos.extend(plan_steps["todos"])
     used_keys: set[str] = set()
 
     def step_attrs(key: str) -> str:
@@ -1141,7 +1200,7 @@ def _build_slide(
         return f' data-morph="{_esc(morph_for[key])}"' if key in morph_for else ""
 
     # nodes referenced by steps
-    node_ids = [k.split(":", 1)[1] for k in steps_map if k.startswith("node:") and k.split(":", 1)[1]]
+    node_ids = list(plan_steps["node_ids"])
 
     # --- text
     head_parts: list[str] = []
@@ -1219,13 +1278,22 @@ def _build_slide(
             )
             todos.append(f"replace placeholder image with assets/img/{vref}.jpg ({plan.get('image_source', 'none')})")
         elif vtype in ("diagram", "chart"):
-            visual_html = _diagram_html(slide, sid, node_ids, vattr)
-            for nid in node_ids:
-                key = f"node:{nid}"
-                attrs = step_attrs(key) if key in steps_map else ""
-                visual_html = visual_html.replace("{ATTR_" + nid + "}", attrs)
-            visual_html = re.sub(r"\{ATTR_[^}]*\}", "", visual_html)
-            todos.append(f"edit {vtype} labels/values ({visual.get('diagram_type', 'flow')}) in the nm-diagram figure")
+            dg = plan_steps["diagram"]
+            dg_attr = ""
+            if dg:
+                dg_attr = f' data-steps="{dg["mode"]}" data-step-from="{dg["start"]}"'
+                used_keys.add("visual")
+                todos.append(
+                    f"diagram builds its own steps from number {dg['start']} (data-steps=\"{dg['mode']}\"); "
+                    "if you edit the diagram, renumber the other data-step values on this slide"
+                )
+            ns = plan_steps["node_steps"]
+            if ns:
+                dg_attr += f' data-node-steps="{_esc(",".join(f"{i}:{n}:{a}" for i, n, a in ns))}"'
+                for i, n, a in ns:
+                    todos.append(f"step {n} {a} on diagram node \"{i}\" (applied by the node-steps helper at the end of the deck)")
+            visual_html = _diagram_html(slide, sid, node_ids, vattr + dg_attr)
+            todos.append(f"edit {vtype} labels/values ({visual.get('diagram_type', 'flow')}) in the nm-diagram script block")
         elif vtype == "motion":
             visual_html = (
                 f'<div class="nm-ph" data-nm-todo{vattr}>'
@@ -1520,6 +1588,13 @@ def _audit_contract(
             checks.append(("data-nm-mode", MODES))
         if "data-type" in a and "nm-diagram" in el["classes"]:
             checks.append(("data-type", diagram_types))
+        if "data-steps" in a and "nm-diagram" in el["classes"]:
+            checks.append(("data-steps", ("none", "all") + PROGRESSIVE_MODES))
+        for part in a.get("data-node-steps", "").split(","):
+            bits = part.strip().split(":")
+            if len(bits) == 3 and bits[2] not in ACTS and (slide, "data-node-steps", bits[2]) not in seen:
+                seen.add((slide, "data-node-steps", bits[2]))
+                vocab_errors.append(_vocab_error(where, "data-node-steps act", bits[2], ACTS))
         for attr, valid in checks:
             value = a[attr].strip()
             if value and value not in valid and (slide, attr, value) not in seen:
@@ -1550,15 +1625,29 @@ def _audit_contract(
     # steps
     step_issues: list[str] = []
     steps_by_slide: dict[int, set[int]] = {}
+    open_ended: set[int] = set()  # slides whose diagram builds a block of steps at runtime
     for el in dom.elements:
-        raw = el["attrs"].get("data-step")
-        if raw is None or el["slide"] is None:
+        if el["slide"] is None:
+            continue
+        a = el["attrs"]
+        if a.get("data-steps", "none") not in ("", "none") and a.get("data-step-from", "").isdigit():
+            steps_by_slide.setdefault(el["slide"], set()).add(int(a["data-step-from"]))
+            if a["data-steps"] != "all":
+                open_ended.add(el["slide"])
+        for part in a.get("data-node-steps", "").split(","):
+            bits = part.strip().split(":")
+            if len(bits) == 3 and bits[1].isdigit():
+                steps_by_slide.setdefault(el["slide"], set()).add(int(bits[1]))
+        raw = a.get("data-step")
+        if raw is None:
             continue
         try:
             steps_by_slide.setdefault(el["slide"], set()).add(int(raw))
         except ValueError:
             step_issues.append(f'Slide {el["slide"] + 1}: data-step="{raw}" is not a whole number')
     for slide, nums in sorted(steps_by_slide.items()):
+        if slide in open_ended:
+            continue
         expected = set(range(1, max(nums) + 1))
         if nums != expected:
             missing = sorted(expected - nums)
