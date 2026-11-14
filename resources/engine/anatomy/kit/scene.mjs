@@ -308,7 +308,7 @@ export function water(P, o = {}) {
         const y = -D / 2 + 3 + rand() * (D - 6);
         const len = 4 + rand() * 6;
         const pts = ladder(9).map((j) => k.iso(M.p([x + (len * j) / 8, y + 0.35 * Math.sin((j / 8) * TAU * 1.5), 0]), P));
-        out += k.fadeLineSvg(pts, { fade: [len * 0.35, len * 0.35], tone: "faint" });
+        out += k.fadeLineSvg(pts, { fade: [len * 0.35, len * 0.35], tone: o.rippleTone ?? "lo" });
       }
       return out;
     },
@@ -987,7 +987,8 @@ export function quayCrane(P, o = {}) {
     },
   }));
   for (const y of [-ly, ly]) M.put(`portal${y > 0 ? "p" : "m"}`, M.slab({ x: xw - 1.6, y: y - 1.6, w: xl - xw + 3.2, d: 3.2, r: 0.2 }, legTop, 3, { tone: "mid", bevel: 0.3 }));
-  for (const x of [xw, xl]) M.put(`sill${x > 0 ? "L" : "W"}`, M.slab({ x: x - 1.3, y: -ly + 1.6, w: 2.6, d: 2 * ly - 3.2, r: 0 }, legTop + 0.6, 2.4, { tone: "lo" }));
+  // cross beams carry the girders but leave the gap between them open for the hoist ropes
+  for (const x of [xw, xl]) for (const sg of [-1, 1]) M.put(`sill${x > 0 ? "L" : "W"}${sg > 0 ? "p" : "m"}`, M.slab(sg > 0 ? { x: x - 1.3, y: gy - gw / 2, w: 2.6, d: ly - 1.6 - gy + gw / 2, r: 0 } : { x: x - 1.3, y: -ly + 1.6, w: 2.6, d: ly - 1.6 - gy + gw / 2, r: 0 }, legTop + 0.6, 2.4, { tone: "lo" }));
   for (const y of [-gy, gy]) M.put(`girder${y > 0 ? "p" : "m"}`, M.slab({ x: out, y: y - gw / 2, w: back - out, d: gw, r: 0.2 }, girderZ, girderH, {
     tone: o.tone ?? "mid",
     bevel: 0.3,
@@ -1008,11 +1009,13 @@ export function quayCrane(P, o = {}) {
     bevel: 0.4,
     inner: ({ wp, z, h }) => facesOf(wp, P).map((f) => Ln(ladder(Math.floor(f.len / 1.4) - 1).map((i) => fV(f, (i + 1) * 1.4, z + 1, z + h - 1, P)).join(""), "faint")).join(""),
   }));
-  for (const y of [-gy, gy]) M.put(`post${y > 0 ? "p" : "m"}`, M.slab({ x: xw - 1, y: y - 1, w: 2, d: 2, r: 0.2 }, girderZ + girderH, apex - girderZ - girderH, { tone: o.tone ?? "mid" }));
-  M.put("head", M.slab({ x: xw - 1.4, y: -gy - 1.4, w: 2.8, d: 2 * gy + 2.8, r: 0.3 }, apex, 2.4, { tone: "mid", bevel: 0.3, after: ({ wp, top }) => Dt([[wp.x + 1.4, wp.y + 1.4, top], [wp.x + 1.4, wp.y + wp.d - 1.4, top]], P, 0.6, "hi") }));
-  for (const y of [-gy, gy]) {
-    M.put(`fore${y > 0 ? "p" : "m"}`, M.rod([xw - 1, y, apex + 0.4], [out + 1.2, y, girderZ + girderH + 0.3], 0.6, { tone: "lo" }));
-    M.put(`back${y > 0 ? "p" : "m"}`, M.rod([xw + 1, y, apex + 0.4], [back - 14, y, girderZ + girderH + 0.3], 0.6, { tone: "lo" }));
+  // the apex frame stands on the portal beams, outside the girders, so the trolley passes between its posts
+  for (const y of [-ly, ly]) M.put(`post${y > 0 ? "p" : "m"}`, M.slab({ x: xw - 1, y: y - 1, w: 2, d: 2, r: 0.2 }, legTop + 3, apex - legTop - 3, { tone: o.tone ?? "mid", inner: ({ wp, z, h }) => Ln(facesOf(wp, P).map((f) => ladder(Math.floor(h / 6)).map((i) => fH(f, 0, f.len, z + (i + 1) * 6, P)).join("")).join(""), "faint") }));
+  M.put("head", M.slab({ x: xw - 1.4, y: -ly - 1.4, w: 2.8, d: 2 * ly + 2.8, r: 0.3 }, apex, 2.4, { tone: "mid", bevel: 0.3, after: ({ wp, top }) => Dt([[wp.x + 1.4, wp.y + 1.4, top], [wp.x + 1.4, wp.y + wp.d - 1.4, top]], P, 0.6, "hi") }));
+  for (const y of [-ly, ly]) {
+    const g = Math.sign(y) * gy;
+    M.put(`fore${y > 0 ? "p" : "m"}`, M.rod([xw - 1, y, apex + 0.3], [out + 1.2, g, girderZ + girderH + 0.3], 0.6, { tone: "lo" }));
+    M.put(`back${y > 0 ? "p" : "m"}`, M.rod([xw + 1, y, apex + 0.3], [back - 14, g, girderZ + girderH + 6.3], 0.6, { tone: "lo" }));
   }
   M.put("cab", M.slab({ x: xl - 6, y: gy + gw / 2, w: 4, d: 3.4, r: 0.4 }, girderZ, girderH, { tone: "hi", inner: ({ wp, z, h }) => facesOf(wp, P).map((f) => windowGrid(f, P, { z0: z + 0.6, z1: z + h - 0.6, cols: 1, rows: 1, margin: 0.5, detail: 1, tone: "mid" })).join("") }));
   if (o.trolley !== null && o.trolley !== undefined) {
@@ -1029,7 +1032,7 @@ export function craneGeometry(o = {}) {
   const xl = o.xl ?? 22;
   const legTop = o.legTop ?? 40;
   const girderZ = legTop + 3;
-  return { xw, xl, ly: o.ly ?? 9, legTop, girderZ, girderH: o.girderH ?? 3.4, gy: o.gy ?? 3.4, gw: o.gw ?? 2, out: o.out ?? -46, back: o.back ?? 44, apex: o.apex ?? legTop + 26 };
+  return { xw, xl, ly: o.ly ?? 15, legTop, girderZ, girderH: o.girderH ?? 3.4, gy: o.gy ?? 3.4, gw: o.gw ?? 2, out: o.out ?? -46, back: o.back ?? 56, apex: o.apex ?? legTop + 26 };
 }
 /** The crane's moving parts at a pose: trolley on the girders at local x, and the hoist
  *  (ropes through the girder gap, spreader, optional carried container) at height hook
@@ -1965,7 +1968,7 @@ export function scene(P, { recorder = null, settle = null } = {}) {
   S.mover = (name, stations, build) => {
     const entries = stations.map((at, i) => {
       const prop = build(at, i);
-      return { at, items: prop.items.map((item, j) => record({ ...item, name: `${name}@${i}.${j}` }, { mover: name, station: i, slot: `${name}:${i}:${j}`, shapeMeta: { owner: `mover.${name}` } })) };
+      return { at, items: prop.items.map((item, j) => record({ ...item, name: `${name}@${i}.${j}` }, { mover: name, station: i, slot: `${name}:${i}:${j}`, shapeMeta: { owner: "mover" } })) };
     });
     S.movers.set(name, { name, stations, entries, ref: stations[0], refItems: build(stations[0], 0).items });
     return S;

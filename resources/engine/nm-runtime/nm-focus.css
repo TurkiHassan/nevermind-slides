@@ -85,7 +85,7 @@ template[data-detail-for] { display: none; }
 }
 .nmf-panel.nmf-clip { overflow: hidden; }
 .nmf-panel::before { /* accent hairline on the leading edge */
-  content: ""; position: absolute; inset-block: 40px; inset-inline-start: 0; width: 5px;
+  content: ""; position: absolute; inset-block: 40px; inset-inline-start: -1px; width: 4px;
   border-radius: 0 6px 6px 0; background: var(--nmf-accent);
 }
 .nmf-panel[dir="rtl"]::before { border-radius: 6px 0 0 6px; }
@@ -94,13 +94,15 @@ template[data-detail-for] { display: none; }
 .nmf-page.nmf-off { visibility: hidden; }
 .nmf-hero { --nmf-surface-h: var(--nmf-hero-bg, var(--nmf-surface)); background: var(--nmf-surface-h);
   display: flex; flex-direction: column; justify-content: center; padding: 64px 84px; }
-.nmf-hero .nmf-page > :first-child { font-size: 56px; }
+.nmf-hero::before { display: none; }
+.nmf-hero .nmf-page h2, .nmf-hero .nmf-page h3 { font-size: 54px; }
 .nmf-sheet { border-radius: var(--nmf-radius) var(--nmf-radius) 0 0; border-bottom: 0; padding: 44px 72px 40px;
   box-shadow: 0 -2px 0 color-mix(in srgb, var(--nmf-accent) 80%, transparent), 0 -30px 80px -20px rgba(12, 16, 28, .45); }
 .nmf-sheet::before { display: none; }
 .nmf-sheet .nmf-page { column-width: 520px; column-gap: 64px; column-fill: balance; }
 .nmf-sheet .nmf-page > :first-child { column-span: all; }
 .nmf-pop { padding: 36px 42px 34px; font-size: 24px; }
+.nmf-pop .nmf-pages { padding-inline-end: 44px; }
 .nmf-pop::before { inset-block: 28px; }
 
 .nmf-page > * { margin: 0 0 .55em; }
@@ -150,7 +152,7 @@ template[data-detail-for] { display: none; }
 .nmf-dots i.on { width: 34px; background: var(--nmf-accent); }
 
 /* ---------- lens ---------- */
-.nmf-lens {
+.nmf-lensbox {
   position: absolute; left: 0; top: 0; transform-origin: 0 0; border-radius: 50%;
   background: var(--nmf-paper);
   box-shadow: 0 0 0 7px var(--nmf-surface), 0 0 0 8.5px color-mix(in srgb, var(--nmf-ink) 22%, transparent),
@@ -224,3 +226,7 @@ template[data-detail-for] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .nmf-dots i, .nmf-close, .nmf-pg { transition: none; }
 }
+.nmf-strip .nm-stat { background: var(--nmf-surface); }
+.nmf-strip-mark { position: absolute; background: var(--nmf-accent); border-radius: 3px; }
+.nmf-strip-h .nmf-strip-mark { top: 0; height: 4px; }
+.nmf-strip-v .nmf-strip-mark { left: 0; width: 4px; }

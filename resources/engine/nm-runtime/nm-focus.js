@@ -299,10 +299,11 @@
       e.removeAttribute('id'); e.removeAttribute('data-morph');
     });
     shell.removeAttribute('id'); shell.removeAttribute('data-morph');
+    Array.prototype.forEach.call(shell.querySelectorAll('template'), function (t) { t.remove(); });
     shell.classList.add('nmf-clone');
     shell.setAttribute('aria-hidden', 'true'); shell.setAttribute('inert', '');
     var st = shell.style;
-    st.position = 'absolute'; st.left = '0px'; st.top = '0px'; st.width = W + 'px'; st.height = H + 'px';
+    st.position = 'absolute'; st.inset = 'auto'; st.left = '0px'; st.top = '0px'; st.width = W + 'px'; st.height = H + 'px';
     st.margin = '0'; st.transform = 'none'; st.opacity = '1'; st.pointerEvents = 'none'; st.zIndex = 'auto';
     st.transformOrigin = '0 0'; st.visibility = only ? 'hidden' : 'visible';
     if (only) st.background = 'transparent';
@@ -385,7 +386,7 @@
     var id = el.getAttribute('data-detail-id') || el.id, out = [];
     if (id) {
       Array.prototype.forEach.call(document.querySelectorAll('template[data-detail-for]'), function (t) {
-        if (t.getAttribute('data-detail-for') === id) out.push(t.content.cloneNode(true));
+        if (t.getAttribute('data-detail-for') === id && !t.closest('.nmf')) out.push(t.content.cloneNode(true));
       });
     }
     Array.prototype.forEach.call(el.querySelectorAll('.nm-detail'), function (d) {
@@ -578,6 +579,7 @@
       S.variant = v; S.R = R; S.rad = rad;
       ghost(S);
       DETAIL[v] ? DETAIL[v](S, el, R, rad) : DETAIL.side(S, el, R, rad);
+      if (S._svg) S.root.insertBefore(S._svg, S.root.firstChild);   /* leaders and sockets sit under ghost and panel */
       if (S.pageEls && S.pageEls.length > 1) S.pages = true;
     },
     close: function (S) {
@@ -764,7 +766,7 @@
       S.tween(S.veil, { opacity: '1' }, { from: { opacity: '0' }, dur: 600 });
       S.cone = lensCone(S, p);
       S.tween(S.cone, { opacity: '1' }, { from: { opacity: '0' }, dur: 500, delay: 420 });
-      var box = h('div', 'nmf-lens' + (p.shape === 'rect' ? ' nmf-lens-rect' : ''), S.root);
+      var box = h('div', 'nmf-lensbox' + (p.shape === 'rect' ? ' nmf-lens-rect' : ''), S.root);
       box.style.width = px(p.lw); box.style.height = px(p.lh);
       var view = h('div', 'nmf-lens-view', box);
       var c = cloneSlide(S, null); view.appendChild(c.shell);
@@ -974,6 +976,9 @@
       var gap = { x: horiz ? 0 : cut - a, y: horiz ? cut - a : 0, w: horiz ? W : size, h: horiz ? size : H };
       strip.style.transform = 'translate(' + px(gap.x) + ',' + px(gap.y) + ')';
       strip.style.width = px(gap.w); strip.style.height = px(gap.h);
+      var mark = h('div', 'nmf-strip-mark', strip);   /* accent tab marking where the subject sits */
+      if (horiz) { mark.style.left = px(R.x + 24); mark.style.width = px(Math.max(40, R.w - 48)); if (mode === 'above') { mark.style.top = 'auto'; mark.style.bottom = '0'; } }
+      else { mark.style.top = px(R.y + 24); mark.style.height = px(Math.max(40, R.h - 48)); if (!subjLow) { mark.style.left = 'auto'; mark.style.right = '0'; } }
       S.halves = [0, 1].map(function (i) {
         var wrap = h('div', 'nmf-half nmf-half-' + (horiz ? (i ? 'b' : 't') : (i ? 'r' : 'l')), S.root);
         var c = cloneSlide(S, null); wrap.appendChild(c.shell);

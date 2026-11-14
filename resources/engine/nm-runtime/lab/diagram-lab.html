@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="nm-runtime" content="2">
+<title>مختبر المخططات</title>
+<link rel="stylesheet" href="../nm-diagram.css">
+<link rel="stylesheet" href="../nm-layout.css">
+<style>
+  @font-face { font-family: "Plex Arabic"; src: url("../../../fonts/IBMPlexSansArabic-Regular.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Plex Arabic"; src: url("../../../fonts/IBMPlexSansArabic-Medium.ttf") format("truetype"); font-weight: 500; }
+  @font-face { font-family: "Plex Arabic"; src: url("../../../fonts/IBMPlexSansArabic-SemiBold.ttf") format("truetype"); font-weight: 600 900; }
+  @font-face { font-family: "Readex"; src: url("../../../fonts/ReadexPro-VF.ttf") format("truetype"); font-weight: 200 900; }
+  :root {
+    --nm-font-body: "Plex Arabic", system-ui, sans-serif;
+    --nm-font-display: "Readex", "Plex Arabic", system-ui, sans-serif;
+  }
+  body { margin: 0; background: #d9d6cf; font-family: var(--nm-font-body); color: #1c1d21; }
+  body.lab-dark { background: #07080a; color: #ddd; }
+  .lab-bar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 20px; background: #1c1d21; color: #f2f0eb; font-size: 15px; }
+  .lab-bar strong { font-size: 17px; margin-inline-end: 12px; }
+  .lab-bar button, .lab-bar label { font: inherit; background: #2c2e34; color: inherit; border: 1px solid #44474f; border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+  .lab-bar button:hover { background: #3a3d44; }
+  .lab-bar nav { display: flex; flex-wrap: wrap; gap: 6px; margin-inline-start: auto; }
+  .lab-bar nav a { color: #c9c6bf; text-decoration: none; font-size: 13px; }
+  main { padding: 24px; display: grid; gap: 28px; justify-items: center; }
+  .lab-item { display: grid; gap: 8px; }
+  .lab-item > h2 { margin: 0; font-size: 16px; font-weight: 600; display: flex; gap: 12px; align-items: center; }
+  .lab-item > h2 code { font-size: 13px; opacity: .7; direction: ltr; }
+  .lab-item > h2 button { font: inherit; font-size: 13px; padding: 2px 10px; border-radius: 6px; border: 1px solid #999; background: transparent; color: inherit; cursor: pointer; }
+  .lab-frame { width: calc(1920px * var(--s)); height: calc(1080px * var(--s)); overflow: hidden; box-shadow: 0 10px 30px -12px rgba(0,0,0,.35); border-radius: 6px; }
+  .slide { position: relative; width: 1920px; height: 1080px; transform: scale(var(--s)); transform-origin: top right; background: var(--nm-paper); color: var(--nm-ink); overflow: hidden; }
+  .camera-rig { position: absolute; inset: 0; }
+  .slide:not(.active) { visibility: hidden; opacity: 0; }
+  body:not(.lab-dark) .slide { --nm-paper: #f7f4ee; --nm-ink: #1c1d21; --nm-muted: #6c6a66; --nm-line: #cfc9bf; --nm-accent: #c2410c; --nm-accent-2: #0f766e; --nm-surface: #fffdf9; }
+  body.lab-dark .slide { --nm-paper: #121418; --nm-ink: #ecebe7; --nm-muted: #9a9892; --nm-line: #3a3d44; --nm-accent: #f08a4b; --nm-accent-2: #3fb8a6; --nm-surface: #1b1e24; }
+  .ph { block-size: 100%; border-radius: 20px; background: repeating-linear-gradient(135deg, color-mix(in oklab, var(--nm-ink) 7%, var(--nm-paper)) 0 2px, transparent 2px 22px); border: 1.5px solid var(--nm-line); display: grid; place-items: center; color: var(--nm-muted); font-size: 26px; }
+</style>
+</head>
+<body>
+<div class="lab-bar">
+  <strong>مختبر المخططات</strong>
+  <button id="bTheme" type="button">الوضع الداكن</button>
+  <button id="bSim" type="button">محاكاة الخطوات: متوقفة</button>
+  <button id="bPrev" type="button">الخطوة السابقة</button>
+  <button id="bNext" type="button">الخطوة التالية</button>
+  <button id="bReplay" type="button">إعادة الحركة</button>
+  <nav id="toc"></nav>
+</div>
+<main id="lab">
+
+<!-- ===================================================== diagrams -->
+<section class="slide active" id="ex-flow" data-lab="flow - ortho, rank steps, flow dots">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">البنية</p><h2 class="nm-t-h2">كيف يتعلّم المشفّر التلقائي</h2></header>
+    <figure class="nm-diagram" data-type="flow" data-id="pipeline" data-steps="rank" data-flow="on">
+      <script type="text/nm-diagram">
+        in[المدخلات] -> enc[المشفّر] -> lat((الفضاء الكامن)) -> dec[المفكّك] -> out[المخرجات]
+        in icon=document
+        lat -> probe{المسبار}: قياس
+        dec -.-> enc: تغذية راجعة
+        group الحلقة: enc lat dec
+        enc.accent
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-flow2" data-lab="flow - ttb, curves, groups, icons">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <div class="nm-head"><p class="nm-kicker">المنصة</p><h2 class="nm-t-h2">مسار الطلب من المستخدم إلى البيانات</h2><p class="nm-t-lead">تمر الطلبات عبر بوابة واحدة ثم تتوزع على الخدمات.</p></div>
+    <figure class="nm-diagram" data-type="flow" data-dir="ttb" data-edges="curve" data-id="platform">
+      <script type="text/nm-diagram">
+        u(المستخدم) icon=user -> gw[البوابة|توجيه وتوثيق] icon=shield
+        gw -> api[الخدمات] icon=server
+        gw -> auth[الهوية] icon=lock
+        api -> db[(قاعدة البيانات)] icon=database
+        api -> cache[الذاكرة المؤقتة] icon=bolt
+        auth -> db
+        group الخلفية: api auth
+        gw.accent
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-stress" data-lab="flow - stress: 14 nodes, cycle, long labels">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><h2 class="nm-t-h3">اختبار الإجهاد: أربع عشرة عقدة مع حلقة وتسميات طويلة</h2></header>
+    <figure class="nm-diagram" data-type="flow" data-id="stress" data-steps="node">
+      <script type="text/nm-diagram">
+        a[جمع البيانات من المصادر الميدانية المتعددة] -> b[تنقية البيانات وتوحيد الصيغ]
+        a -> c[الأرشفة الأولية]
+        b -> d[استخراج الخصائص] -> e[تدريب النموذج الأساسي]
+        c -> e
+        b -> f[وسم العينات يدويًا|فريق التحليل] -> e
+        e -> g{التقييم} -> h[النشر التجريبي] -> i[المراقبة المستمرة]
+        g -> j[تحليل الأخطاء]: إخفاق
+        j -> d: إعادة
+        i -> k[التغذية الراجعة من المستخدمين] -> l[تحديث البيانات] -> b
+        h -> m[التوثيق]
+        i -> n((الإصدار النهائي))
+        e.accent
+        n.ok
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-tree" data-lab="tree - indentation outline">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">الهيكل</p><h2 class="nm-t-h2">الهيكل التنظيمي للمشروع</h2></header>
+    <figure class="nm-diagram" data-type="tree" data-id="org" data-steps="rank">
+      <script type="text/nm-diagram">
+        إدارة المشروع | القيادة
+          الفريق التقني
+            الهندسة
+            البيانات
+            البنية التحتية
+          الفريق التشغيلي
+            الدعم
+            الجودة
+          الشراكات
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-cycle" data-lab="cycle - ring with centre">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <div class="nm-head"><p class="nm-kicker">المنهجية</p><h2 class="nm-t-h2">دورة التحسين المستمر</h2><p class="nm-t-lead">أربع مراحل تتكرر مع كل إصدار.</p></div>
+    <figure class="nm-diagram" data-type="cycle" data-id="pdca" data-steps="node">
+      <script type="text/nm-diagram">
+        center: التحسين | كل أسبوعين
+        plan[التخطيط] icon=target
+        do[التنفيذ] icon=gear
+        check[القياس] icon=chart
+        act[التعديل] icon=check
+        plan.accent
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-hub" data-lab="hub - centre and spokes">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">المنظومة</p><h2 class="nm-t-h2">المنصة في قلب العمليات</h2></header>
+    <figure class="nm-diagram" data-type="hub" data-id="eco">
+      <script type="text/nm-diagram">
+        core((المنصة الموحدة)).accent
+        core -- a[المبيعات] icon=chart
+        core -- b[الموارد البشرية] icon=users
+        core -- c[المالية] icon=document
+        core -- d[سلاسل الإمداد] icon=globe
+        core -- e[خدمة العملاء] icon=user
+        core -- f[الأمن] icon=shield
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-timeline" data-lab="timeline - alternating">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">المسيرة</p><h2 class="nm-t-h2">محطات رئيسة في تطور المنصة</h2></header>
+    <figure class="nm-diagram" data-type="timeline" data-id="road" data-steps="node">
+      <script type="text/nm-diagram">
+        ٢٠١٨: التأسيس | فريق من خمسة مهندسين
+        ٢٠١٩: النسخة الأولى | إطلاق تجريبي محدود
+        ٢٠٢١: التوسع الإقليمي | ثلاث دول جديدة
+        ٢٠٢٣: الذكاء الاصطناعي | محرك توصيات ذكي !
+        ٢٠٢٤: مليون مستخدم | نمو عضوي متسارع
+        ٢٠٢٦: الطرح العام | الهدف القادم
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-layers" data-lab="layers - architecture strata">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">المعمارية</p><h2 class="nm-t-h2">طبقات النظام</h2></header>
+    <figure class="nm-diagram" data-type="layers" data-id="stack" data-steps="rank">
+      <script type="text/nm-diagram">
+        الواجهة | ما يراه المستخدم: الويب، تطبيق الجوال، لوحة التحكم
+        الخدمات | منطق الأعمال: الطلبات، المدفوعات، الإشعارات، التقارير !
+        البيانات | التخزين والتحليل: قاعدة البيانات، مستودع البيانات، الفهرسة
+        البنية التحتية | التشغيل: الحوسبة السحابية، الشبكات، المراقبة
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-matrix" data-lab="matrix - 2x2">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <div class="nm-head"><p class="nm-kicker">الأولويات</p><h2 class="nm-t-h2">مصفوفة الأثر والجهد</h2><p class="nm-t-lead">نبدأ بالمكاسب السريعة ونخطط للمشاريع الكبرى.</p></div>
+    <figure class="nm-diagram" data-type="matrix" data-id="prio">
+      <script type="text/nm-diagram">
+        x: الجهد | منخفض | مرتفع
+        y: الأثر | منخفض | مرتفع
+        quad: مكاسب سريعة | مشاريع كبرى | مهام هامشية | استنزاف
+        أتمتة التقارير: 0.2, 0.85 !
+        بوابة العملاء: 0.75, 0.8
+        إعادة التصميم: 0.85, 0.3
+        تحديث الوثائق: 0.25, 0.2
+        تدريب الفريق: 0.4, 0.62
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-funnel" data-lab="funnel - values">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">التحويل</p><h2 class="nm-t-h2">قمع المبيعات للربع الثالث</h2></header>
+    <figure class="nm-diagram" data-type="funnel" data-id="sales" data-steps="node">
+      <script type="text/nm-diagram">
+        الزيارات: ١٢٠٬٠٠٠ | من جميع القنوات
+        التسجيل: ٤٨٬٠٠٠ | حساب جديد
+        التجربة: ١٨٬٥٠٠ | استخدام فعلي للمنتج
+        الشراء: ٦٬٢٠٠ | تحويل مدفوع
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-pyramid" data-lab="pyramid">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">الإطار</p><h2 class="nm-t-h2">هرم الاحتياجات الرقمية</h2></header>
+    <figure class="nm-diagram" data-type="pyramid" data-id="needs">
+      <script type="text/nm-diagram">
+        الابتكار: تجارب جديدة تصنع الفارق
+        التخصيص: محتوى يناسب كل مستخدم
+        السهولة: رحلة واضحة بلا عوائق
+        الموثوقية: خدمة متاحة وآمنة دائمًا
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-venn" data-lab="venn - 3 sets">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <div class="nm-head"><p class="nm-kicker">التقاطع</p><h2 class="nm-t-h2">أين يولد الابتكار</h2><p class="nm-t-lead">حين تلتقي التقنية بالتصميم وبفهم السوق.</p></div>
+    <figure class="nm-diagram" data-type="venn" data-id="innov">
+      <script type="text/nm-diagram">
+        أ: التقنية
+        ب: التصميم
+        ج: الأعمال
+        أ&ب: تجربة المنتج
+        أ&ج: الأتمتة
+        ب&ج: العلامة
+        أ&ب&ج: الابتكار !
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-swimlane" data-lab="swimlane">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">الإجراء</p><h2 class="nm-t-h2">رحلة طلب الشراء بين الأقسام</h2></header>
+    <figure class="nm-diagram" data-type="swimlane" data-id="proc" data-steps="node">
+      <script type="text/nm-diagram">
+        lane العميل: req ok
+        lane المبيعات: rev quote
+        lane المالية: approve inv
+        req[تقديم الطلب] -> rev[مراجعة الطلب] -> quote[إعداد العرض] -> approve{اعتماد} -> inv[إصدار الفاتورة] -> ok[الاستلام]
+        approve.accent
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-sequence" data-lab="sequence">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">التكامل</p><h2 class="nm-t-h2">تسلسل عملية الدفع</h2></header>
+    <figure class="nm-diagram" data-type="sequence" data-id="pay" data-steps="edge">
+      <script type="text/nm-diagram">
+        actors: u[العميل] icon=user, app[التطبيق] icon=chip, pg[بوابة الدفع] icon=lock, bank[البنك] icon=database
+        u -> app: تأكيد الطلب
+        app -> pg: طلب الدفع
+        pg -> bank: التحقق من الرصيد
+        bank -.-> pg: موافقة
+        pg -.-> app: رمز العملية
+        app -.-> u: إيصال الدفع
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-compare" data-lab="compare">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">المقارنة</p><h2 class="nm-t-h2">قبل المنصة وبعدها</h2></header>
+    <figure class="nm-diagram" data-type="compare" data-id="cmp" data-steps="rank">
+      <script type="text/nm-diagram">
+        head: الطريقة الحالية | المنصة الجديدة !
+        السرعة: ثلاثة أيام لكل طلب | دقائق معدودة
+        التكلفة: مرتفعة ومتغيرة | منخفضة وثابتة
+        الدقة: أخطاء يدوية متكررة | تحقق آلي
+        الشفافية: تقارير شهرية | لوحة مباشرة
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<!-- ===================================================== charts -->
+<section class="slide active" id="ex-bars" data-lab="bars - horizontal, highlight">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <div class="nm-head"><p class="nm-kicker">النتائج</p><h2 class="nm-t-h2">الشمال يقود النمو</h2><p class="nm-t-lead">نسبة النمو السنوي حسب المنطقة.</p></div>
+    <figure class="nm-diagram" data-type="bars" data-id="growth" data-steps="series">
+      <script type="text/nm-diagram">
+        unit: ٪
+        الشمال: ٤٢ !
+        الوسط: ٣١
+        الشرق: ٢٧
+        الغرب: ١٩
+        الجنوب: ١٢
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-barsv" data-lab="bars - vertical">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><h2 class="nm-t-h2">الإيرادات الفصلية (مليون)</h2></header>
+    <figure class="nm-diagram" data-type="bars" data-orient="v" data-id="rev">
+      <script type="text/nm-diagram">
+        الربع الأول: 12.5
+        الربع الثاني: 18.2
+        الربع الثالث: 24.9 !
+        الربع الرابع: 21.4
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-line" data-lab="line - 3 series, area, end labels">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">الاتجاه</p><h2 class="nm-t-h2">المستخدمون النشطون شهريًا (ألف)</h2></header>
+    <figure class="nm-diagram" data-type="line" data-id="mau" data-area="on" data-steps="series">
+      <script type="text/nm-diagram">
+        x: يناير, فبراير, مارس, أبريل, مايو, يونيو, يوليو
+        series التطبيق: ١٢, ١٨, ٢٥, ٣١, ٤٠, ٥٢, ٦٤
+        series الويب: ٢٠, ٢٢, ٢٣, ٢٦, ٢٨, ٢٩, ٣١
+        series الشركاء: ٤, ٥, ٨, ١١, ١٣, ١٨, ٢٢
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-donut" data-lab="donut">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">التوزيع</p><h2 class="nm-t-h2">مصادر الإيرادات</h2></header>
+    <figure class="nm-diagram" data-type="donut" data-id="mix" data-steps="series">
+      <script type="text/nm-diagram">
+        center: ٦٢٪ | من الاشتراكات
+        الاشتراكات: ٦٢ !
+        الخدمات: ٢١
+        التراخيص: ١١
+        أخرى: ٦
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-gauge" data-lab="gauge + stat">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-split">
+    <figure class="nm-diagram" data-type="gauge" data-id="sla">
+      <script type="text/nm-diagram">
+        value: ٨٧
+        unit: ٪
+        label: مؤشر الرضا
+        sub: الهدف ٩٠٪
+      </script>
+    </figure>
+    <figure class="nm-diagram" data-type="stat" data-id="kpi">
+      <script type="text/nm-diagram">
+        وقت الاستجابة: ١٫٢ ث | أسرع بنسبة ٤٠٪ !
+        الطلبات اليومية: ٣٤٬٥٠٠
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-stat" data-lab="stat - row">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><p class="nm-kicker">بالأرقام</p><h2 class="nm-t-h2">عام من النمو</h2></header>
+    <figure class="nm-diagram" data-type="stat" data-id="year" data-steps="series">
+      <script type="text/nm-diagram">
+        مستخدم نشط: ١٫٢ مليون | +٣٨٪ عن العام الماضي !
+        دولة: ١٤
+        نسبة الاحتفاظ: ٩٢٪ | بعد ستة أشهر
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<!-- ===================================================== connectors -->
+<section class="slide active" id="ex-links" data-lab="connectors between DOM cards (data-links)">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-bento-5" data-links="a>b: يغذّي; a>c; b>d@1: يحلل; c~>d: اختياري; d>e; e<>a: مزامنة">
+      <header class="nm-head"><p class="nm-kicker">الروابط</p><h2 class="nm-t-h2">بطاقات مرتبطة بأسهم تلقائية</h2></header>
+      <article class="nm-card" data-node="a"><h3>مصادر البيانات</h3><p>أنظمة داخلية وخارجية تُجمع يوميًا.</p></article>
+      <article class="nm-card" data-node="b"><h3>المعالجة</h3><p>تنقية وتوحيد.</p></article>
+      <article class="nm-card" data-node="c"><h3>الأرشيف</h3><p>حفظ طويل المدى.</p></article>
+      <article class="nm-card is-accent" data-node="d"><h3>التحليل</h3><p>نماذج تنبؤية.</p></article>
+      <article class="nm-card" data-node="e"><h3>القرار</h3><p>لوحات قيادية.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="slide active" id="ex-errors" data-lab="DSL errors: warn and still render">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><h2 class="nm-t-h3">أخطاء الكتابة لا تكسر المخطط</h2></header>
+    <figure class="nm-diagram" data-type="flow" data-id="broken">
+      <script type="text/nm-diagram">
+        a[البداية] -> b[الوسط -> c[النهاية]
+        a b
+        x ->
+        a -> d[صحيح] -> e[صحيح أيضًا]
+        d.sparkly
+        e icon=nosuchicon
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-json" data-lab="flow from JSON">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><h2 class="nm-t-h3">مخطط من JSON</h2></header>
+    <figure class="nm-diagram" data-type="flow" data-id="pipeline" data-edges="straight">
+      <script type="application/json">
+        {"nodes":[{"id":"in","label":"المدخلات"},{"id":"enc","label":"المشفّر","tone":"accent"},{"id":"lat","label":"الفضاء الكامن","shape":"circle"},{"id":"dec","label":"المفكّك"},{"id":"out","label":"المخرجات","sub":"صورة معاد بناؤها"}],
+         "edges":[{"from":"in","to":"enc"},{"from":"enc","to":"lat","label":"ضغط"},{"from":"lat","to":"dec"},{"from":"dec","to":"out","style":"dashed"}]}
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<!-- ===================================================== layouts -->
+<section class="slide active" id="lay-title" data-lab="layout: nm-l-title">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-title">
+    <p class="nm-kicker">التقرير السنوي ٢٠٢٦</p>
+    <h1 class="nm-t-display">بيانات أوضح، قرارات أسرع</h1>
+    <p class="nm-t-lead">كيف حوّلنا الأرقام المتناثرة إلى رؤية واحدة يعتمد عليها الفريق كل يوم.</p>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-split" data-lab="layout: nm-l-split golden">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-split" data-ratio="golden">
+    <div class="nm-head"><p class="nm-kicker">الفكرة</p><h2 class="nm-t-h1">نص على جانب وصورة على الآخر</h2><p class="nm-t-body">تقسيم ذهبي يمنح النص مساحة كافية ويترك للصورة الحضور الأكبر.</p></div>
+    <div class="ph">صورة</div>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-bento3" data-lab="layout: nm-l-bento-3">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-bento-3">
+    <header class="nm-head"><h2 class="nm-t-h2">ثلاث ركائز</h2></header>
+    <article class="nm-card is-accent"><h3>الركيزة الكبرى</h3><p>البطاقة الأولى تأخذ المساحة الأوسع دائمًا.</p></article>
+    <article class="nm-card"><h3>الثانية</h3><p>وصف قصير.</p></article>
+    <article class="nm-card"><h3>الثالثة</h3><p>وصف قصير.</p></article>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-bento4" data-lab="layout: nm-l-bento-4">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-bento-4">
+    <article class="nm-card"><h3>العنوان الرئيس</h3><p>مساحة للرسالة الأهم.</p></article>
+    <article class="nm-card"><h3>ثانية</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>ثالثة</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>رابعة</h3><p>وصف.</p></article>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-bento5" data-lab="layout: nm-l-bento-5">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-bento-5">
+    <header class="nm-head"><h2 class="nm-t-h2">خمس بطاقات</h2></header>
+    <article class="nm-card"><h3>أولى</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>ثانية</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>ثالثة</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>رابعة</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>خامسة</h3><p>وصف.</p></article>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-bento6" data-lab="layout: nm-l-bento-6">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-bento-6">
+    <header class="nm-head"><h2 class="nm-t-h2">ست بطاقات</h2></header>
+    <article class="nm-card"><h3>١</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>٢</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>٣</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>٤</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>٥</h3><p>وصف.</p></article>
+    <article class="nm-card"><h3>٦</h3><p>وصف.</p></article>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-cards3" data-lab="layout: nm-l-cards-3">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-cards-3">
+    <header class="nm-head"><p class="nm-kicker">الخيارات</p><h2 class="nm-t-h2">ثلاثة مسارات ممكنة</h2></header>
+    <article class="nm-card"><span class="nm-chip">الأسرع</span><h3>التحسين التدريجي</h3><p>تحسينات صغيرة على النظام الحالي.</p></article>
+    <article class="nm-card is-accent"><h3>إعادة البناء</h3><p>منصة جديدة على أسس حديثة.</p></article>
+    <article class="nm-card"><h3>الشراكة</h3><p>حل جاهز من مزود خارجي.</p></article>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-rail" data-lab="layout: nm-l-rail">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-rail">
+    <aside><p class="nm-kicker">الملخص</p><h2 class="nm-t-h3">ثلاث نقاط تكفي</h2><p class="nm-t-body">الشريط الجانبي يحمل السياق، والمساحة الرئيسة تحمل الدليل.</p></aside>
+    <figure class="nm-diagram" data-type="bars" data-id="rail-bars">
+      <script type="text/nm-diagram">
+        أ: ٨٠ !
+        ب: ٥٥
+        ج: ٣٠
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-quote" data-lab="layout: nm-l-quote">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-quote">
+    <blockquote>البساطة هي أقصى درجات التطور.</blockquote>
+    <cite>ليوناردو دافنشي</cite>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-statrow" data-lab="layout: nm-l-stat-row">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-stat-row">
+    <header class="nm-head"><h2 class="nm-t-h2">أرقام الربع</h2></header>
+    <div><span class="nm-t-num">٩٤٪</span><p class="nm-t-body">رضا العملاء</p></div>
+    <div><span class="nm-t-num">٣٫٢×</span><p class="nm-t-body">سرعة التسليم</p></div>
+    <div><span class="nm-t-num">١٤</span><p class="nm-t-body">سوقًا جديدًا</p></div>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-figfull" data-lab="layout: nm-l-figure-full">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-figure-full">
+    <div class="ph" style="border-radius:0;border:0">صورة بعرض الشريحة</div>
+    <figcaption>شريط التعليق يشرح الصورة في سطر واحد واضح.</figcaption>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-compare" data-lab="layout: nm-l-compare">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-compare">
+    <header class="nm-head"><h2 class="nm-t-h2">قبل وبعد</h2></header>
+    <div class="nm-head"><span class="nm-chip">قبل</span><h3 class="nm-t-h3">عمليات يدوية</h3><p class="nm-t-body">جداول متفرقة ومراجعات متكررة وتأخير في القرار.</p></div>
+    <div class="nm-head"><span class="nm-chip">بعد</span><h3 class="nm-t-h3">منصة واحدة</h3><p class="nm-t-body">بيانات حية وتنبيهات فورية وقرارات في الوقت المناسب.</p></div>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-steps" data-lab="layout: nm-l-steps">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-steps">
+    <header class="nm-head"><h2 class="nm-t-h2">أربع خطوات للبدء</h2></header>
+    <div><h3 class="nm-t-h3">التسجيل</h3><p class="nm-t-body">إنشاء الحساب في دقيقة.</p></div>
+    <div><h3 class="nm-t-h3">الربط</h3><p class="nm-t-body">وصل مصادر البيانات.</p></div>
+    <div><h3 class="nm-t-h3">الضبط</h3><p class="nm-t-body">اختيار المؤشرات.</p></div>
+    <div><h3 class="nm-t-h3">الانطلاق</h3><p class="nm-t-body">مشاركة اللوحة.</p></div>
+  </div></div>
+</section>
+
+<section class="slide active" id="lay-section" data-lab="layout: nm-l-section">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-section">
+    <p class="nm-section-num">٠٢</p>
+    <hr class="nm-rule is-accent">
+    <h2 class="nm-t-h1">النتائج والأثر</h2>
+    <p class="nm-t-lead">ماذا تغير بعد ستة أشهر من التشغيل.</p>
+  </div></div>
+</section>
+
+</main>
+<script src="../nm-diagram.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var only = q.get('only');
+  if (q.get('theme') === 'dark') document.body.classList.add('lab-dark');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var toc = document.getElementById('toc');
+  slides.forEach(function (s) {
+    var wrap = document.createElement('div'); wrap.className = 'lab-item';
+    var h = document.createElement('h2'); h.innerHTML = '<span></span><code>#' + s.id + '</code>';
+    h.firstChild.textContent = s.getAttribute('data-lab');
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = 'إعادة'; b.onclick = function () { replay(s); };
+    h.appendChild(b);
+    var frame = document.createElement('div'); frame.className = 'lab-frame';
+    s.parentNode.insertBefore(wrap, s); wrap.appendChild(h); wrap.appendChild(frame); frame.appendChild(s);
+    var a = document.createElement('a'); a.href = '#' + s.id; a.textContent = s.id.replace(/^(ex|lay)-/, ''); toc.appendChild(a);
+    if (only && s.id !== only) wrap.style.display = 'none';
+  });
+  function fit() {
+    var s = q.get('scale') ? parseFloat(q.get('scale')) : Math.min(1, (document.documentElement.clientWidth - 48) / 1920);
+    document.documentElement.style.setProperty('--s', s);
+  }
+  fit(); addEventListener('resize', fit);
+  function replay(s) { s.classList.remove('active'); requestAnimationFrame(function () { requestAnimationFrame(function () { s.classList.add('active'); }); }); }
+  /* step simulation: mimics core by toggling .is-on on [data-step] <= current */
+  var cur = new Map();
+  function maxStep(s) { var m = 0; s.querySelectorAll('[data-step]').forEach(function (e) { m = Math.max(m, +e.getAttribute('data-step')); }); return m; }
+  function apply(s) { var k = cur.get(s) || 0; s.querySelectorAll('[data-step]').forEach(function (e) { e.classList.toggle('is-on', +e.getAttribute('data-step') <= k); }); }
+  function setAll(fn) { slides.forEach(function (s) { cur.set(s, fn(cur.get(s) || 0, maxStep(s))); apply(s); }); }
+  window.labStep = function (k) { setAll(function (c, m) { return Math.max(0, Math.min(m, k)); }); };
+  var bSim = document.getElementById('bSim');
+  window.labSim = function (on) {
+    if (on) { document.body.setAttribute('data-nm-steps', 'sim'); bSim.textContent = 'محاكاة الخطوات: تعمل'; setAll(function () { return 0; }); }
+    else { document.body.removeAttribute('data-nm-steps'); bSim.textContent = 'محاكاة الخطوات: متوقفة'; }
+  };
+  bSim.onclick = function () { labSim(!document.body.hasAttribute('data-nm-steps')); };
+  document.getElementById('bNext').onclick = function () { setAll(function (c, m) { return Math.min(m, c + 1); }); };
+  document.getElementById('bPrev').onclick = function () { setAll(function (c) { return Math.max(0, c - 1); }); };
+  document.getElementById('bReplay').onclick = function () { slides.forEach(replay); };
+  document.getElementById('bTheme').onclick = function () { document.body.classList.toggle('lab-dark'); };
+  addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === ' ') document.getElementById('bNext').click();
+    if (e.key === 'ArrowRight') document.getElementById('bPrev').click();
+  });
+  if (q.get('sim') === '1') labSim(true);
+})();
+</script>
+</body>
+</html>

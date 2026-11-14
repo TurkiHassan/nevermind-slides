@@ -68,7 +68,6 @@ html, body {
   pointer-events: none;
   z-index: 0;
   transition: none !important;
-  backface-visibility: hidden;
 }
 /* zero specificity so any class the author puts on a slide wins */
 :where(.deck-stage > .slide) {
@@ -89,6 +88,7 @@ html, body {
   z-index: 1 !important;
 }
 .deck-stage > .slide.is-leaving.nm-on-top { z-index: 3 !important; }
+.deck-stage > .slide.nm-flying { will-change: transform, opacity, clip-path; }
 .deck-stage > .slide.morph-leaving { visibility: visible !important; pointer-events: none !important; z-index: 1 !important; }
 
 .camera-rig {
@@ -123,13 +123,11 @@ html, body {
 }
 .slide.is-camera-zoomed .zoom-focused {
   cursor: zoom-out;
-  position: relative;
   z-index: 30;
 }
 
 /* highlight act */
 .slide .nm-highlighted {
-  position: relative;
   z-index: 5;
   outline: 3px solid var(--nm-accent);
   outline-offset: 8px;
@@ -231,7 +229,7 @@ html, body {
 .nm-btn.nm-primary:hover { opacity: 0.88; }
 .nm-btn.nm-icon { padding: 6px 8px; }
 .nm-sep { width: 1px; height: 18px; background: rgba(255, 255, 255, 0.18); margin: 0 2px; }
-#slideCounter { font-variant-numeric: tabular-nums; padding: 0 6px; opacity: 0.9; }
+#slideCounter { font-variant-numeric: tabular-nums; padding: 0 6px; opacity: 0.9; direction: ltr; unicode-bidi: isolate; }
 .nm-progress {
   position: fixed;
   left: 0;
@@ -354,8 +352,8 @@ body.nm-help-open .nm-help { opacity: 1; pointer-events: auto; }
 }
 .nm-ov-num {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  bottom: 10px;
+  left: 10px;
   z-index: 5;
   padding: 3px 10px;
   border-radius: 999px;

@@ -110,6 +110,7 @@
         if (isTransient(e)) runAct('exit', e, ctxFor(slide, cur, dir, instant));
       });
       if (dir < 0) elsAt(slide, cur).forEach(function (e) { e.classList.remove('is-on'); if (!isTransient(e)) runAct('exit', e, ctxFor(slide, cur, dir, instant)); });
+      elsAt(slide, cur).forEach(function (e) { if (!e.classList.length) e.removeAttribute('class'); });
     }
     deck.stepIndex = i;
     if (i > 0) {

@@ -428,7 +428,7 @@
     var L = layoutOrigin(rig, stage);
     var rw = rig.offsetWidth || W, rh = rig.offsetHeight || H;
     var pad = o.pad == null ? 90 : o.pad;
-    var k = o.scale || clamp(Math.min((W - 2 * pad) / Math.max(r.w, 1), (H - 2 * pad) / Math.max(r.h, 1)) * 0.86, 1.12, 2.6);
+    var k = o.scale || clamp(Math.min((W - 2 * pad) / Math.max(r.w, 1), (H - 2 * pad) / Math.max(r.h, 1)) * 0.62, 1.15, 2.0);
     var cx = r.x + r.w / 2, cy = r.y + r.h / 2;
     var tx = W / 2 - L.x - k * (cx - L.x);
     var ty = H / 2 - L.y - k * (cy - L.y);
@@ -1669,6 +1669,8 @@
     var outgoing = new Set(pairs.map(function (p) { return p.a; }));
     var incoming = new Set(pairs.map(function (p) { return p.b; }));
     var focus = pairs.length ? centre(pairs[0].B.r) : null;
+    // own compositing layer per slide: clip-path then masks composited children correctly
+    from.classList.add('nm-flying'); to.classList.add('nm-flying');
     var enterAt = safe(function () { return runTransition(info, from, to, dir, { outgoing: outgoing, focus: focus }, bucket); }) || 0;
     if (!o.noEntrances) safe(function () { playArrival(to, { exclude: incoming, startAt: enterAt, dir: dir }); });
 
@@ -1683,8 +1685,8 @@
         (Array.isArray(g) ? g : [g]).forEach(function (n) { if (n && n.parentNode) n.parentNode.removeChild(n); });
       });
       while (ghostLayer.firstChild) ghostLayer.removeChild(ghostLayer.firstChild);
-      from.classList.remove('is-leaving', 'nm-on-top');
-      to.classList.remove('nm-on-top');
+      from.classList.remove('is-leaving', 'nm-on-top', 'nm-flying');
+      to.classList.remove('nm-on-top', 'nm-flying');
       resetSlide(from);
       enterDeferred(to);
     };
