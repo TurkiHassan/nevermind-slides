@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "note": "Eight tuned presets. ink on paper >= 7:1, muted on paper >= 4.5:1, accent on paper >= 3:1, accent2 on paper >= 3:1. Verified by tests.",
+  "default": "paper",
+  "presets": {
+    "paper": {
+      "name_ar": "ورق",
+      "name_en": "Paper",
+      "tone": "light",
+      "paper": "#FAF7F0",
+      "ink": "#1B1A17",
+      "muted": "#5E5A50",
+      "line": "#D9D3C4",
+      "accent": "#B4441F",
+      "accent2": "#1F5F5B",
+      "surface": "#FFFFFF",
+      "radius": 20
+    },
+    "mist": {
+      "name_ar": "ضباب",
+      "name_en": "Mist",
+      "tone": "light",
+      "paper": "#F1F5F9",
+      "ink": "#0F172A",
+      "muted": "#475569",
+      "line": "#CBD5E1",
+      "accent": "#1D4ED8",
+      "accent2": "#0F766E",
+      "surface": "#FFFFFF",
+      "radius": 16
+    },
+    "dune": {
+      "name_ar": "كثيب",
+      "name_en": "Dune",
+      "tone": "light",
+      "paper": "#F3EBDD",
+      "ink": "#2B2118",
+      "muted": "#6B5A47",
+      "line": "#D8C9AE",
+      "accent": "#8A4B16",
+      "accent2": "#2F6B4F",
+      "surface": "#FBF6EC",
+      "radius": 24
+    },
+    "olive": {
+      "name_ar": "زيتون",
+      "name_en": "Olive",
+      "tone": "light",
+      "paper": "#F4F5EC",
+      "ink": "#1E2418",
+      "muted": "#555D47",
+      "line": "#D3D8C2",
+      "accent": "#4F6B1F",
+      "accent2": "#B5532A",
+      "surface": "#FFFFFF",
+      "radius": 18
+    },
+    "ink": {
+      "name_ar": "حبر",
+      "name_en": "Ink",
+      "tone": "dark",
+      "paper": "#0F1115",
+      "ink": "#F2EFE8",
+      "muted": "#A3A7B0",
+      "line": "#2A2E37",
+      "accent": "#E8A33D",
+      "accent2": "#5CC8B5",
+      "surface": "#181B22",
+      "radius": 20
+    },
+    "night-sea": {
+      "name_ar": "بحر الليل",
+      "name_en": "Night Sea",
+      "tone": "dark",
+      "paper": "#0B1B2B",
+      "ink": "#EAF2F8",
+      "muted": "#9DB3C6",
+      "line": "#23384D",
+      "accent": "#4FB3E8",
+      "accent2": "#F2B84B",
+      "surface": "#122A40",
+      "radius": 16
+    },
+    "emerald": {
+      "name_ar": "زمرد",
+      "name_en": "Emerald",
+      "tone": "dark",
+      "paper": "#0C1F1A",
+      "ink": "#E9F4EE",
+      "muted": "#9CB8AB",
+      "line": "#21443A",
+      "accent": "#3FD08F",
+      "accent2": "#E6C35C",
+      "surface": "#133028",
+      "radius": 22
+    },
+    "ember": {
+      "name_ar": "جمر",
+      "name_en": "Ember",
+      "tone": "dark",
+      "paper": "#1A1614",
+      "ink": "#F5ECE0",
+      "muted": "#B3A596",
+      "line": "#3A312B",
+      "accent": "#FF7A59",
+      "accent2": "#8FD1C4",
+      "surface": "#241E1B",
+      "radius": 14
+    }
+  }
+}

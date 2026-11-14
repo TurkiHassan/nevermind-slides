@@ -1,0 +1,22 @@
+brief-check: source_nouns: has 10 distinct entries; needs at least 12. Add more from the source text.
+brief-check: verbs: has 3 distinct entries; needs at least 5. Add more from the source text.
+brief-check: quantities: must list 3 to 5 quantities; found 2.
+brief-check: quantities[0].value: must be a number, not "8".
+brief-check: quantities[1].source: must say where the number comes from.
+brief-check: rejected_rungs[0].reason: must give a real reason (10+ characters).
+brief-check: rung: 5 (metaphor machine) is the last resort: rejected_rungs must give reasons for rungs 1, 2, 3 and 4; missing 1, 2, 3, 4.
+brief-check: mode: must be "static" or "animated", not "live".
+brief-check: mapping: needs at least 6 rows { part, meaning }; found 5.
+brief-check: props[0]: "gauge" is not a prop in kit/scene.mjs. Known: ground, road, runway, water, terraces, fence, wall, bridge, building, warehouse, controlTower, hangar, house, tent, tank, silo, factory, person, seated, group, truck, van, car, forklift, ship, container, containerStack, quayCrane, gantryCrane, aircraft, helicopter, drone, satellite, track, trainCar, serverRack, desk, monitor, laptop, chip, dish, mast, router, sensorPole, robotArm, battery, solarArray, windTurbine, substation, pipeRun, documentSheet, paperStack, book, binder, whiteboard, shelf, crate, pallet, drum, conveyor, parcel, flag, signpost, cone, bollard, lightMast, platform, gate, tree, shrub, rock, cloud.
+brief-check: subject: "dial gauge on a test rig" is a dial indicator, which the topic does not mention. Instead: draw the place where the number is produced and put the number in the readout.
+brief-check: subject: "dial gauge on a test rig" is a gauge, which the topic does not mention. Instead: draw the domain's control room or the working site itself.
+brief-check: subject: "dial gauge on a test rig" is a test rig, which the topic does not mention. Instead: draw the real workplace of the field.
+brief-check: mapping: 2 parts are machine with knobs parts (knob, lever) but the topic does not mention one. Instead: draw the domain's own equipment (crane, conveyor, ambulance, turbine ...).
+brief-check: mapping[0].part: "needle" is not in source_nouns or props. Use a real noun from the source text or a prop you draw.
+brief-check: mapping[1].part: "dial" is not in source_nouns or props. Use a real noun from the source text or a prop you draw.
+brief-check: mapping[2].part: "knob" is not in source_nouns or props. Use a real noun from the source text or a prop you draw.
+brief-check: mapping[3].part: "lever" is not in source_nouns or props. Use a real noun from the source text or a prop you draw.
+brief-check: --build: the build neither imports kit/scene.mjs nor declares "// custom-subject: <reason>" (10+ characters). Import the subject kit or say why the subject is custom.
+brief-check: props: "scene.gauge" is listed but gauge(...) is never called in dial-for-everything.build.mjs. Draw it or remove it from props.
+brief-check: props: "scene.conveyor" is listed but conveyor(...) is never called in dial-for-everything.build.mjs. Draw it or remove it from props.
+brief failed: 21 problems

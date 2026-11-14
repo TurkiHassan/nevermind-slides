@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مختبر الوسائط - nm-media</title>
+<link rel="stylesheet" href="../nm-media.css">
+<style>
+  :root {
+    --nm-paper: #f8f6f1; --nm-ink: #1c1b19; --nm-muted: #6d6a62; --nm-line: #d9d4c8;
+    --nm-accent: #c83e37; --nm-accent-2: #1f6f6b; --nm-surface: #ece8df; --nm-radius: 14px;
+    --nm-font-body: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  }
+  :root[data-theme="night"] {
+    --nm-paper: #14171c; --nm-ink: #ece7dc; --nm-muted: #98a0aa; --nm-line: #2c323b;
+    --nm-accent: #e9a23b; --nm-accent-2: #5fb3a8; --nm-surface: #1d2229;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--nm-paper); color: var(--nm-ink); font: 400 18px/1.7 var(--nm-font-body); }
+  main { max-width: 1240px; margin: 0 auto; padding: 36px 32px 90px; }
+  h1 { font-size: 40px; margin: 0 0 6px; }
+  h2 { font-size: 26px; margin: 54px 0 6px; padding-block-end: 8px; border-block-end: 2px solid var(--nm-line); }
+  p.lead { color: var(--nm-muted); margin: 0 0 18px; }
+  code { direction: ltr; unicode-bidi: isolate; font: 500 14px ui-monospace, Menlo, Consolas, monospace;
+         background: var(--nm-surface); padding: 1px 7px; border-radius: 6px; }
+  .grid { display: grid; gap: 28px 24px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); align-items: start; }
+  .grid.wide { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+  .cell { display: flex; flex-direction: column; gap: 10px; }
+  .cell > .cap { font-size: 15px; color: var(--nm-muted); }
+  .cell > .cap code { margin-inline-end: 6px; }
+  .themebar { display: flex; gap: 10px; margin: 14px 0 0; }
+  .themebar button { font: inherit; cursor: pointer; padding: 6px 18px; border-radius: 999px;
+    border: 1.5px solid var(--nm-ink); background: transparent; color: var(--nm-ink); }
+  .themebar button[aria-pressed="true"] { background: var(--nm-ink); color: var(--nm-paper); }
+  .minislide { position: relative; aspect-ratio: 16 / 9; width: 100%; overflow: hidden; border-radius: 10px;
+    background: var(--nm-paper); border: 1px solid var(--nm-line); }
+  .minislide .txt { position: absolute; inset-block: 0; inset-inline-start: 0; width: 48%; padding: 7% 5%;
+    display: flex; flex-direction: column; justify-content: center; gap: 8px; z-index: 3; }
+  .minislide h3 { margin: 0; font-size: 28px; line-height: 1.3; }
+  .minislide p { margin: 0; color: var(--nm-ink); font-size: 16px; }
+  .on-paper { background: var(--nm-paper); }
+  .pad { padding: 22px; background: var(--nm-surface); border-radius: 12px; }
+  .wipe-btn { font: inherit; cursor: pointer; padding: 4px 16px; border-radius: 999px; border: 1.5px solid var(--nm-ink);
+    background: transparent; color: var(--nm-ink); align-self: start; }
+  .px-art { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>مختبر الوسائط</h1>
+  <p class="lead">كل إطار وقناع ومعالجة في <code>nm-media.css</code>. الصور مرسومة محلياً ولا تحتاج إلى شبكة.</p>
+  <div class="themebar" role="group" aria-label="السمة">
+    <button type="button" data-theme-set="paper" aria-pressed="true">سمة ورقية</button>
+    <button type="button" data-theme-set="night" aria-pressed="false">سمة ليلية</button>
+  </div>
+
+  <h2>الإطار ونسب العرض</h2>
+  <p class="lead">القص عبر <code>object-fit: cover</code> مع نقطة التركيز <code>--focus-x / --focus-y</code> (هنا الشمس عند 70% و 25%).</p>
+  <div class="grid">
+    <div class="cell"><figure class="nm-img nm-ar-16x9" style="--focus-x:70%;--focus-y:25%"><img src="img/dunes.jpg" alt="كثبان رملية"><figcaption class="nm-credit">سارة أحمد &middot; CC BY 4.0</figcaption></figure><div class="cap"><code>nm-ar-16x9</code> إطار مع شارة مصدر</div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3" style="--focus-x:70%"><img src="img/city.jpg" alt="أفق مدينة"></figure><div class="cap"><code>nm-ar-4x3</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-1x1"><img src="img/still.jpg" alt="طبيعة صامتة"></figure><div class="cap"><code>nm-ar-1x1</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-3x4"><img src="img/gate.jpg" alt="بوابة"></figure><div class="cap"><code>nm-ar-3x4</code></div></div>
+    <div class="cell" style="grid-column: span 2"><figure class="nm-img nm-ar-21x9"><img src="img/peaks.jpg" alt="قمم"></figure><div class="cap"><code>nm-ar-21x9</code> بانوراما</div></div>
+  </div>
+
+  <h2>الأقنعة</h2>
+  <p class="lead">أقنعة متجهية حادة. الانحناء والخطوات تنعكس تلقائياً في الاتجاه من اليمين إلى اليسار.</p>
+  <div class="grid">
+    <div class="cell"><figure class="nm-img nm-ar-3x4 nm-mask-arch"><img src="img/gate.jpg" alt=""><figcaption class="nm-credit">قوس</figcaption></figure><div class="cap"><code>nm-mask-arch</code></div></div>
+    <div class="cell"><figure class="nm-img nm-mask-circle"><img src="img/still.jpg" alt=""><figcaption class="nm-credit">دائرة</figcaption></figure><div class="cap"><code>nm-mask-circle</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-mask-blob"><img src="img/sea.jpg" alt=""><figcaption class="nm-credit">كتلة</figcaption></figure><div class="cap"><code>nm-mask-blob</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-mask-slant"><img src="img/dunes.jpg" alt=""><figcaption class="nm-credit">مائل</figcaption></figure><div class="cap"><code>nm-mask-slant</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-mask-tab"><img src="img/city.jpg" alt=""><figcaption class="nm-credit">لسان</figcaption></figure><div class="cap"><code>nm-mask-tab</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-mask-notch"><img src="img/peaks.jpg" alt=""><figcaption class="nm-credit">فجوة</figcaption></figure><div class="cap"><code>nm-mask-notch</code></div></div>
+  </div>
+
+  <h2>المعالجات الحية</h2>
+  <p class="lead">تُحسب في المتصفح من ألوان السمة <code>--nm-ink</code> و <code>--nm-paper</code> و <code>--nm-accent</code>. لا حاجة إلى خبز الصورة.</p>
+  <div class="grid">
+    <div class="cell"><figure class="nm-img nm-ar-4x3"><img src="img/city.jpg" alt=""></figure><div class="cap">الأصل بلا معالجة</div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-duotone"><img src="img/city.jpg" alt=""></figure><div class="cap"><code>nm-duotone</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-duotone nm-duotone-accent"><img src="img/city.jpg" alt=""></figure><div class="cap"><code>nm-duotone nm-duotone-accent</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-mono"><img src="img/city.jpg" alt=""></figure><div class="cap"><code>nm-mono</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-tint"><img src="img/city.jpg" alt=""></figure><div class="cap"><code>nm-tint</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-vignette"><img src="img/dunes.jpg" alt=""></figure><div class="cap"><code>nm-vignette</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-grain-heavy"><img src="img/dunes.jpg" alt=""></figure><div class="cap"><code>nm-grain-heavy</code></div></div>
+    <div class="cell"><div class="on-paper"><figure class="nm-img nm-ar-4x3 nm-halftone"><img src="img/sea.jpg" alt=""></figure></div><div class="cap"><code>nm-halftone</code> أفضل على خلفية فاتحة</div></div>
+    <div class="cell"><figure class="nm-img nm-ar-4x3 nm-duotone nm-grain nm-vignette"><img src="img/sea.jpg" alt=""></figure><div class="cap"><code>nm-duotone nm-grain nm-vignette</code> معاً</div></div>
+  </div>
+
+  <h2>الحركة</h2>
+  <p class="lead">الإطار الحي يتحرك فقط داخل <code>.slide.active</code>. زر الكشف يضيف الصنف <code>.is-on</code> كما تفعل الخطوات.</p>
+  <div class="grid wide">
+    <div class="cell">
+      <div class="slide active"><figure class="nm-img nm-ar-16x9 nm-kenburns" style="--focus-x:72%;--focus-y:24%"><img src="img/dunes.jpg" alt=""></figure></div>
+      <div class="cap"><code>nm-kenburns</code> تقريب بطيء نحو نقطة التركيز</div>
+    </div>
+    <div class="cell">
+      <div class="slide active">
+        <div class="nm-parallax nm-ar-16x9" style="aspect-ratio:16/9">
+          <img class="nm-px nm-px-1" src="img/peaks.jpg" alt="">
+          <svg class="nm-px nm-px-2" viewBox="0 0 160 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 70 C25 52 45 62 70 56 S120 50 160 62 V90 H0Z" fill="#7a4e4a" opacity=".85"/></svg>
+          <svg class="nm-px nm-px-3" viewBox="0 0 160 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 82 C30 70 60 80 95 74 S140 70 160 78 V90 H0Z" fill="#1c1b19"/><path d="M118 74 L124 52 L130 74Z" fill="#1c1b19"/></svg>
+        </div>
+      </div>
+      <div class="cap"><code>nm-parallax</code> ثلاث طبقات بعمق مختلف</div>
+    </div>
+    <div class="cell">
+      <figure class="nm-img nm-ar-16x9 nm-reveal-wipe" id="wipe"><img src="img/sea.jpg" alt=""></figure>
+      <button class="wipe-btn" type="button" id="wipeBtn">تشغيل الكشف</button>
+      <div class="cap"><code>nm-reveal-wipe</code> يكشف من جهة بداية القراءة</div>
+    </div>
+  </div>
+
+  <h2>خلفية كاملة مع ستار للنص</h2>
+  <p class="lead"><code>nm-img-bleed</code> يملأ الشريحة، والتدرج يظهر من جهة النص (اليمين في العربية).</p>
+  <div class="grid wide">
+    <div class="cell"><div class="minislide slide active">
+      <figure class="nm-img nm-img-bleed nm-kenburns" style="--focus-x:30%"><img src="img/dunes.jpg" alt=""><figcaption class="nm-credit">سارة أحمد &middot; CC BY 4.0</figcaption></figure>
+      <div class="txt"><h3>الرمال تتحرك ببطء</h3><p>نص فوق الصورة يبقى مقروءاً بفضل الستار اللوني.</p></div>
+    </div></div>
+    <div class="cell"><div class="minislide">
+      <figure class="nm-img nm-img-bleed nm-duotone nm-grain-lite" style="--focus-x:40%"><img src="img/city.jpg" alt=""></figure>
+      <div class="txt"><h3>مدينة بلونين</h3><p>معالجة ثنائية اللون مع ستار وحبيبات خفيفة.</p></div>
+    </div></div>
+  </div>
+
+  <h2>الرزمة وشريط الفيلم</h2>
+  <div class="grid wide">
+    <div class="cell pad"><div class="nm-img-stack">
+      <figure class="nm-img nm-ar-4x3"><img src="img/dunes.jpg" alt=""></figure>
+      <figure class="nm-img nm-ar-4x3"><img src="img/sea.jpg" alt=""></figure>
+      <figure class="nm-img nm-ar-4x3"><img src="img/city.jpg" alt=""></figure>
+    </div><div class="cap"><code>nm-img-stack</code></div></div>
+    <div class="cell pad"><div class="nm-img-strip">
+      <figure class="nm-img"><img src="img/dunes.jpg" alt=""></figure>
+      <figure class="nm-img"><img src="img/city.jpg" alt=""></figure>
+      <figure class="nm-img"><img src="img/sea.jpg" alt=""></figure>
+      <figure class="nm-img"><img src="img/still.jpg" alt=""></figure>
+    </div><div class="cap"><code>nm-img-strip</code></div></div>
+  </div>
+
+  <h2>لوحات بديلة عند غياب الشبكة</h2>
+  <p class="lead">مولّدة بالأمر <code>image_fetch.py placeholder</code> بألوان السمة الافتراضية.</p>
+  <div class="grid">
+    <div class="cell"><figure class="nm-img nm-ar-16x9"><img src="img/plate-topo.svg" alt=""></figure><div class="cap"><code>topo</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-16x9"><img src="img/plate-waves.svg" alt=""></figure><div class="cap"><code>waves</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-16x9"><img src="img/plate-grid.svg" alt=""></figure><div class="cap"><code>grid</code></div></div>
+    <div class="cell"><figure class="nm-img nm-ar-16x9"><img src="img/plate-rays.svg" alt=""></figure><div class="cap"><code>rays</code></div></div>
+  </div>
+</main>
+<script>
+(function () {
+  var root = document.documentElement;
+  function setTheme(t) {
+    if (t === 'night') root.setAttribute('data-theme', 'night'); else root.removeAttribute('data-theme');
+    document.querySelectorAll('[data-theme-set]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === t));
+    });
+  }
+  document.querySelectorAll('[data-theme-set]').forEach(function (b) {
+    b.addEventListener('click', function () { setTheme(b.getAttribute('data-theme-set')); });
+  });
+  var q = /[?&]theme=(\w+)/.exec(location.search);
+  if (q) setTheme(q[1]);
+  var w = document.getElementById('wipe');
+  document.getElementById('wipeBtn').addEventListener('click', function () { w.classList.toggle('is-on'); });
+  if (/[?&]wipe=1/.test(location.search)) w.classList.add('is-on');
+})();
+</script>
+</body>
+</html>

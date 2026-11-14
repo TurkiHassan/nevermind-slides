@@ -1,0 +1,162 @@
+{
+  "title": "كيف يتعلّم الدماغ",
+  "lang": "ar",
+  "theme": { "preset": "paper" },
+  "fonts": { "pairing": "thmanyah" },
+  "mode": "morph-and-zoom",
+  "image_source": "generate",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "الغلاف",
+      "role": "cover",
+      "layout": "cover",
+      "visual": { "type": "image", "ref": "cover-brain", "query": "abstract luminous neural pathways, warm paper tones, no text" },
+      "rel": "next",
+      "transition": "auto",
+      "morph": ["title"],
+      "steps": [],
+      "text": {
+        "kicker": "علم الأعصاب",
+        "headline": "كيف يتعلّم الدماغ",
+        "body": ["رحلة من الخلية العصبية إلى العادة"]
+      },
+      "speaker_note": "ابدأ بالسؤال: ما الذي يتغيّر داخلك حين تتعلّم شيئًا جديدًا؟"
+    },
+    {
+      "id": "s2",
+      "title": "الخلية العصبية",
+      "role": "concept",
+      "layout": "split",
+      "visual": { "type": "anatomy", "ref": "neuron", "mode": "animated" },
+      "rel": "deeper",
+      "transition": "auto",
+      "morph": ["title", "visual"],
+      "steps": [
+        { "act": "reveal", "target": "body1", "note": "الجسم الخلوي" },
+        { "act": "reveal", "target": "body2", "note": "المحور" },
+        { "act": "detail", "target": "visual", "note": "تكبير نقطة التشابك" }
+      ],
+      "text": {
+        "kicker": "الوحدة الأساسية",
+        "headline": "خلية واحدة تحمل الإشارة",
+        "body": ["الجسم الخلوي يجمع الإشارات", "المحور ينقلها إلى الخلية التالية"]
+      },
+      "speaker_note": "اترك الرسم يتحرّك قبل أن تشرح."
+    },
+    {
+      "id": "s3",
+      "title": "مسار الإشارة",
+      "role": "mechanism",
+      "layout": "diagram",
+      "visual": { "type": "diagram", "diagram_type": "flow", "mode": "animated", "ref": "signal-path" },
+      "rel": "next",
+      "transition": "auto",
+      "morph": ["visual"],
+      "steps": [
+        { "act": "draw", "target": "visual", "note": "ارسم المسار كاملًا" },
+        { "act": "focus", "target": "node:synapse", "note": "اعزل نقطة التشابك" }
+      ],
+      "text": {
+        "kicker": "الآلية",
+        "headline": "من المستقبِل إلى التشابك",
+        "body": []
+      },
+      "speaker_note": "اربط كل عقدة بما رأيناه في الشريحة السابقة."
+    },
+    {
+      "id": "s4",
+      "title": "قبل التدريب وبعده",
+      "role": "comparison",
+      "layout": "compare",
+      "visual": { "type": "chart", "diagram_type": "bar", "ref": "before-after" },
+      "rel": "contrast",
+      "transition": "wipe",
+      "morph": ["visual"],
+      "steps": [
+        { "act": "reveal", "target": "body1" },
+        { "act": "reveal", "target": "body2" }
+      ],
+      "text": {
+        "kicker": "مقارنة",
+        "headline": "التكرار يقوّي الاتصال",
+        "body": ["قبل التدريب: اتصال ضعيف", "بعد التدريب: اتصال أقوى وأسرع"]
+      },
+      "speaker_note": "قارن العمودين بصريًا ولا تقرأ الأرقام."
+    },
+    {
+      "id": "s5",
+      "title": "الدليل",
+      "role": "evidence",
+      "layout": "stat",
+      "visual": { "type": "chart", "diagram_type": "line", "ref": "retention-curve" },
+      "rel": "next",
+      "transition": "auto",
+      "morph": ["visual"],
+      "steps": [
+        { "act": "reveal", "target": "stat" },
+        { "act": "draw", "target": "visual" }
+      ],
+      "text": {
+        "kicker": "دراسة",
+        "headline": "التدريب المتباعد يرفع الاحتفاظ",
+        "body": ["المقارنة بين مجموعتين على مدى شهر"],
+        "stat": { "value": "70%", "label": "احتفاظ بالمعلومة بعد شهر" }
+      },
+      "speaker_note": "الرقم هو البطل. اترك الصمت بعده."
+    },
+    {
+      "id": "s6",
+      "title": "مسار التعلّم",
+      "role": "process",
+      "layout": "timeline",
+      "visual": { "type": "diagram", "diagram_type": "timeline", "ref": "learning-steps" },
+      "rel": "time",
+      "transition": "push",
+      "morph": [],
+      "steps": [
+        { "act": "reveal", "target": "visual" },
+        { "act": "highlight", "target": "node:repeat", "note": "التكرار" }
+      ],
+      "text": {
+        "kicker": "العملية",
+        "headline": "أربع مراحل من الانتباه إلى العادة",
+        "body": []
+      },
+      "speaker_note": "مرّ على المراحل بالترتيب مع الحركة."
+    },
+    {
+      "id": "s7",
+      "title": "اقتباس",
+      "role": "quote",
+      "layout": "quote",
+      "visual": { "type": "none" },
+      "rel": "chapter",
+      "transition": "auto",
+      "morph": ["title"],
+      "steps": [],
+      "text": {
+        "kicker": "من يتعلّم يتغيّر",
+        "headline": "الخلايا التي تنشط معًا ترتبط معًا"
+      },
+      "speaker_note": "توقّف هنا. شريحة للتنفّس."
+    },
+    {
+      "id": "s8",
+      "title": "الخاتمة",
+      "role": "closing",
+      "layout": "center",
+      "visual": { "type": "image", "ref": "closing-path", "query": "single winding path toward light, minimal, warm tones, no text" },
+      "rel": "back-out",
+      "transition": "auto",
+      "morph": ["title"],
+      "steps": [],
+      "text": {
+        "kicker": "الخلاصة",
+        "headline": "كرّر بذكاء واترك الدماغ يعيد البناء",
+        "body": ["ابدأ اليوم بجلسة قصيرة"]
+      },
+      "speaker_note": "اختم بفعل واحد يستطيع الجمهور القيام به غدًا."
+    }
+  ]
+}

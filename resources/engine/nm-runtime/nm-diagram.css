@@ -1,0 +1,300 @@
+/* nm-diagram.css - Nevermind Runtime v2: diagrams, connectors, small charts.
+   Reads theme variables (contract section 6) with fallbacks; zero custom CSS gives the refined default. */
+
+.nm-dg {
+  --dg-paper: var(--nm-paper, var(--slide-bg, #fbfaf7));
+  --dg-ink: var(--nm-ink, #1b1d22);
+  --dg-muted: var(--nm-muted, color-mix(in oklab, var(--dg-ink) 58%, var(--dg-paper)));
+  --dg-line: var(--nm-line, color-mix(in oklab, var(--dg-ink) 30%, var(--dg-paper)));
+  --dg-faint: color-mix(in oklab, var(--dg-line) 42%, var(--dg-paper));
+  --dg-edge: color-mix(in oklab, var(--dg-ink) 56%, var(--dg-paper));
+  --dg-accent: var(--nm-accent, var(--lp-accent, #c2410c));
+  --dg-accent2: var(--nm-accent-2, #0f766e);
+  --dg-surface: var(--nm-surface, color-mix(in oklab, var(--dg-paper) 82%, #fff));
+  --dg-border: color-mix(in oklab, var(--dg-ink) 24%, var(--dg-paper));
+  --dg-on-accent: #fff;
+  --dg-danger: #b42318;
+  --dg-ok: #15803d;
+  --dg-warn: #b45309;
+  --dg-r: min(var(--nm-radius, 14px), 18px);
+  --dg-font: var(--nm-font-body, inherit);
+  --dg-font-num: var(--nm-font-display, var(--dg-font));
+  --dg-ease: cubic-bezier(.2, .7, .2, 1);
+  --dg-pop: cubic-bezier(.3, 1.35, .5, 1);
+  --dg-t-node: 560ms;
+  --dg-t-draw: 760ms;
+  color: var(--dg-ink);
+  font-family: var(--dg-font);
+}
+
+/* ------------------------------------------------------------- figure frame */
+.nm-diagram {
+  position: relative;
+  display: block;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
+}
+.nm-diagram > script { display: none; }
+.nm-diagram > figcaption {
+  position: absolute; inset-inline: 0; bottom: 0;
+  font-size: 22px; line-height: 1.6; color: var(--dg-muted); text-align: center;
+}
+.nm-dg-canvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+.nm-dg-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.nm-dg-html { position: absolute; inset: 0; }
+
+/* connector overlay inside any host with data-links */
+.nm-links.nm-dg { position: absolute; inset: 0; grid-area: auto !important; pointer-events: none; z-index: 4; margin: 0; }
+
+/* ------------------------------------------------------------- nodes */
+.nm-dg-node {
+  position: absolute; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 18px 28px;
+  background: var(--dg-surface);
+  border: 2px solid var(--dg-border);
+  border-radius: var(--dg-r);
+  color: var(--dg-ink);
+  font-size: 26px; font-weight: 600; line-height: 1.5;
+  text-align: center;
+  overflow-wrap: normal; word-break: keep-all; hyphens: none;
+  min-width: 96px;
+}
+.nm-dg-txt { min-width: 0; max-width: 100%; text-wrap: balance; }
+.nm-dg-t { display: block; }
+.nm-dg-s { display: block; margin-top: 4px; font-size: 19px; font-weight: 400; line-height: 1.55; color: var(--dg-muted); }
+.nm-dg-ico { width: 34px; height: 34px; flex: none; color: var(--dg-accent); }
+.nm-dg-fs1 .nm-dg-t { font-size: .9em; } .nm-dg-fs2 .nm-dg-t { font-size: .8em; } .nm-dg-fs3 .nm-dg-t { font-size: .72em; }
+
+.nm-dg-pill { border-radius: 999px; padding-inline: 34px; }
+.nm-dg-circle { border-radius: 50%; padding: 0; flex-direction: column; gap: 6px; }
+.nm-dg-circle .nm-dg-txt, .nm-dg-diamond .nm-dg-txt { padding: 0 6px; }
+.nm-dg-diamond { background: none; border: 0; padding: 0; flex-direction: column; gap: 4px; }
+.nm-dg-diamond .nm-dg-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: -1; }
+.nm-dg-diamond .nm-dg-shape polygon { fill: var(--dg-surface); stroke: var(--dg-border); stroke-width: 2; stroke-linejoin: round; }
+.nm-dg-diamond { isolation: isolate; }
+.nm-dg-plain { background: none; border: 0; padding: 0; text-align: start; justify-content: flex-start; min-width: 0; }
+
+/* tones */
+.nm-dg-node.is-accent { background: var(--dg-accent); border-color: var(--dg-accent); color: var(--dg-on-accent);
+  box-shadow: 0 14px 34px -14px color-mix(in oklab, var(--dg-accent) 70%, transparent), 0 2px 6px -2px color-mix(in oklab, var(--dg-accent) 40%, transparent); }
+.nm-dg-node.is-accent .nm-dg-s { color: color-mix(in oklab, var(--dg-on-accent) 82%, transparent); }
+.nm-dg-node.is-accent .nm-dg-ico { color: currentColor; }
+.nm-dg-diamond.is-accent, .nm-dg-plain.is-accent { background: none; box-shadow: none; }
+.nm-dg-diamond.is-accent .nm-dg-shape polygon { fill: var(--dg-accent); stroke: var(--dg-accent); }
+.nm-dg-diamond.is-accent { filter: drop-shadow(0 10px 16px color-mix(in oklab, var(--dg-accent) 35%, transparent)); }
+.nm-dg-plain.is-accent { color: var(--dg-accent); }
+.nm-dg-node.is-accent-soft { border-color: color-mix(in oklab, var(--dg-accent) 70%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-accent) 7%, var(--dg-surface)); }
+.nm-dg-node.is-strong { background: var(--dg-ink); border-color: var(--dg-ink); color: var(--dg-paper); }
+.nm-dg-node.is-strong .nm-dg-s { color: color-mix(in oklab, var(--dg-paper) 75%, transparent); }
+.nm-dg-node.is-muted { background: transparent; border-style: dashed; border-color: var(--dg-line); color: var(--dg-muted); }
+.nm-dg-diamond.is-muted .nm-dg-shape polygon { fill: transparent; stroke-dasharray: 6 5; }
+.nm-dg-node.is-ghost { background: transparent; border-color: transparent; }
+.nm-dg-node.is-danger { border-color: var(--dg-danger); background: color-mix(in oklab, var(--dg-danger) 8%, var(--dg-surface)); }
+.nm-dg-node.is-danger .nm-dg-ico { color: var(--dg-danger); }
+.nm-dg-node.is-ok { border-color: var(--dg-ok); background: color-mix(in oklab, var(--dg-ok) 8%, var(--dg-surface)); }
+.nm-dg-node.is-ok .nm-dg-ico { color: var(--dg-ok); }
+.nm-dg-node.is-warn { border-color: var(--dg-warn); background: color-mix(in oklab, var(--dg-warn) 9%, var(--dg-surface)); }
+
+/* node variants used by structured types */
+.nm-dg-card { text-align: start; justify-content: flex-start; padding: 18px 24px; }
+.nm-dg-chip { border-radius: 999px; padding: 10px 24px; font-size: 22px; font-weight: 500; min-width: 0; }
+.nm-dg-chip .nm-dg-s { font-size: 16px; margin-top: 0; }
+.nm-dg-pin { padding: 8px 20px 8px 18px; font-size: 21px; font-weight: 600; min-width: 0; gap: 10px; }
+.nm-dg-pin::before { content: ""; flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--dg-accent); }
+.nm-dg-pin.is-accent::before { background: var(--dg-on-accent); }
+.nm-dg-colhead { font-size: 27px; font-weight: 700; padding: 18px 24px; }
+.nm-dg-cell { font-size: 23px; font-weight: 500; padding: 14px 24px; }
+.nm-dg-sidenode .nm-dg-t { font-size: 27px; font-weight: 700; }
+.nm-dg-sidenode .nm-dg-s { font-size: 20px; }
+.nm-dg-setlabel { justify-content: center; text-align: center; }
+.nm-dg-setlabel .nm-dg-t { font-size: 29px; font-weight: 700; }
+.nm-dg-setlabel.s0 { color: color-mix(in oklab, var(--dg-accent) 80%, var(--dg-ink)); }
+.nm-dg-setlabel.s1 { color: color-mix(in oklab, var(--dg-accent2) 85%, var(--dg-ink)); }
+.nm-dg-interlabel { justify-content: center; text-align: center; font-size: 20px; font-weight: 600; }
+.nm-dg-interlabel .nm-dg-s { font-size: 16px; }
+
+/* ------------------------------------------------------------- labels */
+.nm-dg-label { position: absolute; box-sizing: border-box; line-height: 1.5; color: var(--dg-ink); }
+.nm-dg-label span, .nm-dg-label em { font-style: normal; }
+.nm-dg-elabel { font-size: 19px; font-weight: 500; color: var(--dg-muted); background: var(--dg-paper); padding: 3px 12px; border-radius: 999px; text-align: center; white-space: normal; }
+.nm-dg-elabel.is-above { background: transparent; color: var(--dg-ink); font-weight: 500; }
+.nm-dg-glabel { font-size: 19px; font-weight: 700; color: color-mix(in oklab, var(--dg-accent) 75%, var(--dg-ink)); white-space: nowrap; }
+.nm-dg-glabel span { font-weight: 400; color: var(--dg-muted); }
+.nm-dg-center { text-align: center; }
+.nm-dg-center b { display: block; font-size: 32px; font-weight: 700; }
+.nm-dg-center span { display: block; font-size: 20px; color: var(--dg-muted); }
+.nm-dg-date { font-family: var(--dg-font-num); font-size: 25px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.nm-dg-date.is-accent { color: var(--dg-accent); }
+.nm-dg-side, .nm-dg-lanehead { text-align: start; }
+.nm-dg-side b, .nm-dg-lanehead b { display: block; font-size: 26px; font-weight: 700; }
+.nm-dg-side span, .nm-dg-lanehead span { display: block; font-size: 19px; color: var(--dg-muted); }
+.nm-dg-side.is-accent b { color: var(--dg-accent); }
+.nm-dg-lanehead { text-align: center; }
+.nm-dg-quad { font-size: 22px; font-weight: 700; color: color-mix(in oklab, var(--dg-ink) 42%, var(--dg-paper)); }
+.nm-dg-axtitle { font-size: 22px; font-weight: 700; white-space: nowrap; }
+.nm-dg-axtitle span { font-weight: 400; color: var(--dg-muted); }
+.nm-dg-axend { font-size: 19px; color: var(--dg-muted); white-space: nowrap; }
+.nm-dg-crit { font-size: 21px; font-weight: 700; background: var(--dg-paper); border: 2px solid var(--dg-line); border-radius: 999px; padding: 6px 20px; text-align: center; }
+.nm-dg-crit.is-accent { border-color: var(--dg-accent); color: var(--dg-accent); }
+.nm-dg-blabel { font-size: 24px; font-weight: 500; text-align: start; }
+.nm-dg-blabel.is-center { text-align: center; }
+.nm-dg-blabel span { display: block; font-size: 17px; color: var(--dg-muted); }
+.nm-dg-blabel.is-accent { font-weight: 700; }
+.nm-dg-bvalue { font-family: var(--dg-font-num); font-size: 25px; font-weight: 700; white-space: nowrap; color: var(--dg-muted); font-variant-numeric: tabular-nums; }
+.nm-dg-bvalue.is-accent { color: var(--dg-ink); }
+.nm-dg-tick { font-size: 18px; color: var(--dg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.nm-dg-endlabel { font-size: 21px; white-space: nowrap; }
+.nm-dg-endlabel b { font-weight: 600; }
+.nm-dg-endlabel span { font-weight: 700; font-variant-numeric: tabular-nums; }
+.nm-dg-endlabel.c0 b { color: var(--dg-accent); }
+.nm-dg-endlabel.c1 b { color: color-mix(in oklab, var(--dg-ink) 72%, var(--dg-paper)); }
+.nm-dg-endlabel.c2 b { color: var(--dg-accent2); }
+.nm-dg-legend { display: flex; align-items: center; gap: 14px; font-size: 24px; white-space: nowrap; }
+.nm-dg-legend b { font-weight: 500; }
+.nm-dg-legend span { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--dg-muted); margin-inline-start: 6px; }
+.nm-dg-sw { display: inline-block; width: 18px; height: 18px; border-radius: 5px; flex: none; }
+.nm-dg-centerfig { text-align: center; }
+.nm-dg-centerfig b { display: block; font-family: var(--dg-font-num); font-size: 68px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.nm-dg-centerfig span { display: block; font-size: 20px; color: var(--dg-muted); }
+.nm-dg-gaugefig { text-align: center; }
+.nm-dg-gaugefig b { display: block; font-family: var(--dg-font-num); font-size: 124px; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.nm-dg-gaugefig span { display: block; font-size: 28px; font-weight: 600; margin-top: 6px; }
+.nm-dg-gaugefig em { display: block; font-size: 20px; color: var(--dg-muted); }
+.nm-dg-stat { text-align: center; }
+.nm-dg-stat b { display: block; font-family: var(--dg-font-num); font-weight: 700; line-height: 1.08; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nm-dg-stat.is-1 b { font-size: 220px; } .nm-dg-stat.is-2 b { font-size: 150px; } .nm-dg-stat.is-3 b { font-size: 118px; } .nm-dg-stat.is-4 b { font-size: 92px; } .nm-dg-stat.is-5 b { font-size: 72px; }
+.nm-dg-stat.is-accent b { color: var(--dg-accent); }
+.nm-dg-stat span { display: block; font-size: 29px; font-weight: 600; margin-top: 14px; }
+.nm-dg-stat em { display: block; font-size: 21px; color: var(--dg-muted); margin-top: 4px; }
+.nm-dg-tierval { font-family: var(--dg-font-num); font-size: 26px; font-weight: 700; white-space: nowrap; color: var(--dg-ink); font-variant-numeric: tabular-nums; }
+.nm-dg-tierval.is-on-fill { color: var(--dg-on-accent); }
+
+/* ------------------------------------------------------------- svg marks */
+.nm-dg-edge { color: var(--dg-edge); }
+.nm-dg-edge.is-accent { color: var(--dg-accent); }
+.nm-dg-stroke { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: butt; }
+.nm-dg-edge.is-thick .nm-dg-stroke { stroke-width: 3.5; }
+.nm-dg-dash { stroke-dasharray: 9 7; }
+.nm-dg-drawmask { fill: none; stroke: #fff; stroke-width: 14; stroke-linecap: butt; }
+.nm-dg-head { fill: currentColor; stroke: none; }
+.nm-dg-flowdots { fill: none; stroke: var(--dg-accent); stroke-width: 4.5; stroke-linecap: round; stroke-dasharray: 0 34; animation: nm-dg-flow 1.3s linear infinite; }
+.nm-dg-flowdots.is-slow { animation-duration: 2s; }
+@keyframes nm-dg-flow { to { stroke-dashoffset: -34; } }
+.slide:not(.active):not(.visible) .nm-dg-flowdots { animation-play-state: paused; }
+.nm-dg-axisline { color: color-mix(in oklab, var(--dg-ink) 62%, var(--dg-paper)); }
+
+.nm-dg-group { fill: color-mix(in oklab, var(--dg-accent) 3.5%, var(--dg-paper)); stroke: color-mix(in oklab, var(--dg-accent) 26%, var(--dg-paper)); stroke-width: 1.5; stroke-dasharray: 5 6; }
+.nm-dg-group.is-muted { fill: color-mix(in oklab, var(--dg-ink) 3%, var(--dg-paper)); stroke: var(--dg-faint); }
+.nm-dg-ring { fill: none; stroke: var(--dg-faint); stroke-width: 2; stroke-dasharray: 1 12; stroke-linecap: round; }
+.nm-dg-lane { fill: transparent; stroke: var(--dg-faint); stroke-width: 1.5; }
+.nm-dg-lane.is-alt { fill: color-mix(in oklab, var(--dg-ink) 3%, var(--dg-paper)); }
+.nm-dg-lanehd { fill: color-mix(in oklab, var(--dg-ink) 6%, var(--dg-paper)); }
+.nm-dg-band { fill: color-mix(in oklab, var(--dg-ink) 4.5%, var(--dg-paper)); }
+.nm-dg-band.t1 { fill: color-mix(in oklab, var(--dg-ink) 6.5%, var(--dg-paper)); }
+.nm-dg-band.t3 { fill: color-mix(in oklab, var(--dg-ink) 6.5%, var(--dg-paper)); }
+.nm-dg-band.is-accent { fill: color-mix(in oklab, var(--dg-accent) 11%, var(--dg-paper)); stroke: var(--dg-accent); stroke-width: 2; }
+.nm-dg-stem { stroke: var(--dg-line); stroke-width: 2; }
+.nm-dg-dot { fill: var(--dg-paper); stroke: var(--dg-ink); stroke-width: 3; }
+.nm-dg-dot.is-accent { fill: var(--dg-accent); stroke: var(--dg-paper); stroke-width: 4; }
+.nm-dg-plot { fill: color-mix(in oklab, var(--dg-ink) 2.5%, var(--dg-paper)); }
+.nm-dg-divider { stroke: var(--dg-line); stroke-width: 1.5; stroke-dasharray: 6 8; }
+.nm-dg-tier { stroke: none; }
+.nm-dg-tier.g0, .nm-dg-tier.is-accent { fill: var(--dg-accent); }
+.nm-dg-tier.g1 { fill: color-mix(in oklab, var(--dg-accent) 82%, var(--dg-paper)); }
+.nm-dg-tier.g2 { fill: color-mix(in oklab, var(--dg-accent) 66%, var(--dg-paper)); }
+.nm-dg-tier.g3 { fill: color-mix(in oklab, var(--dg-accent) 48%, var(--dg-paper)); }
+.nm-dg-tier.g4 { fill: color-mix(in oklab, var(--dg-accent) 34%, var(--dg-paper)); }
+.nm-dg-tier.g5 { fill: color-mix(in oklab, var(--dg-accent) 22%, var(--dg-paper)); }
+.nm-dg-tier.is-neutral { fill: color-mix(in oklab, var(--dg-ink) 14%, var(--dg-paper)); }
+.nm-dg-leader { stroke: var(--dg-line); stroke-width: 2; stroke-dasharray: 1 7; stroke-linecap: round; }
+.nm-dg-set { stroke-width: 2.5; }
+.nm-dg-set.s0 { fill: color-mix(in oklab, var(--dg-accent) 13%, transparent); stroke: var(--dg-accent); }
+.nm-dg-set.s1 { fill: color-mix(in oklab, var(--dg-accent2) 13%, transparent); stroke: var(--dg-accent2); }
+.nm-dg-set.s2 { fill: color-mix(in oklab, var(--dg-ink) 8%, transparent); stroke: color-mix(in oklab, var(--dg-ink) 60%, var(--dg-paper)); }
+.nm-dg-tie { stroke: var(--dg-faint); stroke-width: 2; }
+.nm-dg-spine { stroke: var(--dg-line); stroke-width: 2; }
+.nm-dg-bar { fill: color-mix(in oklab, var(--dg-ink) 20%, var(--dg-paper)); transform-box: fill-box; }
+.nm-dg-bar.is-accent { fill: var(--dg-accent); }
+.nm-dg-baseline { stroke: color-mix(in oklab, var(--dg-ink) 72%, var(--dg-paper)); stroke-width: 2; }
+.nm-dg-grid { stroke: var(--dg-faint); stroke-width: 1.5; }
+.nm-dg-series { fill: none; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+.nm-dg-series.c0 { stroke: var(--dg-accent); }
+.nm-dg-series.c1 { stroke: color-mix(in oklab, var(--dg-ink) 72%, var(--dg-paper)); }
+.nm-dg-series.c2 { stroke: var(--dg-accent2); }
+.nm-dg-area { fill: color-mix(in oklab, var(--dg-accent) 13%, transparent); stroke: none; }
+.nm-dg-sdot { fill: var(--dg-paper); stroke-width: 3.5; }
+.nm-dg-sdot.c0 { stroke: var(--dg-accent); } .nm-dg-sdot.c1 { stroke: color-mix(in oklab, var(--dg-ink) 72%, var(--dg-paper)); } .nm-dg-sdot.c2 { stroke: var(--dg-accent2); }
+.nm-dg-track, .nm-dg-gtrack { fill: none; stroke: color-mix(in oklab, var(--dg-ink) 8%, var(--dg-paper)); }
+.nm-dg-gtrack { stroke-linecap: round; }
+.nm-dg-slice { fill: none; stroke-dasharray: var(--dg-dash); }
+.nm-dg-gval { fill: none; stroke: var(--dg-accent); stroke-linecap: round; stroke-dasharray: var(--dg-frac) 1; }
+.nm-dg-rule { stroke: var(--dg-faint); stroke-width: 2; }
+.nm-dg-lifeline { stroke: var(--dg-line); stroke-width: 2; stroke-dasharray: 4 8; stroke-linecap: round; }
+/* slice + swatch palette: c0..c5 categorical, ca accent, cn0..cn4 neutrals */
+.nm-dg-slice.c0, .nm-dg-sw.c0, .nm-dg-slice.ca, .nm-dg-sw.ca { stroke: var(--dg-accent); background: var(--dg-accent); }
+.nm-dg-slice.c1, .nm-dg-sw.c1 { stroke: var(--dg-accent2); background: var(--dg-accent2); }
+.nm-dg-slice.c2, .nm-dg-sw.c2 { stroke: color-mix(in oklab, var(--dg-accent) 50%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-accent) 50%, var(--dg-paper)); }
+.nm-dg-slice.c3, .nm-dg-sw.c3 { stroke: color-mix(in oklab, var(--dg-ink) 55%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-ink) 55%, var(--dg-paper)); }
+.nm-dg-slice.c4, .nm-dg-sw.c4 { stroke: color-mix(in oklab, var(--dg-accent2) 45%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-accent2) 45%, var(--dg-paper)); }
+.nm-dg-slice.c5, .nm-dg-sw.c5, .nm-dg-slice.c6, .nm-dg-sw.c6, .nm-dg-slice.c7, .nm-dg-sw.c7 { stroke: color-mix(in oklab, var(--dg-ink) 25%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-ink) 25%, var(--dg-paper)); }
+.nm-dg-slice.cn0, .nm-dg-sw.cn0 { stroke: color-mix(in oklab, var(--dg-ink) 52%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-ink) 52%, var(--dg-paper)); }
+.nm-dg-slice.cn1, .nm-dg-sw.cn1 { stroke: color-mix(in oklab, var(--dg-ink) 38%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-ink) 38%, var(--dg-paper)); }
+.nm-dg-slice.cn2, .nm-dg-sw.cn2 { stroke: color-mix(in oklab, var(--dg-ink) 27%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-ink) 27%, var(--dg-paper)); }
+.nm-dg-slice.cn3, .nm-dg-sw.cn3, .nm-dg-slice.cn4, .nm-dg-sw.cn4 { stroke: color-mix(in oklab, var(--dg-ink) 18%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-ink) 18%, var(--dg-paper)); }
+
+/* ------------------------------------------------------------- motion: visible end state + transitions */
+.nm-dg .nm-dg-node, .nm-dg .nm-dg-label, .nm-dg-back > *, .nm-dg-front > * {
+  transition: opacity var(--dg-t-node) var(--dg-ease), transform var(--dg-t-node) var(--dg-pop);
+  transition-delay: var(--dg-d, 0ms);
+}
+.nm-dg .nm-dg-stroke:not(.nm-dg-dash), .nm-dg .nm-dg-drawmask, .nm-dg .nm-dg-series, .nm-draw-stroke { stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+.nm-dg .nm-dg-stroke, .nm-dg .nm-dg-drawmask, .nm-dg .nm-dg-series {
+  transition: stroke-dashoffset var(--dg-t-draw) var(--dg-ease); transition-delay: var(--dg-d, 0ms);
+}
+.nm-dg .nm-dg-head { transition: opacity 260ms var(--dg-ease); transition-delay: calc(var(--dg-d, 0ms) + var(--dg-t-draw) * .7); }
+.nm-dg .nm-dg-flowdots { transition: opacity 400ms; transition-delay: calc(var(--dg-d, 0ms) + var(--dg-t-draw)); }
+.nm-dg .nm-dg-slice { transition: stroke-dasharray 900ms var(--dg-ease); transition-delay: var(--dg-d, 0ms); }
+.nm-dg .nm-dg-gval { transition: stroke-dasharray 1200ms var(--dg-ease); transition-delay: var(--dg-d, 0ms); }
+.nm-dg .nm-dg-bar { transition: transform 800ms var(--dg-ease), opacity 300ms; transition-delay: var(--dg-d, 0ms); }
+.nm-draw-stroke { transition: stroke-dashoffset 900ms var(--dg-ease); }
+
+/* hidden: armed but not yet played (slide not active) */
+.nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-node, .nm-dg-label) { opacity: 0; transform: translateY(14px) scale(.97); transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-back, .nm-dg-front) > :not(.nm-dg-bar) { opacity: 0; transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask, .nm-dg-series) { stroke-dashoffset: 1; transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-head, .nm-dg-flowdots) { opacity: 0; transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) .nm-dg-slice { stroke-dasharray: 0 100; transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) .nm-dg-gval { stroke-dasharray: 0 1; transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) .nm-dg-bar { transform: scaleX(0); opacity: 0; transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) .nm-dg-bar.is-v { transform: scaleY(0); }
+
+/* stepping: when the deck core (body.nm-ready) or the lab simulation is live */
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step] { --dg-d: var(--dg-ds, 0ms); }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not(.is-on):not(.nm-dg-drawn):is(.nm-dg-node, .nm-dg-label) { opacity: 0; transform: translateY(14px) scale(.97); transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps :is(.nm-dg-back, .nm-dg-front) > [data-step]:not(.is-on):not(.nm-dg-drawn):not(.nm-dg-bar) { opacity: 0; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not(.is-on):not(.nm-dg-drawn) :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask) { stroke-dashoffset: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not(.is-on):not(.nm-dg-drawn) :is(.nm-dg-head, .nm-dg-flowdots) { opacity: 0; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-series[data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dashoffset: 1; opacity: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-slice[data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dasharray: 0 100; opacity: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-gval[data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dasharray: 0 1; opacity: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-bar[data-step]:not(.is-on):not(.nm-dg-drawn) { transform: scaleX(0); opacity: 0; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-bar.is-v[data-step]:not(.is-on):not(.nm-dg-drawn) { transform: scaleY(0); }
+/* author SVG with data-act="draw" outside diagrams */
+:is(body.nm-ready, body[data-nm-steps="sim"]) [data-act="draw"][data-step]:not(.is-on):not(.nm-dg-drawn) .nm-draw-stroke,
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-draw-stroke[data-act="draw"][data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dashoffset: 1; }
+
+/* overview, instant entry, reduced motion, speed 0: same end state, no motion */
+body.nm-overview .nm-dg :is(.nm-dg-node, .nm-dg-label, .nm-dg-back > *, .nm-dg-front > *, .nm-dg-head) { opacity: 1 !important; transform: none !important; transition: none !important; }
+body.nm-overview .nm-dg :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask, .nm-dg-series) { stroke-dashoffset: 0 !important; transition: none !important; }
+.nm-dg-instant, .nm-dg-instant * { transition: none !important; }
+.nm-dg-nomotion .nm-dg *, .nm-dg-nomotion .nm-draw-stroke { transition: none !important; animation: none !important; }
+.nm-dg-nomotion .nm-dg-flowdots { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .nm-dg *, .nm-draw-stroke { transition: none !important; animation: none !important; }
+  .nm-dg-flowdots { display: none; }
+}
