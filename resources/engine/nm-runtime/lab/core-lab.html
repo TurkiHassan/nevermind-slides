@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="nm-runtime" content="2">
+<title>Nevermind Core Lab</title>
+<link rel="stylesheet" href="../nm-deck.css">
+<style>
+  :root {
+    --nm-paper: #f3efe6;
+    --nm-ink: #1d1b17;
+    --nm-muted: #6c665b;
+    --nm-line: rgba(29, 27, 23, 0.14);
+    --nm-accent: #c8453a;
+    --nm-accent-2: #2f6f8f;
+    --nm-surface: #ffffff;
+    --nm-radius: 22px;
+    --nm-font-display: "Noto Kufi Arabic", "Noto Sans Arabic", system-ui, sans-serif;
+    --nm-font-body: "Noto Sans Arabic", system-ui, sans-serif;
+  }
+  body { font-family: var(--nm-font-body); color: var(--nm-ink); }
+  .camera-rig { padding: 90px 110px; }
+  h1, h2, h3 { font-family: var(--nm-font-display); margin: 0; line-height: 1.25; }
+  p { margin: 0; }
+  .kicker { font-size: 26px; color: var(--nm-accent); font-weight: 700; letter-spacing: 0; }
+  .lead { font-size: 34px; color: var(--nm-muted); line-height: 1.6; max-width: 1200px; }
+  .abs { position: absolute; }
+  .card { background: var(--nm-surface); border-radius: var(--nm-radius); box-shadow: 0 18px 50px rgba(0,0,0,0.12); padding: 36px 40px; box-sizing: border-box; }
+  .row { display: flex; gap: 40px; }
+  .num { font-family: var(--nm-font-display); font-weight: 800; font-variant-numeric: tabular-nums; }
+  ul.points { list-style: none; padding: 0; margin: 40px 0 0; display: grid; gap: 22px; }
+  ul.points li { font-size: 38px; padding: 22px 30px; border-radius: 16px; background: var(--nm-surface); border-inline-start: 8px solid var(--nm-accent); }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
+  .grid3 .card h3 { font-size: 40px; margin-bottom: 14px; }
+  .grid3 .card p { font-size: 26px; color: var(--nm-muted); line-height: 1.6; }
+  .ent { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 44px; }
+  .ent .card { height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .ent .tag { font: 700 20px/1 ui-monospace, monospace; color: var(--nm-accent-2); direction: ltr; text-align: right; }
+  .ent .big { font-size: 46px; font-weight: 800; }
+  .dark { background: #17202a; color: #f3efe6; }
+  .dark .lead { color: #aab4be; }
+</style>
+</head>
+<body dir="rtl" data-nm-mode="morph-and-zoom">
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+  <!-- 1. Title: words morph source, box morph source -->
+  <section class="slide" data-title="البداية">
+    <div class="camera-rig">
+      <p class="kicker">مختبر المحرك الأساسي</p>
+      <h1 data-morph="title" data-morph-kind="words" style="font-size:96px;margin-top:40px;max-width:1400px">الحركة تصنع المعنى في كل عرض</h1>
+      <p class="lead" style="margin-top:36px">عرض اختبار لكل أنواع التحويل والانتقالات والخطوات والدخول.</p>
+      <div class="abs" data-morph="card" style="left:110px;bottom:110px;width:300px;height:180px;border-radius:90px;background:#c8453a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;box-shadow:0 10px 30px rgba(200,69,58,0.35)">بطاقة</div>
+    </div>
+  </section>
+
+  <!-- 2. Box + words morph targets (auto = fade-through) -->
+  <section class="slide" data-title="تحويل الصندوق" data-transition="auto">
+    <div class="camera-rig">
+      <h1 data-morph="title" data-morph-kind="words" style="font-size:72px;color:#2f6f8f">المعنى يصنع الحركة</h1>
+      <div class="abs" data-morph="card" style="right:110px;top:250px;width:1100px;height:600px;border-radius:12px;background:#17202a;color:#f3efe6;padding:60px;box-sizing:border-box;border:4px solid #2f6f8f">
+        <h2 style="font-size:54px">بطاقة</h2>
+        <p style="font-size:30px;margin-top:20px;color:#aab4be;line-height:1.7">تتحول الحواف والألوان والظل دون أي تمدد في النص.</p>
+      </div>
+      <p class="lead abs" style="left:110px;top:300px;width:460px">عنصر غير مطابق يدخل بعد خروج السابق.</p>
+    </div>
+  </section>
+
+  <!-- 3. Image small (dissolve) -->
+  <section class="slide" data-title="صورة صغيرة" data-transition="dissolve">
+    <div class="camera-rig">
+      <h2 style="font-size:64px">صورة تتحول</h2>
+      <img data-morph="photo" alt="" class="abs" style="left:160px;top:330px;width:320px;height:320px;border-radius:50%;object-fit:cover;object-position:30% 50%;box-shadow:0 12px 40px rgba(0,0,0,0.25)"
+           src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f6c26b'/%3E%3Cstop offset='1' stop-color='%23c8453a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23g)'/%3E%3Ccircle cx='480' cy='420' r='220' fill='%23fff3d6'/%3E%3Cpath d='M0 700 L400 480 L760 690 L1100 420 L1600 720 L1600 900 L0 900 Z' fill='%2317202a'/%3E%3Cpath d='M0 780 L500 620 L900 760 L1300 600 L1600 780 L1600 900 L0 900 Z' fill='%232f6f8f'/%3E%3C/svg%3E">
+      <p class="lead" style="margin-top:40px;max-width:900px;margin-inline-start:auto">الإطار الدائري يقص الصورة، والتحويل ينقل القص بسلاسة.</p>
+    </div>
+  </section>
+
+  <!-- 4. Image large (data-rel next, auto heading morph) -->
+  <section class="slide" data-title="صورة كبيرة" data-rel="next">
+    <div class="camera-rig">
+      <img data-morph="photo" alt="" class="abs" style="right:110px;top:110px;width:1200px;height:620px;border-radius:28px;object-fit:cover;object-position:50% 80%"
+           src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f6c26b'/%3E%3Cstop offset='1' stop-color='%23c8453a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23g)'/%3E%3Ccircle cx='480' cy='420' r='220' fill='%23fff3d6'/%3E%3Cpath d='M0 700 L400 480 L760 690 L1100 420 L1600 720 L1600 900 L0 900 Z' fill='%2317202a'/%3E%3Cpath d='M0 780 L500 620 L900 760 L1300 600 L1600 780 L1600 900 L0 900 Z' fill='%232f6f8f'/%3E%3C/svg%3E">
+      <h2 class="abs" style="left:110px;top:800px;font-size:88px;color:#c8453a">صورة تتحول</h2>
+      <p class="lead abs" style="right:110px;top:800px;width:900px">نفس الصورة بقص مختلف وحجم مختلف.</p>
+    </div>
+  </section>
+
+  <!-- 5. Path source (push) -->
+  <section class="slide" data-title="شكل" data-transition="push">
+    <div class="camera-rig">
+      <h2 style="font-size:64px">الأشكال تتحول</h2>
+      <svg class="abs" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080">
+        <circle data-morph="shape" cx="560" cy="600" r="200" fill="#2f6f8f" stroke="#17202a" stroke-width="6"/>
+      </svg>
+      <p class="num abs" data-morph="num1" style="right:110px;top:400px;font-size:120px;color:#17202a">١٢٬٥٠٠ ريال</p>
+      <p class="num abs" data-morph="num2" style="right:110px;top:600px;font-size:90px;color:#2f6f8f">35%</p>
+    </div>
+  </section>
+
+  <!-- 6. Path + number targets (auto) -->
+  <section class="slide" data-title="أرقام">
+    <div class="camera-rig">
+      <h2 style="font-size:64px">الأرقام تعد بين القيمتين</h2>
+      <svg class="abs" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080">
+        <polygon data-morph="shape" points="700,250 790,470 1020,480 840,620 900,850 700,720 500,850 560,620 380,480 610,470" fill="#c8453a" stroke="#17202a" stroke-width="10" stroke-linejoin="round"/>
+      </svg>
+      <p class="num abs" data-morph="num1" style="right:220px;top:300px;font-size:150px;color:#c8453a">٤٨٬٢٠٠ ريال</p>
+      <p class="num abs" data-morph="num2" style="right:220px;top:560px;font-size:120px;color:#17202a">82%</p>
+    </div>
+  </section>
+
+  <!-- 7. zoom-through (deeper) -->
+  <section class="slide dark" data-title="تعمق" data-transition="zoom-through" data-rel="deeper">
+    <div class="camera-rig">
+      <p class="kicker">انتقال تعمق</p>
+      <h1 style="font-size:110px;margin-top:30px">ندخل إلى التفاصيل</h1>
+      <p class="lead" style="margin-top:30px">الشريحة السابقة تتسع وتختفي، وهذه تأتي من العمق.</p>
+    </div>
+  </section>
+
+  <!-- 8. Steps: reveal, highlight, zoom, zoom (iris) -->
+  <section class="slide" data-title="الخطوات" data-transition="iris">
+    <div class="camera-rig">
+      <h2 style="font-size:64px">خطوات داخل الشريحة</h2>
+      <ul class="points" style="width:900px">
+        <li data-step="1">الخطوة الأولى تظهر</li>
+        <li data-step="2" data-entrance="slide">الثانية تنزلق</li>
+        <li data-step="3" data-entrance="blur">الثالثة تتضح</li>
+      </ul>
+      <div class="card abs" data-step="4" data-act="highlight" style="left:110px;top:260px;width:560px;height:200px;font-size:36px">بطاقة للتمييز</div>
+      <div class="card abs" data-step="5" data-act="zoom" data-zoom-label="الركن الأيسر" style="left:110px;top:520px;width:300px;height:180px;font-size:30px">تقريب أول</div>
+      <div class="card abs" data-step="6" data-act="zoom" style="left:450px;top:760px;width:300px;height:180px;font-size:30px">تقريب ثان</div>
+    </div>
+  </section>
+
+  <!-- 9. Legacy data-zoom-step (wipe) -->
+  <section class="slide" data-title="تقريب قديم" data-transition="wipe">
+    <div class="camera-rig">
+      <h2 style="font-size:64px">التقريب بالصيغة القديمة</h2>
+      <div class="grid3">
+        <div class="card" data-zoom-step="1" data-zoom-label="الاستطلاع"><h3>الاستطلاع</h3><p>جمع المعلومات من الميدان وتحليلها قبل القرار.</p></div>
+        <div class="card" data-zoom-step="2" data-zoom-label="التخطيط"><h3>التخطيط</h3><p>تحويل المعلومات إلى خطة قابلة للتنفيذ.</p></div>
+        <div class="card" data-zoom-step="3" data-zoom-label="التنفيذ"><h3>التنفيذ</h3><p>متابعة التنفيذ وتصحيح المسار بسرعة.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Entrances (curtain via chapter) -->
+  <section class="slide" data-title="الدخول" data-rel="chapter">
+    <div class="camera-rig">
+      <h2 data-entrance="type" style="font-size:64px">كل أنواع الدخول في شريحة واحدة</h2>
+      <div class="ent">
+        <div class="card" data-entrance="rise" data-entrance-order="1"><span class="tag">rise</span><span class="big">صعود</span></div>
+        <div class="card" data-entrance="fade" data-entrance-order="2"><span class="tag">fade</span><span class="big">تلاشي</span></div>
+        <div class="card" data-entrance="clip" data-entrance-order="3"><span class="tag">clip</span><span class="big">قص</span></div>
+        <div class="card" data-entrance="scale" data-entrance-order="4"><span class="tag">scale</span><span class="big">تكبير</span></div>
+        <div class="card" data-entrance="blur" data-entrance-order="5"><span class="tag">blur</span><span class="big">ضبابية</span></div>
+        <div class="card" data-entrance="slide" data-entrance-order="6"><span class="tag">slide</span><span class="big">انزلاق</span></div>
+        <div class="card" data-entrance-order="7"><span class="tag">count</span><span class="big num" data-entrance="count" data-entrance-order="7">١٬٢٥٠</span></div>
+        <div class="card" data-entrance-order="8"><span class="tag">draw</span>
+          <svg width="300" height="90" viewBox="0 0 300 90" data-entrance="draw" data-entrance-order="8"><path d="M10 70 C80 10 140 10 170 45 S260 80 290 20" fill="none" stroke="#c8453a" stroke-width="8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="card"><span class="tag">type</span><span class="big" data-entrance="type" data-entrance-order="9">الكلمات تظهر تباعا</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. depth + legacy motion graphics -->
+  <section class="slide dark" data-title="عمق" data-transition="depth">
+    <div class="camera-rig">
+      <h2 style="font-size:64px">الخلاصة</h2>
+      <svg width="900" height="600" viewBox="0 0 900 600" style="margin-top:40px">
+        <circle cx="450" cy="300" r="200" fill="none" stroke="#2f6f8f" stroke-width="3" class="mg-pulse"/>
+        <line x1="450" y1="300" x2="650" y2="300" stroke="#c8453a" stroke-width="4" class="mg-radar"/>
+        <path d="M60 520 L840 520" stroke="#f3efe6" stroke-width="4" class="mg-flow"/>
+      </svg>
+      <div class="hud-bracket abs" style="left:160px;top:300px;width:500px;height:200px;font-size:34px;padding:30px;box-sizing:border-box">إطار قديم</div>
+      <div class="abs" style="left:160px;top:560px;width:500px;height:20px;background:rgba(255,255,255,0.1)"><div class="mg-bar-fill" style="height:100%;width:70%;background:#c8453a;margin-inline-start:auto"></div></div>
+    </div>
+  </section>
+
+  <!-- 12. fold + auto heading morph -->
+  <section class="slide" data-title="طي" data-transition="fold">
+    <div class="camera-rig" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+      <h2 style="font-size:120px;color:#c8453a">الخلاصة</h2>
+      <p class="lead" style="margin-top:30px">العنوان نفسه يطير بين الشريحتين تلقائيا.</p>
+    </div>
+  </section>
+
+  <!-- 13. none -->
+  <section class="slide dark" data-title="النهاية" data-transition="none">
+    <div class="camera-rig" style="display:grid;place-items:center">
+      <h1 style="font-size:140px">شكرا</h1>
+    </div>
+  </section>
+
+</main>
+</div>
+<script src="../nm-deck.js"></script>
+</body>
+</html>

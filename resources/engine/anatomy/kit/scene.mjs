@@ -733,8 +733,8 @@ const wheelRow = (M, xs, y, half, r, op = {}) => xs.map((x) => M.disc([x, y, r],
   crease: "none",
   ...op,
   inner: ({ F, half: hh, r: rr }) => {
-    const end = G.dot3(F.a, G.viewOf(P)) > 0 ? hh : -hh;
-    return Ln(G.circleOf(F, end, rr * 0.55, P, 20), "mid") + Dt([G.pointOf(F, end, 0, 0)], P, 0.35, "mid");
+    const end = G.dot3(F.a, G.viewOf(M.P)) > 0 ? hh : -hh;
+    return Ln(G.circleOf(F, end, rr * 0.55, M.P, 20), "mid") + Dt([G.pointOf(F, end, 0, 0)], M.P, 0.35, "mid");
   },
 }));
 const sideWheels = (M, name, xs, yIn, half, r, op) => {
@@ -1108,7 +1108,6 @@ export function aircraft(P, o = {}) {
   const wing = [[0, -span / 2], [5.4, -span / 2], [6.6, 0], [5.4, span / 2], [0, span / 2], [-1, 0]];
   M.put("wing", M.extrude(wing.map(([x, y]) => [x - wx, y]), cz + R, 0.8, { tone: "mid", bevel: 0.2, after: ({ ring, top }) => Ln(k.onTop([[ring[0][0], ring[0][1]], [ring[4][0], ring[4][1]]].map(([x, y]) => [x, y]), top, P), "faint") }));
   for (const y of [-span * 0.18, -span * 0.34, span * 0.18, span * 0.34]) M.put(`engine${y.toFixed(0)}`, M.turn([-wx - 1, y, cz + R - 1.1], [1, 0, 0], [[0, 0.8], [1, 1.1], [5.6, 1.1], [6.6, 0.6]], { tone: "lo", inner: ({ F }) => Ln(G.arcOf(F, 1, 1.1, P, { least: 0.2 }), "faint") }));
-  M.put("fin", M.prism([-L / 2 + 0.8, 0, cz + R * 0.6], [1, 0, 0], [0, 0, 1], [[0, -0.3], [8, -0.3], [3.5, 0.3]].map(([x, y]) => [x, y]), 0.1, {}) && null);
   M.put("tailfin", M.extrude([[-L / 2 + 0.6, -0.3], [-L / 2 + 6, -0.3], [-L / 2 + 6, 0.3], [-L / 2 + 0.6, 0.3]], cz + R * 0.75, 7, { tone: "mid", bevel: 0.2 }));
   M.put("stabilizer", M.extrude([[-L / 2 - 0.4, -6], [-L / 2 + 3.4, -6], [-L / 2 + 4.6, 0], [-L / 2 + 3.4, 6], [-L / 2 - 0.4, 6]], cz + R * 0.75 + 7, 0.5, { tone: "mid" }));
   const gearAt = [[L / 2 - 5, 0], [-2, -R * 0.7], [-2, R * 0.7]];
@@ -1247,7 +1246,6 @@ export function serverRack(P, o = {}) {
       return out + Ln(lines, "lo") + Dt(vents, P, 0.18, "faint") + k.dotsSvg(leds.map((p) => k.iso(p, P)), { size: 0.3, tone: "hi", pulse: Boolean(o.pulse) });
     },
   }));
-  M.put("plinth", null);
   M.at("front", [W / 2, 0, H / 2]);
   M.at("top", [0, 0, H]);
   return M.done({ x: -W / 2, y: -D / 2, w: W, d: D, z0: 0, z1: H });
@@ -1295,7 +1293,7 @@ export function monitor(P, o = {}) {
 /** A laptop: base with a key grid and a raised lid. Lid at local -x, screen faces +x. */
 export function laptop(P, o = {}) {
   const M = maker(P, "laptop", o);
-  M.put("base", M.slab({ x: -1.6, y: -2.2, w: 3.2, d: 4.4, r: 0.2 }, 0, 0.25, { tone: "mid", after: ({ wp, top }) => Dt(k.dotGrid(wp.x + 0.5, wp.y + 0.5, 4, 8, 0.48, top, P).map((p) => null) && [], P) + k.dotsSvg(k.dotGrid(wp.x + 0.5, wp.y + 0.5, 4, 8, 0.48, top, P), { size: 0.16, tone: "lo" }) }));
+  M.put("base", M.slab({ x: -1.6, y: -2.2, w: 3.2, d: 4.4, r: 0.2 }, 0, 0.25, { tone: "mid", after: ({ wp, top }) => k.dotsSvg(k.dotGrid(wp.x + 0.5, wp.y + 0.5, 4, 8, 0.48, top, P), { size: 0.16, tone: "lo" }) }));
   M.put("lid", M.slab({ x: -1.6 - 0.25, y: -2.2, w: 0.25, d: 4.4, r: 0.05 }, 0, 3, {
     tone: "hi",
     lit: o.lit,
@@ -1496,8 +1494,7 @@ export function windTurbine(P, o = {}) {
     const a = phase + (i * TAU) / 3;
     const dir = [0, Math.cos(a), Math.sin(a)];
     const start = G.add3(hub, G.mul3(dir, 1.1));
-    const F = { o: start, a: dir, u: [1, 0, 0], v: G.cross3(dir, [1, 0, 0]) };
-    return M.prism(start, dir, [1, 0, 0], [[-0.25, -0.9], [0.25, -0.9], [0.25, 0.6], [-0.25, 0.6]], R, { tone: "hi" }) && M.rod(start, G.add3(start, G.mul3(dir, R)), 0.6, { tone: "hi" });
+    return M.rod(start, G.add3(start, G.mul3(dir, R)), 0.6, { tone: "hi" });
   }));
   M.at("hub", hub);
   return M.done({ x: -4, y: -R, w: 8, d: 2 * R, z0: 0, z1: H + 1.3 + R });

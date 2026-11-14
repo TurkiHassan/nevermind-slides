@@ -553,8 +553,10 @@ async function main() {
         // the probe above may have left the slide; make the slide the current one again for the next loop
       }
       if (!measured) await measure(reached);
-      if (hasNM && reached !== walkable.length) {
-        issues.push({ code: "C-STEPS", severity: "error", message: `${walkable.length} step(s) declared but ${reached} reachable with the arrow keys; check data-step numbering (1..N) and data-act values`, selector: "" });
+      if (hasNM && reached < walkable.length) {
+        issues.push({ code: "C-STEPS", severity: "error", message: `${walkable.length} step(s) declared but only ${reached} reachable with the arrow keys; check data-step numbering (1..N) and data-act values`, selector: "" });
+      } else if (hasNM && reached > walkable.length) {
+        issues.push({ code: "C-STEPS", severity: "warn", message: `${walkable.length} step(s) declared but ${reached} reachable; an act (for example detail with several pages) adds extra steps`, selector: "" });
       }
       const slideConsole = consoleLog.filter((c) => c.slide === idx);
       for (const c of slideConsole) {

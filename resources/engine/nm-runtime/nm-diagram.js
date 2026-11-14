@@ -132,7 +132,7 @@
   Model.prototype.finish = function () {
     this.nodes.forEach(function (n) {
       if (n.label == null) n.label = /^_auto/.test(n.id) ? '' : n.id.replace(/_/g, ' ');
-      if (!n.shape) n.shape = 'rect';
+      if (!n.shape) { n.shape = 'rect'; n.shapeAuto = true; }
     });
     return this;
   };
@@ -277,9 +277,13 @@
     var key = line.slice(0, ci).trim(), val = line.slice(ci + 1).trim();
     var lk = key.toLowerCase();
     var DIRECTIVES = { x: 1, y: 1, quad: 1, center: 1, centre: 1, unit: 1, max: 1, min: 1, value: 1, label: 1, sub: 1, head: 1, area: 1, title: 1, orient: 1, note: 1 };
-    if (DIRECTIVES[lk] && !(type === 'stat' && (lk === 'label'))) {
-      if (lk === 'head' && /!\s*$/.test(val)) { M.opts.headAccent = 1; val = val.replace(/\s*!\s*$/, ''); }
-      if (lk === 'head' && accent) M.opts.headAccent = 0;
+    if (DIRECTIVES[lk]) {
+      if (lk === 'head') {
+        var hp = val.split('|');
+        if (accent) M.opts.headAccent = 1;
+        else if (/!\s*$/.test(hp[0])) M.opts.headAccent = 0;
+        val = val.replace(/\s*!\s*(?=\||$)/g, '');
+      }
       M.opts[lk.replace('centre', 'center')] = val;
       return;
     }
@@ -568,6 +572,17 @@
       if (aEnd) pts[n - 1] = pt(tip.x - ue.x * Math.min(cut, segE * 0.6), tip.y - ue.y * Math.min(cut, segE * 0.6));
       if (aStart) pts[0] = pt(tail.x - us.x * Math.min(cut, segS * 0.6), tail.y - us.y * Math.min(cut, segS * 0.6));
       d = roundedPath(pts, sp.radius == null ? 18 : sp.radius);
+    } else if (sp.bezs) {
+      var segs = sp.bezs.map(function (sg) { return sg.map(function (p) { return pt(p.x, p.y); }); });
+      var fs = segs[0], ls = segs[segs.length - 1];
+      tail = pt(fs[0].x, fs[0].y); tip = pt(ls[3].x, ls[3].y);
+      ends = [tail.x, tail.y, tip.x, tip.y];
+      ue = unit(ls[2].x, ls[2].y, tip.x, tip.y); us = unit(fs[1].x, fs[1].y, tail.x, tail.y);
+      if (Math.hypot(ls[2].x - tip.x, ls[2].y - tip.y) < 1) ue = unit(ls[0].x, ls[0].y, tip.x, tip.y);
+      if (aEnd) ls[3] = pt(tip.x - ue.x * cut, tip.y - ue.y * cut);
+      if (aStart) fs[0] = pt(tail.x - us.x * cut, tail.y - us.y * cut);
+      d = 'M' + r1(fs[0].x) + ' ' + r1(fs[0].y);
+      segs.forEach(function (b) { d += 'C' + r1(b[1].x) + ' ' + r1(b[1].y) + ' ' + r1(b[2].x) + ' ' + r1(b[2].y) + ' ' + r1(b[3].x) + ' ' + r1(b[3].y); });
     } else if (sp.bez) {
       var b = sp.bez.map(function (p) { return pt(p.x, p.y); });
       tail = pt(b[0].x, b[0].y); tip = pt(b[3].x, b[3].y);
@@ -604,12 +619,16 @@
     if (sp.from) g.setAttribute('data-from', sp.from.id); else g.removeAttribute('data-from');
     if (sp.to) g.setAttribute('data-to', sp.to.id); else g.removeAttribute('data-to');
     if (sp.free) g.setAttribute('data-free', '1');
-    var part = { el: g, kind: 'edge', from: sp.from, to: sp.to, eord: sp.eord != null ? sp.eord : this.edgeCount, seq: sp.seq };
+    var part = { el: g, kind: 'edge', from: sp.from, to: sp.to, eord: sp.eord != null ? sp.eord : this.edgeCount, seq: sp.seq, fixed: !!sp.fixed };
     this.edgeCount++;
     this.parts.push(part);
     if (sp.label) {
       var L = this.label('el:' + key, esc(sp.label), 'nm-dg-elabel' + (sp.labelCls ? ' ' + sp.labelCls : ''), 300);
-      var pos = this.labelSpot(path, L, sp.labelAt);
+      var pos;
+      if (sp.labelAbove) {
+        var tl = path.getTotalLength(), mp = path.getPointAtLength(tl / 2);
+        pos = { x: mp.x, y: mp.y - L.h / 2 - 6 };
+      } else pos = this.labelSpot(path, L, sp.labelAt);
       this.put(L, pos.x, pos.y, { kind: 'elabel', edgePart: part });
     }
     return g;
@@ -643,7 +662,7 @@
     var W = fig.clientWidth, H = fig.clientHeight - capH;
     if (W < 40 || H < 40) return false;
     this.W = W; this.H = H;
-    this.used = new Set(); this.placed = []; this.lrects = []; this.parts = []; this.edgeCount = 0;
+    this.used = new Set(); this.placed = []; this.lrects = []; this.parts = []; this.edgeCount = 0; this.stepHint = null;
     this.flowOn = /^(on|true|1|dots|dash)$/.test(this.opt('flow', ''));
     this.canvas.style.width = W + 'px'; this.canvas.style.height = H + 'px';
     this.canvas.style.transform = 'none';
@@ -684,6 +703,7 @@
   /* ------------------------------------------------------------------ steps + play */
   Diagram.prototype.assignSteps = function () {
     var fig = this.fig, mode = (this.opt('steps', 'none') || 'none').toLowerCase();
+    if ((mode === 'rank' || mode === 'node') && this.stepHint) mode = this.stepHint;
     var parts = this.parts, slide = fig.closest('.slide');
     fig.classList.toggle('nm-dg-steps', mode !== 'none');
     /* play delays */
