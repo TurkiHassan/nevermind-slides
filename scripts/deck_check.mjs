@@ -340,7 +340,11 @@ function pageInspect(idx) {
     const below = at >= 0 ? stack.slice(at + 1) : stack;
     if (below.some((n) => ["IMG", "VIDEO", "CANVAS"].includes(n.tagName) || (n !== document.documentElement && n !== document.body && cs(n).backgroundImage !== "none"))) continue;
     // text drawn over an SVG shape (diagram tiers, bars, filled nodes): that fill is the background
-    const filled = (n) => n instanceof SVGGeometryElement && cs(n).fill.startsWith("rgb") && parseFloat(cs(n).fillOpacity) > 0.5 && parseFloat(cs(n).opacity) > 0.5;
+    const filled = (n) => {
+      if (!(n instanceof SVGGeometryElement)) return false;
+      const f = parseColor(cs(n).fill);
+      return !!f && f.a * parseFloat(cs(n).fillOpacity) * parseFloat(cs(n).opacity) > 0.5;
+    };
     let shapeBg = below.find(filled);
     const dg = el.closest(".nm-dg");
     if (!shapeBg && dg) {

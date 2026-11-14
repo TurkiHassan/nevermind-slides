@@ -1630,6 +1630,8 @@ class _DeckDom(HTMLParser):
         self._cur: int | None = None
         self._depth = 0
         self._skip: list[str] = []
+        self._src_tag: str | None = None
+        self._src_depth = 0
         self._script_buf: list[str] | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -1651,6 +1653,11 @@ class _DeckDom(HTMLParser):
                 self.slides[self._cur]["todo"] = True
         if tag in _SKIP_TEXT_TAGS:
             self._skip.append(tag)
+        # the image credits block (.nm-sources) is required boilerplate: not counted as slide text
+        if self._src_tag is None and "nm-sources" in classes:
+            self._src_tag, self._src_depth = tag, 1
+        elif self._src_tag == tag:
+            self._src_depth += 1
         if tag == "script" and "src" not in a:
             self._script_buf = []
 
@@ -1660,6 +1667,10 @@ class _DeckDom(HTMLParser):
             self._script_buf = None
         if tag in _SKIP_TEXT_TAGS and self._skip and self._skip[-1] == tag:
             self._skip.pop()
+        if self._src_tag == tag:
+            self._src_depth -= 1
+            if self._src_depth <= 0:
+                self._src_tag = None
         if tag == "section" and self._cur is not None:
             self._depth -= 1
             if self._depth <= 0:
@@ -1669,7 +1680,7 @@ class _DeckDom(HTMLParser):
         if self._script_buf is not None:
             self._script_buf.append(data)
             return
-        if self._skip:
+        if self._skip or self._src_tag is not None:
             return
         stripped = data.strip()
         if stripped and self._cur is not None:

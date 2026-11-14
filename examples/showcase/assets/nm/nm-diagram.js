@@ -700,7 +700,11 @@
     if (!bb) return;
     var W = this.W, H = this.H, m = 2;
     var bw = bb.x1 - bb.x0, bh = bb.y1 - bb.y0;
-    var s = Math.min(1, (W - 2 * m) / bw, (H - 2 * m) / bh);
+    /* sparse figures (a short flow, a timeline) grow to use their cell, up to data-grow (default 1.4);
+       data-grow="1" keeps the natural size. Crowded figures still shrink to fit. */
+    var grow = parseFloat(this.opt('grow', '1.4'));
+    if (!(grow >= 1)) grow = 1;
+    var s = Math.min(grow, (W - 2 * m) / bw, (H - 2 * m) / bh);
     var tx = (W - bw * s) / 2 - bb.x0 * s, ty = (H - bh * s) / 2 - bb.y0 * s;
     this.scale = s;
     this.canvas.style.transform = 'translate(' + r1(tx) + 'px,' + r1(ty) + 'px) scale(' + s.toFixed(4) + ')';

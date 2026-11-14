@@ -816,8 +816,9 @@
   /* ------------------------------------------------------------------- pins */
   function pinHost(el) { return el.classList.contains('nm-pin') ? el.parentElement.closest('[data-act="pins"]') : el; }
   function pinList(host) { return Array.prototype.filter.call(host.querySelectorAll('.nm-pin'), function (p) { return pinHost(p) === host; }); }
-  function placeCards(C, pts, sizes) {
+  function placeCards(C, pts, sizes, avoid) {
     var placed = [], res = [], gap = 64;
+    avoid = avoid || [];
     var marks = pts.map(function (p) { return { x: p.x - 34, y: p.y - 34, w: 68, h: 68 }; });
     pts.forEach(function (p, i) {
       var w = sizes[i].w, hh = sizes[i].h, cands = [], best = null, bs = 1e12;
@@ -838,6 +839,7 @@
         var sc = 0;
         placed.forEach(function (q) { sc += 80 * ovl(r, inflate(q, 16)) / (w * hh); });
         marks.forEach(function (q) { sc += 40 * ovl(r, q) / (68 * 68); });
+        avoid.forEach(function (q) { sc += 60 * ovl(r, inflate(q, 12)) / (w * hh); }); /* slide headings stay readable */
         sc += 5 * ovl(r, C) / (w * hh);
         var n = nearest(r, p); sc += Math.hypot(n.x - p.x, n.y - p.y) / 140;
         if (sc < bs) { bs = sc; best = r; }
@@ -882,7 +884,11 @@
         return c;
       });
       var sizes = cards.map(function (c) { return { w: cw, h: c.offsetHeight }; });
-      var spots = placeCards(C, pts, sizes);
+      var slideEl = host.closest('.slide');
+      var avoid = slideEl ? Array.prototype.filter.call(slideEl.querySelectorAll('h1, h2, h3, .nm-kicker, .nm-head, .nm-t-lead'), function (e) {
+        return !host.contains(e) && !e.closest('template') && !e.closest('.nm-head .nm-head');
+      }).map(rest).filter(function (r) { return r.w > 0 && r.h > 0; }) : [];
+      var spots = placeCards(C, pts, sizes, avoid);
       var svg = S.svg();
       S.items = pins.map(function (p, i) {
         var r = spots[i], c = cards[i], L = pinLeader(pts[i], r);
