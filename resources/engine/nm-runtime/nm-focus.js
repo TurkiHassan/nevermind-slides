@@ -453,11 +453,24 @@
     S.panel = panel;
     return panel;
   }
+  /* Panels taller than the room never lose content: shrink the text down to 75% (CSS zoom keeps
+     layout exact), and if that is still not enough, scroll inside the panel with a fade at the edge. */
+  var MIN_FIT = 0.75;
   function measure(panel, maxH) {
-    var hgt = Math.min(panel.offsetHeight, maxH);
     panel.style.visibility = '';
+    var pages = panel.querySelector('.nmf-pages');
+    if (panel.offsetHeight > maxH && pages) {
+      var chrome = panel.offsetHeight - pages.offsetHeight, ph = pages.offsetHeight;
+      var z = Math.max(MIN_FIT, Math.min(1, (maxH - chrome) / ph));
+      pages.style.zoom = z.toFixed(3);
+      if (panel.offsetHeight > maxH) {
+        pages.style.maxHeight = px((maxH - chrome) / z);
+        panel.classList.add('nmf-scroll');
+        pages.addEventListener('wheel', function (e) { e.stopPropagation(); }, { passive: true });
+      }
+    }
     if (panel.offsetHeight > maxH) { panel.style.height = px(maxH); panel.classList.add('nmf-clip'); }
-    return hgt;
+    return Math.min(panel.offsetHeight, maxH);
   }
   function pageTo(S, i) {
     if (!S.pageEls || i < 0 || i >= S.pageEls.length || i === S.page) return false;
@@ -1021,6 +1034,10 @@
   function onKey(e) {
     var S = active;
     if (!S || S.closed || e.defaultPrevented && e.key !== 'Escape') return;
+    /* core owns the keys while help, blackout, overview or text editing is up */
+    var t = e.target, b = document.body.classList;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if (b.contains('nm-help-open') || b.contains('nm-black') || b.contains('nm-overview') || b.contains('nm-editing')) return;
     if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closeSession(S, false); return; }
     var d = keyDir(e);
     if (!d || e.shiftKey) return;

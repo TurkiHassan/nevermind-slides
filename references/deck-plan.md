@@ -69,7 +69,7 @@ Errors block `scaffold`. Warnings are advice.
 | R103 | error | 5 to 24 slides. |
 | R104 | error | The same layout on 3 slides in a row. Change one. |
 | R105 | warn | The same layout on 2 slides in a row. |
-| R106 | error | Every slide after the first must link to the previous one: share a morph id, or set a non-auto `transition`, or `rel` chapter or contrast. |
+| R106 | error | Every slide after the first must link to the previous one: share a morph id, or set a non-auto `transition`, or a `rel` other than `next` (chapter, contrast, deeper, back-out, time each pick a transition). |
 | R107 | error | A morph id must also be on the previous or next slide. |
 | R108 | error | At most one `detail`, `slice` or `lens` act per slide. |
 | R109 / R110 | error / warn | More than 6 steps is an error; more than 4 is a warning. |

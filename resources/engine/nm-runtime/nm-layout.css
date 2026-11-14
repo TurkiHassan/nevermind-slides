@@ -89,6 +89,21 @@
 .nm-rule { border: 0; block-size: 2px; background: var(--nm-l-line); margin: 0; inline-size: 100%; }
 .nm-rule.is-accent { inline-size: 96px; block-size: 4px; border-radius: 4px; background: var(--nm-l-accent); }
 .nm-caption { font-size: 24px; line-height: 1.6; color: var(--nm-l-muted); }
+/* point list: accent tick at the reading start, generous rhythm */
+.nm-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--nm-s-4); font-size: 32px; line-height: 1.7; }
+.nm-list > li { position: relative; padding-inline-start: 40px; text-wrap: pretty; }
+.nm-list > li::before { content: ""; position: absolute; inset-inline-start: 0; inset-block-start: .82em; inline-size: 18px; block-size: 3px; border-radius: 3px; background: var(--nm-l-accent); }
+.nm-head > .nm-list { margin-block-start: var(--nm-s-3); }
+/* a big number with its label (stat slides, split text columns) */
+.nm-stat-block { display: flex; flex-direction: column; justify-content: center; gap: var(--nm-s-2); }
+.nm-stat-block > .nm-t-body { color: var(--nm-l-muted); max-inline-size: 22ch; }
+.nm-head > .nm-stat-block { margin-block-start: var(--nm-s-4); }
+/* compare sides, rail parts, a figure inside a bento card */
+.nm-side > .nm-t-h3 { margin-block-end: var(--nm-s-2); }
+.nm-rail-head { justify-content: center; }
+.nm-rail-main { display: flex; flex-direction: column; justify-content: center; gap: var(--nm-s-5); min-block-size: 0; }
+.nm-card-figure { padding: 0; overflow: hidden; }
+.nm-card-figure > :only-child { block-size: 100%; }
 
 /* ------------------------------------------------------------- compositions */
 /* title */

@@ -84,6 +84,10 @@ template[data-detail-for] { display: none; }
   text-align: start; cursor: auto;
 }
 .nmf-panel.nmf-clip { overflow: hidden; }
+/* detail content taller than the stage: scroll inside, fade the bottom edge (see measure() in nm-focus.js) */
+.nmf-panel.nmf-scroll .nmf-pages { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  padding-block-end: 48px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 96px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 96px), transparent); }
 .nmf-panel::before { /* accent hairline on the leading edge */
   content: ""; position: absolute; inset-block: 40px; inset-inline-start: -1px; width: 4px;
   border-radius: 0 6px 6px 0; background: var(--nmf-accent);

@@ -66,7 +66,7 @@
 }
 .nm-dg-txt { min-width: 0; max-width: 100%; text-wrap: balance; }
 .nm-dg-t { display: block; }
-.nm-dg-s { display: block; margin-top: 4px; font-size: 19px; font-weight: 400; line-height: 1.55; color: var(--dg-muted); }
+.nm-dg-s { display: block; margin-top: 4px; font-size: 21px; font-weight: 400; line-height: 1.55; color: var(--dg-muted); }
 .nm-dg-ico { width: 34px; height: 34px; flex: none; color: var(--dg-accent); }
 .nm-dg-fs1 .nm-dg-t { font-size: .9em; } .nm-dg-fs2 .nm-dg-t { font-size: .8em; } .nm-dg-fs3 .nm-dg-t { font-size: .72em; }
 
@@ -88,6 +88,8 @@
 .nm-dg-diamond.is-accent .nm-dg-shape polygon { fill: var(--dg-accent); stroke: var(--dg-accent); }
 .nm-dg-diamond.is-accent { filter: drop-shadow(0 10px 16px color-mix(in oklab, var(--dg-accent) 35%, transparent)); }
 .nm-dg-plain.is-accent { color: var(--dg-accent); }
+/* plain (unfilled) accent nodes sit on paper: keep their second line muted, not on-accent */
+.nm-dg-plain.is-accent .nm-dg-s { color: var(--dg-muted); }
 .nm-dg-node.is-accent-soft { border-color: color-mix(in oklab, var(--dg-accent) 70%, var(--dg-paper)); background: color-mix(in oklab, var(--dg-accent) 7%, var(--dg-surface)); }
 .nm-dg-node.is-strong { background: var(--dg-ink); border-color: var(--dg-ink); color: var(--dg-paper); }
 .nm-dg-node.is-strong .nm-dg-s { color: color-mix(in oklab, var(--dg-paper) 75%, transparent); }
@@ -103,7 +105,7 @@
 /* node variants used by structured types */
 .nm-dg-card { text-align: start; justify-content: flex-start; padding: 18px 24px; }
 .nm-dg-chip { border-radius: 999px; padding: 10px 24px; font-size: 22px; font-weight: 500; min-width: 0; }
-.nm-dg-chip .nm-dg-s { font-size: 16px; margin-top: 0; }
+.nm-dg-chip .nm-dg-s { font-size: 18px; margin-top: 0; }
 .nm-dg-pin { padding: 8px 20px 8px 18px; font-size: 21px; font-weight: 600; min-width: 0; gap: 10px; }
 .nm-dg-pin::before { content: ""; flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--dg-accent); }
 .nm-dg-pin.is-accent::before { background: var(--dg-on-accent); }
@@ -116,7 +118,7 @@
 .nm-dg-setlabel.s0 { color: color-mix(in oklab, var(--dg-accent) 80%, var(--dg-ink)); }
 .nm-dg-setlabel.s1 { color: color-mix(in oklab, var(--dg-accent2) 85%, var(--dg-ink)); }
 .nm-dg-interlabel { justify-content: center; text-align: center; font-size: 20px; font-weight: 600; }
-.nm-dg-interlabel .nm-dg-s { font-size: 16px; }
+.nm-dg-interlabel .nm-dg-s { font-size: 18px; }
 
 /* ------------------------------------------------------------- labels */
 .nm-dg-label { position: absolute; box-sizing: border-box; line-height: 1.5; color: var(--dg-ink); }
@@ -138,16 +140,16 @@
 .nm-dg-quad { font-size: 22px; font-weight: 700; color: color-mix(in oklab, var(--dg-ink) 42%, var(--dg-paper)); }
 .nm-dg-axtitle { font-size: 22px; font-weight: 700; white-space: nowrap; }
 .nm-dg-axtitle span { font-weight: 400; color: var(--dg-muted); }
-.nm-dg-axend { font-size: 19px; color: var(--dg-muted); white-space: nowrap; }
+.nm-dg-axend { font-size: 20px; color: var(--dg-muted); white-space: nowrap; }
 .nm-dg-crit { font-size: 21px; font-weight: 700; background: var(--dg-paper); border: 2px solid var(--dg-line); border-radius: 999px; padding: 6px 20px; text-align: center; }
 .nm-dg-crit.is-accent { border-color: var(--dg-accent); color: var(--dg-accent); }
 .nm-dg-blabel { font-size: 24px; font-weight: 500; text-align: start; }
 .nm-dg-blabel.is-center { text-align: center; }
-.nm-dg-blabel span { display: block; font-size: 17px; color: var(--dg-muted); }
+.nm-dg-blabel span { display: block; font-size: 19px; color: var(--dg-muted); }
 .nm-dg-blabel.is-accent { font-weight: 700; }
 .nm-dg-bvalue { font-family: var(--dg-font-num); font-size: 25px; font-weight: 700; white-space: nowrap; color: var(--dg-muted); font-variant-numeric: tabular-nums; }
 .nm-dg-bvalue.is-accent { color: var(--dg-ink); }
-.nm-dg-tick { font-size: 18px; color: var(--dg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.nm-dg-tick { font-size: 20px; color: var(--dg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .nm-dg-endlabel { font-size: 21px; white-space: nowrap; }
 .nm-dg-endlabel b { font-weight: 600; }
 .nm-dg-endlabel span { font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -163,7 +165,7 @@
 .nm-dg-centerfig span { display: block; font-size: 20px; color: var(--dg-muted); }
 .nm-dg-gaugefig { text-align: center; }
 .nm-dg-gaugefig b { display: block; font-family: var(--dg-font-num); font-size: 124px; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
-.nm-dg-gaugefig span { display: block; font-size: 28px; font-weight: 600; margin-top: 6px; }
+.nm-dg-gaugefig span { display: block; font-size: 28px; font-weight: 600; margin-top: 18px; }
 .nm-dg-gaugefig em { display: block; font-size: 20px; color: var(--dg-muted); }
 .nm-dg-stat { text-align: center; }
 .nm-dg-stat b { display: block; font-family: var(--dg-font-num); font-weight: 700; line-height: 1.08; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -265,6 +267,7 @@
 
 /* hidden: armed but not yet played (slide not active) */
 .nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-node, .nm-dg-label) { opacity: 0; transform: translateY(14px) scale(.97); transition-delay: 0ms; }
+.nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-node, .nm-dg-label).nm-morph-measure { opacity: 1; transform: none; }
 .nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-back, .nm-dg-front) > :not(.nm-dg-bar) { opacity: 0; transition-delay: 0ms; }
 .nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask, .nm-dg-series) { stroke-dashoffset: 1; transition-delay: 0ms; }
 .nm-dg.nm-dg-armed:not(.nm-dg-play) :is(.nm-dg-head, .nm-dg-flowdots) { opacity: 0; transition-delay: 0ms; }
@@ -275,18 +278,18 @@
 
 /* stepping: when the deck core (body.nm-ready) or the lab simulation is live */
 :is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step] { --dg-d: var(--dg-ds, 0ms); }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not(.is-on):not(.nm-dg-drawn):is(.nm-dg-node, .nm-dg-label) { opacity: 0; transform: translateY(14px) scale(.97); transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps :is(.nm-dg-back, .nm-dg-front) > [data-step]:not(.is-on):not(.nm-dg-drawn):not(.nm-dg-bar) { opacity: 0; transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not(.is-on):not(.nm-dg-drawn) :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask) { stroke-dashoffset: 1; transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not(.is-on):not(.nm-dg-drawn) :is(.nm-dg-head, .nm-dg-flowdots) { opacity: 0; transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-series[data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dashoffset: 1; opacity: 1; transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-slice[data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dasharray: 0 100; opacity: 1; transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-gval[data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dasharray: 0 1; opacity: 1; transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-bar[data-step]:not(.is-on):not(.nm-dg-drawn) { transform: scaleX(0); opacity: 0; transition-delay: 0ms; }
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-bar.is-v[data-step]:not(.is-on):not(.nm-dg-drawn) { transform: scaleY(0); }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn):is(.nm-dg-node, .nm-dg-label) { opacity: 0; transform: translateY(14px) scale(.97); transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps :is(.nm-dg-back, .nm-dg-front) > [data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn):not(.nm-dg-bar) { opacity: 0; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask) { stroke-dashoffset: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps [data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) :is(.nm-dg-head, .nm-dg-flowdots) { opacity: 0; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-series[data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) { stroke-dashoffset: 1; opacity: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-slice[data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) { stroke-dasharray: 0 100; opacity: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-gval[data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) { stroke-dasharray: 0 1; opacity: 1; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-bar[data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) { transform: scaleX(0); opacity: 0; transition-delay: 0ms; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-dg-steps .nm-dg-bar.is-v[data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) { transform: scaleY(0); }
 /* author SVG with data-act="draw" outside diagrams */
-:is(body.nm-ready, body[data-nm-steps="sim"]) [data-act="draw"][data-step]:not(.is-on):not(.nm-dg-drawn) .nm-draw-stroke,
-:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-draw-stroke[data-act="draw"][data-step]:not(.is-on):not(.nm-dg-drawn) { stroke-dashoffset: 1; }
+:is(body.nm-ready, body[data-nm-steps="sim"]) [data-act="draw"][data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) .nm-draw-stroke,
+:is(body.nm-ready, body[data-nm-steps="sim"]) .nm-draw-stroke[data-act="draw"][data-step]:not([data-act]:not([data-act="reveal"], [data-act="draw"])):not(.is-on):not(.nm-dg-drawn) { stroke-dashoffset: 1; }
 
 /* overview, instant entry, reduced motion, speed 0: same end state, no motion */
 body.nm-overview .nm-dg :is(.nm-dg-node, .nm-dg-label, .nm-dg-back > *, .nm-dg-front > *, .nm-dg-head) { opacity: 1 !important; transform: none !important; transition: none !important; }

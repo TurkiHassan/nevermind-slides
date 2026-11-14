@@ -69,7 +69,7 @@
       "title": "قبل التدريب وبعده",
       "role": "comparison",
       "layout": "compare",
-      "visual": { "type": "chart", "diagram_type": "bar", "ref": "before-after" },
+      "visual": { "type": "chart", "diagram_type": "bars", "ref": "before-after" },
       "rel": "contrast",
       "transition": "wipe",
       "morph": ["visual"],

@@ -359,13 +359,18 @@ VISUAL_TYPES = ("anatomy", "image", "diagram", "chart", "motion", "none")
 VISUAL_MODES = ("static", "animated")
 PAIRINGS = ("thmanyah", "qahwa", "setabr", "kufi", "sans")
 IMAGE_SOURCES = ("generate", "web", "none")
+# Types nm-diagram.js renders (LAYOUTS.<name> in nm-diagram.js); the HTML must use these.
 BASE_DIAGRAM_TYPES = (
-    "flow", "cycle", "tree", "hub", "layers", "timeline", "compare", "matrix", "funnel", "venn",
-    "bar", "line", "area", "donut", "pie", "gauge", "scatter", "stat", "network", "graph", "stack", "steps",
+    "flow", "tree", "cycle", "hub", "swimlane", "sequence", "timeline", "layers", "matrix", "funnel",
+    "pyramid", "venn", "compare", "bars", "line", "donut", "gauge", "stat",
 )
+# Friendly plan names accepted by plan-lint; scaffold writes the real type.
+DIAGRAM_TYPE_ALIASES = {"bar": "bars", "column": "bars", "area": "line", "pie": "donut", "stack": "layers", "network": "flow", "graph": "flow", "kpi": "stat"}
+# nm-layout.css compositions (nm-l-<name>) plus the short plan names scaffold maps onto them (LAYOUT_ALIASES).
 BASE_LAYOUTS = (
-    "cover", "section", "split", "split-rev", "hero", "stat", "cards", "compare", "diagram",
-    "timeline", "quote", "center", "list",
+    "title", "section", "split", "hero-figure", "figure-full", "bento-3", "bento-4", "bento-5", "bento-6",
+    "cards-2", "cards-3", "cards-4", "rail", "quote", "stat-row", "compare", "steps",
+    "cover", "split-rev", "hero", "stat", "cards", "diagram", "timeline", "center", "list",
 )
 RUNTIME_JS_ORDER = ("nm-deck.js", "nm-focus.js", "nm-diagram.js")
 RUNTIME_CSS_ORDER = ("nm-deck.css", "nm-focus.css", "nm-diagram.css", "nm-media.css", "nm-layout.css")
@@ -393,18 +398,23 @@ def _closest(value: str, options: Any) -> str:
     return match[0] if match else ""
 
 
-def _diagram_types() -> tuple[str, ...]:
-    """Built-in diagram vocabulary plus any type token quoted in nm-diagram.js."""
+def _real_diagram_types() -> tuple[str, ...]:
+    """Types nm-diagram.js really renders (read from its LAYOUTS table when present)."""
     found = set(BASE_DIAGRAM_TYPES)
     js = RUNTIME_DIR / "nm-diagram.js"
     if js.is_file():
         try:
-            text = js.read_text(encoding="utf-8")
-            for token in re.findall(r"""['"]([a-z][a-z0-9-]{2,18})['"]""", text):
-                found.add(token)
+            names = re.findall(r"LAYOUTS\.([a-z]+)\s*=", js.read_text(encoding="utf-8"))
+            if names:
+                found = set(names)
         except OSError:
             pass
     return tuple(sorted(found))
+
+
+def _diagram_types() -> tuple[str, ...]:
+    """Plan vocabulary: real types plus friendly aliases."""
+    return tuple(sorted(set(_real_diagram_types()) | set(DIAGRAM_TYPE_ALIASES)))
 
 
 def _layout_names() -> tuple[str, ...]:
@@ -736,9 +746,9 @@ def lint_plan(plan: Any) -> dict[str, Any]:
     for i in range(1, n):
         cur, prev = slides[i], slides[i - 1]
         shared = set(_slide_morph(cur)) & set(_slide_morph(prev))
-        explicit = _slide_transition(cur) != "auto" or str(cur.get("rel") or "next") in ("chapter", "contrast")
+        explicit = _slide_transition(cur) != "auto" or str(cur.get("rel") or "next") in ("chapter", "contrast", "deeper", "back-out", "time")
         if not shared and not explicit:
-            err("R106", f"slide {i + 1} ({cur.get('id', '?')}): no link to slide {i}; add a shared morph id (e.g. \"title\") to both, or set a non-auto transition, or rel chapter/contrast", i + 1)
+            err("R106", f"slide {i + 1} ({cur.get('id', '?')}): no link to slide {i}; add a shared morph id (e.g. \"title\") to both, or set a non-auto transition, or a rel other than next", i + 1)
     for i, slide in enumerate(slides):
         for mid in _slide_morph(slide):
             neighbours = []
@@ -865,8 +875,8 @@ _STUB_LAYOUT = {
 _STUB_VISUAL = {
     "cover": {"type": "image", "query": "describe the cover image, no text"},
     "mechanism": {"type": "diagram", "diagram_type": "flow", "mode": "animated"},
-    "evidence": {"type": "chart", "diagram_type": "bar"},
-    "comparison": {"type": "chart", "diagram_type": "bar"},
+    "evidence": {"type": "chart", "diagram_type": "bars"},
+    "comparison": {"type": "chart", "diagram_type": "bars"},
     "process": {"type": "diagram", "diagram_type": "timeline"},
     "quote": {"type": "none"},
     "closing": {"type": "image", "query": "describe the closing image, no text"},
@@ -1062,15 +1072,23 @@ def _placeholder_svg(label: str) -> str:
 GRAPH_DIAGRAM_TYPES = ("flow", "tree", "cycle", "hub", "swimlane", "sequence")
 PROGRESSIVE_MODES = ("rank", "node", "edge", "series")
 _ORDINALS = ("الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس")
+_AR_DIGITS = "٠١٢٣٤٥٦٧٨٩"
+
+
+def _real_diagram_type(slide: dict[str, Any]) -> tuple[str, dict[str, str]]:
+    """Plan diagram_type (real or alias) -> (nm-diagram data-type, extra figure attributes)."""
+    visual = _visual_of(slide)
+    raw = str(visual.get("diagram_type") or ("bars" if visual.get("type") == "chart" else "flow"))
+    real = DIAGRAM_TYPE_ALIASES.get(raw, raw)
+    extra = {"data-area": "on"} if raw == "area" else {}
+    return real, extra
 
 
 def _diagram_kind(slide: dict[str, Any]) -> str | None:
     """'graph' for node/edge diagrams, 'data' for charts and lists, None when the slide has no diagram."""
-    vtype = _visual_type(slide)
-    if vtype not in ("diagram", "chart"):
+    if _visual_type(slide) not in ("diagram", "chart"):
         return None
-    dtype = _visual_of(slide).get("diagram_type") or ("bar" if vtype == "chart" else "flow")
-    return "graph" if dtype in GRAPH_DIAGRAM_TYPES else "data"
+    return "graph" if _real_diagram_type(slide)[0] in GRAPH_DIAGRAM_TYPES else "data"
 
 
 def _plan_steps(slide: dict[str, Any]) -> dict[str, Any]:
@@ -1127,64 +1145,149 @@ def _starter_nodes(slide: dict[str, Any], node_ids: list[str]) -> list[str]:
     return ids
 
 
+def _starter_dsl(slide: dict[str, Any], node_ids: list[str]) -> tuple[list[str], dict[str, int]]:
+    """Starter DSL lines that nm-diagram.js renders as is, plus how many steps each step mode makes."""
+    dtype, _ = _real_diagram_type(slide)
+    ids = _starter_nodes(slide, node_ids)
+    n = len(ids)
+    names = {i: (f"العنصر {_ORDINALS[k]}" if k < len(_ORDINALS) else f"عنصر {k + 1}") for k, i in enumerate(ids)}
+    title = str(slide.get("title") or "الفكرة")
+    if dtype == "flow":
+        lines = [" -> ".join(f"{i}[{names[i]}]" for i in ids), f"{ids[min(1, n - 1)]}.accent"]
+        return lines, {"rank": n, "node": n, "edge": n - 1}
+    if dtype == "tree":
+        lines = [f"{ids[0]}[{names[ids[0]]}]"] + [f"  {i}[{names[i]}]" for i in ids[1:]]
+        return lines, {"rank": 2, "node": n, "edge": n - 1}
+    if dtype == "cycle":
+        lines = [f"center: {title}"] + [f"{i}[{names[i]}]" for i in ids] + [f"{ids[0]}.accent"]
+        return lines, {"rank": n, "node": n, "edge": n}
+    if dtype == "hub":
+        lines = [f"core(({title})).accent"] + [f"core -- {i}[{names[i]}]" for i in ids]
+        return lines, {"rank": 2, "node": n + 1, "edge": n}
+    if dtype == "swimlane":
+        lines = [f"lane الفريق الأول: {ids[0]}", f"lane الفريق الثاني: {' '.join(ids[1:])}",
+                 " -> ".join(f"{i}[{names[i]}]" for i in ids)]
+        return lines, {"rank": n, "node": n, "edge": n - 1}
+    if dtype == "sequence":
+        lines = ["actors: a[الطرف الأول], b[الطرف الثاني]", "a -> b: الطلب", "b -.-> a: الرد"]
+        return lines, {"rank": 2, "node": 2, "edge": 2}
+    data = {
+        "timeline": (["٢٠٢٤: البداية | اكتب ما حدث", "٢٠٢٥: التوسع | اكتب ما حدث !", "٢٠٢٦: الهدف"], 3),
+        "layers": (["الطبقة العليا: عنصر، عنصر", "الطبقة الوسطى: عنصر، عنصر !", "الأساس: عنصر"], 3),
+        "matrix": (["x: الجهد | منخفض | مرتفع", "y: الأثر | منخفض | مرتفع", "عنصر أول: 0.25, 0.8 !", "عنصر ثان: 0.7, 0.35"], 2),
+        "funnel": (["المرحلة الأولى: ١٠٠", "المرحلة الثانية: ٤٠", "المرحلة الثالثة: ١٢ !"], 3),
+        "pyramid": (["القمة: اكتب الوصف", "الوسط: اكتب الوصف", "الأساس: اكتب الوصف !"], 3),
+        "venn": (["أ: المجال الأول", "ب: المجال الثاني", "أ&ب: التقاطع !"], 3),
+        "compare": (["head: الخيار الأول | الخيار الثاني !", "المعيار الأول: قيمة | قيمة", "المعيار الثاني: قيمة | قيمة"], 3),
+        "bars": (["unit: ٪", "العنصر الأول: ٣٠", "العنصر الثاني: ٥٥ !", "العنصر الثالث: ٤٢", "العنصر الرابع: ٧٠"], 4),
+        "line": (["x: ٢٠٢٣, ٢٠٢٤, ٢٠٢٥, ٢٠٢٦", "series السلسلة الأولى: ١٢, ١٨, ٢٥, ٣١", "series السلسلة الثانية: ٢٠, ٢٢, ٢٣, ٢٦"], 2),
+        "donut": (["center: ٦٢٪ | اكتب الوصف", "الجزء الأول: ٦٢ !", "الجزء الثاني: ٢١", "الجزء الثالث: ١٧"], 3),
+        "gauge": (["value: ٧٠", "max: 100", "unit: ٪", "label: اكتب وصف المؤشر", "sub: الهدف ٩٠٪"], 1),
+        "stat": (["اكتب وصف الرقم: ٧٠٪ | اكتب السياق !", "اكتب وصف الرقم الثاني: ١٢"], 2),
+    }
+    lines, series = data.get(dtype, data["bars"])
+    return lines, {"series": series}
+
+
 def _starter_step_count(slide: dict[str, Any], mode: str, node_ids: list[str]) -> int:
     if mode == "all":
         return 1
-    if mode == "series":
-        return 4
-    n = len(_starter_nodes(slide, node_ids))
-    return n - 1 if mode == "edge" else n
+    _, counts = _starter_dsl(slide, node_ids)
+    return max(1, counts.get(mode, 1))
 
 
 def _diagram_html(slide: dict[str, Any], sid: str, node_ids: list[str], attr_extra: str) -> str:
+    dtype, extra = _real_diagram_type(slide)
     visual = _visual_of(slide)
-    dtype = str(visual.get("diagram_type") or ("bar" if visual.get("type") == "chart" else "flow"))
     label = _esc(slide.get("title") or sid)
-    head = f'<figure class="nm-diagram" data-type="{_esc(dtype)}" aria-label="{label}" data-nm-todo{attr_extra}>'
-    if dtype in GRAPH_DIAGRAM_TYPES:
-        ids = _starter_nodes(slide, node_ids)
-        names = {i: f"العنصر {_ORDINALS[k]}" if k < len(_ORDINALS) else f"عنصر {k + 1}" for k, i in enumerate(ids)}
-        if dtype == "hub":
-            lines = [f"center: {slide.get('title') or 'الفكرة'}"] + [f"{names[i]}" for i in ids]
-        elif dtype == "tree":
-            lines = [f"{ids[0]}[{names[ids[0]]}]"] + [f"  {i}[{names[i]}]" for i in ids[1:]]
-        else:
-            chain = " -> ".join(f"{i}[{names[i]}]" for i in ids)
-            if dtype == "cycle":
-                chain += f" -> {ids[0]}"
-            lines = [chain]
-    elif dtype == "stat":
-        lines = ["value: 70%", "label: اكتب وصف الرقم"]
-    else:
-        lines = [f"{_ORDINALS[k]}: {v}" for k, v in enumerate((30, 55, 42, 70))]
-        lines = [f"العنصر {l}" for l in lines]
-    body = "\n".join("  " + l if not l.startswith("  ") else l for l in lines)
-    return f'{head}\n<script type="text/nm-diagram">\n{body}\n</script>\n</figure>'
+    did = _esc(visual.get("ref") or f"{sid}-diagram")
+    extra_attr = _attrs(extra) if extra else ""
+    head = f'<figure class="nm-diagram" data-type="{_esc(dtype)}" data-id="{did}" aria-label="{label}"{extra_attr} data-nm-todo{attr_extra}>'
+    lines, _ = _starter_dsl(slide, node_ids)
+    body = "\n".join("      " + l for l in lines)
+    return f'{head}\n    <script type="text/nm-diagram">\n{body}\n    </script>\n  </figure>'
+
+
+# plan layout (short names kept as aliases) -> nm-layout.css composition
+LAYOUT_ALIASES = {
+    "cover": "title", "center": "title", "section": "section", "split": "split", "split-rev": "split",
+    "hero": "hero-figure", "diagram": "hero-figure", "timeline": "hero-figure", "stat": "stat-row",
+    "cards": "cards", "compare": "compare", "quote": "quote", "list": "rail",
+}
+
+
+def _composition(layout: str, has_visual: bool, visual_is_graphic: bool, n_body: int, has_stat: bool) -> tuple[str, dict[str, str]]:
+    """Pick the real nm-l-* composition for a plan layout and the slide's content."""
+    comp = LAYOUT_ALIASES.get(layout, layout)
+    attrs: dict[str, str] = {}
+    if comp == "title" and has_visual:
+        comp, attrs = "split", {"data-ratio": "7:5"}
+    elif comp == "split":
+        attrs = {"data-ratio": "5:7" if visual_is_graphic else "1:1"}
+    elif comp == "stat-row" and (has_visual or n_body):
+        comp, attrs = "split", {"data-ratio": "1:1"}
+    elif comp == "cards":
+        k = max(2, min(4, n_body or 3))
+        comp = f"bento-{min(6, k + 1)}" if has_visual else f"cards-{k}"
+        if has_visual and k + 1 < 3:
+            comp = "bento-3"
+    elif comp == "compare" and has_visual:
+        comp = "hero-figure"
+    elif comp == "rail" and has_visual:
+        comp, attrs = "split", {"data-ratio": "5:7"}
+    elif comp == "steps" and has_visual:
+        comp = "hero-figure"
+    return comp, attrs
+
+
+def _digits(n: int, arabic: bool) -> str:
+    s = f"{n:02d}"
+    return "".join(_AR_DIGITS[int(c)] for c in s) if arabic else s
 
 
 def _build_slide(
-    slide: dict[str, Any], idx: int, plan: dict[str, Any], out_dir: Path
+    slide: dict[str, Any], idx: int, plan: dict[str, Any], out_dir: Path, section_no: int = 0
 ) -> tuple[str, list[str], list[tuple[Path, str]]]:
     sid = str(slide["id"])
     text = slide.get("text") or {}
     visual = _visual_of(slide)
     vtype = _visual_type(slide)
     role = slide.get("role")
-    layout = slide.get("layout")
+    layout = str(slide.get("layout") or "split")
     todos: list[str] = []
     extra_files: list[tuple[Path, str]] = []
+    arabic_digits = not DIGIT_GROUPS["western"].search(json.dumps(plan.get("slides", []), ensure_ascii=False)) or bool(
+        DIGIT_GROUPS["arabic-indic"].search(json.dumps(plan.get("slides", []), ensure_ascii=False))
+    )
 
     plan_steps = _plan_steps(slide)
     steps_map: dict[str, tuple[int, dict[str, Any]]] = plan_steps["elements"]
     todos.extend(plan_steps["todos"])
     used_keys: set[str] = set()
+    templates: list[str] = []
+    templated: set[str] = set()
 
     def step_attrs(key: str) -> str:
-        if key in steps_map:
-            used_keys.add(key)
-            num, step = steps_map[key]
-            return f' data-step="{num}" data-act="{_esc(step.get("act", "reveal"))}"'
-        return ""
+        if key not in steps_map:
+            return ""
+        used_keys.add(key)
+        num, step = steps_map[key]
+        act = str(step.get("act", "reveal"))
+        out = f' data-step="{num}" data-act="{_esc(act)}"'
+        if act in ("detail", "slice") and key not in templated:
+            templated.add(key)
+            eid = f"{sid}-{key}"
+            out += f' id="{eid}"'
+            if act == "detail":
+                out += ' data-detail="side"'
+            templates.append(
+                f'<template data-detail-for="{eid}">\n      <small data-nm-todo>اكتب سطرا تمهيديا</small>\n'
+                f'      <h3 data-nm-todo>اكتب عنوان التفصيل</h3>\n      <p data-nm-todo>جملة أو جملتان تشرحان العنصر.</p>\n    </template>'
+            )
+            todos.append(f"fill the <template data-detail-for=\"{eid}\"> (one title, one or two sentences, up to four bullets or three stats)")
+        if act == "focus" and step.get("note"):
+            out += f' data-focus-note="{_esc(step["note"])}"'
+        return out
 
     # morph id -> element key
     morph_for: dict[str, str] = {}
@@ -1199,61 +1302,58 @@ def _build_slide(
     def morph_attr(key: str) -> str:
         return f' data-morph="{_esc(morph_for[key])}"' if key in morph_for else ""
 
-    # nodes referenced by steps
     node_ids = list(plan_steps["node_ids"])
+    body_items = [b for b in (text.get("body") or []) if isinstance(b, str)]
+    stat = text.get("stat") if isinstance(text.get("stat"), dict) and text["stat"].get("value") else None
+    has_visual = vtype != "none"
+    comp, comp_attrs = _composition(layout, has_visual, vtype in ("diagram", "chart", "anatomy", "motion"), len(body_items), bool(stat))
+    if layout == "split-rev" and comp_attrs.get("data-ratio") in ("5:7", "7:5"):
+        # data-ratio follows DOM order and split-rev puts the visual first
+        comp_attrs["data-ratio"] = "7:5" if comp_attrs["data-ratio"] == "5:7" else "5:7"
 
-    # --- text
-    head_parts: list[str] = []
+    # --- text pieces
     kicker = text.get("kicker")
     headline = text.get("headline")
-    if kicker:
-        head_parts.append(f'<p class="nm-t-kicker"{morph_attr("kicker")}{step_attrs("kicker")}>{_esc(kicker)}</p>')
-    if headline:
-        tag = "h1" if role == "cover" else "h2"
-        if role == "quote":
-            head_parts = [
-                f'<blockquote class="nm-t-quote nm-t-headline"{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline)}</blockquote>'
-            ] + head_parts[::-1]
-        else:
-            head_parts.append(f'<{tag} class="nm-t-headline"{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline)}</{tag}>')
-    else:
+    if not headline:
         todos.append("write text.headline")
-    head_html = "\n      ".join(head_parts)
+    kicker_html = f'<p class="nm-kicker"{morph_attr("kicker")}{step_attrs("kicker")}>{_esc(kicker)}</p>' if kicker else ""
+    if comp == "title":
+        h_tag, h_cls = ("h1", "nm-t-display") if role == "cover" else ("h2", "nm-t-h1")
+    elif comp == "section":
+        h_tag, h_cls = "h2", "nm-t-h1"
+    elif comp in ("split", "rail"):
+        h_tag, h_cls = ("h1", "nm-t-h1") if role == "cover" else ("h2", "nm-t-h2")
+    else:
+        h_tag, h_cls = "h2", "nm-t-h2"
+    headline_html = (
+        f'<{h_tag} class="{h_cls}"{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline)}</{h_tag}>' if headline else ""
+    )
 
-    body_items = [b for b in (text.get("body") or []) if isinstance(b, str)]
-    body_html = ""
-    if body_items:
-        body_step = step_attrs("body")
-        lis = []
-        for n, item in enumerate(body_items, start=1):
-            lis.append(f'<li class="nm-t-body"{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}>{_esc(item)}</li>')
-        li_html = "\n        ".join(lis)
-        body_html = f'<ul class="nm-t-body-list"{morph_attr("body")}{body_step}>\n        {li_html}\n      </ul>'
+    def body_list(cls: str = "nm-list") -> str:
+        if not body_items:
+            return ""
+        lis = [f'<li{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}>{_esc(item)}</li>' for n, item in enumerate(body_items, start=1)]
+        return f'<ul class="{cls}"{morph_attr("body")}{step_attrs("body")}>\n        ' + "\n        ".join(lis) + "\n      </ul>"
+
+    def lead() -> str:
+        """One body item reads as a lead paragraph, several as a list."""
+        if len(body_items) == 1:
+            return f'<p class="nm-t-lead"{morph_attr("body1") or morph_attr("body")}{step_attrs("body1") or step_attrs("body")}>{_esc(body_items[0])}</p>'
+        return body_list()
 
     stat_html = ""
-    stat = text.get("stat")
-    if isinstance(stat, dict) and stat.get("value"):
+    if stat:
         stat_html = (
-            f'<div class="nm-t-stat"{morph_attr("stat")}{step_attrs("stat")}>'
-            f'<span class="nm-t-stat-value" data-entrance="count">{_esc(stat.get("value"))}</span>'
-            f'<span class="nm-t-stat-label">{_esc(stat.get("label", ""))}</span></div>'
+            f'<div class="nm-stat-block"{morph_attr("stat")}{step_attrs("stat")}>'
+            f'<span class="nm-t-num" data-entrance="count">{_esc(stat.get("value"))}</span>'
+            f'<p class="nm-t-body">{_esc(stat.get("label", ""))}</p></div>'
         )
 
     # --- visual
     visual_html = ""
-    detail_templates = ""
-    if vtype != "none":
+    if has_visual:
         vref = str(visual.get("ref") or f"{sid}-visual")
         vattr = morph_attr("visual") + step_attrs("visual")
-        detail_for = ""
-        if "visual" in steps_map and steps_map["visual"][1].get("act") == "detail":
-            detail_for = f"{sid}-visual"
-            vattr += f' id="{detail_for}"'
-            detail_templates = (
-                f'\n      <template data-detail-for="{detail_for}"><div class="nm-detail-card">'
-                f"TODO: detail content (zoomed view, label or note)</div></template>"
-            )
-            todos.append(f"fill the detail template for #{detail_for}")
         if vtype == "anatomy":
             mode = visual.get("mode", "static")
             visual_html = (
@@ -1269,9 +1369,9 @@ def _build_slide(
             extra_files.append((out_dir / ph_rel, _placeholder_svg(f"placeholder {vref}")))
             alt = _esc(visual.get("query") or slide.get("title") or vref)
             visual_html = (
-                f'<figure class="nm-img" data-nm-todo{vattr}>'
-                f'<img class="nm-ph-img" src="{ph_rel}" alt="{alt}" data-todo-src="assets/img/{_esc(vref)}.jpg">'
-                f"<!-- TODO: save the real image as assets/img/{_cmt(vref)}.jpg, then set src to it"
+                f'<figure class="nm-img nm-ph-frame" data-nm-todo{vattr}>'
+                f'<img src="{ph_rel}" alt="{alt}" data-todo-src="assets/img/{_esc(vref)}.jpg">'
+                f"<!-- TODO: save the real image as assets/img/{_cmt(vref)}.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it"
                 + (f" (query: {_cmt(visual.get('query'))})" if visual.get("query") else "")
                 + " -->"
                 "</figure>"
@@ -1285,15 +1385,15 @@ def _build_slide(
                 used_keys.add("visual")
                 todos.append(
                     f"diagram builds its own steps from number {dg['start']} (data-steps=\"{dg['mode']}\"); "
-                    "if you edit the diagram, renumber the other data-step values on this slide"
+                    "if you add or remove nodes, renumber the other data-step values on this slide"
                 )
             ns = plan_steps["node_steps"]
             if ns:
-                dg_attr += f' data-node-steps="{_esc(",".join(f"{i}:{n}:{a}" for i, n, a in ns))}"'
+                dg_attr += f' data-node-steps="{_esc(", ".join(f"{i}:{n}:{a}" for i, n, a in ns))}"'
                 for i, n, a in ns:
-                    todos.append(f"step {n} {a} on diagram node \"{i}\" (applied by the node-steps helper at the end of the deck)")
+                    todos.append(f"step {n} {a} on diagram node \"{i}\" (data-node-steps on the figure; keep the node id when you edit the DSL)")
             visual_html = _diagram_html(slide, sid, node_ids, vattr + dg_attr)
-            todos.append(f"edit {vtype} labels/values ({visual.get('diagram_type', 'flow')}) in the nm-diagram script block")
+            todos.append(f"edit {vtype} labels/values ({_real_diagram_type(slide)[0]}) in the nm-diagram script block")
         elif vtype == "motion":
             visual_html = (
                 f'<div class="nm-ph" data-nm-todo{vattr}>'
@@ -1304,26 +1404,79 @@ def _build_slide(
                 "</div>"
             )
             todos.append("build the motion graphic (inline SVG)")
-        if visual_html:
-            visual_html = f'<div class="nm-slot nm-slot-visual">\n      {visual_html}{detail_templates}\n    </div>'
+        pins_step = steps_map.get("visual")
+        if pins_step and str(pins_step[1].get("act")) == "pins" and visual_html:
+            pin = '<span class="nm-pin" data-x="50" data-y="50" data-label="اكتب اسم الجزء" data-nm-todo>سطر قصير يشرح الجزء</span>'
+            visual_html = re.sub(r"(<!-- TODO)", pin + r"\1", visual_html, count=1) if "<!-- TODO" in visual_html else visual_html.replace("</figure>", pin + "</figure>", 1)
+            todos.append("place one .nm-pin per part (data-x / data-y in percent of the figure)")
 
+    def head(*parts: str, cls: str = "nm-head") -> str:
+        inner = "\n      ".join(p for p in parts if p)
+        return f'<header class="{cls}">\n      {inner}\n    </header>' if inner else ""
+
+    # --- assemble children per composition
+    kids: list[str] = []
+    if comp == "title":
+        kids = [kicker_html, headline_html, lead(), stat_html]
+    elif comp == "section":
+        num = f'<p class="nm-section-num" aria-hidden="true">{_digits(section_no or 1, arabic_digits)}</p>'
+        kids = [num, '<hr class="nm-rule is-accent">', kicker_html, headline_html, lead()]
+    elif comp == "split":
+        if has_visual:
+            text_col = head(kicker_html, headline_html, lead(), stat_html)
+            kids = [visual_html, text_col] if layout == "split-rev" else [text_col, visual_html]
+        elif stat:
+            kids = [head(kicker_html, headline_html, lead()), stat_html]
+        else:
+            kids = [head(kicker_html, headline_html), body_list()]
+    elif comp in ("hero-figure",):
+        kids = [head(kicker_html, headline_html, lead()), visual_html]
+    elif comp == "figure-full":
+        kids = [visual_html, f'<figcaption class="nm-caption">{headline_html}</figcaption>' if headline_html else ""]
+    elif comp.startswith("cards-") or comp.startswith("bento-"):
+        cards = [
+            f'<article class="nm-card"{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_esc(item)}</p></article>'
+            for n, item in enumerate(body_items, start=1)
+        ] or ['<article class="nm-card" data-nm-todo><p class="nm-t-body">اكتب نص البطاقة</p></article>'] * 3
+        if comp.startswith("bento-") and visual_html:
+            cards.insert(0, f'<div class="nm-card is-quiet nm-card-figure">{visual_html}</div>')
+        kids = [head(kicker_html, headline_html)] + cards
+    elif comp == "stat-row":
+        kids = [head(kicker_html, headline_html), stat_html]
+    elif comp == "compare":
+        half = (len(body_items) + 1) // 2
+        a, b = body_items[:half], body_items[half:]
+
+        def side(items: list[str], start: int, label: str) -> str:
+            lis = "".join(f'<li{morph_attr(f"body{start + k}")}{step_attrs(f"body{start + k}")}>{_esc(t)}</li>' for k, t in enumerate(items))
+            return f'<div class="nm-side">\n      <h3 class="nm-t-h3" data-nm-todo>{label}</h3>\n      <ul class="nm-list">{lis}</ul>\n    </div>'
+
+        kids = [head(kicker_html, headline_html), side(a, 1, "الجانب الأول"), side(b, half + 1, "الجانب الثاني")]
+    elif comp == "quote":
+        quote = f'<blockquote{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline or "")}</blockquote>'
+        cite = f'<cite{morph_attr("kicker")}{step_attrs("kicker")}>{_esc(kicker)}</cite>' if kicker else ""
+        kids = [quote, cite]
+    elif comp == "rail":
+        kids = [f'<aside class="nm-rail-head">\n      {kicker_html}\n      {headline_html}\n    </aside>', f'<div class="nm-rail-main">\n      {lead()}\n      {stat_html}\n    </div>']
+    elif comp == "steps":
+        kids = [head(kicker_html, headline_html)] + [
+            f'<div{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_esc(t)}</p></div>' for n, t in enumerate(body_items, start=1)
+        ]
+    else:
+        kids = [head(kicker_html, headline_html, lead()), visual_html, stat_html]
+    if visual_html and not any(visual_html in k for k in kids if k):
+        kids.append(visual_html)
+        todos.append(f"layout {comp} has no figure cell; the visual was appended at the end, move it or pick another layout")
+    kids = [k for k in kids if k]
+    kids += templates
+    # after assembly: every plan step must have landed on an element
     for key, (num, step) in steps_map.items():
         if key not in used_keys:
             todos.append(f"step {num} ({step.get('act')}) target \"{key}\" was not found; add data-step=\"{num}\" data-act=\"{step.get('act')}\" to the right element")
         elif step.get("note"):
             todos.append(f"step {num} {step.get('act')} {key}: {step['note']}")
 
-    slots = []
-    if head_html:
-        slots.append(f'<header class="nm-slot nm-slot-head">\n      {head_html}\n    </header>')
-    if body_html:
-        slots.append(f'<div class="nm-slot nm-slot-body">\n      {body_html}\n    </div>')
-    if visual_html:
-        slots.append(visual_html)
-    if stat_html:
-        slots.append(f'<div class="nm-slot nm-slot-stat">{stat_html}</div>')
-    slots_html = "\n    ".join(slots)
-
+    slots_html = "\n    ".join(kids)
     attrs = {
         "class": "slide",
         "id": sid,
@@ -1335,11 +1488,12 @@ def _build_slide(
     note = slide.get("speaker_note")
     note_html = f'\n    <aside class="nm-speaker-note" hidden>{_esc(note)}</aside>' if note else ""
     todo_text = "\n".join(f"       - {_cmt(t)}" for t in todos) if todos else "       - none"
+    pad_attrs = _attrs(comp_attrs)
     html_out = (
-        f"  <!-- {idx + 1}. {sid} / {role} / layout {layout}\n       TODO:\n{todo_text}\n  -->\n"
+        f"  <!-- {idx + 1}. {sid} / {role} / layout {layout} -> nm-l-{comp}\n       TODO:\n{todo_text}\n  -->\n"
         f"  <section{_attrs(attrs)}>\n"
         f'  <div class="camera-rig">\n'
-        f'    <div class="nm-l nm-l-{_esc(layout)}">\n    {slots_html}\n    </div>{note_html}\n'
+        f'    <div class="nm-slide-pad nm-l-{_esc(comp)}"{pad_attrs}>\n    {slots_html}\n    </div>{note_html}\n'
         f"  </div>\n  </section>"
     )
     return html_out, todos, extra_files
@@ -1359,7 +1513,25 @@ def _theme_css_vars(tokens: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def render_deck(plan: dict[str, Any], out_dir: Path) -> tuple[str, list[tuple[Path, str]], int]:
+TAILWIND_BLOCK = """<!-- Tailwind CDN (opt-in, scaffold --tailwind): needs network; colour and font tokens map to the theme variables -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  if (window.tailwind) {
+    tailwind.config = {
+      theme: { extend: {
+        colors: { paper: 'var(--nm-paper)', ink: 'var(--nm-ink)', muted: 'var(--nm-muted)', line: 'var(--nm-line)',
+                  accent: 'var(--nm-accent)', accent2: 'var(--nm-accent-2)', surface: 'var(--nm-surface)' },
+        fontFamily: { display: 'var(--nm-font-display)', body: 'var(--nm-font-body)' },
+        borderRadius: { nm: 'var(--nm-radius)' }
+      } },
+      corePlugins: { preflight: false }
+    };
+  }
+</script>
+"""
+
+
+def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False) -> tuple[str, list[tuple[Path, str]], int]:
     template = (TEMPLATES_DIR / "deck-skeleton.html").read_text(encoding="utf-8")
     tokens, _ = resolve_theme(plan.get("theme"))
     pairing = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
@@ -1367,8 +1539,11 @@ def render_deck(plan: dict[str, Any], out_dir: Path) -> tuple[str, list[tuple[Pa
     slides_html: list[str] = []
     files: list[tuple[Path, str]] = []
     todo_count = 0
+    section_no = 0
     for i, slide in enumerate(plan["slides"]):
-        s_html, todos, extra = _build_slide(slide, i, plan, out_dir)
+        if LAYOUT_ALIASES.get(str(slide.get("layout")), slide.get("layout")) == "section":
+            section_no += 1
+        s_html, todos, extra = _build_slide(slide, i, plan, out_dir, section_no)
         slides_html.append(s_html)
         files.extend(extra)
         todo_count += len(todos)
@@ -1380,6 +1555,7 @@ def render_deck(plan: dict[str, Any], out_dir: Path) -> tuple[str, list[tuple[Pa
         "{{MODE}}": _esc(plan.get("mode", "morph-and-zoom")),
         "{{FONT_MODES_JSON}}": json.dumps(font_modes, ensure_ascii=False),
         "{{SLIDES}}": "\n\n".join(slides_html),
+        "{{TAILWIND}}": TAILWIND_BLOCK if tailwind else "",
     }
     for key, value in replacements.items():
         template = template.replace(key, value)
@@ -1407,7 +1583,7 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
         return 1
     # The deck must sit in the plan directory so assets/ paths resolve.
     out_dir = out_path.parent
-    deck_html, extra_files, todo_count = render_deck(plan, out_dir)
+    deck_html, extra_files, todo_count = render_deck(plan, out_dir, tailwind=getattr(args, "tailwind", False))
 
     fonts = _stage_fonts(out_dir)
     runtime = _stage_runtime(out_dir)
@@ -1569,7 +1745,7 @@ def _audit_contract(
     # vocabulary
     vocab_errors: list[str] = []
     seen: set[tuple[Any, str, str]] = set()
-    diagram_types = _diagram_types()
+    diagram_types = _real_diagram_types()
     for el in dom.elements:
         a, slide = el["attrs"], el["slide"]
         where = f"Slide {slide + 1}" if slide is not None else "Deck"
@@ -1592,7 +1768,7 @@ def _audit_contract(
             checks.append(("data-steps", ("none", "all") + PROGRESSIVE_MODES))
         for part in a.get("data-node-steps", "").split(","):
             bits = part.strip().split(":")
-            if len(bits) == 3 and bits[2] not in ACTS and (slide, "data-node-steps", bits[2]) not in seen:
+            if len(bits) >= 3 and bits[2] not in ACTS and (slide, "data-node-steps", bits[2]) not in seen:
                 seen.add((slide, "data-node-steps", bits[2]))
                 vocab_errors.append(_vocab_error(where, "data-node-steps act", bits[2], ACTS))
         for attr, valid in checks:
@@ -1636,7 +1812,7 @@ def _audit_contract(
                 open_ended.add(el["slide"])
         for part in a.get("data-node-steps", "").split(","):
             bits = part.strip().split(":")
-            if len(bits) == 3 and bits[1].isdigit():
+            if len(bits) >= 2 and bits[1].isdigit():
                 steps_by_slide.setdefault(el["slide"], set()).add(int(bits[1]))
         raw = a.get("data-step")
         if raw is None:
@@ -2184,6 +2360,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_scaf.add_argument("--plan", required=True, help="Path to deck.plan.json.")
     p_scaf.add_argument("--out", default=None, help="Output HTML path (default: <plan dir>/<slug>-slides.html).")
     p_scaf.add_argument("--force", action="store_true", help="Regenerate an existing output file (the old one is kept as .bak).")
+    p_scaf.add_argument("--tailwind", action="store_true", help="Also load the Tailwind CDN mapped to the theme tokens (needs network; only for the editor's token panel). Default: pure nm-layout.css.")
     p_scaf.set_defaults(func=cmd_scaffold)
 
     p_check = subparsers.add_parser("check", help="Run headless-Chrome runtime checks on a deck (needs Node >= 20 and Chrome).")

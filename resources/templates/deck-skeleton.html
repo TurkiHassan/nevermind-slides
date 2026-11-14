@@ -8,38 +8,11 @@
 <meta name="generator" content="nevermind-slides scaffold">
 <title>{{TITLE}}</title>
 
-<!-- Tailwind CDN: tokens below map to the theme variables so the editor recognises them -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  if (window.tailwind) {
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            paper:   'var(--nm-paper)',
-            ink:     'var(--nm-ink)',
-            muted:   'var(--nm-muted)',
-            line:    'var(--nm-line)',
-            accent:  'var(--nm-accent)',
-            accent2: 'var(--nm-accent-2)',
-            surface: 'var(--nm-surface)'
-          },
-          fontFamily: {
-            display: 'var(--nm-font-display)',
-            body:    'var(--nm-font-body)'
-          },
-          borderRadius: { nm: 'var(--nm-radius)' }
-        }
-      }
-    };
-  }
-</script>
-
-<link rel="stylesheet" href="assets/nm/nm-deck.css">
+{{TAILWIND}}<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
 <link rel="stylesheet" href="assets/nm/nm-focus.css">
 <link rel="stylesheet" href="assets/nm/nm-diagram.css">
 <link rel="stylesheet" href="assets/nm/nm-media.css">
-<link rel="stylesheet" href="assets/nm/nm-layout.css">
 
 <style>
     /* ==== 1. BUNDLED LOCAL FONTS (assets/fonts/) ==== */
@@ -89,46 +62,11 @@
 
     html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
 
-    /* ==== 3. SCAFFOLD FALLBACK (zero specificity; nm-layout.css and your own CSS win) ==== */
-    :where(.slide) { background: var(--nm-paper); color: var(--nm-ink); }
-    :where(.nm-l) { position: absolute; inset: 0; box-sizing: border-box; display: grid; gap: 40px 80px; padding: 96px 120px; align-content: center; }
-    :where(.nm-slot-head) { grid-area: head; display: grid; gap: 20px; align-content: start; }
-    :where(.nm-slot-body) { grid-area: body; align-self: start; }
-    :where(.nm-slot-visual) { grid-area: visual; min-height: 0; min-width: 0; display: grid; }
-    :where(.nm-slot-stat) { grid-area: stat; align-self: center; }
-    :where(.nm-l-cover, .nm-l-split, .nm-l-list) { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; grid-template-areas: "head visual" "body visual"; align-content: stretch; }
-    :where(.nm-l-split-rev) { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; grid-template-areas: "visual head" "visual body"; align-content: stretch; }
-    :where(.nm-l-diagram, .nm-l-timeline, .nm-l-compare) { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; grid-template-areas: "head" "visual" "body"; align-content: stretch; }
-    :where(.nm-l-stat) { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; grid-template-areas: "head head" "stat visual" "body visual"; align-content: stretch; }
-    :where(.nm-l-cards) { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; grid-template-areas: "head" "body" "visual"; align-content: stretch; }
-    :where(.nm-l-center, .nm-l-quote, .nm-l-section) { grid-template-columns: 1fr; grid-template-areas: "head" "body" "visual" "stat"; justify-items: center; text-align: center; align-content: center; }
-    :where(.nm-l-hero) { grid-template-columns: 1fr; grid-template-rows: 1fr auto auto; grid-template-areas: "." "head" "body"; align-content: end; color: #fff; }
-    :where(.nm-l-hero > .nm-slot-visual) { position: absolute; inset: 0; z-index: -1; }
-    :where(.nm-l-hero .nm-t-kicker) { color: #fff; }
-    :where(.nm-l-hero .nm-t-body) { color: #fff; }
-    :where(.nm-l-section .nm-t-headline) { font-size: 140px; }
-    :where(.nm-l-quote .nm-t-headline) { font-size: 100px; max-width: 1400px; }
-    :where(.nm-l-center .nm-slot-visual) { height: 360px; width: 100%; }
-    :where(.nm-l-cover .nm-t-headline) { font-size: 110px; }
-
-    :where(.nm-t-kicker) { font-size: 30px; font-weight: 700; color: var(--nm-accent); margin: 0; }
-    :where(.nm-t-headline) { font-family: var(--nm-font-display); font-size: 84px; line-height: 1.25; font-weight: 700; margin: 0; color: inherit; }
-    :where(.nm-t-body-list) { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
-    :where(.nm-t-body) { font-size: 38px; line-height: 1.6; color: var(--nm-muted); padding-inline-start: 28px; border-inline-start: 4px solid var(--nm-accent); margin: 0; }
-    :where(.nm-t-stat) { display: grid; gap: 16px; }
-    :where(.nm-t-stat-value) { font-family: var(--nm-font-display); font-size: 240px; line-height: 1.2; font-weight: 900; color: var(--nm-accent); }
-    :where(.nm-t-stat-label) { font-size: 36px; color: var(--nm-muted); }
-    :where(.nm-t-quote) { margin: 0; font-family: var(--nm-font-display); }
-    :where(.nm-l-cards .nm-t-body-list) { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 28px; }
-    :where(.nm-l-cards .nm-t-body) { background: var(--nm-surface); border: 2px solid var(--nm-line); border-radius: var(--nm-radius); padding: 28px 32px; }
-    :where(.nm-l-compare .nm-t-body-list) { grid-template-columns: 1fr 1fr; gap: 48px; }
-
-    /* Placeholders: tidy, visible, replaced as you fill the TODO comments */
-    :where(.nm-ph) { box-sizing: border-box; width: 100%; height: 100%; min-height: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
-    :where(.nm-ph svg) { width: 96px; height: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
-    :where(.nm-ph-label) { font-size: 28px; color: var(--nm-muted); }
-    :where(.nm-ph-img) { width: 100%; height: 100%; object-fit: cover; border-radius: var(--nm-radius); display: block; }
-    :where(.nm-speaker-note) { display: none; }
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
 </style>
 </head>
 <body dir="rtl" class="{{BODY_CLASS}}" data-nm-mode="{{MODE}}">
@@ -146,34 +84,5 @@
 <script src="assets/nm/nm-deck.js"></script>
 <script src="assets/nm/nm-focus.js"></script>
 <script src="assets/nm/nm-diagram.js"></script>
-<script>
-  /* Scaffold helper: figure.nm-diagram[data-node-steps="id:step:act,..."] gives a rendered diagram node
-     its data-step and data-act (diagram nodes are created by nm-diagram.js, so they cannot carry them in the HTML). */
-  (function () {
-    function apply(deck) {
-      document.querySelectorAll('[data-node-steps]').forEach(function (fig) {
-        var changed = false;
-        fig.getAttribute('data-node-steps').split(',').forEach(function (part) {
-          var p = part.trim().split(':');
-          if (p.length < 3) return;
-          var el = fig.querySelector('[data-node="' + p[0] + '"]');
-          if (el && !el.hasAttribute('data-step')) { el.setAttribute('data-step', p[1]); el.setAttribute('data-act', p[2]); changed = true; }
-        });
-        var slide = fig.closest('.slide');
-        if (changed && slide && deck && deck.refreshSteps) deck.refreshSteps(slide);
-      });
-    }
-    if (!window.NM || !NM.use) return;
-    NM.use({
-      name: 'nm-node-steps',
-      init: function (deck) {
-        apply(deck);
-        deck.on('ready', function () { apply(deck); });
-        deck.on('slidechange', function () { apply(deck); });
-        setTimeout(function () { apply(deck); }, 400);
-      }
-    });
-  })();
-</script>
 </body>
 </html>

@@ -712,7 +712,18 @@
     var fig = this.fig, mode = (this.opt('steps', 'none') || 'none').toLowerCase();
     if ((mode === 'rank' || mode === 'node') && this.stepHint) mode = this.stepHint;
     var parts = this.parts, slide = fig.closest('.slide');
-    fig.classList.toggle('nm-dg-steps', mode !== 'none');
+    /* data-node-steps="id:N[:act], ..." gives single nodes their own step (any act; default reveal).
+       Reveal/draw nodes hide until N and pull their edges with them; transient acts (focus, detail,
+       lens, highlight, zoom) leave the node visible and only isolate it at step N. */
+    var nodeSteps = {}, hasNS = false;
+    String(fig.getAttribute('data-node-steps') || '').split(/[,;\s]+/).forEach(function (tok) {
+      var m = tok.match(/^([^:]+):(\d+)(?::([a-z-]+))?$/);
+      if (!m) { if (tok) warn((fig.getAttribute('data-id') || 'diagram') + ': cannot read data-node-steps entry "' + tok + '" (write id:step or id:step:act)'); return; }
+      nodeSteps[m[1]] = { step: parseInt(m[2], 10), act: m[3] || 'reveal' };
+      hasNS = true;
+    });
+    function revealAct(a) { return a === 'reveal' || a === 'draw'; }
+    fig.classList.toggle('nm-dg-steps', mode !== 'none' || hasNS);
     /* play delays */
     var maxRank = 0;
     parts.forEach(function (p) { if (p.node && p.node.rank > maxRank) maxRank = p.node.rank; });
@@ -727,12 +738,13 @@
       else if (p.attach) d = (p.attach.rank || 0) * stagger;
       p.el.style.setProperty('--dg-d', Math.round(d) + 'ms');
     });
-    if (mode === 'none') {
+    if (mode === 'none' && !hasNS) {
       parts.forEach(function (p) { if (p.el.getAttribute('data-nm-dg-step')) { p.el.removeAttribute('data-step'); p.el.removeAttribute('data-act'); p.el.removeAttribute('data-nm-dg-step'); } });
       return;
     }
     var base = parseInt(fig.getAttribute('data-step-from'), 10);
-    if (!(base >= 1)) {
+    if (mode === 'none') base = 1;
+    else if (!(base >= 1)) {
       base = parseInt(fig.getAttribute('data-nm-step-base'), 10);
       if (!(base >= 1)) {
         var mx = 0;
@@ -745,7 +757,9 @@
     var nodes = parts.filter(function (p) { return p.kind === 'node'; });
     var edges = parts.filter(function (p) { return p.kind === 'edge'; });
     var isChart = !nodes.length;
-    if (mode === 'all') parts.forEach(function (p) { p.step = base; });
+    parts.forEach(function (p) { p.step = null; p.act = null; });
+    if (mode === 'none') { /* only data-node-steps below */ }
+    else if (mode === 'all') parts.forEach(function (p) { p.step = base; });
     else if (isChart || mode === 'series') {
       var seqs = [];
       parts.forEach(function (p) { var s = p.seq != null ? p.seq : (p.node ? p.node.ord : null); if (s != null && seqs.indexOf(s) < 0) seqs.push(s); });
@@ -774,6 +788,20 @@
       });
       nodes.forEach(function (p) { p.step = nodeStep.has(p.node) ? nodeStep.get(p.node) : base; nodeStep.set(p.node, p.step); });
     }
+    if (hasNS) {
+      nodes.forEach(function (p) {
+        var ns = nodeSteps[p.node.id];
+        if (!ns) return;
+        p.step = ns.step; p.act = ns.act;
+        if (revealAct(ns.act)) nodeStep.set(p.node, ns.step); else nodeStep.delete(p.node);
+      });
+      /* an edge appears with the later of its two ends */
+      edges.forEach(function (p) {
+        var a = p.from ? nodeStep.get(p.from) : null, b = p.to ? nodeStep.get(p.to) : null;
+        if (a == null && b == null) { if (mode === 'none') p.step = null; return; }
+        p.step = Math.max(a == null ? 0 : a, b == null ? 0 : b);
+      });
+    }
     parts.forEach(function (p) {
       if (p.kind === 'elabel') p.step = p.edgePart.step;
       else if (p.attach && p.step == null) {
@@ -787,7 +815,7 @@
         return;
       }
       p.el.setAttribute('data-step', p.step);
-      p.el.setAttribute('data-act', p.kind === 'edge' || p.draw ? 'draw' : 'reveal');
+      p.el.setAttribute('data-act', p.act || (p.kind === 'edge' || p.draw ? 'draw' : 'reveal'));
       p.el.setAttribute('data-nm-dg-step', '1');
       /* in-step delay: edges first, then the node they reach */
       var ds = p.kind === 'node' ? 160 : p.kind === 'elabel' ? 380 : 0;

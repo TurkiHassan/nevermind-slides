@@ -1666,7 +1666,11 @@
     }
 
     // 5. measure incoming side, build ghosts, run the transition
+    // .nm-morph-measure lets plugins drop a pending entrance state (e.g. diagram nodes waiting to rise in)
+    // so the ghost flies to the element's real resting look, not to its hidden pre-entrance state.
+    pairs.forEach(function (p) { p.b.classList.add('nm-morph-measure'); });
     pairs.forEach(function (p) { p.B = safe(function () { return snapshot(p.b, to, p.kind); }); });
+    pairs.forEach(function (p) { rmc(p.b, 'nm-morph-measure'); });
     pairs = pairs.filter(function (p) { return p.B; });
     var info = resolveTransition(from, to, dir, pairs.length > 0);
     if (o.transition) info = { name: o.transition, out: false };
@@ -1929,9 +1933,11 @@
     var on = force != null ? force : !body.classList.contains('nm-editing');
     if (on) {
       settleAll();
+      release(slides[deck.index]); // an open isolation act would cover the text
       slides.forEach(function (s) {
         $$(EDIT_SEL + ',span', s).forEach(function (e) {
-          if (e.closest('svg') || e.closest('[contenteditable="true"]')) return;
+          // text rebuilt by plugins from data (diagram canvas, connector labels) is not editable in place
+          if (e.closest('svg') || e.closest('[contenteditable="true"]') || e.closest('.nm-dg-canvas, .nm-links')) return;
           if (e.tagName === 'SPAN' && (e.children.length || !normText(e.textContent) || e.parentElement.closest(EDIT_SEL))) return;
           if (!normText(e.textContent)) return;
           e.setAttribute('contenteditable', 'true');
@@ -1962,6 +1968,8 @@
       e.removeAttribute('id');
       e.removeAttribute('contenteditable');
       if (e.classList) rmc(e, 'is-on', 'is-current', 'zoom-focused', 'nm-dim', 'nm-undim', 'nm-highlighted', 'nm-morph-hidden', 'nm-morph-hidden-svg');
+      // thumbnails show the slide fully built: every lasting step (reveal, draw) is on, transient acts are not
+      if (e.hasAttribute && e.hasAttribute('data-step') && !isTransient(e.getAttribute('data-act') || 'reveal')) e.classList.add('is-on');
     });
     var rig = c.querySelector('.camera-rig');
     if (rig) rig.style.transform = '';
@@ -2138,6 +2146,15 @@
   }
   function setupInput() {
     document.addEventListener('keydown', onKey);
+    // A click inside an embedded page (live anatomy figure, demo) moves keyboard focus into the iframe and the
+    // arrows stop reaching the deck. Take focus back right away; the click itself still reaches the iframe.
+    // Opt out per frame with data-nm-keys="frame" (for embeds that need typing).
+    window.addEventListener('blur', function () {
+      setTimeout(function () {
+        var a = document.activeElement;
+        if (a && a.tagName === 'IFRAME' && a.getAttribute('data-nm-keys') !== 'frame') { a.blur(); window.focus(); }
+      }, 0);
+    });
     stage.addEventListener('click', onStageClick);
     var sx = 0, sy = 0;
     window.addEventListener('touchstart', function (e) { sx = e.changedTouches[0].screenX; sy = e.changedTouches[0].screenY; }, { passive: true });

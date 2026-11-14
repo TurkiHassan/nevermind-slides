@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="nm-runtime" content="2">
+<meta name="nm-stage" content="1920x1080">
+<meta name="generator" content="nevermind-slides scaffold">
+<title>رحلة الحاوية في ميناء حديث</title>
+
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+
+<style>
+    /* ==== 1. BUNDLED LOCAL FONTS (assets/fonts/) ==== */
+    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'ZIAN'; src: url('assets/fonts/ZIAN-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
+    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+
+    /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
+    :root {
+      --nm-paper: #F1F5F9;
+      --nm-ink: #0F172A;
+      --nm-muted: #475569;
+      --nm-line: #CBD5E1;
+      --nm-accent: #C2410C;
+      --nm-accent-2: #0F766E;
+      --nm-surface: #FFFFFF;
+      --nm-radius: 16px;
+      --nm-font-display: 'Thmanyah Display', serif;
+      --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif;
+      --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      /* legacy aliases */
+      --lp-accent: var(--nm-accent);
+      --slide-bg: var(--nm-paper);
+      --stage-bg: var(--nm-paper);
+      --lp-font-display: var(--nm-font-display);
+      --lp-font-body: var(--nm-font-body);
+      --lp-font-mono: var(--nm-font-mono);
+    }
+
+    /* Live font pairing classes on <body> */
+    body.font-mode-thmanyah { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif; }
+    body.font-mode-sans     { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'Thmanyah Sans', 'KOMission', sans-serif; }
+    body.font-mode-qahwa    { --nm-font-display: 'Qahwa Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr   { --nm-font-display: 'Setabr Display', 'ZIAN', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi     { --nm-font-display: 'Alkhalil Kufi', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
+
+    html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
+</style>
+</head>
+<body dir="rtl" class="font-mode-sans" data-nm-mode="morph-and-zoom">
+<script>
+  window.NM_CONFIG = {
+    fontModes: [{"className": "font-mode-thmanyah", "label": "ثمانية + كومشن"}, {"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-sans", "label": "ثمانية سانس"}]
+  };
+</script>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+  <!-- 1. s1 / cover / layout cover -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/port-dusk.jpg (web)
+  -->
+  <section class="slide" id="s1" data-title="الغلاف" data-rel="next" data-transition="auto" data-role="cover">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <header class="nm-head">
+      <p class="nm-kicker">سلسلة الإمداد من الداخل</p>
+      <h1 class="nm-t-h1">رحلة الحاوية في ميناء حديث</h1>
+      <p class="nm-t-lead">كيف تنتقل حاوية واحدة من السفينة إلى الطريق في أقل من يوم</p>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo data-morph="visual"><img src="assets/img/_placeholders/s1.svg" alt="container port at dusk with cranes" data-todo-src="assets/img/port-dusk.jpg"><!-- TODO: save the real image as assets/img/port-dusk.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: container port at dusk with cranes) --></figure>
+    </div>
+    <aside class="nm-speaker-note" hidden>نبدأ من صورة الميناء ليلا: هنا تلتقي السفن بالشاحنات.</aside>
+  </div>
+  </section>
+
+  <!-- 2. s2 / concept / layout split-rev -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/port-dusk.jpg (web)
+  -->
+  <section class="slide" id="s2" data-title="الميناء مفصل" data-rel="next" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="1:1">
+    <figure class="nm-img nm-ph-frame" data-nm-todo data-morph="visual"><img src="assets/img/_placeholders/s2.svg" alt="container port at dusk with cranes" data-todo-src="assets/img/port-dusk.jpg"><!-- TODO: save the real image as assets/img/port-dusk.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: container port at dusk with cranes) --></figure>
+    <header class="nm-head">
+      <p class="nm-kicker">لماذا الميناء</p>
+      <h2 class="nm-t-h2">الميناء مفصل يربط البحر بالبر</h2>
+      <ul class="nm-list">
+        <li data-step="1" data-act="reveal">تمر عبر البحر نحو ٨٠٪ من حجم التجارة العالمية</li>
+        <li data-step="2" data-act="reveal">كل ساعة تأخير في الرصيف تتراكم على الطريق والمستودع</li>
+        <li data-step="3" data-act="reveal">الميناء الحديث يدير الوقت قبل أن يدير البضاعة</li>
+      </ul>
+    </header>
+    </div>
+    <aside class="nm-speaker-note" hidden>الأرقام تقريبية من تقارير الأونكتاد للنقل البحري.</aside>
+  </div>
+  </section>
+
+  <!-- 3. s3 / section / layout section -> nm-l-section
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s3" data-title="الفصل الأول" data-rel="chapter" data-transition="auto" data-role="section">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-section">
+    <p class="nm-section-num" aria-hidden="true">٠١</p>
+    <hr class="nm-rule is-accent">
+    <p class="nm-kicker">الفصل الأول</p>
+    <h2 class="nm-t-h1">من السفينة إلى الرصيف</h2>
+    <p class="nm-t-lead">خمس محطات تمر بها كل حاوية</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. s4 / mechanism / layout hero -> nm-l-hero-figure
+       TODO:
+       - build anatomy figure "supply-port" (static) and write supply-port.brief.json
+       - place one .nm-pin per part (data-x / data-y in percent of the figure)
+       - step 1 pins visual: خمسة دبابيس: السفينة، الرافعة، المكدس، الشاحنة، البوابة
+  -->
+  <section class="slide" id="s4" data-title="رصيف واحد" data-rel="deeper" data-transition="auto" data-role="mechanism">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">تشريح الرصيف</p>
+      <h2 class="nm-t-h2">رصيف واحد وخمس محطات</h2>
+    </header>
+    <div class="nm-ph" data-anatomy="supply-port" data-mode="static" data-nm-todo data-step="1" data-act="pins"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="36" height="30" rx="4"/><circle cx="17" cy="20" r="4"/><path d="M8 35l11-10 8 7 6-5 9 8"/></svg><span class="nm-ph-label">anatomy: supply-port (static)</span><span class="nm-pin" data-x="50" data-y="50" data-label="اكتب اسم الجزء" data-nm-todo>سطر قصير يشرح الجزء</span><!-- TODO: build the figure per resources/engine/anatomy/SKILL.md (node build.mjs), save assets/anatomy/supply-port.brief.json, then replace this placeholder with the built SVG inside a div that keeps data-anatomy="supply-port" --></div>
+    </div>
+    <aside class="nm-speaker-note" hidden>كل دبوس محطة تمر بها الحاوية.</aside>
+  </div>
+  </section>
+
+  <!-- 5. s5 / mechanism / layout split -> nm-l-split
+       TODO:
+       - build anatomy figure "supply-port" (animated) and write supply-port.brief.json
+  -->
+  <section class="slide" id="s5" data-title="الرصيف يعمل" data-rel="next" data-transition="dissolve" data-role="mechanism">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">المشهد حيا</p>
+      <h2 class="nm-t-h2">الرافعة تحدد إيقاع الرصيف كله</h2>
+      <ul class="nm-list">
+        <li data-step="1" data-act="reveal">الحاوية تنتظر الرافعة، والشاحنة تنتظر الحاوية</li>
+        <li data-step="2" data-act="reveal">المكدس المؤقت يمتص الفرق بين السرعتين</li>
+      </ul>
+    </header>
+    <div class="nm-ph" data-anatomy="supply-port" data-mode="animated" data-nm-todo data-step="3" data-act="zoom"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="36" height="30" rx="4"/><circle cx="17" cy="20" r="4"/><path d="M8 35l11-10 8 7 6-5 9 8"/></svg><span class="nm-ph-label">anatomy: supply-port (animated)</span><!-- TODO: build the figure per resources/engine/anatomy/SKILL.md (node build.mjs), save assets/anatomy/supply-port.brief.json, then replace this placeholder with the built SVG inside a div that keeps data-anatomy="supply-port" --></div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 6. s6 / process / layout diagram -> nm-l-hero-figure
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="rank"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit diagram labels/values (flow) in the nm-diagram script block
+  -->
+  <section class="slide" id="s6" data-title="المسار" data-rel="next" data-transition="depth" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">المسار</p>
+      <h2 class="nm-t-h2" data-morph="title">رحلة الحاوية في ست محطات</h2>
+    </header>
+    <figure class="nm-diagram" data-type="flow" data-id="journey" aria-label="المسار" data-nm-todo data-steps="rank" data-step-from="1">
+    <script type="text/nm-diagram">
+      n1[العنصر الأول] -> n2[العنصر الثاني] -> n3[العنصر الثالث]
+      n2.accent
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 7. s7 / process / layout diagram -> nm-l-hero-figure
+       TODO:
+       - step 1 lens on diagram node "crane" (data-node-steps on the figure; keep the node id when you edit the DSL)
+       - step 2 focus on diagram node "gate" (data-node-steps on the figure; keep the node id when you edit the DSL)
+       - edit diagram labels/values (swimlane) in the nm-diagram script block
+  -->
+  <section class="slide" id="s7" data-title="من يملك الخطوة" data-rel="next" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">المسؤوليات</p>
+      <h2 class="nm-t-h2" data-morph="title">ست محطات وثلاث جهات مسؤولة</h2>
+    </header>
+    <figure class="nm-diagram" data-type="swimlane" data-id="journey" aria-label="من يملك الخطوة" data-nm-todo data-node-steps="crane:1:lens, gate:2:focus">
+    <script type="text/nm-diagram">
+      lane الفريق الأول: crane
+      lane الفريق الثاني: gate n1
+      crane[العنصر الأول] -> gate[العنصر الثاني] -> n1[العنصر الثالث]
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 8. s8 / section / layout section -> nm-l-section
+       TODO:
+       - replace placeholder image with assets/img/container-yard.jpg (web)
+       - layout section has no figure cell; the visual was appended at the end, move it or pick another layout
+  -->
+  <section class="slide" id="s8" data-title="الفصل الثاني" data-rel="chapter" data-transition="fold" data-role="section">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-section">
+    <p class="nm-section-num" aria-hidden="true">٠٢</p>
+    <hr class="nm-rule is-accent">
+    <p class="nm-kicker">الفصل الثاني</p>
+    <h2 class="nm-t-h1">أين يضيع الوقت</h2>
+    <p class="nm-t-lead">الحاوية تقضي معظم وقتها واقفة</p>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8.svg" alt="stacked shipping containers yard" data-todo-src="assets/img/container-yard.jpg"><!-- TODO: save the real image as assets/img/container-yard.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: stacked shipping containers yard) --></figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 9. s9 / evidence / layout split -> nm-l-split
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="series"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit chart labels/values (bars) in the nm-diagram script block
+       - step 5 focus body1: أطول محطة
+  -->
+  <section class="slide" id="s9" data-title="زمن الانتظار" data-rel="next" data-transition="iris" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">الدليل</p>
+      <h2 class="nm-t-h2">الحاوية تنتظر أكثر مما تتحرك</h2>
+      <p class="nm-t-lead" data-step="5" data-act="focus" data-focus-note="أطول محطة">البقاء في الساحة يأخذ أكثر من نصف الرحلة</p>
+    </header>
+    <figure class="nm-diagram" data-type="bars" data-id="dwell" aria-label="زمن الانتظار" data-nm-todo data-steps="series" data-step-from="1">
+    <script type="text/nm-diagram">
+      unit: ٪
+      العنصر الأول: ٣٠
+      العنصر الثاني: ٥٥ !
+      العنصر الثالث: ٤٢
+      العنصر الرابع: ٧٠
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 10. s10 / comparison / layout cards -> nm-l-cards-3
+       TODO:
+       - step 3 (detail) targets "body2" again; split it onto another element by hand
+  -->
+  <section class="slide" id="s10" data-title="ثلاثة حلول" data-rel="next" data-transition="push" data-role="comparison">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-cards-3">
+    <header class="nm-head">
+      <p class="nm-kicker">الحلول</p>
+      <h2 class="nm-t-h2">ثلاث روافع تختصر الانتظار</h2>
+    </header>
+    <article class="nm-card" data-morph="body1"><p class="nm-t-body">أتمتة الرافعات ومعدات الساحة</p></article>
+    <article class="nm-card" data-step="1" data-act="reveal"><p class="nm-t-body">نظام مواعيد رقمي للشاحنات</p></article>
+    <article class="nm-card" data-step="2" data-act="reveal"><p class="nm-t-body">نافذة واحدة للتخليص الجمركي</p></article>
+    </div>
+  </div>
+  </section>
+
+  <!-- 11. s11 / evidence / layout stat -> nm-l-split
+       TODO:
+       - fill the <template data-detail-for="s11-stat"> (one title, one or two sentences, up to four bullets or three stats)
+       - build the motion graphic (inline SVG)
+  -->
+  <section class="slide" id="s11" data-title="اليوم" data-rel="next" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="1:1">
+    <header class="nm-head">
+      <p class="nm-kicker">خط الأساس</p>
+      <h2 class="nm-t-h2">إيقاع الرافعة اليوم</h2>
+      <p class="nm-t-lead" data-morph="body1">أتمتة الرافعات ومعدات الساحة</p>
+      <div class="nm-stat-block" data-morph="stat" data-step="1" data-act="detail" id="s11-stat" data-detail="side"><span class="nm-t-num" data-entrance="count">٢٢</span><p class="nm-t-body">حاوية في الساعة لكل رافعة</p></div>
+    </header>
+    <div class="nm-ph" data-nm-todo><svg viewBox="0 0 48 48" aria-hidden="true"><circle class="mg-pulse" cx="24" cy="24" r="10"/><circle class="mg-pulse" cx="24" cy="24" r="18"/></svg><span class="nm-ph-label">motion graphic</span><!-- TODO: replace with an inline SVG motion graphic (mg-flow / mg-pulse / mg-radar) --></div>
+    <template data-detail-for="s11-stat">
+      <small data-nm-todo>اكتب سطرا تمهيديا</small>
+      <h3 data-nm-todo>اكتب عنوان التفصيل</h3>
+      <p data-nm-todo>جملة أو جملتان تشرحان العنصر.</p>
+    </template>
+    </div>
+  </div>
+  </section>
+
+  <!-- 12. s12 / evidence / layout split-rev -> nm-l-split
+       TODO:
+       - fill the <template data-detail-for="s12-stat"> (one title, one or two sentences, up to four bullets or three stats)
+       - diagram builds its own steps from number 1 (data-steps="series"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit chart labels/values (line) in the nm-diagram script block
+  -->
+  <section class="slide" id="s12" data-title="بعد الأتمتة" data-rel="contrast" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <figure class="nm-diagram" data-type="line" data-id="productivity" aria-label="بعد الأتمتة" data-nm-todo data-steps="series" data-step-from="1">
+    <script type="text/nm-diagram">
+      x: ٢٠٢٣, ٢٠٢٤, ٢٠٢٥, ٢٠٢٦
+      series السلسلة الأولى: ١٢, ١٨, ٢٥, ٣١
+      series السلسلة الثانية: ٢٠, ٢٢, ٢٣, ٢٦
+    </script>
+  </figure>
+    <header class="nm-head">
+      <p class="nm-kicker">بعد الأتمتة</p>
+      <h2 class="nm-t-h2">الإيقاع نفسه بآلات أدق</h2>
+      <div class="nm-stat-block" data-morph="stat" data-step="3" data-act="slice" id="s12-stat"><span class="nm-t-num" data-entrance="count">٣٤</span><p class="nm-t-body">حاوية في الساعة لكل رافعة</p></div>
+    </header>
+    <template data-detail-for="s12-stat">
+      <small data-nm-todo>اكتب سطرا تمهيديا</small>
+      <h3 data-nm-todo>اكتب عنوان التفصيل</h3>
+      <p data-nm-todo>جملة أو جملتان تشرحان العنصر.</p>
+    </template>
+    </div>
+  </div>
+  </section>
+
+  <!-- 13. s13 / process / layout timeline -> nm-l-hero-figure
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="series"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit diagram labels/values (timeline) in the nm-diagram script block
+  -->
+  <section class="slide" id="s13" data-title="خارطة الطريق" data-rel="time" data-transition="push" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">خارطة الطريق</p>
+      <h2 class="nm-t-h2">أربع مراحل حتى ميناء بلا ورق</h2>
+    </header>
+    <figure class="nm-diagram" data-type="timeline" data-id="roadmap" aria-label="خارطة الطريق" data-nm-todo data-steps="series" data-step-from="1">
+    <script type="text/nm-diagram">
+      ٢٠٢٤: البداية | اكتب ما حدث
+      ٢٠٢٥: التوسع | اكتب ما حدث !
+      ٢٠٢٦: الهدف
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 14. s14 / closing / layout center -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/truck-gate.jpg (web)
+  -->
+  <section class="slide" id="s14" data-title="الخاتمة" data-rel="back-out" data-transition="auto" data-role="closing">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <header class="nm-head">
+      <p class="nm-kicker">الخلاصة</p>
+      <h2 class="nm-t-h2">في الميناء الوقت هو البضاعة الحقيقية</h2>
+      <p class="nm-t-lead">كل دقيقة توفرها الرافعة تصل إلى رف المتجر</p>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s14.svg" alt="trucks leaving a port gate" data-todo-src="assets/img/truck-gate.jpg"><!-- TODO: save the real image as assets/img/truck-gate.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: trucks leaving a port gate) --></figure>
+    </div>
+  </div>
+  </section>
+  </main>
+</div>
+
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+</body>
+</html>

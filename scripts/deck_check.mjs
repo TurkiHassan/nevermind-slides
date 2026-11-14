@@ -202,8 +202,10 @@ function pageInspect(idx) {
 
   // 1. out of stage
   const offending = new Set();
+  // unpainted layout containers of nm-diagram (the canvas box is transformed to fit; only its content matters)
+  const container = (el) => el.matches(".nm-dg-canvas, .nm-dg-html, .nm-dg-svg, .nm-links");
   for (const el of all) {
-    if (decor(el) || inSvg(el)) continue;
+    if (decor(el) || inSvg(el) || container(el)) continue;
     const r = rectOf(el);
     if (r.w <= 0 || r.h <= 0) continue;
     const v = visibleRect(el, r);
@@ -287,10 +289,15 @@ function pageInspect(idx) {
   for (const t of texts) {
     if (small >= 6) break;
     if (t.el.closest(".nm-caption, .nm-t-caption, figcaption, [data-nm-small]")) continue;
-    const fs = parseFloat(cs(t.el).fontSize);
-    if (fs < 22) {
+    // rendered size: CSS size times any transform scale (diagrams scale their canvas to fit)
+    const css = parseFloat(cs(t.el).fontSize);
+    const ow = t.el.offsetWidth, rw = rectOf(t.el).w;
+    const fs = ow > 0 && rw > 0 ? css * rw / ow : css;
+    // data labels inside diagrams and charts (ticks, axis ends, second lines) may go down to 18px
+    const min = t.el.closest(".nm-dg") ? 18 : 22;
+    if (fs < min - 0.5) {
       small++;
-      add("C-SMALL", t.el, `text "${t.text}" is ${fs.toFixed(0)}px; body text must be at least 22px on the 1920x1080 stage`);
+      add("C-SMALL", t.el, `text "${t.text}" renders at ${fs.toFixed(0)}px; ${min === 18 ? "diagram labels" : "body text"} must be at least ${min}px on the 1920x1080 stage${min === 18 ? " (shorten labels or give the figure more room)" : ""}`);
     }
   }
 
@@ -321,7 +328,7 @@ function pageInspect(idx) {
       if (s.backgroundImage !== "none") { skip = true; break; }
       const bg = parseColor(s.backgroundColor);
       if (bg && bg.a > 0) {
-        layers.push(bg);
+        layers.push({ ...bg, node: n });
         if (bg.a >= 0.99) break;
       }
       if (n === document.documentElement) break;
@@ -332,6 +339,26 @@ function pageInspect(idx) {
     const at = stack.findIndex((n) => el === n || el.contains(n) || n.contains(el) && n === el);
     const below = at >= 0 ? stack.slice(at + 1) : stack;
     if (below.some((n) => ["IMG", "VIDEO", "CANVAS"].includes(n.tagName) || (n !== document.documentElement && n !== document.body && cs(n).backgroundImage !== "none"))) continue;
+    // text drawn over an SVG shape (diagram tiers, bars, filled nodes): that fill is the background
+    const filled = (n) => n instanceof SVGGeometryElement && cs(n).fill.startsWith("rgb") && parseFloat(cs(n).fillOpacity) > 0.5 && parseFloat(cs(n).opacity) > 0.5;
+    let shapeBg = below.find(filled);
+    const dg = el.closest(".nm-dg");
+    if (!shapeBg && dg) {
+      // diagram shapes ignore pointer events, so elementsFromPoint misses them: hit-test by geometry (topmost last)
+      const hits = Array.from(dg.querySelectorAll("svg *")).filter((n) => {
+        if (!filled(n)) return false;
+        const b = n.getBoundingClientRect();
+        if (!(cx >= b.left && cx <= b.right && cy >= b.top && cy <= b.bottom)) return false;
+        try { const m = n.getScreenCTM(); if (m && n.isPointInFill) return n.isPointInFill(new DOMPoint(cx, cy).matrixTransform(m.inverse())); } catch {}
+        return true;
+      });
+      shapeBg = hits[hits.length - 1];
+    }
+    const firstSolid = layers.find((l) => l.a >= 0.99);
+    if (shapeBg && (!firstSolid || firstSolid.node.contains(shapeBg))) {
+      const keep = layers.filter((l) => l.a < 0.99 && !l.node.contains(shapeBg));
+      layers.length = 0; layers.push(...keep, { ...parseColor(cs(shapeBg).fill), a: 1 });
+    }
     let bgc = layers.length && layers[layers.length - 1].a >= 0.99 ? { ...layers[layers.length - 1] } : { r: 255, g: 255, b: 255, a: 1 };
     const start = layers.length && layers[layers.length - 1].a >= 0.99 ? layers.length - 2 : layers.length - 1;
     for (let k = start; k >= 0; k--) {

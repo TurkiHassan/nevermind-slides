@@ -1,0 +1,423 @@
+{
+  "title": "رحلة الحاوية في ميناء حديث",
+  "lang": "ar",
+  "theme": {
+    "preset": "mist",
+    "accent": "#C2410C",
+    "accent2": "#0F766E"
+  },
+  "fonts": {
+    "pairing": "sans"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "web",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "الغلاف",
+      "role": "cover",
+      "layout": "cover",
+      "visual": {
+        "type": "image",
+        "ref": "port-dusk",
+        "query": "container port at dusk with cranes"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "visual"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "سلسلة الإمداد من الداخل",
+        "headline": "رحلة الحاوية في ميناء حديث",
+        "body": [
+          "كيف تنتقل حاوية واحدة من السفينة إلى الطريق في أقل من يوم"
+        ]
+      },
+      "speaker_note": "نبدأ من صورة الميناء ليلا: هنا تلتقي السفن بالشاحنات."
+    },
+    {
+      "id": "s2",
+      "title": "الميناء مفصل",
+      "role": "concept",
+      "layout": "split-rev",
+      "visual": {
+        "type": "image",
+        "ref": "port-dusk",
+        "query": "container port at dusk with cranes"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "visual"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "body1"
+        },
+        {
+          "act": "reveal",
+          "target": "body2"
+        },
+        {
+          "act": "reveal",
+          "target": "body3"
+        }
+      ],
+      "text": {
+        "kicker": "لماذا الميناء",
+        "headline": "الميناء مفصل يربط البحر بالبر",
+        "body": [
+          "تمر عبر البحر نحو ٨٠٪ من حجم التجارة العالمية",
+          "كل ساعة تأخير في الرصيف تتراكم على الطريق والمستودع",
+          "الميناء الحديث يدير الوقت قبل أن يدير البضاعة"
+        ]
+      },
+      "speaker_note": "الأرقام تقريبية من تقارير الأونكتاد للنقل البحري."
+    },
+    {
+      "id": "s3",
+      "title": "الفصل الأول",
+      "role": "section",
+      "layout": "section",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "transition": "auto",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "الفصل الأول",
+        "headline": "من السفينة إلى الرصيف",
+        "body": [
+          "خمس محطات تمر بها كل حاوية"
+        ]
+      }
+    },
+    {
+      "id": "s4",
+      "title": "رصيف واحد",
+      "role": "mechanism",
+      "layout": "hero",
+      "visual": {
+        "type": "anatomy",
+        "ref": "supply-port",
+        "mode": "static"
+      },
+      "rel": "deeper",
+      "transition": "auto",
+      "morph": [],
+      "steps": [
+        {
+          "act": "pins",
+          "target": "visual",
+          "note": "خمسة دبابيس: السفينة، الرافعة، المكدس، الشاحنة، البوابة"
+        }
+      ],
+      "text": {
+        "kicker": "تشريح الرصيف",
+        "headline": "رصيف واحد وخمس محطات"
+      },
+      "speaker_note": "كل دبوس محطة تمر بها الحاوية."
+    },
+    {
+      "id": "s5",
+      "title": "الرصيف يعمل",
+      "role": "mechanism",
+      "layout": "split",
+      "visual": {
+        "type": "anatomy",
+        "ref": "supply-port",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "dissolve",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "body1"
+        },
+        {
+          "act": "reveal",
+          "target": "body2"
+        },
+        {
+          "act": "zoom",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "المشهد حيا",
+        "headline": "الرافعة تحدد إيقاع الرصيف كله",
+        "body": [
+          "الحاوية تنتظر الرافعة، والشاحنة تنتظر الحاوية",
+          "المكدس المؤقت يمتص الفرق بين السرعتين"
+        ]
+      }
+    },
+    {
+      "id": "s6",
+      "title": "المسار",
+      "role": "process",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow",
+        "ref": "journey"
+      },
+      "rel": "next",
+      "transition": "depth",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:rank"
+        }
+      ],
+      "text": {
+        "kicker": "المسار",
+        "headline": "رحلة الحاوية في ست محطات"
+      }
+    },
+    {
+      "id": "s7",
+      "title": "من يملك الخطوة",
+      "role": "process",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "swimlane",
+        "ref": "journey"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "lens",
+          "target": "node:crane"
+        },
+        {
+          "act": "focus",
+          "target": "node:gate",
+          "note": "هنا تتكدس الشاحنات"
+        }
+      ],
+      "text": {
+        "kicker": "المسؤوليات",
+        "headline": "ست محطات وثلاث جهات مسؤولة"
+      }
+    },
+    {
+      "id": "s8",
+      "title": "الفصل الثاني",
+      "role": "section",
+      "layout": "section",
+      "visual": {
+        "type": "image",
+        "ref": "container-yard",
+        "query": "stacked shipping containers yard"
+      },
+      "rel": "chapter",
+      "transition": "fold",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "الفصل الثاني",
+        "headline": "أين يضيع الوقت",
+        "body": [
+          "الحاوية تقضي معظم وقتها واقفة"
+        ]
+      }
+    },
+    {
+      "id": "s9",
+      "title": "زمن الانتظار",
+      "role": "evidence",
+      "layout": "split",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "dwell"
+      },
+      "rel": "next",
+      "transition": "iris",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:series"
+        },
+        {
+          "act": "focus",
+          "target": "body1",
+          "note": "أطول محطة"
+        }
+      ],
+      "text": {
+        "kicker": "الدليل",
+        "headline": "الحاوية تنتظر أكثر مما تتحرك",
+        "body": [
+          "البقاء في الساحة يأخذ أكثر من نصف الرحلة"
+        ]
+      }
+    },
+    {
+      "id": "s10",
+      "title": "ثلاثة حلول",
+      "role": "comparison",
+      "layout": "cards",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "transition": "push",
+      "morph": [
+        "body1"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "body2"
+        },
+        {
+          "act": "reveal",
+          "target": "body3"
+        },
+        {
+          "act": "detail",
+          "target": "body2"
+        }
+      ],
+      "text": {
+        "kicker": "الحلول",
+        "headline": "ثلاث روافع تختصر الانتظار",
+        "body": [
+          "أتمتة الرافعات ومعدات الساحة",
+          "نظام مواعيد رقمي للشاحنات",
+          "نافذة واحدة للتخليص الجمركي"
+        ]
+      }
+    },
+    {
+      "id": "s11",
+      "title": "اليوم",
+      "role": "evidence",
+      "layout": "stat",
+      "visual": {
+        "type": "motion"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "body1",
+        "stat"
+      ],
+      "steps": [
+        {
+          "act": "detail",
+          "target": "stat"
+        }
+      ],
+      "text": {
+        "kicker": "خط الأساس",
+        "headline": "إيقاع الرافعة اليوم",
+        "body": [
+          "أتمتة الرافعات ومعدات الساحة"
+        ],
+        "stat": {
+          "value": "٢٢",
+          "label": "حاوية في الساعة لكل رافعة"
+        }
+      }
+    },
+    {
+      "id": "s12",
+      "title": "بعد الأتمتة",
+      "role": "evidence",
+      "layout": "split-rev",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "line",
+        "ref": "productivity"
+      },
+      "rel": "contrast",
+      "transition": "auto",
+      "morph": [
+        "stat"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:series"
+        },
+        {
+          "act": "slice",
+          "target": "stat"
+        }
+      ],
+      "text": {
+        "kicker": "بعد الأتمتة",
+        "headline": "الإيقاع نفسه بآلات أدق",
+        "stat": {
+          "value": "٣٤",
+          "label": "حاوية في الساعة لكل رافعة"
+        }
+      }
+    },
+    {
+      "id": "s13",
+      "title": "خارطة الطريق",
+      "role": "process",
+      "layout": "timeline",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "timeline",
+        "ref": "roadmap"
+      },
+      "rel": "time",
+      "transition": "push",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:series"
+        }
+      ],
+      "text": {
+        "kicker": "خارطة الطريق",
+        "headline": "أربع مراحل حتى ميناء بلا ورق"
+      }
+    },
+    {
+      "id": "s14",
+      "title": "الخاتمة",
+      "role": "closing",
+      "layout": "center",
+      "visual": {
+        "type": "image",
+        "ref": "truck-gate",
+        "query": "trucks leaving a port gate"
+      },
+      "rel": "back-out",
+      "transition": "auto",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "الخلاصة",
+        "headline": "في الميناء الوقت هو البضاعة الحقيقية",
+        "body": [
+          "كل دقيقة توفرها الرافعة تصل إلى رف المتجر"
+        ]
+      }
+    }
+  ]
+}

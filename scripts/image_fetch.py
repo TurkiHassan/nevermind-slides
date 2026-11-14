@@ -795,10 +795,13 @@ def saliency_window(im: Any, ratio: float) -> tuple[int, int, int, int, float, f
     rgb = im.convert("RGB").resize((sw, sh), Image.BOX)
     gray = ImageOps.grayscale(rgb)
     sat = rgb.convert("HSV").split()[1]
-    g = list(gray.getdata())
-    gb = list(gray.filter(ImageFilter.GaussianBlur(3)).getdata())
-    s = list(sat.getdata())
-    sb = list(sat.filter(ImageFilter.GaussianBlur(3)).getdata())
+    def px(img: Any) -> list[Any]:  # Pillow 12+ deprecates getdata in favour of get_flattened_data
+        return list(img.get_flattened_data() if hasattr(img, "get_flattened_data") else img.getdata())
+
+    g = px(gray)
+    gb = px(gray.filter(ImageFilter.GaussianBlur(3)))
+    s = px(sat)
+    sb = px(sat.filter(ImageFilter.GaussianBlur(3)))
     E = [[0.0] * sw for _ in range(sh)]
     for y in range(sh):
         for x in range(sw):

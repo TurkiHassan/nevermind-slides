@@ -100,6 +100,9 @@ html, body {
   transition: none !important;
 }
 
+/* measured as a morph target: no transition, so the snapshot reads the resting style */
+.nm-morph-measure, .nm-morph-measure * { transition: none !important; }
+
 /* --------------------------------------------------------------------------
    3. Steps and acts
    -------------------------------------------------------------------------- */
