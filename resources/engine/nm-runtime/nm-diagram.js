@@ -2200,9 +2200,14 @@
   window.NM.diagram = API;
 
   if (typeof window.NM.use === 'function') {
-    window.NM.use({ name: 'diagram', init: function () { registerAct(); start(); } });
+    window.NM.use({ name: 'diagram', init: function () { registerAct(); start(); refreshAllSteps(); } });
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start);
   else start();
-  doc.addEventListener('nm:ready', function () { registerAct(); diagrams.forEach(function (D) { D.fig._nmSig = null; refreshDeck(D.fig); }); linkSets.forEach(function (L) { L.layer._nmSig = null; refreshDeck(L.layer); }); });
+  function refreshAllSteps() {
+    diagrams.forEach(function (D) { D.fig._nmSig = null; refreshDeck(D.fig); });
+    linkSets.forEach(function (L) { L.layer._nmSig = null; refreshDeck(L.layer); });
+  }
+  API.refreshSteps = refreshAllSteps;
+  doc.addEventListener('nm:ready', function () { registerAct(); refreshAllSteps(); });
 })();

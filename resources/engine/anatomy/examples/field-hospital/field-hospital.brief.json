@@ -1,0 +1,26 @@
+{
+  "topic": "Layout of a Role 2 field hospital: how arrivals, triage, wards and support are placed so patient routes never cross logistics",
+  "source_nouns": ["helicopter", "helipad", "ambulance", "triage tent", "ward tent", "operating tent", "stretcher", "medic", "generator", "fuel drum", "water tank", "radio mast", "supply crate", "fence", "flag"],
+  "verbs": ["arrive", "triage", "carry", "treat", "supply", "power"],
+  "quantities": [
+    { "name": "pad to triage", "value": 19, "unit": "m", "source": "build.mjs layout, 1 unit = 0.5 m" },
+    { "name": "triage to ward walk", "value": 22, "unit": "m", "source": "build.mjs patient route" },
+    { "name": "ward tents", "value": 2, "unit": "count", "source": "unit establishment for the example" }
+  ],
+  "rung": 2,
+  "rejected_rungs": [{ "rung": 1, "reason": "A field hospital is a site, not one object; its layout is the idea." }],
+  "subject": "triage tent with ward tents",
+  "setting": "open ground inside a perimeter fence",
+  "moves": "Nothing moves: the figure freezes the moment a stretcher leaves triage on the route to the wards.",
+  "mapping": [
+    { "part": "helipad", "meaning": "air arrivals" },
+    { "part": "ambulance", "meaning": "road arrivals, the entry point" },
+    { "part": "triage tent", "meaning": "sorting by urgency" },
+    { "part": "ward tent", "meaning": "bed capacity" },
+    { "part": "stretcher", "meaning": "the patient on the route" },
+    { "part": "generator", "meaning": "power kept off the patient route" },
+    { "part": "radio mast", "meaning": "the link to the evacuation chain" }
+  ],
+  "mode": "static",
+  "props": ["scene.helicopter", "scene.van", "scene.tent", "scene.person", "scene.pallet", "scene.battery", "scene.tank", "scene.mast", "scene.fence", "scene.flag"]
+}

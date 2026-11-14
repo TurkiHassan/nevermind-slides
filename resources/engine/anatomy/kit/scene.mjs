@@ -1365,8 +1365,8 @@ export function mast(P, o = {}) {
       inner: ({ wp, z: zz, h: hh }) => facesOf(wp, P).map((f) => Ln(k.segment(facePoint(f, 0, zz), facePoint(f, f.len, zz + hh), P) + k.segment(facePoint(f, f.len, zz), facePoint(f, 0, zz + hh), P), "mid")).join(""),
     }));
   }
-  const wt = w0 * 0.45;
-  M.put("panels", [[1, 0], [0, 1], [-1, 0], [0, -1]].map(([x, y]) => M.slab({ x: x * (wt / 2) - (x ? 0 : 0.8) + (x > 0 ? 0 : x < 0 ? -0.4 : 0), y: y * (wt / 2) - (y ? 0 : 0.8) + (y > 0 ? 0 : y < 0 ? -0.4 : 0), w: x ? 0.4 : 1.6, d: y ? 0.4 : 1.6, r: 0 }, H - 6, 4, { tone: "hi" })));
+  const top = (w0 * (1 - (0.55 * (segs - 1)) / segs)) / 2;
+  [[1, 0], [0, 1], [-1, 0], [0, -1]].forEach(([x, y], i) => M.put(`panel${i}`, M.slab(x ? { x: x > 0 ? top : -top - 0.4, y: -0.8, w: 0.4, d: 1.6, r: 0 } : { x: -0.8, y: y > 0 ? top : -top - 0.4, w: 1.6, d: 0.4, r: 0 }, H - 5, 3.6, { tone: "hi" })));
   M.put("beacon", M.cyl([0, 0], 0.25, H, 3, { tone: "mid", after: ({ cx, cy, top }) => Dt([[cx, cy, top]], P, 0.8, "hi") }));
   M.at("top", [0, 0, H + 3]);
   return M.done({ x: -w0 / 2 - 0.8, y: -w0 / 2 - 0.8, w: w0 + 1.6, d: w0 + 1.6, z0: 0, z1: H + 3 });

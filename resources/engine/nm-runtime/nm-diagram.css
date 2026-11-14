@@ -188,7 +188,7 @@
 .slide:not(.active):not(.visible) .nm-dg-flowdots { animation-play-state: paused; }
 .nm-dg-axisline { color: color-mix(in oklab, var(--dg-ink) 62%, var(--dg-paper)); }
 
-.nm-dg-group { fill: color-mix(in oklab, var(--dg-accent) 5%, var(--dg-paper)); stroke: color-mix(in oklab, var(--dg-accent) 28%, var(--dg-paper)); stroke-width: 1.5; stroke-dasharray: 5 6; }
+.nm-dg-group { fill: color-mix(in oklab, var(--dg-accent) 3.5%, var(--dg-paper)); stroke: color-mix(in oklab, var(--dg-accent) 26%, var(--dg-paper)); stroke-width: 1.5; stroke-dasharray: 5 6; }
 .nm-dg-group.is-muted { fill: color-mix(in oklab, var(--dg-ink) 3%, var(--dg-paper)); stroke: var(--dg-faint); }
 .nm-dg-ring { fill: none; stroke: var(--dg-faint); stroke-width: 2; stroke-dasharray: 1 12; stroke-linecap: round; }
 .nm-dg-lane { fill: transparent; stroke: var(--dg-faint); stroke-width: 1.5; }
