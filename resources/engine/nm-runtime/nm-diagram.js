@@ -1358,5 +1358,307 @@
     D.stepHint = 'edge';
   };
 
+  /* ------------------------------------------------------------------ layouts: structured data */
+  function itemNodes(D, M, prefix, props) {
+    return M.items.map(function (it, i) {
+      var p = { label: it.label, sub: it.sub, shape: 'rect', tone: it.accent ? ['accent'] : [] };
+      for (var k in props) p[k] = props[k];
+      var n = D.syn(prefix + i, p);
+      n.item = it; n.rank = i; n.ord = i;
+      return n;
+    });
+  }
+
+  LAYOUTS.timeline = function (M, D) {
+    var cd = D.ctxDir('row'), rtl = cd.rtl, vertical = cd.dir === 'ttb' || cd.dir === 'btt';
+    var nodes = itemNodes(D, M, 't', { cls: 'nm-dg-card' }), n = nodes.length;
+    if (!n) return;
+    var W = D.W, H = D.H;
+    if (!vertical) {
+      var margin = 24, step = (W - 2 * margin) / n;
+      var oneSide = false, cardMax = Math.min(420, step * 2 - 40);
+      nodes.forEach(function (nd) { D.measure(nd, cardMax); });
+      if (Math.max.apply(null, nodes.map(function (nd) { return nd.w; })) <= step - 28 || n <= 2) {
+        oneSide = true;
+        nodes.forEach(function (nd) { D.measure(nd, Math.min(420, step - 28)); });
+      }
+      equalize(nodes, { ratio: 1.4 });
+      var mh = Math.max.apply(null, nodes.map(function (nd) { return nd.h; }));
+      var stem = 60, axisY = oneSide ? mh + stem + 10 : H / 2;
+      var xs = nodes.map(function (nd, i) { var x = margin + step * (i + 0.5); return rtl ? W - x : x; });
+      var a0 = rtl ? W - 4 : 4, a1 = rtl ? 4 : W - 4;
+      D.edge('axis', { pts: [pt(a0, axisY), pt(a1, axisY)], arrow: 'end', style: 'solid', free: true, fixed: true, cls: 'nm-dg-axisline', flow: false });
+      nodes.forEach(function (nd, i) {
+        var up = oneSide || i % 2 === 0, x = xs[i];
+        var cy = up ? axisY - stem - nd.h / 2 : axisY + stem + nd.h / 2;
+        D.place(nd, x, cy);
+        var acc = nd.item.accent;
+        D.shape('stem' + i, 'line', { x1: r1(x), y1: r1(axisY + (up ? -11 : 11)), x2: r1(x), y2: r1(up ? cy + nd.h / 2 : cy - nd.h / 2), 'class': 'nm-dg-stem' }, D.gBack, { attach: nd });
+        D.shape('dot' + i, 'circle', { cx: r1(x), cy: r1(axisY), r: acc ? 11 : 8, 'class': 'nm-dg-dot' + (acc ? ' is-accent' : '') }, D.gFront, { attach: nd });
+        if (nd.item.key) {
+          var L = D.label('date' + i, esc(nd.item.key), 'nm-dg-date' + (acc ? ' is-accent' : ''), step * 1.6);
+          D.put(L, x, axisY + (up ? 1 : -1) * (24 + L.h / 2), { attach: nd });
+        }
+      });
+    } else {
+      var mg = 10, stepV = (H - 2 * mg) / n, colW = W / 2 - 110;
+      nodes.forEach(function (nd) { D.measure(nd, Math.min(460, colW)); });
+      equalize(nodes, { ratio: 1.4 });
+      var ax = W / 2;
+      var ys = nodes.map(function (nd, i) { return mg + stepV * (i + 0.5); });
+      D.edge('axis', { pts: [pt(ax, 2), pt(ax, H - 2)], arrow: 'end', style: 'solid', free: true, fixed: true, cls: 'nm-dg-axisline', flow: false });
+      nodes.forEach(function (nd, i) {
+        var startSide = i % 2 === 0, sgn = (startSide ? 1 : -1) * (rtl ? 1 : -1), y = ys[i];
+        var cx = ax + sgn * (70 + nd.w / 2);
+        D.place(nd, cx, y);
+        var acc = nd.item.accent;
+        D.shape('stem' + i, 'line', { x1: r1(ax + sgn * 11), y1: r1(y), x2: r1(cx - sgn * nd.w / 2), y2: r1(y), 'class': 'nm-dg-stem' }, D.gBack, { attach: nd });
+        D.shape('dot' + i, 'circle', { cx: r1(ax), cy: r1(y), r: acc ? 11 : 8, 'class': 'nm-dg-dot' + (acc ? ' is-accent' : '') }, D.gFront, { attach: nd });
+        if (nd.item.key) {
+          var L = D.label('date' + i, esc(nd.item.key), 'nm-dg-date' + (acc ? ' is-accent' : ''), 260);
+          D.put(L, ax - sgn * (26 + L.w / 2), y, { attach: nd });
+        }
+      });
+    }
+  };
+
+  LAYOUTS.layers = function (M, D) {
+    var rtl = D.ctxDir('row').rtl, W = D.W, H = D.H, items = M.items, n = items.length;
+    if (!n) return;
+    var sides = items.map(function (it, i) {
+      return D.label('side' + i, '<b>' + esc(it.key || it.label) + '</b>' + (it.keySub ? '<span>' + esc(it.keySub) + '</span>' : ''), 'nm-dg-side' + (it.accent ? ' is-accent' : ''), 300);
+    });
+    var sideW = Math.max.apply(null, sides.map(function (L) { return L.w; })) + 36;
+    var bandW = W - sideW, gap = 14, chipGap = 18, padX = 28;
+    var rows = items.map(function (it, i) {
+      var list = it.key ? it.raw.split(/\s*[,،]\s*/).filter(Boolean) : [];
+      var chips = list.map(function (txt, j) {
+        var sp = splitPipe(txt);
+        var nd = D.syn('c' + i + '_' + j, { label: sp.label, sub: sp.sub, shape: 'rect', cls: 'nm-dg-chip', tone: it.accent ? ['accent-soft'] : [] });
+        nd.rank = i; nd.ord = i * 100 + j;
+        D.measure(nd, Math.max(140, (bandW - 2 * padX) / 2.2));
+        return nd;
+      });
+      var lines = [[]], lw = 0;
+      chips.forEach(function (c) {
+        if (lines[lines.length - 1].length && lw + c.w > bandW - 2 * padX) { lines.push([]); lw = 0; }
+        lines[lines.length - 1].push(c); lw += c.w + chipGap;
+      });
+      var ch = chips.length ? Math.max.apply(null, chips.map(function (c) { return c.h; })) : 0;
+      chips.forEach(function (c) { c.h = ch; });
+      return { chips: chips, lines: lines, ch: ch, h: Math.max(lines.length * ch + (lines.length - 1) * 14 + 44, sides[i].h + 32) };
+    });
+    var total = rows.reduce(function (s, r) { return s + r.h; }, 0) + gap * (n - 1);
+    if (total < H) { var add = Math.min((H - total) / n, 70); rows.forEach(function (r) { r.h += add; }); }
+    var y = 0, bx = rtl ? 0 : sideW;
+    rows.forEach(function (row, i) {
+      var it = items[i];
+      var band = D.shape('band' + i, 'rect', { x: r1(bx), y: r1(y), width: r1(bandW), height: r1(row.h), rx: 16, 'class': 'nm-dg-band' + (it.accent ? ' is-accent' : '') + ' t' + (i % 4) }, D.gBack, row.chips.length ? { attach: row.chips } : { seq: i });
+      D.put(sides[i], rtl ? W - sides[i].w / 2 : sides[i].w / 2, y + row.h / 2, row.chips.length ? { attach: row.chips } : { seq: i });
+      var lh = row.lines.length * row.ch + (row.lines.length - 1) * 14, ly = y + (row.h - lh) / 2 + row.ch / 2;
+      row.lines.forEach(function (line) {
+        var lw = line.reduce(function (s, c) { return s + c.w; }, 0) + chipGap * (line.length - 1);
+        var x = bx + (bandW - lw) / 2;
+        if (rtl) line = line.slice().reverse();
+        line.forEach(function (c) { D.place(c, x + c.w / 2, ly); x += c.w + chipGap; });
+        ly += row.ch + 14;
+      });
+      y += row.h + gap;
+    });
+  };
+
+  LAYOUTS.matrix = function (M, D) {
+    var rtl = D.ctxDir('row').rtl, W = D.W, H = D.H, o = M.opts;
+    var xa = splitAll(o.x), ya = splitAll(o.y), quads = splitAll(o.quad);
+    var top = ya[0] ? 64 : 24, bottom = 96, side = 40;
+    var pw = W - 2 * side, ph = H - top - bottom;
+    if (pw > ph * 1.7) pw = ph * 1.7;
+    var px0 = (W - pw) / 2, py0 = top, px1 = px0 + pw, py1 = py0 + ph;
+    var xs = function (v) { return rtl ? px1 - v * pw : px0 + v * pw; }, ys = function (v) { return py1 - v * ph; };
+    D.shape('frame', 'rect', { x: r1(px0), y: r1(py0), width: r1(pw), height: r1(ph), rx: 18, 'class': 'nm-dg-plot' });
+    D.shape('qv', 'line', { x1: r1((px0 + px1) / 2), y1: r1(py0 + 10), x2: r1((px0 + px1) / 2), y2: r1(py1 - 10), 'class': 'nm-dg-divider' });
+    D.shape('qh', 'line', { x1: r1(px0 + 10), y1: r1((py0 + py1) / 2), x2: r1(px1 - 10), y2: r1((py0 + py1) / 2), 'class': 'nm-dg-divider' });
+    var obstacles = [];
+    var qpos = [[1, 1], [0, 1], [1, 0], [0, 0]];
+    quads.forEach(function (q, i) {
+      if (!q || i > 3) return;
+      var hi = qpos[i], inStart = hi[0] === 1;
+      var L = D.label('quad' + i, esc(q), 'nm-dg-quad', pw / 2 - 48);
+      var qx = (inStart === rtl) ? px1 - 22 - L.w / 2 : px0 + 22 + L.w / 2;
+      var qy = hi[1] ? py0 + 20 + L.h / 2 : py1 - 20 - L.h / 2;
+      D.put(L, qx, qy, false);
+      obstacles.push({ x: qx - L.w / 2 - 8, y: qy - L.h / 2 - 8, w: L.w + 16, h: L.h + 16 });
+    });
+    D.edge('xaxis', { pts: [pt(xs(0), py1 + 26), pt(xs(1), py1 + 26)], arrow: 'end', style: 'solid', free: true, fixed: true, cls: 'nm-dg-axisline', flow: false });
+    D.edge('yaxis', { pts: [pt(rtl ? px1 + 22 : px0 - 22, py1), pt(rtl ? px1 + 22 : px0 - 22, py0)], arrow: 'end', style: 'solid', free: true, fixed: true, cls: 'nm-dg-axisline', flow: false });
+    if (xa[0]) { var XT = D.label('xt', esc(xa[0]), 'nm-dg-axtitle', pw * 0.6); D.put(XT, (px0 + px1) / 2, py1 + 62, false); }
+    if (xa[1]) { var XL = D.label('xl', esc(xa[1]), 'nm-dg-axend', 260); D.put(XL, rtl ? px1 - XL.w / 2 : px0 + XL.w / 2, py1 + 62, false); }
+    if (xa[2]) { var XH = D.label('xh', esc(xa[2]), 'nm-dg-axend', 260); D.put(XH, rtl ? px0 + XH.w / 2 : px1 - XH.w / 2, py1 + 62, false); }
+    if (ya[0]) { var YT = D.label('yt', esc(ya[0]) + (ya[2] ? ' <span>' + esc(ya[2]) + '</span>' : ''), 'nm-dg-axtitle', pw * 0.6); D.put(YT, rtl ? px1 + 22 - YT.w / 2 + 14 : px0 - 22 + YT.w / 2 - 14, py0 - 18 - YT.h / 2, false); }
+    if (ya[1]) { var YL = D.label('yl', esc(ya[1]), 'nm-dg-axend is-small', 200); D.put(YL, rtl ? px1 - 12 - YL.w / 2 : px0 + 12 + YL.w / 2, py1 - 12 - YL.h / 2, false); obstacles.push({ x: YL.x - YL.w / 2, y: YL.y - YL.h / 2, w: YL.w, h: YL.h }); }
+    var nodes = M.items.map(function (it, i) {
+      var v = it.raw.split(/\s*[,،]\s*/).map(parseNum);
+      var nd = D.syn('m' + i, { label: it.key || it.label, sub: it.key ? '' : it.sub, shape: 'pill', cls: 'nm-dg-pin', tone: it.accent ? ['accent'] : [] });
+      nd.rank = i; nd.ord = i;
+      D.measure(nd, 260);
+      var vx = clamp(isNaN(v[0]) ? 0.5 : (v[0] > 1 ? v[0] / 100 : v[0]), 0, 1), vy = clamp(isNaN(v[1]) ? 0.5 : (v[1] > 1 ? v[1] / 100 : v[1]), 0, 1);
+      nd.tx = xs(vx); nd.ty = ys(vy); nd.x = nd.tx; nd.y = nd.ty;
+      return nd;
+    });
+    for (var it = 0; it < 80; it++) {
+      var moved = false;
+      nodes.forEach(function (a, i) {
+        nodes.forEach(function (b, j) {
+          if (j <= i) return;
+          var ox = (a.w + b.w) / 2 + 14 - Math.abs(a.x - b.x), oy = (a.h + b.h) / 2 + 12 - Math.abs(a.y - b.y);
+          if (ox > 0 && oy > 0) {
+            moved = true;
+            if (oy < ox) { var s = a.y < b.y || (a.y === b.y && i < j) ? -1 : 1; a.y += s * oy / 2; b.y -= s * oy / 2; }
+            else { var s2 = a.x < b.x ? -1 : 1; a.x += s2 * ox / 2; b.x -= s2 * ox / 2; }
+          }
+        });
+        obstacles.forEach(function (r) {
+          var ox = Math.min(a.x + a.w / 2, r.x + r.w) - Math.max(a.x - a.w / 2, r.x), oy = Math.min(a.y + a.h / 2, r.y + r.h) - Math.max(a.y - a.h / 2, r.y);
+          if (ox > 0 && oy > 0) { moved = true; a.y += (a.y < r.y + r.h / 2 ? -1 : 1) * (oy + 1); }
+        });
+        a.x = clamp(a.x, px0 + a.w / 2 + 8, px1 - a.w / 2 - 8); a.y = clamp(a.y, py0 + a.h / 2 + 8, py1 - a.h / 2 - 8);
+      });
+      if (!moved) break;
+    }
+    nodes.forEach(function (nd) { D.place(nd, nd.x, nd.y); });
+  };
+  function splitAll(s) { return s ? String(s).split('|').map(function (x) { return x.trim(); }) : []; }
+
+  function stackLayout(M, D, kind) {
+    var rtl = D.ctxDir('row').rtl, W = D.W, H = D.H, items = M.items, n = items.length;
+    if (!n) return;
+    var shapeW = clamp(W * 0.46, 260, 880), gapX = 64, textW = W - shapeW - gapX;
+    var vals = items.map(function (it) { return it.key ? parseNum(it.label) : NaN; });
+    var hasVals = kind === 'funnel' && vals.every(function (v) { return !isNaN(v); });
+    var nodes = items.map(function (it, i) {
+      var nd = D.syn('k' + i, { label: it.key || it.label, sub: it.key ? (kind === 'funnel' && hasVals ? it.sub : (hasVals ? it.sub : [it.label, it.sub].filter(Boolean).join(' - '))) : it.sub, shape: 'plain', cls: 'nm-dg-sidenode', tone: it.accent ? ['accent'] : [] });
+      nd.rank = i; nd.ord = i; nd.item = it;
+      D.measure(nd, Math.max(180, textW));
+      return nd;
+    });
+    var tw = Math.max.apply(null, nodes.map(function (nd) { return nd.w; }));
+    nodes.forEach(function (nd) { nd.w = tw; });
+    var gap = 8, bandH = clamp((H - gap * (n - 1)) / n, 64, 150);
+    bandH = Math.max(bandH, Math.max.apply(null, nodes.map(function (nd) { return nd.h; })) + 8);
+    var Ht = bandH * n + gap * (n - 1);
+    var sx0 = rtl ? 0 : W - shapeW, scx = sx0 + shapeW / 2;
+    var tx1 = rtl ? W : tw, anyAcc = items.some(function (it) { return it.accent; });
+    var max0 = hasVals ? Math.max.apply(null, vals) : 1;
+    function widthAt(i, bottom) {
+      if (kind === 'pyramid') { var y = i * (bandH + gap) + (bottom ? bandH : 0); return shapeW * Math.max(0.0, y / Ht); }
+      if (hasVals) { var v = bottom ? (i + 1 < n ? vals[i + 1] : vals[i] * 0.8) : vals[i]; return shapeW * Math.max(0.2, v / max0); }
+      var t = (i + (bottom ? 1 : 0)) / n; return shapeW * (1 - 0.68 * t);
+    }
+    items.forEach(function (it, i) {
+      var y0 = i * (bandH + gap), wt = widthAt(i, false), wb = widthAt(i, true);
+      var ptsS = [[scx - wt / 2, y0], [scx + wt / 2, y0], [scx + wb / 2, y0 + bandH], [scx - wb / 2, y0 + bandH]].map(function (p) { return r1(p[0]) + ',' + r1(p[1]); }).join(' ');
+      var shade = anyAcc ? (it.accent ? ' is-accent' : ' is-neutral') : ' g' + Math.min(5, Math.round(i * 5 / Math.max(1, n - 1)));
+      D.shape('band' + i, 'polygon', { points: ptsS, 'class': 'nm-dg-tier' + shade }, D.gBack, { attach: nodes[i] });
+      var nd = nodes[i], cy = y0 + bandH / 2;
+      var tcx = rtl ? tx1 - tw / 2 : tw / 2;
+      D.place(nd, tcx, cy);
+      var wm = (wt + wb) / 2, edgeX = rtl ? scx + wm / 2 : scx - wm / 2, nodeEdge = rtl ? tcx - tw / 2 : tcx + tw / 2;
+      D.shape('lead' + i, 'line', { x1: r1(edgeX + (rtl ? 10 : -10)), y1: r1(cy), x2: r1(nodeEdge + (rtl ? -14 : 14)), y2: r1(cy), 'class': 'nm-dg-leader' }, D.gBack, { attach: nd });
+      if (hasVals || (kind === 'pyramid' && D.opt('numbers', 'on') !== 'off')) {
+        var txt = hasVals ? esc(it.label) : withDigits(String(i + 1), digitSystem(it.key + it.label) || (rtl ? AR_DIG : null));
+        var V = D.label('val' + i, txt, 'nm-dg-tierval' + (anyAcc && !it.accent ? '' : ' is-on-fill') + (hasVals ? ' nm-dg-count' : ''), 300);
+        if (hasVals) V.el.setAttribute('data-count', it.label);
+        var room = kind === 'pyramid' ? widthAt(i, false) * 0.5 + widthAt(i, true) * 0.5 : wm;
+        if (room > V.w + 24 && bandH > V.h + 4) D.put(V, scx, cy + (kind === 'pyramid' && i === 0 ? bandH * 0.18 : 0), { attach: nd });
+        else { V.el.classList.remove('is-on-fill'); D.put(V, rtl ? edgeX - 0 + 0 : edgeX, cy, false); V.el.style.display = 'none'; }
+      }
+    });
+  }
+  LAYOUTS.funnel = function (M, D) { stackLayout(M, D, 'funnel'); };
+  LAYOUTS.pyramid = function (M, D) { stackLayout(M, D, 'pyramid'); };
+
+  LAYOUTS.venn = function (M, D) {
+    var rtl = D.ctxDir('row').rtl, W = D.W, H = D.H;
+    var sets = M.items.filter(function (it) { return !/[&∩+]/.test(it.key); });
+    var inter = M.items.filter(function (it) { return /[&∩+]/.test(it.key); });
+    if (sets.length > 3) { warn(D.id + ': venn supports 2-3 sets; extra sets ignored'); sets = sets.slice(0, 3); }
+    var k = sets.length;
+    if (k < 2) { warn(D.id + ': venn needs at least 2 sets (lines like "a: name")'); if (!k) return; }
+    var r = k === 3 ? Math.min(H * 0.34, W * 0.24) : Math.min(H * 0.44, W * 0.27);
+    var cx = W / 2, cy = H / 2, centers;
+    var sgn = rtl ? 1 : -1;
+    if (k === 2) centers = [pt(cx + sgn * r * 0.56, cy), pt(cx - sgn * r * 0.56, cy)];
+    else if (k === 3) { var d = r * 0.64; centers = [-30, -150, 90].map(function (a) { a = a * Math.PI / 180; return pt(cx + sgn * d * Math.cos(a), cy + d * Math.sin(a) + r * 0.08); }); }
+    else centers = [pt(cx, cy)];
+    var cen = centers.reduce(function (s, p) { return pt(s.x + p.x / k, s.y + p.y / k); }, pt(0, 0));
+    var idmap = {};
+    sets.forEach(function (it, i) {
+      idmap[it.key] = i;
+      var c = centers[i];
+      var u = unit(cen.x, cen.y, c.x, c.y);
+      if (k === 1) u = pt(0, 0);
+      var nd = D.syn('v' + i, { label: it.label, sub: it.sub, shape: 'plain', cls: 'nm-dg-setlabel s' + i, tone: it.accent ? ['accent'] : [] });
+      nd.rank = i; nd.ord = i;
+      D.measure(nd, r * (k === 3 ? 0.78 : 0.7));
+      D.place(nd, c.x + u.x * r * 0.5, c.y + u.y * r * (k === 3 ? 0.52 : 0.5));
+      D.shape('set' + i, 'circle', { cx: r1(c.x), cy: r1(c.y), r: r1(r), 'class': 'nm-dg-set s' + i + (it.accent ? ' is-accent' : '') }, D.gBack, { attach: nd });
+    });
+    inter.forEach(function (it, j) {
+      var keys = it.key.split(/\s*[&∩+]\s*/), ids = keys.map(function (q) { return idmap[q]; }).filter(function (v) { return v != null; });
+      if (ids.length < 2) { warn(D.id + ': intersection "' + it.key + '" names unknown sets'); return; }
+      var p;
+      if (ids.length >= 3 || k === 2) p = ids.length >= 3 ? cen : pt((centers[ids[0]].x + centers[ids[1]].x) / 2, (centers[ids[0]].y + centers[ids[1]].y) / 2);
+      else {
+        var mid = pt((centers[ids[0]].x + centers[ids[1]].x) / 2, (centers[ids[0]].y + centers[ids[1]].y) / 2);
+        var third = centers[[0, 1, 2].filter(function (q) { return ids.indexOf(q) < 0; })[0]], u = unit(third.x, third.y, mid.x, mid.y);
+        p = pt(mid.x + u.x * r * 0.3, mid.y + u.y * r * 0.3);
+      }
+      var nd = D.syn('vi' + j, { label: it.label, sub: it.sub, shape: 'plain', cls: 'nm-dg-interlabel', tone: it.accent ? ['accent'] : [] });
+      nd.rank = k + j; nd.ord = k + j;
+      D.measure(nd, r * (ids.length >= 3 ? 0.42 : (k === 2 ? 0.5 : 0.44)));
+      D.place(nd, p.x, p.y);
+    });
+  };
+
+  LAYOUTS.compare = function (M, D) {
+    var rtl = D.ctxDir('row').rtl, W = D.W, H = D.H;
+    var head = splitAll(M.opts.head), acc = M.opts.headAccent;
+    var crits = M.items.map(function (it, i) { return D.label('crit' + i, esc(it.key), 'nm-dg-crit' + (it.accent ? ' is-accent' : ''), 240); });
+    var spineW = clamp(Math.max.apply(null, crits.map(function (L) { return L.w; }).concat([80])) + 56, 150, 300);
+    var colW = (W - spineW) / 2 - 8;
+    var xA = rtl ? W - colW / 2 : colW / 2, xB = rtl ? colW / 2 : W - colW / 2, xs = W / 2;
+    var y = 0, hn = [];
+    if (head.length) {
+      hn = [0, 1].map(function (c) {
+        var nd = D.syn('h' + c, { label: head[c] || '', shape: 'rect', cls: 'nm-dg-colhead', tone: acc === c ? ['accent'] : ['strong'] });
+        nd.rank = 0; nd.ord = c;
+        D.measure(nd, colW); nd.w = colW; return nd;
+      });
+      var hh = Math.max(hn[0].h, hn[1].h); hn.forEach(function (nd) { nd.h = hh; });
+      D.place(hn[0], xA, hh / 2); D.place(hn[1], xB, hh / 2);
+      y = hh + 22;
+    }
+    var rows = M.items.map(function (it, i) {
+      var a = D.syn('a' + i, { label: it.label, shape: 'rect', cls: 'nm-dg-cell', tone: acc === 0 ? ['accent-soft'] : [] });
+      var b = D.syn('b' + i, { label: it.sub, shape: 'rect', cls: 'nm-dg-cell', tone: acc === 1 ? ['accent-soft'] : [] });
+      [a, b].forEach(function (nd, c) { nd.rank = i + 1; nd.ord = 2 + i * 2 + c; D.measure(nd, colW); nd.w = colW; });
+      var rh = Math.max(a.h, b.h, crits[i].h + 16); a.h = b.h = rh;
+      return { a: a, b: b, h: rh };
+    });
+    var n = rows.length, sumH = rows.reduce(function (s, r) { return s + r.h; }, 0);
+    var rg = n > 1 ? clamp((H - y - sumH) / (n - 1), 14, 40) : 0;
+    var y0 = y;
+    rows.forEach(function (r, i) {
+      var cy = y + r.h / 2;
+      D.place(r.a, xA, cy); D.place(r.b, xB, cy);
+      var C = crits[i];
+      D.shape('tA' + i, 'line', { x1: r1(xs + (rtl ? 1 : -1) * C.w / 2), y1: r1(cy), x2: r1(rtl ? xA - colW / 2 : xA + colW / 2), y2: r1(cy), 'class': 'nm-dg-tie' }, D.gBack, { attach: [r.a, r.b] });
+      D.shape('tB' + i, 'line', { x1: r1(xs - (rtl ? 1 : -1) * C.w / 2), y1: r1(cy), x2: r1(rtl ? xB + colW / 2 : xB - colW / 2), y2: r1(cy), 'class': 'nm-dg-tie' }, D.gBack, { attach: [r.a, r.b] });
+      D.put(C, xs, cy, { attach: [r.a, r.b] });
+      y += r.h + rg;
+    });
+    D.shape('spine', 'line', { x1: r1(xs), y1: r1(head.length ? 0 : y0), x2: r1(xs), y2: r1(y - rg), 'class': 'nm-dg-spine' });
+  };
+
   /*__CONTINUE__*/
 })();

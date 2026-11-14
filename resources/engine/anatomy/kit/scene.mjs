@@ -576,7 +576,7 @@ export function house(P, o = {}) {
       return Ln(d, "faint");
     },
   }));
-  if (M.detail >= 1) M.put("chimney", M.slab({ x: -W / 2 - 1.5, y: -1, w: 1.5, d: 2, r: 0 }, 0, H + rise + 1, { tone: "lo", bevel: 0.2 }));
+  if (M.detail >= 1) M.put("chimney", M.slab({ x: -W / 2 - 2.1, y: -1, w: 1.5, d: 2, r: 0 }, 0, H + rise + 1, { tone: "lo", bevel: 0.2 }));
   M.at("door", [0, D / 2, 0]);
   return M.done({ ...plan, z0: 0, z1: H + rise });
 }
@@ -672,18 +672,14 @@ export function factory(P, o = {}) {
   const tw = W / teeth;
   const th = o.toothH ?? 4;
   for (let i = 0; i < teeth; i++) {
-    const poly = [[0, 0], [tw, 0], [tw, th]];
-    M.put(`tooth${i}`, M.prism([-W / 2 + i * tw, -D / 2, H], [0, 1, 0], [1, 0, 0], poly.map(([x, y]) => [x, y]), D, {
+    const poly = [[0, 0], [tw, 0], [0, th]];
+    M.put(`tooth${i}`, M.prism([-W / 2 + (i + 1) * tw, -D / 2, H], [0, 1, 0], [-1, 0, 0], poly, D, {
       crease: "lo",
       inner: ({ F, len }) => {
-        const V = G.viewOf(P);
-        const pt = (s, [x, y]) => G.add3(G.add3(F.o, G.mul3(F.a, s)), G.add3(G.mul3(F.u, x), G.mul3(F.v, y)));
-        const normal = G.cross3(F.a, [0, 0, 1]);
-        const glazed = [[tw, 0], [tw, th]];
-        const face = G.add3(G.mul3(F.u, 1), [0, 0, 0]);
+        if (!M.sees([1, 0, 0])) return "";
+        const pt = (s2, z) => G.add3(F.o, G.add3(G.mul3(F.a, s2), [0, 0, z]));
         let d = "";
-        if (G.dot3(face, V) > 0) for (let s = 2; s < len - 1; s += 2) d += k.segment(pt(s, glazed[0]), pt(s, glazed[1]), P);
-        if (G.dot3(normal, V) !== 0) d += "";
+        for (let s2 = 2; s2 < len - 1; s2 += 2) d += k.segment(pt(s2, 0), pt(s2, th), P);
         return Ln(d, "faint");
       },
     }));
@@ -706,6 +702,7 @@ export function person(P, o = {}) {
   const seat = o.seated ? (o.seatH ?? 1.8) : 0;
   const body = o.seated ? h * 0.38 : h * 0.72;
   const rr = h * 0.17;
+  if (o.seated && o.stool !== false) M.put("stool", M.slab({ x: -rr * 1.1, y: -rr * 1.1, w: rr * 2.2, d: rr * 2.2, r: 0.2 }, 0, seat, { tone: "lo" }));
   M.put("body", M.turn([0, 0, seat], [0, 0, 1], [[0, rr * 0.95], [body * 0.12, rr], [body * 0.8, rr * 0.82], [body, rr * 0.5]], { lit: o.lit }));
   M.put("head", M.ball([0, 0, seat + body + h * 0.12], h * 0.12, { lit: o.lit }));
   M.at("head", [0, 0, seat + body + h * 0.24]);
@@ -854,8 +851,7 @@ export function forklift(P, o = {}) {
   M.put("body", M.slab({ x: -3, y: -W / 2, w: 4.8, d: W, r: 0.4 }, 1.6, 1.8, { tone: o.bodyTone ?? "hi", lit: o.lit, bevel: 0.3 }));
   M.put("weight", M.slab({ x: -3.6, y: -W / 2 + 0.2, w: 0.6, d: W - 0.4, r: 0.2 }, 1.6, 1.8, { tone: "lo" }));
   M.put("seat", M.slab({ x: -1.8, y: -0.8, w: 1.4, d: 1.6, r: 0.3 }, 3.4, 0.8, { tone: "lo" }));
-  const posts = [[-2.6, -1.4], [-2.6, 1.4], [0.9, -1.4], [0.9, 1.4]].map(([x, y]) => M.slab({ x: x - 0.15, y: y - 0.15, w: 0.3, d: 0.3, r: 0 }, 3.4, 3.4, { tone: "mid" }));
-  M.put("guardPosts", posts);
+  for (const x of [-2.6, 0.9]) M.put(`guardPosts${x > 0 ? "F" : "B"}`, [-1.4, 1.4].map((y) => M.slab({ x: x - 0.15, y: y - 0.15, w: 0.3, d: 0.3, r: 0 }, 3.4, 3.4, { tone: "mid" })));
   M.put("guard", M.slab({ x: -2.8, y: -1.6, w: 3.9, d: 3.2, r: 0.2 }, 6.8, 0.3, { tone: "mid", after: ({ wp, top }) => Ln(ladder(4).map((i) => k.lineOnTop([wp.x + 0.6 + i * 0.8, wp.y], [wp.x + 0.6 + i * 0.8, wp.y + wp.d], top, P)).join(""), "faint") }));
   M.put("mast", [-1, 1].map((s) => M.slab({ x: 2.4, y: s * 1 - 0.2, w: 0.4, d: 0.4, r: 0 }, 0.8, 6.6, { tone: "mid" })));
   const lift = o.lift ?? 0;
@@ -881,9 +877,10 @@ export function ship(P, o = {}) {
     inner: ({ ring: wr, z }) => Ln(k.ringSeam(wr, z + 2.2, P), "lo") + Ln(k.ringSeam(wr, z + H - 1.2, P), "faint"),
   }));
   const deck = M.z0 + H;
-  const bays = o.bays ?? 4;
   const bayLen = o.bayLen ?? 25;
   const firstBay = -L / 2 + 30;
+  const bays = o.bays ?? Math.max(1, Math.floor((L / 2 - bow - 4 - firstBay) / (bayLen + 1)));
+  const bayEnd = firstBay + bays * (bayLen + 1);
   const covers = [];
   for (let b = 0; b < bays; b++) covers.push(M.slab({ x: -B / 2 + 1.2, y: firstBay + b * (bayLen + 1), w: B - 2.4, d: bayLen, r: 0.3 }, H, 0.8, { tone: "lo", after: ({ wp, top }) => Ln(k.lineOnTop([wp.x, wp.y + wp.d / 2], [wp.x + wp.w, wp.y + wp.d / 2], top, P), "faint") }));
   covers.forEach((c, i) => M.put(`hatch${i}`, c));
@@ -894,9 +891,9 @@ export function ship(P, o = {}) {
   }));
   M.put("bridge", M.slab({ x: -B / 2 - 1, y: -L / 2 + 13, w: B + 2, d: 6, r: 0.4 }, H + 18, 3, { tone: "hi", lit: o.lit, bevel: 0.3, inner: ({ wp, z }) => facesOf(wp, P).map((f) => windowGrid(f, P, { z0: z + 0.9, z1: z + 2.4, cols: Math.max(4, Math.round(f.len / 2)), rows: 1, margin: 0.6, gapS: 0.4, detail: 1, tone: "mid" })).join("") }));
   M.put("funnel", M.slab({ x: -3, y: -L / 2 + 7, w: 6, d: 5, r: 1.5 }, H + 18, 7, { tone: "lo", bevel: 0.3, inner: ({ wp, z, h }) => Ln(k.sideSeam(wp, z + h - 1.6, P, 3), "mid") }));
-  M.put("mast", M.cyl([0, L / 2 - 12], 0.4, H, 14, { tone: "mid", after: ({ cx, cy, top }) => Dt([[cx, cy, top]], P, 0.6, "hi") }));
+  M.put("mast", M.cyl([0, Math.max(bayEnd + 2, L / 2 - 12)], 0.4, H, 14, { tone: "mid", after: ({ cx, cy, top }) => Dt([[cx, cy, top]], P, 0.6, "hi") }));
   const bits = [];
-  for (const y of [L / 2 - 20, -L / 2 + 26]) for (const x of [-B / 2 + 1.6, B / 2 - 1.6]) bits.push(M.cyl([x, y], 0.6, H, 1, { tone: "lo" }));
+  for (const y of [bayEnd + 4, -L / 2 + 25]) for (const x of [-B / 2 + 4, B / 2 - 4]) bits.push(M.cyl([x, y], 0.6, H, 1, { tone: "lo" }));
   M.put("bitts", bits);
   M.ship = { L, B, H, bays, bayLen, firstBay };
   /** World point at the deck for bay b, row r (across the beam), tier t (0 = on the hatch). */
@@ -1093,7 +1090,7 @@ export function aircraft(P, o = {}) {
   const span = o.span ?? 40;
   const gear = o.gear ?? 1;
   const cz = gear * 2 + R;
-  const prof = [[0, R * 0.45], [3, R * 0.85], [6, R], [L - 6, R], [L - 2.2, R * 0.75], [L, R * 0.25]];
+  const prof = [[0, R * 0.35], [5, R * 0.8], [8, R], [L - 5, R], [L - 2, R * 0.8], [L, R * 0.35]];
   M.put("fuselage", M.turn([-L / 2, 0, cz], [1, 0, 0], prof, {
     tone: o.tone ?? "hi",
     lit: o.lit,
@@ -1130,7 +1127,7 @@ export function helicopter(P, o = {}) {
     steps: 4,
     inner: ({ wp, z }) => facesOf(wp, P).map((f) => windowGrid(f, P, { z0: z + 1.4, z1: z + 3, cols: 2, rows: 1, margin: 1.4, gapS: 0.6, detail: 1, tone: "mid" })).join(""),
   }));
-  M.put("boom", M.rod([-3, 0, cz + 0.8], [-10, 0, cz + 1.2], 0.8, { tone: "mid" }));
+  M.put("boom", M.rod([-3, 0, cz + 0.8], [-9.2, 0, cz + 1.2], 0.8, { tone: "mid" }));
   M.put("fin", M.slab({ x: -10.6, y: -0.2, w: 1.4, d: 0.4, r: 0.1 }, cz + 0.6, 3.2, { tone: "mid" }));
   M.put("mast", M.cyl([0.4, 0], 0.5, sk + 3.8, 1, { tone: "lo" }));
   const bladeZ = sk + 4.8;
@@ -1151,7 +1148,7 @@ export function drone(P, o = {}) {
   M.put("armA", M.rod([-s, -s, legs + 0.7 + 0.15], [s, s, legs + 0.7 + 0.15], 0.3, { tone: "mid" }));
   M.put("armB", M.rod([-s, s, legs + 0.7 + 0.45], [s, -s, legs + 0.7 + 0.45], 0.3, { tone: "mid" }));
   const z = legs + 1.3;
-  M.put("rotors", [[-1, -1], [1, 1], [-1, 1], [1, -1]].map(([x, y]) => M.cyl([x * s, y * s], s * 0.42, z + (x * y > 0 ? -0.0 : 0.3), 0.1, { tone: "faint", crease: "none" })));
+  [[-1, -1], [1, 1], [-1, 1], [1, -1]].forEach(([x, y], i) => M.put(`rotor${i}`, M.cyl([x * s, y * s], s * 0.42, x * y > 0 ? legs + 1.0 : legs + 1.3, 0.1, { tone: "faint", crease: "none" })));
   return M.done({ x: -s * 1.4, y: -s * 1.4, w: s * 2.8, d: s * 2.8, z0: 0, z1: z + 0.4 });
 }
 
@@ -1325,9 +1322,9 @@ export function chip(P, o = {}) {
   const n = o.pins ?? 6;
   for (let i = 0; i < n; i++) {
     const t = -S / 2 + (S * (i + 0.5)) / n;
-    pins.push(M.slab({ x: t - 0.15, y: -S / 2 - 0.5, w: 0.3, d: 0.5, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" }), M.slab({ x: t - 0.15, y: S / 2, w: 0.3, d: 0.5, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" }), M.slab({ x: -S / 2 - 0.5, y: t - 0.15, w: 0.5, d: 0.3, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" }), M.slab({ x: S / 2, y: t - 0.15, w: 0.5, d: 0.3, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" }));
+    pins.push([M.slab({ x: t - 0.15, y: -S / 2 - 0.5, w: 0.3, d: 0.5, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" }), M.slab({ x: t - 0.15, y: S / 2, w: 0.3, d: 0.5, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" }), M.slab({ x: -S / 2 - 0.5, y: t - 0.15, w: 0.5, d: 0.3, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" }), M.slab({ x: S / 2, y: t - 0.15, w: 0.5, d: 0.3, r: 0 }, z0, 0.3, { tone: "mid", crease: "none" })]);
   }
-  M.put("pins", pins);
+  for (let side = 0; side < 4; side++) M.put(`pins${side}`, pins.map((row) => row[side]));
   M.put("package", M.slab({ x: -S / 2, y: -S / 2, w: S, d: S, r: 0.2 }, z0, 0.9, { tone: "hi", lit: o.lit, bevel: 0.25, after: ({ wp, top }) => Ln(k.planOutline(k.insetPlan(wp, S * 0.28), top, P, 2), "mid") + Dt([[wp.x + 0.8, wp.y + 0.8, top]], P, 0.35, "hi") }));
   return M.done({ x: -B / 2, y: -B / 2, w: B, d: B, z0: 0, z1: z0 + 0.9 });
 }
@@ -1338,7 +1335,7 @@ export function dish(P, o = {}) {
   const tilt = ((o.tilt ?? 40) * Math.PI) / 180;
   M.put("pad", M.slab({ x: -3, y: -3, w: 6, d: 6, r: 0.4 }, 0, 0.8, { tone: "lo", halo: true }));
   M.put("pedestal", M.cyl([0, 0], 1.1, 0.8, 5, { tone: "mid" }));
-  const c = [0, 0, 5.8];
+  const c = [0, 0, 7];
   const axis = [Math.cos(tilt), 0, Math.sin(tilt)];
   M.put("yoke", M.ball(c, 1.2, { tone: "mid" }));
   const base = G.add3(c, G.mul3(axis, 1.2));
@@ -1490,12 +1487,12 @@ export function windTurbine(P, o = {}) {
   M.put("nacelle", M.slab({ x: -4, y: -1.3, w: 7, d: 2.6, r: 1 }, H, 2.6, { tone: "mid", bevel: 0.3 }));
   const hub = [3 + 1, 0, H + 1.3];
   M.put("hub", M.ball(hub, 1.1, { tone: "hi", lit: o.lit }));
-  M.put("blades", ladder(3).map((i) => {
+  ladder(3).forEach((i) => M.put(`blade${i}`, (() => {
     const a = phase + (i * TAU) / 3;
     const dir = [0, Math.cos(a), Math.sin(a)];
-    const start = G.add3(hub, G.mul3(dir, 1.1));
+    const start = G.add3(hub, G.mul3(dir, 1.02));
     return M.rod(start, G.add3(start, G.mul3(dir, R)), 0.6, { tone: "hi" });
-  }));
+  })()));
   M.at("hub", hub);
   return M.done({ x: -4, y: -R, w: 8, d: 2 * R, z0: 0, z1: H + 1.3 + R });
 }

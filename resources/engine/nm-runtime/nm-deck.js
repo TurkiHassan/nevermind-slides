@@ -356,7 +356,7 @@
     st.released = false;
     st.deferred = !!o.deferTransient;
     markCurrent(slide);
-    if (slide === slides[deck.index]) deck.stepIndex = target;
+    if (slide === slides[deck.index]) { deck.stepIndex = target; if (!o.silent) writeHash(); }
     if (!o.silent) emit('step', { slide: slide, index: slides.indexOf(slide), step: target, dir: dir });
     updateHud();
   }
@@ -1282,6 +1282,17 @@
     var t = s._t;
     return 'translate(' + px(c.x - (t.ox + t.tw / 2)) + ', ' + px(c.y - (t.oy + t.th / 2)) + ') scale(' + Math.round(scale * 100000) / 100000 + ')';
   }
+  // Words that swap places lift apart (leftward travellers rise, rightward ones dip) so they never collide.
+  function wordPath(c0, c1, arc) {
+    if (arc === 'cw' || arc === 'ccw') return pathFn(c0, c1, arc);
+    var dx = c1.x - c0.x;
+    var lift = arc === 'off' || Math.abs(dx) < 40 ? 0 : clamp(Math.abs(dx) * 0.16, 0, 70) * (dx < 0 ? -1 : 1);
+    var ctrl = { x: (c0.x + c1.x) / 2, y: (c0.y + c1.y) / 2 + lift * 2 };
+    return function (t) {
+      var u = 1 - t;
+      return { x: u * u * c0.x + 2 * u * t * ctrl.x + t * t * c1.x, y: u * u * c0.y + 2 * u * t * ctrl.y + t * t * c1.y };
+    };
+  }
   function ghostWords(p, T, bucket) {
     var wa = p.A.words, wb = p.B.words, used = new Set(), matches = [];
     wb.forEach(function (b, bi) {
@@ -1304,7 +1315,7 @@
       var cb = centre(m.b.r);
       if (m.a) {
         var sa = m.a.r.h / s._t.th, ca = centre(m.a.r);
-        var path = pathFn(ca, cb, p.arc === 'auto' ? 'off' : p.arc);
+        var path = wordPath(ca, cb, p.arc);
         var f = [];
         for (var k = 0; k <= SAMPLES; k++) {
           var t = k / SAMPLES;
