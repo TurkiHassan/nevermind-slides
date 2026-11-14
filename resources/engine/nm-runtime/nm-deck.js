@@ -130,6 +130,14 @@
   function safe(fn) {
     try { return fn(); } catch (err) { console.error('[nm-deck]', err); }
   }
+  // Remove state classes from an author element without leaving an empty class="" behind
+  // (keeps step round-trips byte-identical for the editor). Plugins use NM.unclass.
+  function rmc(e) {
+    if (!e || !e.classList) return;
+    e.classList.remove.apply(e.classList, Array.prototype.slice.call(arguments, 1));
+    if (e.getAttribute('class') === '') e.removeAttribute('class');
+  }
+  NM.unclass = rmc;
   function emit(name, detail) {
     (listeners[name] || []).slice().forEach(function (f) { safe(function () { f(detail); }); });
     document.dispatchEvent(new CustomEvent('nm:' + name, { detail: detail }));
@@ -234,7 +242,7 @@
     slides = $$(':scope > .slide', stage);
     if (!slides.length) slides = $$('.slide', stage);
     slides.forEach(function (s) {
-      s.classList.remove('relative');
+      rmc(s, 'relative');
       var rig = s.querySelector('.camera-rig');
       if (!rig) {
         rig = el('div', 'camera-rig');
@@ -318,7 +326,7 @@
   }
   function markCurrent(slide) {
     var st = S(slide);
-    st.all.forEach(function (s) { s.items.forEach(function (i) { i.el.classList.remove('is-current'); }); });
+    st.all.forEach(function (s) { s.items.forEach(function (i) { rmc(i.el, 'is-current'); }); });
     var cur = st.steps[st.index - 1];
     if (cur) cur.items.forEach(function (i) { i.el.classList.add('is-current'); });
   }
@@ -343,7 +351,7 @@
       for (var j = cur; j > target; j--) {
         steps[j - 1].items.forEach(function (it) {
           if (!isTransient(it.act)) exitItem(it, makeCtx(slide, j, -1, instant || j > target + 1));
-          it.el.classList.remove('is-on');
+          rmc(it.el, 'is-on');
         });
       }
       if (target > 0 && !o.deferTransient) {
@@ -386,7 +394,7 @@
       s.items.forEach(function (it) {
         var a = acts[it.act];
         if (a && a.reset) safe(function () { a.reset(it.el, makeCtx(slide, 0, 0, true, { leaving: true })); });
-        it.el.classList.remove('is-on', 'is-current', 'zoom-focused', 'nm-highlighted');
+        rmc(it.el, 'is-on', 'is-current', 'zoom-focused', 'nm-highlighted');
       });
     });
     slide.classList.remove('is-camera-zoomed');
@@ -453,7 +461,7 @@
       if (!p) break;
       Array.prototype.forEach.call(p.children, function (sib) {
         if (sib === n || sib.contains(target) || /^(SCRIPT|STYLE|TEMPLATE)$/.test(sib.tagName)) return;
-        sib.classList.remove('nm-undim');
+        rmc(sib, 'nm-undim');
         sib.classList.add('nm-dim');
         st.dimmed.push(sib);
       });
@@ -465,12 +473,12 @@
     var list = st.dimmed;
     st.dimmed = [];
     list.forEach(function (e) {
-      e.classList.remove('nm-dim');
+      rmc(e, 'nm-dim');
       if (!instant && !instantNow()) {
         e.classList.add('nm-undim');
-        later(function () { if (!e.classList.contains('nm-dim')) e.classList.remove('nm-undim'); }, 650);
+        later(function () { if (!e.classList.contains('nm-dim')) rmc(e, 'nm-undim'); }, 650);
       } else {
-        e.classList.remove('nm-undim');
+        rmc(e, 'nm-undim');
       }
       if (!e.classList.length) e.removeAttribute('class');
     });
@@ -503,20 +511,20 @@
       },
       exit: function (e, ctx) {
         if (ctx.leaving) return;
-        e.classList.remove('zoom-focused');
+        rmc(e, 'zoom-focused');
         var chain = (ctx.next || []).indexOf('zoom') >= 0;
         if (!chain) {
           undim(ctx.slide, ctx.instant);
           if (ctx.slide === slides[deck.index]) cameraReset({ instant: ctx.instant });
         }
       },
-      reset: function (e) { e.classList.remove('zoom-focused'); }
+      reset: function (e) { rmc(e, 'zoom-focused'); }
     });
     NM.registerAct('highlight', {
       transient: true,
       enter: function (e) { e.classList.add('nm-highlighted'); },
-      exit: function (e) { e.classList.remove('nm-highlighted'); },
-      reset: function (e) { e.classList.remove('nm-highlighted'); }
+      exit: function (e) { rmc(e, 'nm-highlighted'); },
+      reset: function (e) { rmc(e, 'nm-highlighted'); }
     });
   }
 
@@ -925,7 +933,7 @@
   function scrubAttrs(e) {
     ['id', 'data-step', 'data-act', 'data-morph', 'data-morph-kind', 'data-morph-arc', 'data-morph-ease', 'data-morph-z',
       'data-entrance', 'data-entrance-order', 'data-entrance-delay', 'data-zoom-step', 'contenteditable', 'data-node'].forEach(function (a) { e.removeAttribute(a); });
-    if (e.classList) STRIP_CLASSES.forEach(function (c) { e.classList.remove(c); });
+    if (e.classList) STRIP_CLASSES.forEach(function (c) { rmc(e, c); });
   }
   // Deep clone with every computed style inlined, so it renders identically out of context.
   function styledClone(src, slide) {
@@ -1463,7 +1471,7 @@
   }
   function hideOriginal(e) { e.classList.add(e instanceof SVGElement && !(e instanceof SVGSVGElement) ? 'nm-morph-hidden-svg' : 'nm-morph-hidden'); }
   function showOriginal(e) {
-    e.classList.remove('nm-morph-hidden', 'nm-morph-hidden-svg');
+    rmc(e, 'nm-morph-hidden', 'nm-morph-hidden-svg');
     if (!e.classList.length) e.removeAttribute('class');
   }
 
@@ -1953,7 +1961,7 @@
     $$('*', c).forEach(function (e) {
       e.removeAttribute('id');
       e.removeAttribute('contenteditable');
-      if (e.classList) e.classList.remove('is-on', 'is-current', 'zoom-focused', 'nm-dim', 'nm-undim', 'nm-highlighted', 'nm-morph-hidden', 'nm-morph-hidden-svg');
+      if (e.classList) rmc(e, 'is-on', 'is-current', 'zoom-focused', 'nm-dim', 'nm-undim', 'nm-highlighted', 'nm-morph-hidden', 'nm-morph-hidden-svg');
     });
     var rig = c.querySelector('.camera-rig');
     if (rig) rig.style.transform = '';

@@ -458,4 +458,5 @@ body.nm-print .nm-help, body.nm-print .nm-badge, body.nm-print .nm-blackout { di
   .mg-flow, .mg-flow-fast, .mg-flow-rev, .mg-pulse, .mg-radar, .mg-radar-reverse, .mg-scan, .mg-drift { animation: none; }
   .mg-bar-fill, .bar-grow, .deck-controls, .nm-progress > i { transition: none; }
 }
+body.nm-instant :is(.mg-flow, .mg-flow-fast, .mg-flow-rev, .mg-pulse, .mg-radar, .mg-radar-reverse, .mg-scan, .mg-drift) { animation: none !important; }
 body.nm-instant .mg-bar-fill, body.nm-instant .bar-grow, body.nm-instant .nm-progress > i, body.nm-instant .nm-dim, body.nm-instant .nm-undim, body.nm-instant .nm-highlighted { transition: none !important; }

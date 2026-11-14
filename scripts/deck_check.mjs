@@ -527,6 +527,10 @@ async function main() {
       const transient = new Set(["zoom", "highlight", "focus", "detail", "lens", "pins", "slice"]);
       let lastFull = 0;
       walkable.forEach((s, k) => { if (!s.acts.every((a) => transient.has(a))) lastFull = k + 1; });
+      // Core appends one release step after a final step that holds a transient act (zoom, focus, detail...):
+      // the arrow first closes the act, then leaves the slide. Count it as expected, not as an extra step.
+      const lastStep = walkable[walkable.length - 1];
+      const expected = walkable.length + (lastStep && lastStep.acts.some((a) => transient.has(a)) ? 1 : 0);
 
       const issues = [];
       let measured = false;
@@ -539,7 +543,7 @@ async function main() {
       if (lastFull === 0) await measure(0);
       let reached = 0;
       if (hasNM) {
-        for (let k = 1; k <= walkable.length + 1; k++) {
+        for (let k = 1; k <= expected + 1; k++) {
           const before = await evaluate("({i: NM.deck.index, s: NM.deck.stepIndex})");
           await evaluate("(async()=>{ const r = NM.deck.next(); if (r && r.then) await r; return 1; })()");
           await settle();
@@ -548,14 +552,14 @@ async function main() {
           reached++;
           if (o.steps) await shot(`s${String(idx + 1).padStart(2, "0")}-step${reached}.png`);
           if (!measured && reached === lastFull) await measure(reached);
-          if (reached >= walkable.length && k > walkable.length) break;
+          if (reached >= expected && k > expected) break;
         }
         // the probe above may have left the slide; make the slide the current one again for the next loop
       }
       if (!measured) await measure(reached);
       if (hasNM && reached < walkable.length) {
         issues.push({ code: "C-STEPS", severity: "error", message: `${walkable.length} step(s) declared but only ${reached} reachable with the arrow keys; check data-step numbering (1..N) and data-act values`, selector: "" });
-      } else if (hasNM && reached > walkable.length) {
+      } else if (hasNM && reached > expected) {
         issues.push({ code: "C-STEPS", severity: "warn", message: `${walkable.length} step(s) declared but ${reached} reachable; an act (for example detail with several pages) adds extra steps`, selector: "" });
       }
       const slideConsole = consoleLog.filter((c) => c.slide === idx);
@@ -563,7 +567,7 @@ async function main() {
         const external = c.kind === "network" && /^https?:/.test(c.url || "");
         issues.push({ code: "C-CONSOLE", severity: external ? "warn" : "error", message: `${c.kind}: ${c.text}${external ? " (external resource; ignore when offline)" : ""}`, selector: "" });
       }
-      reports.push({ slide: idx + 1, id: info.id, title: info.title, steps: { declared: walkable.length, reachable: reached }, issues });
+      reports.push({ slide: idx + 1, id: info.id, title: info.title, steps: { declared: walkable.length, reachable: reached > walkable.length && reached <= expected ? walkable.length : reached }, issues });
     }
     // console messages produced before the first slide (page load)
     for (const c of consoleLog.filter((c) => c.slide === -1)) {

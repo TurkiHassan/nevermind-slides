@@ -380,8 +380,7 @@
   .nm-reveal-wipe { transition: none !important; }
   .nm-img-stack > .nm-img { transition: none !important; }
 }
-/* Escape hatch the core runtime may set (also used by ?nm-speed=0). */
-.nm-no-motion .nm-kenburns > img,
-.nm-no-motion .nm-parallax > .nm-px { animation: none !important; }
-.nm-no-motion .nm-reveal-wipe,
-.nm-no-motion .nm-img-stack > .nm-img { transition: none !important; }
+/* Instant mode: core sets body.nm-instant for ?nm-speed=0, ?nm-print and reduced motion.
+   .nm-no-motion stays as a manual escape hatch for pages without the core. */
+:is(body.nm-instant, .nm-no-motion) :is(.nm-kenburns > img, .nm-kenburns > picture > img, .nm-parallax > .nm-px) { animation: none !important; }
+:is(body.nm-instant, .nm-no-motion) :is(.nm-reveal-wipe, .nm-img-stack > .nm-img) { transition: none !important; }

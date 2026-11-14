@@ -226,6 +226,8 @@ template[data-detail-for] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .nmf-dots i, .nmf-close, .nmf-pg { transition: none; }
 }
+/* core sets body.nm-instant for ?nm-speed=0, ?nm-print and reduced motion */
+body.nm-instant :is(.nmf-dots i, .nmf-close, .nmf-pg) { transition: none !important; }
 .nmf-strip .nm-stat { background: var(--nmf-surface); }
 .nmf-strip-mark { position: absolute; background: var(--nmf-accent); border-radius: 3px; }
 .nmf-strip-h .nmf-strip-mark { top: 0; height: 4px; }

@@ -292,8 +292,8 @@
 body.nm-overview .nm-dg :is(.nm-dg-node, .nm-dg-label, .nm-dg-back > *, .nm-dg-front > *, .nm-dg-head) { opacity: 1 !important; transform: none !important; transition: none !important; }
 body.nm-overview .nm-dg :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask, .nm-dg-series) { stroke-dashoffset: 0 !important; transition: none !important; }
 .nm-dg-instant, .nm-dg-instant * { transition: none !important; }
-.nm-dg-nomotion .nm-dg *, .nm-dg-nomotion .nm-draw-stroke { transition: none !important; animation: none !important; }
-.nm-dg-nomotion .nm-dg-flowdots { display: none; }
+:is(.nm-dg-nomotion, body.nm-instant) :is(.nm-dg *, .nm-draw-stroke) { transition: none !important; animation: none !important; }
+:is(.nm-dg-nomotion, body.nm-instant) .nm-dg-flowdots { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .nm-dg *, .nm-draw-stroke { transition: none !important; animation: none !important; }
   .nm-dg-flowdots { display: none; }

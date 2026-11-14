@@ -2162,16 +2162,18 @@
     linkSets.forEach(function (L) { if (L.layer.isConnected) renderOne(L, L.layer); });
   }
 
+  /* never leave class="" on author elements (step round-trips must stay byte-identical) */
+  function unclass(el, c) { el.classList.remove(c); if (el.getAttribute('class') === '') el.removeAttribute('class'); }
   function registerAct() {
     var NM = window.NM;
     if (!NM || typeof NM.registerAct !== 'function' || registerAct.done) return;
     registerAct.done = true;
     function on(el, ctx) {
-      if (ctx && ctx.instant) { el.classList.add('nm-dg-instant'); raf2(function () { el.classList.remove('nm-dg-instant'); }); }
+      if (ctx && ctx.instant) { el.classList.add('nm-dg-instant'); raf2(function () { unclass(el, 'nm-dg-instant'); }); }
       el.classList.add('nm-dg-drawn');
       countIn(el, true);
     }
-    function off(el) { el.classList.remove('nm-dg-drawn'); }
+    function off(el) { unclass(el, 'nm-dg-drawn'); }
     NM.registerAct('draw', { enter: on, exit: off, reset: off, transient: false });
   }
 
