@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "nevermind-slides/deck.plan.schema.json",
+  "title": "Nevermind deck plan",
+  "description": "Input of `deck_helper.py plan-lint` and `scaffold`. The validator in deck_helper.py is hand-written and enforces this shape plus the design rules documented in references/deck-plan.md.",
+  "type": "object",
+  "required": ["title", "slides"],
+  "additionalProperties": true,
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "lang": { "enum": ["ar"], "default": "ar" },
+    "theme": {
+      "type": "object",
+      "description": "Either a preset name from themes.json, custom tokens, or a preset plus overrides.",
+      "properties": {
+        "preset": { "type": "string", "description": "Key in resources/templates/themes.json" },
+        "paper": { "$ref": "#/definitions/color" },
+        "ink": { "$ref": "#/definitions/color" },
+        "muted": { "$ref": "#/definitions/color" },
+        "line": { "$ref": "#/definitions/color" },
+        "accent": { "$ref": "#/definitions/color" },
+        "accent2": { "$ref": "#/definitions/color" },
+        "surface": { "$ref": "#/definitions/color" },
+        "radius": { "type": ["number", "string"], "description": "px number or CSS length" }
+      }
+    },
+    "fonts": {
+      "type": "object",
+      "properties": {
+        "pairing": { "enum": ["thmanyah", "qahwa", "setabr", "kufi", "sans"], "default": "thmanyah" }
+      }
+    },
+    "mode": { "enum": ["morph-and-zoom", "morph-only", "classic"], "default": "morph-and-zoom" },
+    "image_source": { "enum": ["generate", "web", "none"], "default": "none" },
+    "slides": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 24,
+      "items": { "$ref": "#/definitions/slide" }
+    }
+  },
+  "definitions": {
+    "color": { "type": "string", "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$" },
+    "slide": {
+      "type": "object",
+      "required": ["id", "title", "role", "layout"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$" },
+        "title": { "type": "string", "description": "Short label used as data-title and in the overview grid" },
+        "role": { "enum": ["cover", "section", "concept", "mechanism", "evidence", "comparison", "process", "quote", "summary", "closing"] },
+        "layout": { "type": "string", "description": "nm-l-* composition name without the prefix, e.g. split, hero, stat" },
+        "visual": {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["anatomy", "image", "diagram", "chart", "motion", "none"] },
+            "ref": { "type": "string", "description": "anatomy: figure name (needs <ref>.brief.json); image: intended file stem" },
+            "mode": { "enum": ["static", "animated"], "description": "required for anatomy" },
+            "diagram_type": { "type": "string", "description": "nm-diagram data-type, e.g. flow, cycle, bar" },
+            "query": { "type": "string", "description": "image search or generation prompt" }
+          }
+        },
+        "rel": { "enum": ["next", "deeper", "back-out", "chapter", "contrast", "time"], "default": "next" },
+        "transition": { "enum": ["auto", "fade-through", "push", "zoom-through", "iris", "wipe", "curtain", "depth", "fold", "dissolve", "none"], "default": "auto" },
+        "morph": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Shared element ids carried from the previous slide. Conventional ids: title, kicker, visual, stat, body1..bodyN."
+        },
+        "steps": {
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "required": ["act"],
+            "properties": {
+              "act": { "enum": ["reveal", "zoom", "highlight", "focus", "detail", "lens", "pins", "slice", "draw"] },
+              "target": { "type": "string", "description": "headline | kicker | visual | stat | body | bodyN | node:<id> | any element id" },
+              "note": { "type": "string" }
+            }
+          }
+        },
+        "text": {
+          "type": "object",
+          "properties": {
+            "kicker": { "type": "string" },
+            "headline": { "type": "string", "description": "At most 9 words" },
+            "body": { "type": "array", "maxItems": 5, "items": { "type": "string", "description": "At most 18 words" } },
+            "stat": {
+              "type": "object",
+              "properties": { "value": { "type": "string" }, "label": { "type": "string" } }
+            }
+          }
+        },
+        "speaker_note": { "type": "string" }
+      }
+    }
+  }
+}

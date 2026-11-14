@@ -1,0 +1,387 @@
+/* nm-media.css - image frames, focal crop, masks, live treatments, slow camera moves.
+ *
+ * Part of Nevermind Runtime v2 (see references/runtime-contract.md).
+ * Chrome only. Arabic RTL first: every inset/padding/gradient is logical or :dir()-aware.
+ * Reads theme variables with fallbacks: --nm-paper --nm-ink --nm-muted --nm-line --nm-accent
+ * --nm-accent-2 --nm-surface --nm-radius --nm-font-body. Works with no tokens defined.
+ * No JavaScript. No emojis. Namespaced nm-*.
+ *
+ * Basic use (img is cropped by CSS, or pre-cropped by image_fetch.py fit):
+ *   <figure class="nm-img nm-ar-16x9 nm-duotone" style="--focus-x:62%; --focus-y:38%">
+ *     <img src="assets/img/hero.jpg" alt="...">
+ *     <figcaption class="nm-credit">Creator &middot; CC BY 4.0</figcaption>
+ *   </figure>
+ */
+
+/* ---------------------------------------------------------------- frame */
+
+.nm-img {
+  --_r: var(--nm-radius, 14px);
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--_r);
+  background: var(--nm-surface, #ece8df);
+  color: var(--nm-ink, #1c1b19);
+}
+
+.nm-img > img,
+.nm-img > picture,
+.nm-img > picture > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--nm-img-fit, cover);
+  object-position: var(--focus-x, 50%) var(--focus-y, 50%);
+  position: relative;
+  z-index: 0;
+}
+
+.nm-fit-contain { --nm-img-fit: contain; }
+
+/* Aspect helpers. They set aspect-ratio only; width comes from the layout. */
+.nm-ar-16x9 { aspect-ratio: 16 / 9; }
+.nm-ar-4x3  { aspect-ratio: 4 / 3; }
+.nm-ar-1x1  { aspect-ratio: 1 / 1; }
+.nm-ar-3x4  { aspect-ratio: 3 / 4; }
+.nm-ar-21x9 { aspect-ratio: 21 / 9; }
+
+/* Frame that fills its (positioned) parent instead of using an aspect ratio. */
+.nm-img-fill { position: absolute; inset: 0; width: auto; height: auto; }
+
+/* Overlay slots: ::before = colour wash + vignette (multiply), ::after = scrim, halftone, grain.
+   Content is "none" unless a treatment class turns a slot on, so plain frames cost nothing. */
+.nm-img::before,
+.nm-img::after {
+  content: var(--_c1, none);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.nm-img::before {
+  z-index: 1;
+  mix-blend-mode: multiply;
+  /* layers: vignette, wash colour A, wash colour B (blended by --_wb) */
+  background-image: var(--_vig, linear-gradient(transparent, transparent)),
+                    var(--_w1, linear-gradient(transparent, transparent)),
+                    var(--_w2, linear-gradient(transparent, transparent));
+  background-blend-mode: normal, var(--_wb, normal), normal;
+}
+.nm-img::after {
+  content: var(--_c2, none);
+  z-index: 2;
+  background-image: var(--_scrim, none), var(--_half, none), var(--_grain, none);
+  background-size: 100% 100%, var(--_half-size, 9px 9px), 220px 220px;
+}
+
+/* ---------------------------------------------------------------- credit chip */
+
+.nm-credit {
+  position: absolute;
+  inset-block-end: 14px;
+  inset-inline-start: 14px;
+  z-index: 4;
+  max-width: calc(100% - 28px);
+  box-sizing: border-box;
+  padding: 3px 14px 4px;
+  font: 500 15px/1.55 var(--nm-font-body, "IBM Plex Sans Arabic", system-ui, sans-serif);
+  letter-spacing: 0;
+  color: var(--nm-paper, #f8f6f1);
+  background: color-mix(in srgb, var(--nm-ink, #1c1b19) 74%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.nm-credit-end { inset-inline-start: auto; inset-inline-end: 14px; }
+.nm-credit a { color: inherit; text-decoration: none; }
+
+/* ---------------------------------------------------------------- masks
+   Shapes use mask-image SVGs (vector, crisp at any size) or border-radius, so the
+   clip-path property stays free for nm-reveal-wipe. Credit chips sit inside the visible area. */
+
+.nm-mask-arch {
+  border-radius: 9999px 9999px 0 0;
+}
+.nm-mask-arch .nm-credit { inset-inline-start: 50%; inset-block-end: 16px; translate: 50% 0; }
+.nm-mask-arch .nm-credit:dir(ltr) { translate: -50% 0; }
+
+.nm-mask-circle {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+.nm-mask-circle .nm-credit { inset-inline-start: 50%; inset-block-end: 11%; translate: 50% 0; max-width: 62%; }
+.nm-mask-circle .nm-credit:dir(ltr) { translate: -50% 0; }
+
+.nm-mask-blob,
+.nm-mask-slant,
+.nm-mask-tab,
+.nm-mask-notch {
+  border-radius: 0;
+  -webkit-mask: var(--_m) center / 100% 100% no-repeat;
+  mask: var(--_m) center / 100% 100% no-repeat;
+}
+
+.nm-mask-blob {
+  --_m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M50 2C73 -1 97 16 97 44C97 72 81 99 51 98C24 97 3 82 3 53C3 26 25 4 50 2Z'/%3E%3C/svg%3E");
+}
+.nm-mask-blob .nm-credit { inset-block-end: 14%; inset-inline-start: 16%; max-width: 62%; }
+
+/* Slanted bottom edge; the low corner is on the reading-start side. */
+.nm-mask-slant {
+  --_m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 100,0 100,84 0,100'/%3E%3C/svg%3E");
+}
+.nm-mask-slant:dir(rtl) {
+  --_m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 100,0 100,100 0,84'/%3E%3C/svg%3E");
+}
+.nm-mask-slant .nm-credit { inset-block-end: 18px; }
+
+/* Folder tab on the reading-start top corner. */
+.nm-mask-tab {
+  --_m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 38,0 42,8 100,8 100,100 0,100'/%3E%3C/svg%3E");
+}
+.nm-mask-tab:dir(rtl) {
+  --_m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='100,0 62,0 58,8 0,8 0,100 100,100'/%3E%3C/svg%3E");
+}
+
+/* Stepped bite out of the bottom corner on the reading-end side. */
+.nm-mask-notch {
+  --_m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 100,0 100,66 84,66 84,100 0,100'/%3E%3C/svg%3E");
+}
+.nm-mask-notch:dir(rtl) {
+  --_m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='100,0 0,0 0,66 16,66 16,100 100,100'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------- live treatments */
+
+/* Duotone: shadows -> the darker of ink/paper, highlights -> the lighter, so it works on light
+   and dark themes alike. A grey image is screened over the dark colour, then multiplied by the
+   light colour. Override --nm-duo-dark / --nm-duo-light to pin a specific pair. */
+.nm-duotone {
+  --_c1: "";
+  --_w1: linear-gradient(var(--nm-duo-light, var(--nm-ink, #1c1b19)), var(--nm-duo-light, var(--nm-ink, #1c1b19)));
+  --_w2: linear-gradient(var(--nm-duo-light, var(--nm-paper, #f8f6f1)), var(--nm-duo-light, var(--nm-paper, #f8f6f1)));
+  --_wb: lighten;
+  background-color: var(--nm-duo-dark, var(--nm-ink, #1c1b19));
+  background-image: linear-gradient(var(--nm-duo-dark, var(--nm-paper, #f8f6f1)), var(--nm-duo-dark, var(--nm-paper, #f8f6f1)));
+  background-blend-mode: darken;
+}
+.nm-duotone > img {
+  mix-blend-mode: screen;
+  filter: grayscale(1) contrast(var(--nm-contrast, 1.28)) brightness(var(--nm-brightness, 1.02));
+}
+/* Accent duotone: shadows pulled toward a deep shade of the accent. */
+.nm-duotone-accent {
+  --nm-duo-dark: color-mix(in srgb, var(--nm-accent, #c83e37) 52%, #000);
+}
+
+/* Mono: neutral greyscale whose white point is the lighter of ink/paper. */
+.nm-mono {
+  --_c1: "";
+  --_w1: linear-gradient(var(--nm-ink, #1c1b19), var(--nm-ink, #1c1b19));
+  --_w2: linear-gradient(var(--nm-paper, #f8f6f1), var(--nm-paper, #f8f6f1));
+  --_wb: lighten;
+}
+.nm-mono > img { filter: grayscale(1) contrast(var(--nm-contrast, 1.1)); }
+
+/* Tint: keep colour, pull it toward the accent. */
+.nm-tint {
+  --_c1: "";
+  --_w2: linear-gradient(color-mix(in srgb, var(--nm-accent, #c83e37) var(--nm-tint-amount, 34%), #fff),
+                         color-mix(in srgb, var(--nm-accent, #c83e37) var(--nm-tint-amount, 34%), #fff));
+}
+.nm-tint > img { filter: saturate(.8) contrast(1.03); }
+
+/* Vignette: edges fall off toward black. */
+.nm-vignette {
+  --_c1: "";
+  --_vig: radial-gradient(ellipse 75% 70% at 50% 46%, transparent 52%,
+          color-mix(in srgb, #000 var(--nm-vig, 55%), #fff) 100%);
+}
+
+/* Grain: fine film noise (inline SVG feTurbulence). Strengths: default, -lite, -heavy. */
+.nm-grain, .nm-grain-lite, .nm-grain-heavy {
+  --_c2: "";
+  --_grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.1 0 0 0 -.43'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.nm-grain-lite {
+  --_grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0 0 0 -.37'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.nm-grain-heavy {
+  --_grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0 0 0 -.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Halftone: black dots sized by darkness (contrast-threshold trick), multiplied onto the slide.
+   Works best on slides with a light paper colour. */
+.nm-halftone {
+  background: #fff;
+  mix-blend-mode: multiply;
+  filter: contrast(var(--nm-ht-contrast, 10));
+}
+.nm-halftone > img { filter: grayscale(1) brightness(.72) contrast(1.5) blur(.6px); }
+.nm-halftone::after {
+  content: "";
+  mix-blend-mode: screen;
+  background-image: radial-gradient(circle at 50% 50%, #000 0, #fff 72%);
+  background-size: var(--nm-ht-size, 9px) var(--nm-ht-size, 9px);
+}
+
+/* ---------------------------------------------------------------- full-slide bleed */
+
+/* Full-slide background image with a readable scrim on the text side (reading-start by default).
+   Put it first inside .slide; keep text in a later sibling with position: relative. */
+.nm-img-bleed {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  z-index: 0;
+  --_c2: "";
+  --_scrim-to: to left;
+  --_scrim: linear-gradient(var(--_scrim-to),
+      color-mix(in srgb, var(--nm-paper, #f8f6f1) calc(var(--nm-scrim, .94) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--nm-paper, #f8f6f1) calc(var(--nm-scrim, .94) * 82%), transparent) 34%,
+      color-mix(in srgb, var(--nm-paper, #f8f6f1) calc(var(--nm-scrim, .94) * 28%), transparent) 58%,
+      transparent 78%);
+}
+.nm-img-bleed:dir(ltr) { --_scrim-to: to right; }
+.nm-img-bleed.nm-scrim-end { --_scrim-to: to right; }
+.nm-img-bleed.nm-scrim-end:dir(ltr) { --_scrim-to: to left; }
+.nm-img-bleed.nm-scrim-bottom { --_scrim-to: to top; }
+.nm-img-bleed.nm-scrim-top { --_scrim-to: to bottom; }
+.nm-img-bleed.nm-scrim-none { --_scrim: none; }
+.nm-img-bleed .nm-credit { inset-block-end: 22px; inset-inline-end: 22px; inset-inline-start: auto; }
+
+/* ---------------------------------------------------------------- stack and strip */
+
+/* 2-3 overlapping tilted prints. Children are .nm-img figures (give each an aspect class). */
+.nm-img-stack {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+.nm-img-stack > .nm-img {
+  --_r: 3px;
+  position: absolute;
+  width: 62%;
+  border: 10px solid var(--nm-paper, #fff);
+  box-sizing: border-box;
+  box-shadow: 0 18px 38px color-mix(in srgb, var(--nm-ink, #1c1b19) 26%, transparent),
+              0 2px 6px color-mix(in srgb, var(--nm-ink, #1c1b19) 18%, transparent);
+  transition: translate .6s cubic-bezier(.2, .8, .2, 1), opacity .5s ease;
+}
+.nm-img-stack > .nm-img:nth-child(1) { inset-inline-start: 0; inset-block-start: 8%; rotate: -5deg; z-index: 1; }
+.nm-img-stack > .nm-img:nth-child(2) { inset-inline-end: 0; inset-block-start: 0; rotate: 4deg; z-index: 2; }
+.nm-img-stack > .nm-img:nth-child(3) { inset-inline-start: 18%; inset-block-end: 0; rotate: -1.5deg; z-index: 3; }
+.nm-img-stack .nm-credit { display: none; }
+/* Optional: prints arrive one by one when each child is a step element. */
+.nm-img-stack.nm-stack-steps > .nm-img:not(.is-on) { opacity: 0; translate: 0 40px; }
+
+/* Film strip of 3-5 frames. */
+.nm-img-strip {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 30px 16px;
+  border-radius: 6px;
+  background: var(--nm-ink, #1c1b19);
+}
+.nm-img-strip::before,
+.nm-img-strip::after {
+  content: "";
+  position: absolute;
+  inset-inline: 10px;
+  height: 12px;
+  background: repeating-linear-gradient(to right,
+      var(--nm-paper, #f8f6f1) 0 14px, transparent 14px 28px);
+  opacity: .8;
+  border-radius: 2px;
+}
+.nm-img-strip::before { inset-block-start: 9px; }
+.nm-img-strip::after { inset-block-end: 9px; }
+.nm-img-strip > .nm-img {
+  --_r: 2px;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  aspect-ratio: 3 / 2;
+}
+.nm-img-strip .nm-credit { display: none; }
+
+/* ---------------------------------------------------------------- motion */
+
+/* Ken Burns: slow zoom that settles toward the focal point. Runs only while the slide is active. */
+@keyframes nm-kb {
+  from { transform: scale(1); }
+  to   { transform: scale(var(--nm-kb-scale, 1.14)); }
+}
+.nm-kenburns { overflow: hidden; }
+.nm-kenburns > img,
+.nm-kenburns > picture > img {
+  transform-origin: var(--focus-x, 50%) var(--focus-y, 50%);
+  animation: nm-kb var(--nm-kb-dur, 26s) ease-in-out infinite alternate;
+  animation-play-state: paused;
+  will-change: transform;
+}
+.slide.active .nm-kenburns > img,
+.slide.active .nm-kenburns > picture > img,
+.active > .nm-kenburns > img,
+.nm-kenburns.nm-live > img {
+  animation-play-state: running;
+}
+
+/* Parallax layers: stack .nm-px children (img or figure) with depth classes 1..3. */
+@keyframes nm-px {
+  from { transform: translate3d(calc(var(--_d, 1) * -1.8%), 0, 0) scale(1.08); }
+  to   { transform: translate3d(calc(var(--_d, 1) *  1.8%), 0, 0) scale(1.08); }
+}
+.nm-parallax { position: relative; overflow: hidden; isolation: isolate; border-radius: var(--nm-radius, 14px); }
+.nm-parallax > .nm-px {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: nm-px var(--nm-px-dur, 20s) ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.nm-parallax > .nm-px-1 { --_d: .3; z-index: 1; }
+.nm-parallax > .nm-px-2 { --_d: .8; z-index: 2; animation-duration: calc(var(--nm-px-dur, 20s) * .8); }
+.nm-parallax > .nm-px-3 { --_d: 1.6; z-index: 3; animation-duration: calc(var(--nm-px-dur, 20s) * .6); }
+.slide.active .nm-parallax > .nm-px,
+.active > .nm-parallax > .nm-px,
+.nm-parallax.nm-live > .nm-px { animation-play-state: running; }
+/* Reading direction decides which way the drift starts. */
+.nm-parallax:dir(rtl) > .nm-px { animation-direction: alternate-reverse; }
+
+/* Reveal wipe: uncovers from the reading-start edge when the step class .is-on arrives
+   (on the element itself or on an ancestor step element). */
+.nm-reveal-wipe { clip-path: inset(0 0 0 100%); transition: clip-path var(--nm-wipe-dur, 1.1s) cubic-bezier(.7, 0, .2, 1); }
+.nm-reveal-wipe:dir(ltr) { clip-path: inset(0 100% 0 0); }
+.nm-reveal-wipe.nm-wipe-up { clip-path: inset(100% 0 0 0); }
+.nm-reveal-wipe.is-on,
+.is-on > .nm-reveal-wipe,
+.is-on .nm-reveal-wipe {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-kenburns > img, .nm-kenburns > picture > img, .nm-parallax > .nm-px { animation: none !important; }
+  .nm-reveal-wipe { transition: none !important; }
+  .nm-img-stack > .nm-img { transition: none !important; }
+}
+/* Escape hatch the core runtime may set (also used by ?nm-speed=0). */
+.nm-no-motion .nm-kenburns > img,
+.nm-no-motion .nm-parallax > .nm-px { animation: none !important; }
+.nm-no-motion .nm-reveal-wipe,
+.nm-no-motion .nm-img-stack > .nm-img { transition: none !important; }
