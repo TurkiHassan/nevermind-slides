@@ -1,254 +1,269 @@
 ---
 name: nevermind-slides
-description: "Transforms research papers, technical articles, or complex topics into Arabic story-driven explanations and ambitious, motion-graphic-rich HTML presentations (1920x1080 fixed stage). Analyzes content upfront to recommend where to use the anatomy skill (as static or animated isometric mechanical SVG figures) vs. bespoke generated editorial illustrations, presents user options with 3 live browser style previews, and enforces zero emojis, bundled Thmanyah Display and KOMission typography, smooth Morph + Camera Zoom transitions, and live SVG motion graphics."
+description: "Transforms research papers, technical articles, or complex topics into Arabic story-driven explanations and cinematic 1920x1080 HTML presentations. A bundled runtime does all motion from data-* attributes (shared-element Morph with arcs and springs, ten narrative transitions, camera zoom, isolation acts that lift a part of a slide out to show details, declarative diagrams and charts), so the author writes a plan and plain HTML. Includes subject-first anatomy isometric figures drawn from the topic's own world, generated or web-sourced images cropped and toned to the deck, bundled Arabic fonts, zero emojis, and automated plan, audit and headless-Chrome checks."
 user-invocable: true
 compatibility: codex, claude-code, opencode, antigravity
 metadata:
   opencode/slash: "true"
 ---
 
-# Nevermind Slides (`nevermind-slides`)
+# Nevermind Slides (`nevermind-slides`) v2
 
-> **Note:** Throughout this file, `<SKILL_DIR>` refers to the folder containing this `SKILL.md` file. Nevermind Studio ships as a bundled single-file build (`<SKILL_DIR>/resources/nm-studio/nm-studio.mjs`, run with `node`), so the `edit` / `notes` subcommands work without a separate install; they exit with code `2` only when Node.js `>= 20` is missing. This skill is **100% self-contained**: all 25 Arabic font files (`Thmanyah Serif Display`, `KOMission`, `Thmanyah Sans`, `Qahwa Arabic`, `Setabr Display`, `Alkhalil Kufi`, `ZIAN`, `IBM Plex Sans Arabic`, `Zain Rounded`, `Readex Pro`), the `anatomy` isometric SVG engine (`resources/engine/anatomy/`), and the `frontend-slides` 1920×1080 layout engine (`resources/engine/frontend-slides/`) are bundled directly inside `<SKILL_DIR>/resources/`.
+`<SKILL_DIR>` is the folder containing this file. Everything is bundled inside it: fonts (`resources/fonts/`), the motion runtime (`resources/engine/nm-runtime/`), the `anatomy` isometric engine (`resources/engine/anatomy/`), the `frontend-slides` layout library (`resources/engine/frontend-slides/`), templates (`resources/templates/`) and the Nevermind Studio editor (`resources/nm-studio/nm-studio.mjs`).
 
----
-
-## Agent Zero-Friction Bootstrap (Install or Immediate Use)
-
-Most users are non-technical and will either paste a GitHub link (`https://github.com/TurkiHassan/nevermind-slides`) asking you to **"install this skill"** or ask you to **"use this skill right away on this paper/topic"**. Never ask the user to run terminal commands or install dependencies manually:
-
-1. **If the user gives you a GitHub URL for this skill:**
-   - Clone it to a temporary directory and immediately run the one-command installer:
-     ```bash
-     git clone https://github.com/TurkiHassan/nevermind-slides.git /tmp/nevermind-slides
-     python3 /tmp/nevermind-slides/scripts/deck_helper.py install
-     ```
-   - This single command automatically installs and links `nevermind-slides` (plus its bundled `anatomy` and `frontend-slides` engines and OpenCode `/nevermind-slides` slash command) across **Antigravity, OpenCode, Codex, Claude Code, and `~/.agents/skills`**.
-2. **If the user says "Use it right away":**
-   - If not yet installed, run the `install` command above silently in the background first, then proceed directly to **Phase 1** or **Phase 2** below without interrupting the user with setup details.
+All helper commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command>` (stdlib only; `uv run` also works).
 
 ---
 
-## Overview
+## The five laws (read before anything else)
 
-This skill distills complex research papers, technical articles, or domain topics into an end-to-end **Arabic visual learning and presentation experience**:
+1. **Never write motion or navigation JavaScript.** Link the bundled runtime and describe intent with `data-*` attributes. A deck that contains `class SlidePresentation`, its own key handlers or its own transition CSS fails the audit.
+2. **Plan first, then scaffold.** Write `deck.plan.json`, run `plan-lint` to zero errors, run `scaffold`. Never hand-write the deck skeleton.
+3. **Every slide earns its motion from the story.** Each slide declares its narrative relation (`rel`) to the previous one. Continuity comes from shared elements (`morph`), not from effects.
+4. **Pictures come from the topic's own world.** Anatomy figures follow the subject-first ladder; a generic dial gauge or test rig is a failure unless the topic is that object.
+5. **Nothing is delivered until the gates pass:** `plan-lint`, `audit-deck`, `check` (headless Chrome), `image_fetch.py credits --check`, and `brief-check` for every anatomy figure.
 
-1. **Story-Driven ELI5 Explanation + Interactive Simulator (On-Demand):** When the user asks to explain a paper or topic first, explain it in zero-jargon Arabic using vivid everyday metaphors paired with an inline interactive simulator.
-2. **Upfront Content Analysis (`anatomy` Static vs. Animated Proposal) + Options & 3 Live Style Previews:** Before building the deck, analyze the paper's core concepts to propose which slides should use **`anatomy`** (as an **Animated/Live** isometric machine or a **Static** isometric cutaway) vs. **AI-generated editorial illustrations**, ask the user for their deck preferences, and open 3 live single-slide HTML previews in the browser.
-3. **Ambitious `1920×1080` Arabic Motion Deck:** Author a self-contained HTML presentation (`frontend-slides` fixed stage) enforcing:
-   - **Zero Emojis (`0` Unicode emojis anywhere)** — every icon, badge, and telemetry marker is a bespoke SVG vector.
-   - **Bundled Local Typography (25 Font Files):** **`Thmanyah Serif Display`** (`thmanyahserifdisplay-*.otf`) + **`KOMission`** (`KOMission-Black.otf`) and **`Thmanyah Sans`** (`thmanyahsans-*.otf`) as the default signature pairing, plus bundled **`Qahwa Arabic`**, **`Setabr Display`**, **`Alkhalil Kufi`**, **`ZIAN`**, **`IBM Plex Sans Arabic`**, **`Zain Rounded`**, and **`Readex Pro`**, staged automatically via `scripts/deck_helper.py` and equipped with a live font-weight toggle.
-   - **Smooth `Morph` (`FLIP`) & `Camera Zoom-In / Zoom-Out` Engine:** PowerPoint-style cross-slide shared-element morphing (`data-morph="<id>"`) and smooth `1.55s` camera focus across slide sections (`data-zoom-step="1..N"`) with **hidden-by-default bottom navigation controls** (`#controlsHotzone`).
-   - **Hybrid Visuals (`anatomy` + Generated Illustrations + Live SVG Motion Graphics):** Combine audited isometric mechanical figures from `anatomy` (static or animated), text-free editorial illustrations, and continuous SVG telemetry (`mg-flow`, `mg-radar`, `mg-pulse`, `mg-scan`, animated oscilloscopes, and metric bars).
+Arabic and RTL rules everywhere: `dir="rtl"`, right-aligned text, never split Arabic words into letters, one digit system per deck (Arabic-Indic or Western), zero emojis (inline SVG icons only).
 
 ---
 
-## Bundled Engines & Multi-Agent Image Generation
+## Bootstrap (install or immediate use)
 
-All core engines live inside `<SKILL_DIR>/resources/engine/` — read them directly from there:
+Users are usually non-technical. Never ask them to run commands.
 
-- **Bundled `frontend-slides` Engine:** `<SKILL_DIR>/resources/engine/frontend-slides/SKILL.md` and `<SKILL_DIR>/resources/engine/frontend-slides/STYLE_PRESETS.md` (1920×1080 fixed stage, layout presets, style presets, and `E`-key inline text editing).
-- **Bundled `anatomy` Isometric Engine:** `<SKILL_DIR>/resources/engine/anatomy/SKILL.md`, `<SKILL_DIR>/resources/engine/anatomy/kit/iso-kit.mjs` (3D projection and part primitives), `<SKILL_DIR>/resources/engine/anatomy/kit/audit.mjs` (`A.settle`, `A.auditOrExit` for painter's order verification via `node build.mjs --audit`), and `<SKILL_DIR>/resources/engine/anatomy/scripts/inline-kit.mjs` (`kitScript` for animated browser figures).
-- **Cross-Environment Image Generation Strategy (Automatic Detection):**
-  - **Environment A — Antigravity:** Invoke the built-in `image-generator` subagent via `invoke_subagent` (in batches of 2–3 images).
-  - **Environment B — Codex (Direct):** Use Codex's built-in `image_gen` tool (`~/.codex/skills/.system/imagegen/SKILL.md`), which requires no API key, saves outputs under `~/.codex/generated_images/...`, and copy the generated files into `<project_dir>/assets/`.
-  - **Environment C — OpenCode / Claude Code (with `codex` CLI installed on the machine):** Check `which codex`. If `codex` is installed, you can generate editorial illustrations by calling `codex` non-interactively to run its built-in `image_gen` tool and copy the result to `<project_dir>/assets/`.
-  - **Environment D — No Image Generator Available (Automatic Graceful Fallback):** Never stop or ask a non-technical user for API keys. Instead, automatically assign visual slides to **bundled `anatomy` isometric figures (animated + static) + bespoke multi-layer SVG Motion Graphics**.
-
----
-
-## Error Handling Rules (Mandatory)
-
-- **Stop Immediately and Ask the User on Source/Build Errors:**
-  - If fetching/reading the research paper URL or document fails, **STOP immediately** and politely ask the user in simple Arabic to paste the text, upload the PDF, or provide another link. Never guess or fabricate paper findings.
-  - If `node build.mjs --audit` on an `anatomy` figure fails after fixing painter's order, report the issue clearly and ask the user how they would like to proceed.
+- **GitHub link + "install this skill":**
+  ```bash
+  git clone https://github.com/TurkiHassan/nevermind-slides.git /tmp/nevermind-slides
+  python3 /tmp/nevermind-slides/scripts/deck_helper.py install
+  ```
+  Installs and links the skill (with runtime, templates, engines and the OpenCode `/nevermind-slides` command) for Antigravity, OpenCode, Codex, Claude Code and `~/.agents/skills`.
+- **"Use it right away":** install silently if needed, then go to Phase 1 or Phase 2.
 
 ---
 
-## Workflow Execution
+## Reference map (open only what the current step needs)
 
-### Phase 1: Story-Driven Arabic Explanation & Interactive Simulator *(Conditional)*
-
-**When to run Phase 1:** Run this phase **only** if the user asks to explain, simplify, or break down the research paper/topic first (e.g., *"اشرح لي هذه الورقة"*, *"بسط لي هذا البحث"*). If the user asks directly for a presentation/slides (e.g., *"سوي لي عرض تقديمي لهذا البحث"*), **skip directly to Phase 2**.
-
-1. **Read the Source Thoroughly:** Fetch and read the paper/article URL or local file. Extract the core problem, why prior methods fail, the core mechanism/formula, and the empirical results.
-2. **Narrative Arabic Breakdown (Zero Jargon First):**
-   - Start with a relatable real-world story/metaphor (e.g., a student memorizing exam shortcuts vs. genuine understanding) before introducing technical terms.
-   - Contrast the **Old Way** vs. the **Paper's New Way** in a clear markdown comparison table.
-   - Explain the mathematical objective or architecture visually as a balance/scale rather than raw equations.
-3. **Interactive Simulator Widget:**
-   - If running in Antigravity with `generative_ui`, build a self-contained RTL Arabic interactive HTML simulator in the artifact directory and embed it inline using `<agent-embed src="..."></agent-embed>`. In other agents (OpenCode / Codex / Claude), save `<project_dir>/<topic>-simulator.html` and open it in the browser via `python3 "<SKILL_DIR>/scripts/deck_helper.py" open-files "<project_dir>/<topic>-simulator.html"`.
-
----
-
-### Phase 2: Content Analysis (`anatomy` Proposal), Upfront User Options & 3 Live Previews *(Mandatory)*
-
-Never jump straight into generating the full presentation. Always perform these steps first:
-
-#### Step 2.1: Analyze Content & Propose the Visual / `anatomy` Strategy Table
-
-Read `<SKILL_DIR>/resources/engine/anatomy/SKILL.md` to understand how `anatomy` translates technical mechanisms into 40–80 part isometric physical instruments. Analyze the paper's key concepts and present a **"مقترح التمثيل البصري للشرائح (Visual & `anatomy` Strategy Proposal)"** table in your response classifying each core concept:
-
-| Concept Type in the Paper | Recommended Tool | Mode (`ثابتة` vs. `متحركة`) | Why This Mode Fits Best |
-| :--- | :--- | :--- | :--- |
-| **Causal mechanism, dynamic intervention, feedback loop, or measurement probe**<br>*(e.g., clamping a shortcut channel, linear probe needle deflecting under drift, valve routing flow)* | **`anatomy`** | **متحركة (`Animated / Live SVG`)** | The insight lives in **cause-and-effect motion**: one moving part (carriage, valve, plunger, dial) drives another with continuous auto-tour (`touring = true`) + pointer-hover physics and live `data-readout`. |
-| **Structural architecture, internal layer cutaway, or side-by-side rig comparison**<br>*(e.g., neural layer anatomy, multi-station inspection bench, structural cross-section)* | **`anatomy`** | **ثابتة (`Static SVG`)** | The insight lives in **spatial hierarchy and component anatomy at rest**: a high-detail standalone isometric figure (`standalone: "light" \| "dark"`) lets the viewer inspect every part cleanly. |
-| **High-level narrative metaphor, human analogy, problem intro, or benchmark overview**<br>*(e.g., student shortcut story, macro radar overview, conclusion summary)* | **توليد صور (`image-generator` / `codex`) + `SVG HUD`** | **صورة مولّدة + موشن جرافيك** | Best communicated via a **bespoke text-free editorial illustration** paired with live SVG HUD telemetry (`mg-flow`, `mg-radar`, `mg-scan`). |
-
-#### Step 2.2: Generate & Open 3 Live Style Previews in the Browser
-
-Read `<SKILL_DIR>/resources/engine/frontend-slides/SKILL.md` and `<SKILL_DIR>/resources/engine/frontend-slides/STYLE_PRESETS.md`.
-1. Pick **3 distinct, high-craft aesthetic directions** suited to the topic (e.g., *Style A: Notebook Tabs Editorial*, *Style B: Split Pastel / Bauhaus Lab*, *Style C: Dark Botanical / High-Contrast Telemetry*).
-2. Write 3 standalone single-slide preview files in `<project_dir>/.frontend-slides/slide-previews/`:
-   - `style-a.html`
-   - `style-b.html`
-   - `style-c.html`
-   - Each preview must use the `1920×1080` fixed-stage scaler (`viewport-base.css` pattern), Arabic RTL layout, and zero emojis.
-3. Open all 3 previews in the user's browser immediately (cross-platform across macOS, Windows, and Linux):
-   ```bash
-   python3 "<SKILL_DIR>/scripts/deck_helper.py" open-files \
-     "<project_dir>/.frontend-slides/slide-previews/style-a.html" \
-     "<project_dir>/.frontend-slides/slide-previews/style-b.html" \
-     "<project_dir>/.frontend-slides/slide-previews/style-c.html"
-   ```
-
-#### Step 2.3: Ask the Upfront Configuration Questions
-
-Ask the user (via `ask_question` tool if available, or a numbered Arabic menu) and wait for their reply:
-
-1. **الهدف من العرض (`Purpose`):** Pitch/Keynote, Research/Educational Explainer, Technical Deep-Dive, or Quick Summary.
-2. **طول العرض (`Length`):** Short (5–7 slides), Medium (8–12 slides — Recommended), or Long (12–18 slides).
-3. **كثافة المحتوى (`Density`):** Balanced visual + concise points (Recommended), Visual-first minimal text, or Detailed reference cards.
-4. **خطة توظيف مهارة `anatomy` للمجسمات الهندسية (`anatomy` Mode):**
-   - `(Recommended) اعتماد مقترح المحلل الذكي (مزيج مخصص من مجسمات anatomy المتحركة والثابتة حسب طبيعة كل شريحة + صور مولّدة)`
-   - `استخدام مجسمات anatomy المتحركة (Animated/Interactive) في جميع الشروحات الميكانيكية`
-   - `استخدام مجسمات anatomy الثابتة (Static SVG) فقط إلى جانب الصور المولّدة`
-   - `الاكتفاء بالصور التوضيحية المولّدة والموشن جرافيك دون استخدام anatomy`
-5. **ثنائية الخطوط العربية (`Typography Pairing`):**
-   - `(Recommended) ثمانية للعناوين (Thmanyah Serif Display) + KOMission وأوزان Thmanyah Sans للمتن`
-   - `قهوة الأسود للعناوين (Qahwa Black) + IBM Plex Sans Arabic / Zain Rounded للمتن`
-   - `سطبر / زيان للعناوين (Setabr Display / ZIAN) + Readex Pro للمتن`
-   - `الخليل الكوفي للعناوين (Alkhalil Kufi) + IBM Plex Sans Arabic للمتن`
-6. **حركة الانتقال والكاميرا (`Transitions & Camera Zoom`):**
-   - `(Recommended) تفعيل التحوّل السلس بين الشرائح (Morph) + تقريب الكاميرا البؤري لأقسام الشريحة (Smooth Camera Zoom-In / Zoom-Out)` (`mode = 'morph-and-zoom'`)
-   - `تفعيل حركة Morph بين الشرائح فقط (مع إتاحة التقريب بالضغط بالماوس على أي قسم)` (`mode = 'morph-only'`)
-   - `انتقال كلاسيكي هادئ بين الشرائح` (`mode = 'classic'`)
-7. **النمط البصري المفضّل (`Style Choice`):** Style A, Style B, or Style C (from the 3 open browser previews).
+| Need | Read |
+|---|---|
+| Plan file fields, layouts, rules, commands | `references/deck-plan.md` |
+| Morph, transitions, steps, entrances, camera, keys | `references/morph-and-motion.md` |
+| Isolate part of a slide: focus, detail, lens, pins, slice | `references/focus-isolation.md` |
+| Diagrams, charts, connectors, `nm-l-*` layouts, type scale | `references/diagrams.md` |
+| Images when no generator exists: search, crop, tone, credits | `references/web-images.md` |
+| Runtime contract (API for advanced use only) | `references/runtime-contract.md` |
+| Anatomy: choose the subject | `resources/engine/anatomy/references/subject-first.md` |
+| Anatomy: topic-native props (`scene.mjs`) | `resources/engine/anatomy/references/scene-kit.md` |
+| Anatomy: craft, API, verification | `resources/engine/anatomy/SKILL.md` and its `references/` |
+| Legacy v1 decks (old `SlidePresentation` class) | `references/motion-graphics-cookbook.md` |
+| A complete worked deck to imitate (14 slides, every feature, passes every gate) | `examples/showcase/` (`deck.plan.json` then `deck.html`) |
 
 ---
 
-### Phase 3: Building the `1920×1080` Arabic Motion Deck
+## Error handling (mandatory)
 
-Once the user selects their options and visual style, execute the build pipeline in order:
+- Source cannot be read (URL fails, PDF unreadable): **stop** and ask the user in simple Arabic to paste the text, upload the PDF, or give another link. Never invent findings.
+- An anatomy `--audit` or `brief-check` still fails after two honest fix attempts: report the exact failing line and ask how to proceed.
+- A tool exits `2` (Node or Chrome missing): say so once in one line, skip that gate, continue. Exit `3` from `image_fetch.py` means no network: use its `placeholder` command.
 
-#### Step 3.1: Stage Bundled Local Fonts
+---
 
-Run `scripts/deck_helper.py stage-fonts` (works with `python3` or `uv run`) to copy the skill's 25 bundled `.otf`/`.ttf` font files into `<project_dir>/assets/fonts/`:
+## Phase 1: Story-driven Arabic explanation *(only when asked)*
+
+Run only if the user asks to explain or simplify first ("اشرح لي هذه الورقة", "بسّط لي هذا البحث"). If they ask for slides directly, go to Phase 2.
+
+1. Read the whole source. Extract: the problem, why earlier methods fail, the core mechanism, the results with their numbers.
+2. Explain in zero-jargon Arabic: open with an everyday story, then a table "الطريقة القديمة / طريقة الورقة", then the mechanism as a physical picture, not an equation.
+3. Build an interactive RTL simulator page `<project_dir>/<topic>-simulator.html` and open it with `open-files`. In Antigravity with `generative_ui`, embed it with `<agent-embed>`.
+
+---
+
+## Phase 2: Analyse, propose, preview *(mandatory before building)*
+
+### 2.1 Content map
+
+Read the source and fill this table for yourself (one row per future slide). It becomes the plan.
+
+| Column | How to fill it |
+|---|---|
+| `role` | cover, section, concept, mechanism, evidence, comparison, process, quote, summary, closing |
+| `rel` (to previous slide) | `next` same thread; `deeper` zoom into a part; `back-out` return to the whole; `chapter` new section; `contrast` opposite idea; `time` before/after |
+| shared element | What carries over from the previous slide (title, a card, a number, a diagram node, the figure). Aim for one on most slides. |
+| visual | Pick with table 2.2 |
+| isolation | Which part deserves a closer look, and which act (table 2.3) |
+
+### 2.2 Choose the visual for each slide
+
+| The slide's idea is... | Visual | Plan `visual.type` |
+|---|---|---|
+| A physical mechanism, a place where the work happens, or a process with real objects | Anatomy isometric figure, subject-first | `anatomy` (`mode`: `animated` if the real subject moves and the motion is the point, else `static`) |
+| Steps, flow, architecture, hierarchy, cycle, actors exchanging messages | Diagram | `diagram` with `diagram_type`: flow, tree, cycle, hub, timeline, layers, swimlane, sequence |
+| Positioning, proportions, overlap, comparison of two options | Diagram | matrix, funnel, pyramid, venn, compare |
+| Numbers that matter | Chart | `chart`: bars, line, donut, gauge, stat |
+| A story, a human moment, a place, an atmosphere | Image (generated, else web) | `image` |
+| A strong sentence | Typography alone (quote layout) | `none` (never two in a row) |
+
+### 2.3 Choose how to isolate a part of a slide
+
+| The viewer should... | Act | Why |
+|---|---|---|
+| look at one card among several, then the next | `focus` | Spotlight that travels between items; the rest recedes |
+| learn more about one item than fits on the slide | `detail` (`side`, `expand`, `sheet`, `popover`) | The item lifts out and a details panel grows from it |
+| see fine detail inside a figure, chart or photo | `lens` | Magnifier over the live slide |
+| learn the named parts of an image or figure, in order | `pins` | Numbered pins drop one by one with labelled cards |
+| see what is hidden between two layers of the story | `slice` | The slide splits open and a strip with details appears |
+| follow one point being emphasised, nothing else changes | `highlight` | Lightest touch |
+| read a dense area closer without new content | `zoom` | Camera glides in |
+
+Limits: at most one `detail`, `lens` or `slice` per slide; at most 6 steps per slide (4 is better). Decks of 8+ slides need at least one isolation act.
+
+### 2.4 Anatomy proposal (subject-first)
+
+For every slide marked `anatomy`, before proposing it to the user:
+
+1. Open `resources/engine/anatomy/references/subject-first.md`.
+2. Extract 12+ concrete nouns, 5+ verbs and 3-5 true quantities from the source.
+3. Climb the Subject Ladder: (1) the thing itself, (2) its native setting as a diorama, (3) the field's own instrument or workspace, (4) the process made physical with the domain's real objects, (5) a metaphor machine only if 1-4 are written down as rejected.
+4. State in one line per figure: subject, setting, what moves and what that means.
+
+Present the proposal to the user as a table: slide, visual type, subject (for anatomy), mode (ثابتة / متحركة), isolation act.
+
+### 2.5 Three live style previews
+
+1. Pick 3 distinct directions suited to the topic from `resources/templates/themes.json` (8 presets with tuned contrast) combined with a font pairing.
+2. For each, write `<project_dir>/.frontend-slides/slide-previews/style-a.html` (b, c): one real slide of the deck (the cover or the strongest concept slide), built with the runtime and `nm-layout.css`, 1920x1080, RTL, zero emojis. Fastest path: `plan-init` a 5-slide plan, set the theme, `scaffold --out` into the previews folder.
+3. Open all three with `open-files`.
+
+### 2.6 Ask the user (one message, numbered Arabic menu, or the ask tool if available)
+
+1. **الهدف:** عرض تقديمي رئيسي / شرح تعليمي / تعمّق تقني / ملخص سريع
+2. **الطول:** قصير 5-7 / متوسط 8-12 (موصى به) / طويل 12-18
+3. **الكثافة:** متوازن (موصى به) / بصري أولاً / بطاقات مرجعية مفصّلة
+4. **مجسمات anatomy:** اعتماد المقترح (موصى به) / متحركة في كل الشروحات / ثابتة فقط / بدون anatomy
+5. **الخطوط:** ثمانية Display + KOMission وThmanyah Sans (موصى به) / قهوة + IBM Plex / سطبر أو زيان + Readex Pro / الخليل الكوفي + IBM Plex
+6. **الحركة:** Morph + تقريب الكاميرا بالأسهم (موصى به، `morph-and-zoom`) / Morph فقط (`morph-only`) / انتقال هادئ (`classic`)
+7. **النمط:** A / B / C من المعاينات المفتوحة
+
+Wait for the answer.
+
+---
+
+## Phase 3: Build
+
+### 3.1 Plan
 
 ```bash
-python3 "<SKILL_DIR>/scripts/deck_helper.py" stage-fonts \
-  --target-dir "<project_dir>"
+python3 "<SKILL_DIR>/scripts/deck_helper.py" plan-init --target-dir "<project_dir>" --title "<العنوان>" --slides <N>
 ```
 
-Read `<SKILL_DIR>/references/motion-graphics-cookbook.md` and include the `@font-face` rules matching the user's chosen pairing in Step 2.3 (defaulting to `'Thmanyah Serif Display'` for `--font-display` and `'KOMission'` / `'Thmanyah Sans'` for `--font-body`, with the `Alt+F` / `#fontToggleBtn` font-weight toggle).
-
-#### Step 3.2: Build Approved `anatomy` Isometric Figures (Static & Animated)
-
-For every slide assigned to `anatomy`:
-1. Read `<SKILL_DIR>/resources/engine/anatomy/SKILL.md` and `<SKILL_DIR>/references/motion-graphics-cookbook.md`.
-2. Write a dedicated Node build script (e.g., `<project_dir>/assets/build_<figure>.mjs`) importing:
-   - `<SKILL_DIR>/resources/engine/anatomy/kit/iso-kit.mjs` (`* as k`)
-   - `<SKILL_DIR>/resources/engine/anatomy/kit/audit.mjs` (`* as A` for `A.settle` and `A.auditOrExit`)
-   - `<SKILL_DIR>/resources/engine/anatomy/scripts/inline-kit.mjs` (`kitScript` when building animated figures)
-3. Match the slide theme (`--light` for warm cream `#f8f6f1` / pastel slides; `--dark` for dark slides).
-4. **Run the mandatory `anatomy` audit:**
-   ```bash
-   node "<project_dir>/assets/build_<figure>.mjs" --audit --light
-   ```
-   - Ensure `0` overlap/painter's-order errors before proceeding.
-5. **Static Mode (`ثابتة`):** Output standalone SVG (`k.figureSvg({ width, height, standalone: "light", label, body })`) and inline `<svg class="iso-svg" data-theme="light" ...>` into the slide.
-6. **Animated Mode (`متحركة`):** Output with `kitScript()` + live `requestAnimationFrame` loop (`touring = true` + `pointermove` scrub + live `data-readout`). **Never let the figure capture global `ArrowLeft`/`ArrowRight` keys** so slide deck navigation remains uninterrupted.
-
-#### Step 3.3: Generate Bespoke Text-Free Illustrations
-
-For slides assigned to editorial illustrations (using Antigravity's `image-generator` subagent or Codex's `image_gen` tool):
-1. Every prompt **MUST** explicitly enforce:
-   - **"Strictly NO text, NO letters, NO numbers, NO words, NO typography anywhere in the image."**
-   - Unified background color and accent palette matching the user's chosen style preset (e.g., warm cream `#f8f6f1` background with coral `#e07a5f`, sage `#98d4bb`, and lavender `#c7b8ea` in Risograph/Bauhaus editorial vector print style).
-2. Copy all generated images into `<project_dir>/assets/` with descriptive filenames.
-
-#### Step 3.4: Author the Complete `1920×1080` HTML Presentation
-
-Build `<project_dir>/<topic>-slides.html` following `<SKILL_DIR>/resources/engine/frontend-slides/SKILL.md` and `<SKILL_DIR>/references/motion-graphics-cookbook.md`:
-- **Fixed `1920×1080` Stage & Camera Rig:** Use `.deck-viewport` + `.deck-stage#deckStage` + `.camera-rig#cameraRig` (`width: 1920px; height: 1080px; transform: translate(-50%, -50%) scale(var(--stage-scale, 1))`) from `references/motion-graphics-cookbook.md`.
-- **Slide Stacking Rule:** Every `<section class="slide">` must rely on `.slide { position: absolute; inset: 0; }`. **Never** add `class="relative"` to `<section class="slide">`.
-- **Zero Emojis:** Do not place a single Unicode emoji anywhere in the HTML, comments, or JS. Use custom inline `<svg>` icons for all bullets, status indicators, and buttons.
-- **Hidden-by-Default Navigation Controls:** Never leave navigation buttons permanently visible on screen. Keep `.deck-controls` hidden (`opacity: 0; pointer-events: none;`) and reveal it only when the user hovers the bottom `32px` edge hotzone (`#controlsHotzone`).
-- **Smooth `Morph` (`FLIP`) & `Camera Zoom-In / Zoom-Out` Engine (`SlidePresentation`):**
-  - Drop in the complete `SlidePresentation` class from `references/motion-graphics-cookbook.md` and initialize `new SlidePresentation(mode)` using the mode selected in Step 2.3 (`'morph-and-zoom'`, `'morph-only'`, or `'classic'`).
-  - Tag shared elements across consecutive slides with `data-morph="<id>"` so they smoothly fly and resize (`1.18s cubic-bezier(0.25, 1, 0.35, 1)`) between slides.
-  - Tag multi-part slide cards with `data-zoom-step="1..N" data-zoom-label="..."` so pressing arrows or clicking any card smoothly glides the camera in (`Zoom-In`, `1.55s cubic-bezier(0.25, 1, 0.35, 1)`), pans across sections using pure `offsetLeft`/`offsetTop` coordinates, and glides back to the full overview (`Zoom-Out`) before morphing to the next slide.
-- **Ambitious Motion Graphics on Every Slide:** Layer continuous SVG animations (`mg-flow`, `mg-flow-fast`, `mg-flow-rev`, `mg-radar`, `mg-pulse`, `mg-scan`, `mg-bar-fill`, corner `.hud-bracket`s, and animated SVG diagrams/oscilloscopes).
-
----
-
-### Phase 4: Automated Verification & Delivery *(Mandatory Gate)*
-
-Before opening or presenting the final deck to the user, run the automated audit:
+Fill `deck.plan.json` from the content map and the user's answers (`references/deck-plan.md` lists every field). Rules the linter enforces: first slide `cover`, last `closing` or `summary`; headline 9 words or fewer; 5 body items or fewer; continuity (shared `morph` id, or `rel` chapter/contrast, or an explicit transition); no layout three slides in a row; a diagram or chart when there is a process, comparison or evidence slide.
 
 ```bash
-python3 "<SKILL_DIR>/scripts/deck_helper.py" audit-deck \
-  --html-path "<project_dir>/<topic>-slides.html"
+python3 "<SKILL_DIR>/scripts/deck_helper.py" plan-lint --plan "<project_dir>/deck.plan.json"
 ```
 
-1. Read the JSON report path printed by `audit-deck`.
-2. Verify `"passed": true` (`0` emojis, `0` missing font/image/anatomy assets, valid `@font-face` rules, valid slide classes, verified motion graphics). If any check fails, fix the HTML immediately and re-run `audit-deck`.
-3. Clean up temporary style previews:
-   ```bash
-   python3 "<SKILL_DIR>/scripts/deck_helper.py" cleanup-previews \
-     --target-dir "<project_dir>"
-   ```
-4. Open the verified final presentation in the browser (`python3 "<SKILL_DIR>/scripts/deck_helper.py" open-files "<project_dir>/<topic>-slides.html"`) and present a concise Arabic summary.
-5. **Offer the visual editor:** After the audit passes and the summary is delivered, tell the user they can fine-tune the deck by hand in Nevermind Studio and offer to open it:
+Fix until `PASSED`. Read the warnings and fix the ones that are cheap.
 
-   ```bash
-   python3 "<SKILL_DIR>/scripts/deck_helper.py" edit \
-     --html-path "<project_dir>/<topic>-slides.html"
-   ```
+### 3.2 Scaffold
 
-   - If the command exits with code `2`, Node.js `>= 20` is missing (or `NM_STUDIO` points at a broken path): say so once and continue. Never ask the user to install dependencies for the editor; the bundled build is already inside the skill.
-   - While the editor is open, the user can pin notes to the agent. Check them with `deck_helper.py notes list` before making any further change (see the next section).
-   - Never edit `.nevermind/notes.json` or `.nevermind/current.json` by hand.
+```bash
+python3 "<SKILL_DIR>/scripts/deck_helper.py" scaffold --plan "<project_dir>/deck.plan.json"
+```
+
+This writes `<project_dir>/<slug>-slides.html`, stages fonts into `assets/fonts/` and the runtime into `assets/nm/`. The deck already navigates. Each slide starts with an HTML comment listing what is left to do; placeholders carry `data-nm-todo`.
+
+### 3.3 Fill the slides
+
+Work slide by slide. Keep the generated structure; change content, not scaffolding.
+
+- **Text and layout:** use the type classes (`nm-t-display`, `nm-t-h1`..`nm-t-h3`, `nm-t-lead`, `nm-t-body`, `nm-t-caption`, `nm-t-num`) and the compositions scaffold already placed (`nm-l-title`, `nm-l-section`, `nm-l-split`, `nm-l-hero-figure`, `nm-l-figure-full`, `nm-l-bento-3..6`, `nm-l-cards-2..4`, `nm-l-rail`, `nm-l-quote`, `nm-l-stat-row`, `nm-l-compare`, `nm-l-steps`; details in `references/diagrams.md` section 6). Body text 28px or larger. One accent colour. No Tailwind: the deck works offline (`scaffold --tailwind` only if the user wants the editor's token panel).
+- **Morph:** give an element the same `data-morph="id"` on two consecutive slides. Headings with identical text, identical images and diagram nodes pair automatically. Kinds: box, text, `words` (shared words fly individually), image, path, number. See `references/morph-and-motion.md`.
+- **Transition:** leave `data-transition="auto"` and set `data-rel`; set a name only for a deliberate effect (`fade-through`, `push`, `zoom-through`, `iris`, `wipe`, `curtain`, `depth`, `fold`, `dissolve`, `none`).
+- **Steps:** `data-step="N" data-act="reveal|zoom|highlight|focus|detail|lens|pins|slice|draw"`. Elements sharing N appear together. Arrows step first, then change slide. `data-focus-zoom` is a ceiling: the camera zooms only as far as the subject fits.
+- **Images in frames:** put `data-morph` on the `<img>` inside `.nm-img`, not on the frame.
+- **Live iframes** (animated anatomy): the deck keeps the arrow keys; add `data-nm-keys="frame"` only if the frame must own the keyboard.
+- **Entrances:** automatic for top-level blocks. Override with `data-entrance="rise|fade|clip|scale|blur|draw|type|count|slide"`.
+- **Ambient motion:** `.mg-flow`, `.mg-pulse`, `.mg-radar`, `.mg-scan`, `.mg-drift` on SVG parts, and `data-flow="on"` on diagrams. Use them where something really flows or watches; never as filler.
+
+### 3.4 Diagrams and charts
+
+```html
+<figure class="nm-diagram" data-type="flow" data-id="pipeline" data-steps="rank">
+  <script type="text/nm-diagram">
+    in[المدخلات] -> enc[المشفّر] -> out[المخرجات]
+    enc.accent
+  </script>
+</figure>
+```
+
+Pick the type with the table at the top of `references/diagrams.md`. Re-use the same `data-id` on the next slide with a different type, layout or emphasis and the nodes morph across. Reveal progressively with `data-steps="rank|node|edge|series|all"`, or name nodes yourself with `data-node-steps="enc:1, probe:2:highlight"`. `data-grow="1"` keeps a sparse diagram at natural size (default grows it to fill its cell). Connect your own cards with `data-node="a"` and `data-links="a>b: تسمية; b~>c"` on a parent.
+
+### 3.5 Anatomy figures
+
+For every `anatomy` slide:
+
+1. Write `<project_dir>/assets/<figure>/<figure>.brief.json` (format in `subject-first.md`) and run:
+   ```bash
+   node "<SKILL_DIR>/resources/engine/anatomy/scripts/brief-check.mjs" "<project_dir>/assets/<figure>/<figure>.brief.json" --build "<project_dir>/assets/<figure>/build.mjs"
+   ```
+2. Build with topic-native props from `resources/engine/anatomy/kit/scene.mjs` (buildings, vehicles, people, technology, paperwork, terrain, logistics) plus the core kit. Start from the closest example: `examples/supply-port/` (animated scene), `examples/field-hospital/` (static scene), `examples/dial-indicator/` (smallest build).
+3. Audit to zero: `node build.mjs --audit` must print `audit passed`.
+4. Static: `node build.mjs --svg` and inline the SVG in the slide inside an element with `data-anatomy="<figure>"`. Animated: embed the built page in an `<iframe data-anatomy="<figure>">`; the figure must not bind global ArrowLeft/ArrowRight.
+5. Match the slide theme (`--light` for light slides).
+
+### 3.6 Images
+
+| Environment | Do this |
+|---|---|
+| Antigravity | `image-generator` subagent via `invoke_subagent`, 2-3 images per batch |
+| Codex | built-in `image_gen` tool; copy results to `<project_dir>/assets/img/` |
+| Claude Code / OpenCode with `codex` on PATH (`which codex`) | call `codex` non-interactively to run `image_gen`, copy the result |
+| Any other image-generation tool available to you | use it |
+| **No generator** | web images, below |
+
+Generated image prompts must say: "Strictly NO text, NO letters, NO numbers, NO words, NO typography anywhere in the image", plus the deck's background and accent colours and one shared art style.
+
+**Web images (no generator):** one call searches open-licence sources, downloads the best match, crops it to the slot around its focal point, tones it to the palette and records credits:
+
+```bash
+python3 "<SKILL_DIR>/scripts/image_fetch.py" auto --query "<English keywords>" --slot 1100x900 \
+  --name <slug> --project "<project_dir>" --style duotone --ink "<ink>" --paper "<paper>" --accent "<accent>"
+```
+
+Paste the printed `<figure class="nm-img ...">` snippet. If you found an image with your own web search tool, use `fetch --url ... --license ... --creator ... --source-page ...` then `fit` and `treat`. Search queries work best in English; keep one treatment (`duotone`, `mono` or `tint`) across the deck so photos from different sources read as one set. No network: `placeholder` makes an on-palette plate. Add the sources block (`credits --project DIR --format html`) to the closing slide. Never use an image with `"license": "unverified"` in a deck that will be published.
 
 ---
 
-## Applying the User's Pinned Notes (Nevermind Studio)
+## Phase 4: Verify and deliver *(mandatory gate)*
 
-When a `.nevermind/notes.json` file exists next to the deck, apply the open notes **before any unrequested improvement**. Use `nm-studio` commands through `deck_helper.py`; never hand-edit the state files.
+Run in order and fix until each passes:
 
-1. List the open notes:
+```bash
+python3 "<SKILL_DIR>/scripts/deck_helper.py" audit-deck --html-path "<deck.html>"
+python3 "<SKILL_DIR>/scripts/deck_helper.py" check --html-path "<deck.html>" --shots "<project_dir>/.nm-shots"
+python3 "<SKILL_DIR>/scripts/image_fetch.py" credits --project "<project_dir>" --check "<deck.html>"
+```
 
+1. `audit-deck`: `"passed": true`. It checks emojis, fonts, assets, vocabulary of every `data-*` value (with suggestions), morph pairing, step numbering, detail templates, anatomy briefs, credits, and hand-written navigation.
+2. `check`: opens the deck in headless Chrome, walks every slide and step, and reports text outside the stage, clipped or overlapping text, small text, low contrast, broken images, unloaded fonts and leftover morph ghosts. **Open the contact sheet PNG and look at it.** Fix anything that looks cramped, misaligned or empty, then rerun.
+3. Clean previews: `cleanup-previews --target-dir "<project_dir>"`.
+4. Open the deck (`open-files`) and give a short Arabic summary: slide count, the visual plan, keys (الأسهم للتنقل، O للنظرة العامة، F ملء الشاشة، E تعديل النصوص، ? المساعدة).
+5. Offer the visual editor:
    ```bash
-   python3 "<SKILL_DIR>/scripts/deck_helper.py" notes list --html-path "<deck.html>"
+   python3 "<SKILL_DIR>/scripts/deck_helper.py" edit --html-path "<deck.html>"
    ```
+   Exit code `2` means Node.js 20+ is missing: say so once and continue.
 
-2. Read `.nevermind/current.json` if present. It holds the current slide, the selected element context, and the deck file fingerprint from the last context update.
+---
 
-3. Handle each note separately:
-   - Use the note's element context to locate the node. Prefer `dataNid` when present, then tag, text, classes, and slide.
-   - Use the region note's rectangle and coordinates inside the `1920×1080` stage to understand the intended position.
-   - Inspect the slide when needed: `nm-studio inspect <deck.html> --slide <n>`.
-   - Apply the smallest surgical batch through `nm-studio apply`. Pass `--expect <fingerprint>` when the fingerprint in `current.json` still matches the file.
-   - Never rewrite the whole deck, and never add a `style` attribute when the change can be expressed with the Tailwind classes already used in the deck.
+## Applying the user's pinned notes (Nevermind Studio)
 
-4. Re-audit the deck after each application (`deck_helper.py audit-deck`). Leave a note open when it cannot be executed or needs a user decision.
+When `.nevermind/notes.json` exists next to the deck, apply open notes before any unrequested change. Never hand-edit `.nevermind/*.json`.
 
-5. Close only the note that was carried out:
+1. `deck_helper.py notes list --html-path "<deck.html>"`.
+2. Read `.nevermind/current.json` if present (current slide, selected element, deck fingerprint).
+3. For each note: locate the node (prefer `dataNid`, then tag, text, classes, slide); use region rectangles in 1920x1080 stage coordinates; inspect with `nm-studio inspect <deck.html> --slide <n>` when needed; apply the smallest batch through `nm-studio apply` (pass `--expect <fingerprint>` when it still matches). Never rewrite the whole deck.
+4. Re-run `audit-deck` after each note. Leave a note open when it needs a user decision.
+5. Close only what was done: `deck_helper.py notes done --html-path "<deck.html>" <note-id>`.
+6. Repeat until no open notes remain.
 
-   ```bash
-   python3 "<SKILL_DIR>/scripts/deck_helper.py" notes done --html-path "<deck.html>" <note-id>
-   ```
-
-6. Repeat `notes list` until no open notes remain. Use `--all` to view completed notes.
-
-The open editor pushes deck edits and note completions automatically. Do not ask the user to close or reopen the editor.
+The open editor picks up changes automatically; do not ask the user to reopen it.

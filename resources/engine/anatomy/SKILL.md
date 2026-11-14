@@ -9,10 +9,26 @@ metadata:
 
 # Anatomy
 
+## Subject first (read before anything below)
+
+This section overrides "The one idea that matters" and workflow step 3. Draw something that belongs to the topic's own world, not a lab instrument re-skinned for it.
+
+1. **The subject comes from the topic.** Cover the caption: the reader must still name the topic from the drawing. A port deck gets a quay with a ship, cranes and trucks; a hospital deck gets tents, an ambulance and a helipad; an attention paper gets a sorting hall of parcels and bins. Never a dial gauge for "a metric".
+2. **Climb the Subject Ladder** and take the first rung that works: (1) the thing itself, (2) its native setting as a small diorama, (3) the field's own instrument or workspace, (4) a process made physical with the domain's real objects, (5) only as a last resort, a metaphor machine, with rungs 1-4 rejected in writing.
+3. **Banned by default:** dial indicator, generic test rig, lock, gauge panel, anonymous machine with knobs, plotter, chest of drawers. Use one only when the topic text names that object.
+4. **Write the brief first.** Save `<figure>.brief.json` next to the build (12+ nouns from the source, 5+ verbs, 3-5 true quantities, the rung, a 6+ row mapping, the props) and run `node scripts/brief-check.mjs <figure>.brief.json --build <build.mjs>` until it prints `brief ok`.
+5. **Build from the subject kit.** `kit/scene.mjs` has 70 topic-native props (buildings, vehicles, people, ships, cranes, racks, tents, terrain, paper, nature) that record their true shapes, so `A.settle` and `A.auditOrExit` work unchanged. API: `references/scene-kit.md`.
+6. **The craft rules below still hold in full:** density, four tones, one lit accent, painter's order, audit to zero, 4x close-ups in both themes.
+
+Full procedure, domain table (26 domains) and checklist: `references/subject-first.md`. Start from `examples/supply-port/` (animated) or `examples/field-hospital/` (static).
+
 This skill makes figures like a small instrument on a bench: a heavy base on feet, rails with tick rulers, a carriage on bushings, knurled knobs, coil springs, a dial gauge whose needle moves, screws as tiny dots. The reader understands the idea because they recognise the machine. Every number the figure shows comes from the same model that moves its parts.
 
-Eight complete examples ship with the skill. Open the closest one before you start. Each framework-free example is built with `node examples/<name>/build.mjs`, which writes a standalone HTML page next to the script; add `--light` for the light theme.
+These complete examples ship with the skill. Open the closest one before you start. Each framework-free example is built with `node examples/<name>/build.mjs`, which writes a standalone HTML page next to the script; add `--light` for the light theme.
 
+- `examples/supply-port/` is the reference for a topic-native scene: a container berth built from `kit/scene.mjs` (ship, two quay cranes, stack, yard, trucks, gate, warehouse). A pure model (`port-model.mjs`) runs a box from ship to stack to truck and writes boxes per hour; moving parts ride in audited slots (`scene().mover`). `--svg` writes a static SVG for slides, `--audit` must pass. Its brief is `supply-port.brief.json`.
+- `examples/field-hospital/` is a static diorama in a different domain: tents, helipad, ambulance, stretcher team and support, with `--svg` and `--audit`.
+- `examples/_brief-fixtures/` holds a failing brief and the exact `brief-check` output it must produce.
 - `examples/dial-indicator/` is the smallest: a dial gauge on a stand, about 300 lines in all.
 - `examples/desk-computer/` is framework-free SVG: a desk computer with a keyboard you can type on. The typed line appears on a CRT screen drawn in the plane of the case front, and the picture collapses to a line and a dot when you switch it off. It has about 85 solids and 850 paths.
 - `examples/arcade-cabinet/` is an upright arcade cabinet with its side panel off, a Hero of about 240 solids and 15 cables. A quarter flies into the slot, rolls down the coin chute at the speed a rolling disc reaches on a 30° slope, trips the coin-switch wire and drops into the cash box; the switch's pulse runs chunk by chunk along its cable to the board, and the CRT warms up, self-tests and runs an attract mode drawn in the plane of the tilted monitor. The stick tilts and closes a microswitch under the panel. It shows how to place a camera so a cutaway's mechanism stays in view, a concave board drawn as a prism along any axis, moving parts rebuilt in the page from the same module the build uses, and live coins and a wire drawn in reserved slots of the settled order. `node build.mjs --audit` proves the geometry.
@@ -87,6 +103,8 @@ The kit is in `kit/`:
 | `kit/iso.css` | `ISO_CSS` written out. Import it once and put `class="iso"` (plus `data-theme="light"` for light) on a wrapper or `<body>`. |
 | `kit/react/draw.tsx` | Server-safe React components: `Solid`, `Line`, `Wire`, `Dots`, `FaceText`, `IsoFigure`, `Plate`. |
 | `kit/react/live.tsx` | `"use client"` hooks: `useReadout`, `useLoop`, `useEased`, `useInView`, `useStillness`, plus `spring` and `follow`. |
+| `kit/scene.mjs` | The subject kit: 70 topic-native props `(P, opts) -> { items, anchors, bounds }`, each item a convex solid with its true shape for the audit; `scene(P, { recorder, settle })` to add, settle and write them; `mover` for live parts in audited slots; `place`, `route`, `routeSvg`, `flow`, `SCENE_LIVE`. `references/scene-kit.md`. |
+| `scripts/brief-check.mjs` | Validates a figure brief and its build against the subject-first rules; prints `brief ok` or one fix per line. |
 | `kit/lathe.mjs` | Round parts along any axis: `frameAlong`, `lathe` (smooth shading switches on by itself for any profile with a smooth knot), `solidOf`, `disc`, `ringBand`, `sphereOf`, `saddleOf`, `bandsOf` (one curved body cut into depth-sortable bands that share one surface, with one outline from `sidesOf`), visible arcs, ribs and bolt circles on round surfaces (`ribsOf` and `dotsOf` take `fade`, `ribsOf` takes `seams`), `rodOut` for a rod that slides out of a gland, and `fillet` for pipe routes. |
 | `kit/tube.mjs` | `tubePieces` splits a 3D pipe or cable into depth-sortable chunks (with `breaks`, `gaps` under collars and clamps, elliptical end caps, and `rings` for a braid, corrugation or wrap that follows the cross-section through every joint), and `tubeSvg` draws one; `crossingsOf` finds where a route passes through a clamp, `runsOf` the drawn runs. Its `.tb-*` fills are in `ISO_CSS`. |
 | `kit/audit.mjs` | Proves the geometry. `recorder(P, { order, spring })` collects items, shapes (turned bodies, slabs, prisms, boxes, balls, tubes, pads cut by their host) and routes as the helpers draw them; `settle(R, P)` ray-casts every overlapping pair for true depth, at rest, apart and in the replayed explode, and sets the painter's keys (`overlapsOf`, `orderKeys`); `auditOrExit(R, P)` is the `--audit` hook that runs every check (`clearances`, `solidClearances`, `terminals`, `looseEnds`, `supports`, `folds`, `selfOverlaps`, `crowding` with slender solids as lines, `coverage` for stand-in shapes, `wobble`, `seats`, `depthOrder`) and exits non-zero on any problem. `A.slide` records a rod that slides out of a gland. `references/kit.md`, section 12. |
@@ -173,6 +191,8 @@ Offer all three when the user hasn't picked one. When the page shows a figure th
 
 Read these as you need them:
 
+- `references/subject-first.md`: choose the subject from the topic's world: the Subject Ladder, extraction, the banned list, the domain table, the brief. Read it first.
+- `references/scene-kit.md`: the `kit/scene.mjs` API with a snippet per prop and a full minimal build.
 - `references/craft.md`: the look in depth, including the parts vocabulary with code, tone tables, painter's order patterns, round parts, pipes and harnesses, exploded views, screens on faces, and the anti-patterns that got figures rejected. Read it before designing.
 - `references/kit.md`: the API, with signatures and examples.
 - `references/motion.md`: live behaviour (loops, springs, tours, pointer, keyboard, accessibility, reduced motion), plus envelopes for one-shot events, exploded views, depth re-sorting and arming, in vanilla JS and React.

@@ -14,18 +14,25 @@
 
 ## نظرة عامة (Overview)
 
-مهارة متكاملة ومكتفية ذاتياً بالكامل (`100% Self-Contained`) لتحويل الأبحاث العلمية والمقالات التقنية والمواضيع المعقّدة إلى **شروحات قصصية مبسّطة وعروض تقديمية تفاعلية احترافية (`1920×1080`) باللغة العربية**، وتشمل مدمجاً بداخلها:
+مهارة متكاملة ومكتفية ذاتياً (`100% Self-Contained`) لتحويل الأبحاث والمقالات التقنية والمواضيع المعقّدة إلى **شروحات قصصية مبسّطة وعروض تقديمية سينمائية (`1920×1080`) باللغة العربية**.
 
-* **حزمة الخطوط العربية المدمجة (`resources/fonts/` — 25 ملف خط):**
-  * **ثنائية ثمانية الافتراضية:** **`Thmanyah Serif Display`** للعناوين + **`KOMission`** و**`Thmanyah Sans`** للنصوص مع زر تبديل حي للأوزان (`Alt + F`).
-  * **ثنائيات عربية إضافية مدمجة:** **`Qahwa Arabic Black`**، **`Setabr Display`**، **`Alkhalil Kufi`**، **`ZIAN`**، **`IBM Plex Sans Arabic`**، **`Zain Rounded`**، و**`Readex Pro`**.
-* **حركات انتقال سينمائية (`Morph FLIP` + `Smooth Camera Zoom-In / Zoom-Out`):**
-  * تحوّل تلقائي سلس للعناصر المشتركة بين الشرائح (`data-morph="<id>"`) يحاكي انتقال `Morph` في PowerPoint.
-  * كاميرا بؤرية انسيابية (`1.55s cubic-bezier(0.25, 1, 0.35, 1)`) تقرّب أقسام الشريحة (`Zoom-In`) وتتنقل بينها ثم تعود للمشهد الكامل (`Zoom-Out`) مع إخفاء أزرار التنقل افتراضياً وإظهارها فقط عند تمرير الماوس أسفل الشاشة.
-* **محرّك `anatomy` الأيزومتري المدمج (`resources/engine/anatomy/`):** لبناء مجسمات آلات وأدوات قياس أيزومترية دقيقة (**ثابتة `Static SVG`** أو **متحركة وتفاعلية `Animated SVG`**) بعد تحليل محتوى الورقة واقتراح الأنسب لكل شريحة.
-* **محرّك `frontend-slides` المدمج (`resources/engine/frontend-slides/`):** لبناء مسرح العرض الثابت `1920×1080` مع فتح 3 معاينات تصميمية حية في المتصفح في بداية العمل للاختيار منها.
-* **توليد الصور متعدد البيئات:** يدعم `image-generator` في **Antigravity**، وأداة `image_gen` المدمجة في **Codex**، مع التحويل التلقائي الذكي لمجسمات `anatomy` والموشن جرافيك في البيئات التي لا تتوفر فيها أداة توليد صور.
-* **معيار بصري صارم (`Zero Emojis`):** خالٍ تماماً من الإيموجي (`0` إيموجي) مع التحقق الآلي عبر `scripts/deck_helper.py audit-deck`.
+### الجديد في الإصدار الثاني (v2)
+
+| المكوّن | ما يقدّمه |
+| :--- | :--- |
+| **محرّك الحركة المدمج** (`resources/engine/nm-runtime/`) | كل الحركة تُكتب بسمات `data-*` دون أي JavaScript: Morph بطبقة أشباح لا يمطّ الحواف ولا النص (صندوق، كلمات، صورة، مسار، رقم) بمسارات قوسية ونوابض، 10 انتقالات تُختار حسب علاقة الشريحة بما قبلها، خطوات موحّدة، كاميرا، ونظرة عامة على الشرائح |
+| **عزل جزء من الشريحة** | `focus` بقعة ضوء متنقلة، `detail` رفع العنصر وفتح لوحة تفاصيل (4 أشكال)، `lens` عدسة مكبّرة، `pins` دبابيس شرح مرقّمة، `slice` شقّ الشريحة وإدراج شريط تفاصيل |
+| **الدياغرام والتخطيط** | 18 نوعاً (13 مخططاً + 5 رسوم بيانية) بلغة نصية بسيطة وتخطيط آلي من اليمين لليسار، موصلات بين أي عناصر، وتراكيب `nm-l-*` جاهزة للشرائح |
+| **anatomy: الموضوع أولاً** | سلّم من 5 درجات يفرض رسم شيء من عالم الموضوع نفسه بدل الأجهزة الثابتة، و71 عنصراً جاهزاً (مبانٍ، مركبات، أشخاص، تقنية، أوراق، تضاريس)، وفاحص `brief-check` يرفض الأجهزة العامة |
+| **صور الويب البديلة** | عند غياب أداة توليد الصور: بحث في مصادر برخص مفتوحة، تنزيل، تشذيب حول بؤرة الصورة، توحيد لوني، وتوثيق المصادر آلياً |
+| **الخطة والفحص** | `plan-lint` بقواعد مخرج حركة، `scaffold` يبني الهيكل كاملاً من الخطة، `audit-deck` و`check` يفحصان العرض في Chrome (تجاوز الحدود، قصّ النص، التباين، الخطوط) |
+| **عرض نموذجي** (`examples/showcase/`) | 14 شريحة عن رحلة الحاوية في ميناء حديث تستخدم كل الخصائص وتجتاز كل الفحوص |
+
+### المكونات الثابتة
+
+* **حزمة الخطوط العربية (`resources/fonts/` — 25 ملف خط):** ثمانية Display + KOMission وThmanyah Sans افتراضياً، مع قهوة، سطبر، الخليل الكوفي، زيان، IBM Plex Sans Arabic، Zain Rounded، Readex Pro.
+* **محرّر Nevermind Studio المدمج** للتعديل اليدوي وتثبيت الملاحظات للوكيل.
+* **معيار صارم:** صفر إيموجي، اتجاه RTL، عدم تفكيك الحروف العربية، نظام أرقام واحد في العرض.
 
 ---
 
@@ -51,7 +58,18 @@ python3 scripts/deck_helper.py install
 # نسخ حزمة الخطوط المدمجة إلى مجلد مشروع العرض (Stage bundled fonts)
 python3 scripts/deck_helper.py stage-fonts --target-dir /path/to/project
 
-# فحص جودة العرض التقديمي (Zero Emojis + @font-face + Assets + SVG Motion)
+# خطة العرض: إنشاء، فحص، وبناء الهيكل
+python3 scripts/deck_helper.py plan-init --target-dir /path/to/project --title "العنوان" --slides 10
+python3 scripts/deck_helper.py plan-lint --plan /path/to/project/deck.plan.json
+python3 scripts/deck_helper.py scaffold --plan /path/to/project/deck.plan.json
+
+# فحص العرض في Chrome مع لقطات لكل شريحة
+python3 scripts/deck_helper.py check --html-path /path/to/project/deck.html --shots /path/to/project/.nm-shots
+
+# صور الويب عند غياب أداة توليد الصور
+python3 scripts/image_fetch.py auto --query "container port crane" --slot 1100x900 --name port --project /path/to/project
+
+# فحص جودة العرض التقديمي (Zero Emojis + @font-face + Assets + Runtime contract)
 python3 scripts/deck_helper.py audit-deck --html-path /path/to/project/deck.html
 
 # فتح العرض في محرّر Nevermind Studio للتعديل اليدوي (المحرّر مضمّن)

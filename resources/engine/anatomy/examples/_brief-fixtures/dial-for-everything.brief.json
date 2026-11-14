@@ -1,0 +1,23 @@
+{
+  "topic": "Attention in transformer language models",
+  "source_nouns": ["token", "query", "key", "value", "head", "layer", "embedding", "softmax", "sequence", "weight"],
+  "verbs": ["attend", "weigh", "sum"],
+  "quantities": [
+    { "name": "heads", "value": "8", "unit": "count", "source": "paper" },
+    { "name": "context", "value": 512, "unit": "tokens" }
+  ],
+  "rung": 5,
+  "rejected_rungs": [{ "rung": 1, "reason": "too hard" }],
+  "subject": "dial gauge on a test rig",
+  "setting": "bench",
+  "moves": "The needle turns.",
+  "mapping": [
+    { "part": "needle", "meaning": "attention weight" },
+    { "part": "dial", "meaning": "softmax" },
+    { "part": "knob", "meaning": "query" },
+    { "part": "lever", "meaning": "key" },
+    { "part": "token", "meaning": "a word" }
+  ],
+  "mode": "live",
+  "props": ["scene.gauge", "scene.conveyor"]
+}

@@ -1,0 +1,7 @@
+# staged copies; recreate with the two commands in README.md
+assets/fonts/
+assets/nm/
+# full-size source images (the fitted, treated copies in assets/img/ are what the deck uses)
+assets/img/src/
+check-shots/
+*.bak

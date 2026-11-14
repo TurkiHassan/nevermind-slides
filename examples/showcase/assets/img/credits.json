@@ -1,0 +1,192 @@
+{
+  "version": 1,
+  "images": [
+    {
+      "name": "port-dusk",
+      "file": "assets/img/src/port-dusk.jpg",
+      "title": "ميناء الحاويات عند الغروب",
+      "creator": "صورة مركبة أنشئت محليا لهذا المثال",
+      "license": "CC0 1.0",
+      "license_key": "cc0",
+      "license_url": "",
+      "source_page": "README.md",
+      "source_url": "generated locally (see README.md)",
+      "provider": "manual",
+      "candidate_id": "",
+      "fetched_at": "2026-11-14T20:50:11+00:00",
+      "mime": "image/jpeg",
+      "bytes": 388237,
+      "width": 2400,
+      "height": 1500,
+      "outputs": [
+        "assets/img/port-dusk.jpg"
+      ],
+      "fit": {
+        "out": "assets/img/port-dusk.jpg",
+        "size": [
+          1080,
+          1200
+        ],
+        "focus": {
+          "x": 30.0,
+          "y": 50.0
+        },
+        "tool": "pillow",
+        "slot": [
+          1080,
+          1200
+        ],
+        "ratio": 0.9,
+        "fitted_at": "2026-11-14T20:53:00+00:00",
+        "css_fallback": false
+      },
+      "final": "assets/img/port-dusk.jpg",
+      "treat": {
+        "out": "assets/img/port-dusk.jpg",
+        "style": "duotone",
+        "ink": "#0f172a",
+        "paper": "#f1f5f9",
+        "accent": "#c2410c",
+        "grain": 0.2,
+        "contrast": 1.0,
+        "treated_at": "2026-11-14T20:53:00+00:00"
+      }
+    },
+    {
+      "name": "container-yard",
+      "file": "assets/img/src/container-yard.jpg",
+      "title": "ساحة الحاويات",
+      "creator": "صورة مركبة أنشئت محليا لهذا المثال",
+      "license": "CC0 1.0",
+      "license_key": "cc0",
+      "license_url": "",
+      "source_page": "README.md",
+      "source_url": "generated locally (see README.md)",
+      "provider": "manual",
+      "candidate_id": "",
+      "fetched_at": "2026-11-14T20:50:11+00:00",
+      "mime": "image/jpeg",
+      "bytes": 451656,
+      "width": 2400,
+      "height": 1500,
+      "outputs": [
+        "assets/img/container-yard.jpg"
+      ],
+      "fit": {
+        "out": "assets/img/container-yard.jpg",
+        "size": [
+          1920,
+          1080
+        ],
+        "focus": {
+          "x": 50.0,
+          "y": 72.0
+        },
+        "tool": "pillow",
+        "slot": [
+          1920,
+          1080
+        ],
+        "ratio": 1.7778,
+        "fitted_at": "2026-11-14T21:02:24+00:00",
+        "css_fallback": false
+      },
+      "final": "assets/img/container-yard.jpg",
+      "treat": {
+        "out": "assets/img/container-yard.jpg",
+        "style": "duotone",
+        "ink": "#0f172a",
+        "paper": "#f1f5f9",
+        "accent": "#c2410c",
+        "grain": 0.2,
+        "contrast": 1.0,
+        "treated_at": "2026-11-14T21:02:24+00:00"
+      }
+    },
+    {
+      "name": "truck-gate",
+      "file": "assets/img/src/truck-gate.jpg",
+      "title": "شاحنات عند بوابة الميناء",
+      "creator": "صورة مركبة أنشئت محليا لهذا المثال",
+      "license": "CC0 1.0",
+      "license_key": "cc0",
+      "license_url": "",
+      "source_page": "README.md",
+      "source_url": "generated locally (see README.md)",
+      "provider": "manual",
+      "candidate_id": "",
+      "fetched_at": "2026-11-14T20:50:11+00:00",
+      "mime": "image/jpeg",
+      "bytes": 314765,
+      "width": 2400,
+      "height": 1500,
+      "outputs": [
+        "assets/img/truck-gate.jpg"
+      ],
+      "fit": {
+        "out": "assets/img/truck-gate.jpg",
+        "size": [
+          1000,
+          1200
+        ],
+        "focus": {
+          "x": 50.0,
+          "y": 55.0
+        },
+        "tool": "pillow",
+        "slot": [
+          1000,
+          1200
+        ],
+        "ratio": 0.8333,
+        "fitted_at": "2026-11-14T20:50:12+00:00",
+        "css_fallback": false
+      },
+      "final": "assets/img/truck-gate.jpg",
+      "treat": {
+        "out": "assets/img/truck-gate.jpg",
+        "style": "duotone",
+        "ink": "#0f172a",
+        "paper": "#f1f5f9",
+        "accent": "#c2410c",
+        "grain": 0.2,
+        "contrast": 1.0,
+        "treated_at": "2026-11-14T20:50:12+00:00"
+      }
+    },
+    {
+      "name": "plate-waves",
+      "file": "assets/img/plate-waves.svg",
+      "title": "placeholder plate (waves)",
+      "creator": "nevermind-slides",
+      "license": "generated",
+      "license_key": "generated",
+      "license_url": "",
+      "source_page": "",
+      "provider": "placeholder",
+      "fetched_at": "2026-11-14T20:48:37+00:00",
+      "mime": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "outputs": [],
+      "note": "abstract plate generated locally; replace with a real image when the network is back"
+    },
+    {
+      "name": "plate-grid",
+      "file": "assets/img/plate-grid.svg",
+      "title": "placeholder plate (grid)",
+      "creator": "nevermind-slides",
+      "license": "generated",
+      "license_key": "generated",
+      "license_url": "",
+      "source_page": "",
+      "provider": "placeholder",
+      "fetched_at": "2026-11-14T20:48:38+00:00",
+      "mime": "image/svg+xml",
+      "width": 1200,
+      "height": 800,
+      "outputs": [],
+      "note": "abstract plate generated locally; replace with a real image when the network is back"
+    }
+  ]
+}

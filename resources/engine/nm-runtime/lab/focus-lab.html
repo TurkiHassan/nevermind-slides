@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="nm-runtime" content="2">
+<title>مختبر العزل - nm-focus</title>
+<script>
+  /* ?real loads the real core; default loads the lab shim */
+  window.NM_LAB_REAL = /[?&]real\b/.test(location.search);
+  if (window.NM_LAB_REAL) document.write('<link rel="stylesheet" href="../nm-deck.css">');
+</script>
+<link rel="stylesheet" href="../nm-focus.css">
+<style>
+  :root {
+    --nm-paper: #f4f0e6; --nm-ink: #1c1f26; --nm-muted: #5d6170; --nm-line: rgba(28, 31, 38, .13);
+    --nm-accent: #0f766e; --nm-accent-2: #c2410c; --nm-surface: #fffdf8; --nm-radius: 26px;
+    --nm-font-display: "Noto Kufi Arabic", "DejaVu Sans", sans-serif;
+    --nm-font-body: "Noto Naskh Arabic", "DejaVu Sans", sans-serif;
+    --stage-bg: #121212;
+  }
+  .slide { background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+  .camera-rig { position: absolute; inset: 0; padding: 92px 120px; box-sizing: border-box; }
+  .kicker { font: 700 24px/1 var(--nm-font-display); color: var(--nm-accent); letter-spacing: .02em; }
+  h1 { font: 800 64px/1.2 var(--nm-font-display); margin: 18px 0 14px; }
+  .lead { font-size: 28px; color: var(--nm-muted); margin: 0 0 44px; max-width: 1200px; line-height: 1.6; }
+  .row { display: flex; gap: 36px; }
+  .card { flex: 1; background: var(--nm-surface); border-radius: var(--nm-radius); padding: 36px 40px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 14px 34px -14px rgba(20, 24, 34, .22); border: 1px solid var(--nm-line); }
+  .card h3 { font: 800 34px/1.3 var(--nm-font-display); margin: 0 0 10px; }
+  .card p { font-size: 24px; line-height: 1.6; color: var(--nm-muted); margin: 0; }
+  .num { font: 800 76px/1 var(--nm-font-display); color: var(--nm-accent); }
+  .tag { display: inline-block; font: 700 20px/1 var(--nm-font-display); padding: 10px 16px; border-radius: 99px;
+    background: color-mix(in srgb, var(--nm-accent) 12%, transparent); color: var(--nm-accent); margin-bottom: 18px; }
+  .chart { margin-top: 36px; display: flex; gap: 36px; align-items: stretch; }
+  .chart .card { flex: 3; }
+  .badge { width: 300px; height: 300px; flex: none; border-radius: 50%; background: var(--nm-ink); color: var(--nm-paper);
+    display: grid; place-items: center; text-align: center; align-self: center; }
+  .badge b { display: block; font: 800 72px/1 var(--nm-font-display); color: #5eead4; }
+  .badge span { font-size: 24px; }
+  .stage-num { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--nm-ink);
+    color: var(--nm-paper); font: 800 30px/1 var(--nm-font-display); margin-bottom: 22px; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 27px; background: var(--nm-surface);
+    border-radius: var(--nm-radius); overflow: hidden; box-shadow: 0 14px 34px -14px rgba(20,24,34,.22); }
+  table.data th { background: var(--nm-ink); color: var(--nm-paper); font: 700 24px/1 var(--nm-font-display); padding: 24px 28px; text-align: start; }
+  table.data td { padding: 22px 28px; border-bottom: 1px solid var(--nm-line); }
+  table.data tr.hot td { background: color-mix(in srgb, var(--nm-accent) 7%, var(--nm-surface)); }
+  .pill { display: inline-block; padding: 6px 14px; border-radius: 99px; font-size: 21px; font-weight: 700; }
+  .up { background: #dcfce7; color: #166534; } .down { background: #fee2e2; color: #991b1b; }
+  .icons { display: grid; grid-template-columns: repeat(6, 1fr); gap: 28px; margin-top: 30px; }
+  .ic { background: var(--nm-surface); border-radius: 24px; padding: 30px 18px; text-align: center; border: 1px solid var(--nm-line);
+    box-shadow: 0 10px 24px -14px rgba(20,24,34,.25); }
+  .ic svg { width: 64px; height: 64px; color: var(--nm-accent); }
+  .ic div { font: 700 24px/1.3 var(--nm-font-display); margin-top: 14px; }
+  .fig { background: var(--nm-surface); border-radius: var(--nm-radius); border: 1px solid var(--nm-line);
+    box-shadow: 0 14px 34px -14px rgba(20,24,34,.22); overflow: hidden; }
+  .fig svg { display: block; }
+  .center { display: flex; justify-content: center; }
+  .note-row { display: flex; gap: 28px; margin-top: 40px; }
+  .note-row .card { padding: 28px 32px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 36px; }
+  .cols .card { min-height: 560px; }
+</style>
+</head>
+<body dir="rtl" data-nm-mode="morph-and-zoom">
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- 1. focus: travelling spotlight, zoom, circle -->
+<section class="slide" data-title="focus" id="s-focus">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الأول: البقعة الضوئية</div>
+    <h1>مؤشرات الأداء للربع الثالث</h1>
+    <p class="lead">نسلط الضوء على كل مؤشر بالتتابع، ثم نقترب من المنحنى لنقرأ التفاصيل.</p>
+    <div class="row">
+      <div class="card" id="k1" data-step="1" data-act="focus" data-focus-note="أعلى نمو منذ عامين"><div class="num">٪٢٤</div><h3>نمو الإيرادات</h3><p>مقارنة بالربع نفسه من العام الماضي</p></div>
+      <div class="card" id="k2" data-step="2" data-act="focus"><div class="num">٣٫٨</div><h3>رضا العملاء</h3><p>من خمسة، بناء على ١٢ ألف تقييم</p></div>
+      <div class="card" id="k3"><div class="num">٩١</div><h3>يوم التحصيل</h3><p>انخفض من ١٠٤ أيام في الربع الثاني</p></div>
+    </div>
+    <div class="chart">
+      <div class="card" id="chart" data-step="3" data-act="focus" data-focus-zoom data-focus-note="الذروة في أغسطس بعد إطلاق الباقة الجديدة">
+        <h3>الإيرادات الشهرية (مليون ريال)</h3>
+        <svg viewBox="0 0 1000 150" width="1000" height="150" aria-hidden="true">
+          <g fill="#0f766e">
+            <rect x="20" y="90" width="70" height="60" rx="8" opacity=".35"/><rect x="130" y="70" width="70" height="80" rx="8" opacity=".45"/>
+            <rect x="240" y="76" width="70" height="74" rx="8" opacity=".5"/><rect x="350" y="50" width="70" height="100" rx="8" opacity=".6"/>
+            <rect x="460" y="40" width="70" height="110" rx="8" opacity=".7"/><rect x="570" y="10" width="70" height="140" rx="8"/>
+            <rect x="680" y="30" width="70" height="120" rx="8" opacity=".8"/><rect x="790" y="44" width="70" height="106" rx="8" opacity=".7"/>
+          </g>
+        </svg>
+      </div>
+      <div class="badge" id="badge" data-step="4" data-act="focus"><div><b>٪٩٨</b><span>جاهزية الأنظمة</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. detail side -->
+<section class="slide" data-title="detail side" id="s-side">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الثاني: العزل والتوسيع (جانبي)</div>
+    <h1>مراحل تنفيذ المشروع</h1>
+    <p class="lead">اضغط على أي مرحلة، أو تقدم بالأسهم لعزلها واستعراض تفاصيلها.</p>
+    <div class="row">
+      <div class="card" id="st1"><div class="stage-num">١</div><h3>الدراسة</h3><p>تحليل الاحتياج وتحديد النطاق والمخاطر الرئيسة.</p></div>
+      <div class="card" id="st2" data-step="1" data-act="detail" data-detail="side"><div class="stage-num">٢</div><h3>التصميم</h3><p>بناء النماذج الأولية واعتماد المعمارية التقنية.</p></div>
+      <div class="card" id="st3" data-step="2" data-act="detail" data-detail="side"><div class="stage-num">٣</div><h3>التنفيذ</h3><p>تطوير متدرج على دفعات قصيرة مع اختبار مستمر.</p>
+        <div class="nm-detail"><small>المرحلة الثالثة</small><h3>التنفيذ على دفعات</h3><p>ست دفعات مدة كل منها أسبوعان، تنتهي كل دفعة بعرض عملي أمام أصحاب المصلحة.</p><ul><li>فريقان متوازيان للواجهات والخدمات</li><li>اختبار آلي يغطي ٨٠٪ من الشيفرة</li><li>مراجعة أمنية قبل كل إطلاق</li></ul></div>
+      </div>
+      <div class="card" id="st4"><div class="stage-num">٤</div><h3>التشغيل</h3><p>الإطلاق التدريجي والمراقبة ونقل المعرفة.</p></div>
+    </div>
+    <template data-detail-for="st2">
+      <small>المرحلة الثانية</small>
+      <h3>التصميم والنمذجة</h3>
+      <p>نحول المتطلبات إلى نماذج قابلة للتجربة قبل كتابة أي شيفرة إنتاجية، فنكشف الثغرات مبكرا وبتكلفة أقل.</p>
+      <ul><li>ثلاث جولات اختبار مع المستخدمين</li><li>اعتماد المعمارية من لجنة التقنية</li><li>دليل تصميم موحد للواجهات</li></ul>
+      <div class="nm-stats"><div class="nm-stat"><b>٦</b><span>أسابيع</span></div><div class="nm-stat"><b>٤٢</b><span>شاشة</span></div><div class="nm-stat"><b>٣</b><span>جولات</span></div></div>
+    </template>
+  </div>
+</section>
+
+<!-- 3. detail expand, after a core zoom step (camera already zoomed) -->
+<section class="slide" data-title="detail expand" id="s-expand">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الثاني: التوسيع إلى بطاقة رئيسة</div>
+    <h1>الخدمات الرقمية</h1>
+    <p class="lead">الخطوة الأولى تقرّب الكاميرا، والثانية تحوّل البطاقة إلى بطاقة تفصيلية كاملة.</p>
+    <div class="row" id="svcrow" data-step="1" data-act="zoom">
+      <div class="card"><span class="tag">متاحة</span><h3>بوابة الموردين</h3><p>تسجيل وتأهيل وتتبع العقود في مكان واحد.</p></div>
+      <div class="card" id="svc2" data-step="2" data-act="detail" data-detail="expand"><span class="tag">جديدة</span><h3>التوقيع الإلكتروني</h3><p>اعتماد المستندات خلال دقائق بدلا من أيام.</p></div>
+      <div class="card"><span class="tag">قريبا</span><h3>المساعد الذكي</h3><p>إجابات فورية عن السياسات والإجراءات.</p></div>
+    </div>
+    <template data-detail-for="svc2">
+      <small>خدمة جديدة</small>
+      <h3>التوقيع الإلكتروني</h3>
+      <p>منصة معتمدة لتوقيع المستندات وتوثيقها، مرتبطة بالهوية الوطنية الرقمية ومتوافقة مع أنظمة التعاملات الإلكترونية.</p>
+      <div class="nm-stats"><div class="nm-stat"><b>١٢ دقيقة</b><span>متوسط زمن الاعتماد</span></div><div class="nm-stat"><b>٪٩٩٫٩</b><span>توفر الخدمة</span></div><div class="nm-stat"><b>٣٤٠٠</b><span>مستند شهريا</span></div></div>
+    </template>
+  </div>
+</section>
+
+<!-- 4. detail sheet on a table row -->
+<section class="slide" data-title="detail sheet" id="s-sheet">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الثاني: الدرج السفلي</div>
+    <h1>أداء المناطق</h1>
+    <p class="lead">نعزل صفا من الجدول ونفتح أسفله درجا بالتفاصيل دون مغادرة الشريحة.</p>
+    <table class="data">
+      <thead><tr><th>المنطقة</th><th>المبيعات</th><th>النمو</th><th>الحصة</th></tr></thead>
+      <tbody>
+        <tr><td>الرياض</td><td>٤٨٫٢ مليون</td><td><span class="pill up">٪١٢+</span></td><td>٪٣١</td></tr>
+        <tr><td>مكة المكرمة</td><td>٣٦٫٩ مليون</td><td><span class="pill up">٪٨+</span></td><td>٪٢٤</td></tr>
+        <tr><td>المنطقة الشرقية</td><td>٢٩٫٤ مليون</td><td><span class="pill up">٪٥+</span></td><td>٪١٩</td></tr>
+        <tr class="hot" id="row-north" data-step="1" data-act="detail" data-detail="sheet"><td>الحدود الشمالية</td><td>٧٫١ مليون</td><td><span class="pill down">٪٣-</span></td><td>٪٥</td></tr>
+        <tr><td>عسير</td><td>١٠٫٦ مليون</td><td><span class="pill up">٪٤+</span></td><td>٪٧</td></tr>
+      </tbody>
+    </table>
+    <template data-detail-for="row-north">
+      <h3>لماذا تراجعت الحدود الشمالية؟</h3>
+      <p>تأخر توريد الدفعة الثانية ستة أسابيع بسبب إعادة جدولة النقل البري، مما أثر على مبيعات يوليو وأغسطس.</p>
+      <p>خطة المعالجة: مستودع وسيط في عرعر، وعقد نقل بديل، واستهداف العودة إلى النمو في الربع الرابع.</p>
+      <ul><li>المستودع الوسيط جاهز في أكتوبر</li><li>العقد البديل موقع ومفعل</li><li>المتابعة أسبوعية مع الإدارة</li></ul>
+    </template>
+  </div>
+</section>
+
+<!-- 5. detail popover with pages -->
+<section class="slide" data-title="detail popover" id="s-pop">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الثاني: الفقاعة التوضيحية مع صفحات</div>
+    <h1>قنوات الخدمة</h1>
+    <p class="lead">فقاعة صغيرة بجوار العنصر، تختار تلقائيا الجهة الأوسع. الأولى تتصفح صفحتين بالأسهم.</p>
+    <div class="icons">
+      <div class="ic" id="ch-app" data-step="1" data-act="detail" data-detail="popover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><div>التطبيق</div></div>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg><div>الموقع</div></div>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/></svg><div>مركز الاتصال</div></div>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg><div>الفروع</div></div>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg><div>المحادثة</div></div>
+      <div class="ic" id="ch-mail" data-step="2" data-act="detail" data-detail="popover" data-detail-text="البريد الرسمي مخصص للمراسلات التي تتطلب توثيقا، ويستجاب لها خلال يومي عمل."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><div>البريد</div></div>
+    </div>
+    <div class="note-row">
+      <div class="card"><h3>٦ قنوات</h3><p>موحدة على منصة إدارة طلبات واحدة.</p></div>
+      <div class="card"><h3>٢٤ ساعة</h3><p>حد أقصى للاستجابة في جميع القنوات.</p></div>
+    </div>
+    <template data-detail-for="ch-app"><small>القناة الأولى - ١ من ٢</small><h3>التطبيق</h3><p>يخدم ٦٢٪ من الطلبات، وأكثر الخدمات استخداما فيه تتبع الطلب والدفع.</p></template>
+    <template data-detail-for="ch-app"><small>القناة الأولى - ٢ من ٢</small><h3>خطة التطوير</h3><ul><li>تسجيل دخول بالبصمة</li><li>إشعارات فورية بحالة الطلب</li><li>وضع ليلي</li></ul></template>
+  </div>
+</section>
+
+<!-- 6. lens -->
+<section class="slide" data-title="lens" id="s-lens">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الثالث: العدسة المكبرة</div>
+    <h1>شبكة التوزيع</h1>
+    <p class="lead">تفاصيل صغيرة في المخطط تقرأ بعدسة تخرج منها ثم تنتقل إلى نقطة أخرى.</p>
+    <div class="fig center" style="width:1100px;margin-inline-start:auto">
+      <svg viewBox="0 0 1100 560" width="1100" height="560" aria-hidden="true" font-family="DejaVu Sans" font-size="13">
+        <defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#0f766e" stop-opacity=".15"/><stop offset="1" stop-color="#c2410c" stop-opacity=".15"/></linearGradient></defs>
+        <rect width="1100" height="560" fill="url(#lg)"/>
+        <g stroke="#1c1f26" stroke-opacity=".25" stroke-width="2" fill="none">
+          <path d="M140 120 L420 260 L760 140 L980 300 M420 260 L520 460 L880 470 M140 120 L180 420 L520 460"/>
+        </g>
+        <g fill="#0f766e"><circle cx="140" cy="120" r="12"/><circle cx="420" cy="260" r="16"/><circle cx="760" cy="140" r="12"/><circle cx="980" cy="300" r="12"/><circle cx="520" cy="460" r="12"/><circle cx="880" cy="470" r="12"/><circle cx="180" cy="420" r="12"/></g>
+        <g id="hub" data-step="1" data-act="lens">
+          <circle cx="420" cy="260" r="44" fill="none" stroke="#c2410c" stroke-width="2" stroke-dasharray="4 4"/>
+          <text x="420" y="232" text-anchor="middle" fill="#1c1f26">مركز الرياض</text>
+          <text x="420" y="300" text-anchor="middle" fill="#5d6170" font-size="10">سعة ١٢٠٠ طن يوميا</text>
+          <text x="446" y="266" fill="#c2410c" font-size="9">ب٤</text>
+        </g>
+        <g id="node-e" data-step="2" data-act="lens" data-lens="3">
+          <rect x="930" y="322" width="100" height="40" rx="6" fill="#fffdf8" stroke="#1c1f26" stroke-opacity=".3"/>
+          <text x="980" y="340" text-anchor="middle" fill="#1c1f26" font-size="9">الدمام - رصيف ٧</text>
+          <text x="980" y="354" text-anchor="middle" fill="#0f766e" font-size="8">٩٦٪ إشغال</text>
+        </g>
+        <text x="140" y="96" text-anchor="middle" fill="#1c1f26">تبوك</text><text x="760" y="116" text-anchor="middle" fill="#1c1f26">القصيم</text>
+        <text x="520" y="496" text-anchor="middle" fill="#1c1f26">جدة</text><text x="880" y="506" text-anchor="middle" fill="#1c1f26">الأحساء</text><text x="180" y="450" text-anchor="middle" fill="#1c1f26">المدينة</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 7. pins sequential -->
+<section class="slide" data-title="pins" id="s-pins">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الرابع: دبابيس التعليق</div>
+    <h1>مكونات المحطة الشمسية</h1>
+    <div class="center" style="margin-top:20px">
+      <div class="fig" id="plant" data-step="1" data-act="pins" style="width:820px">
+        <svg viewBox="0 0 820 600" width="820" height="600" aria-hidden="true">
+          <rect width="820" height="600" fill="#e8f1ee"/>
+          <circle cx="680" cy="110" r="56" fill="#f59e0b" opacity=".85"/>
+          <rect x="0" y="470" width="820" height="130" fill="#cbd5c4"/>
+          <g transform="translate(90 300) skewX(-18)"><rect width="300" height="150" rx="6" fill="#1e3a5f"/><path d="M75 0v150M150 0v150M225 0v150M0 50h300M0 100h300" stroke="#6b8bb5" stroke-width="3"/></g>
+          <rect x="190" y="450" width="12" height="60" fill="#475569"/>
+          <rect x="480" y="360" width="150" height="130" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+          <rect x="505" y="390" width="100" height="22" rx="4" fill="#0f766e"/><circle cx="530" cy="450" r="12" fill="#c2410c"/>
+          <path d="M630 420 h90 v-180" stroke="#475569" stroke-width="4" fill="none"/>
+          <rect x="690" y="200" width="60" height="44" rx="6" fill="#334155"/>
+        </svg>
+        <span class="nm-pin" data-x="27" data-y="62" data-label="الألواح الشمسية">٢٤٠ لوحا بقدرة ٥٥٠ واط لكل لوح</span>
+        <span class="nm-pin" data-x="66" data-y="72" data-label="العاكس المركزي">يحول التيار المستمر إلى متردد بكفاءة ٩٨٪</span>
+        <span class="nm-pin" data-x="88" data-y="37" data-label="عداد الشبكة">قياس ثنائي الاتجاه للتصدير والاستيراد</span>
+        <span class="nm-pin" data-x="83" data-y="18" data-label="حساس الإشعاع">يغذي نظام التنبؤ بالإنتاج كل دقيقة</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. pins all at once, latin digits -->
+<section class="slide" data-title="pins all" id="s-pins-all">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الرابع: كل الدبابيس دفعة واحدة</div>
+    <h1>مخطط الطابق الأرضي</h1>
+    <div class="fig" id="floor" data-step="1" data-act="pins" data-pins="all" data-pin-digits="latin" style="width:1680px;margin-top:24px">
+      <svg viewBox="0 0 1680 620" width="1680" height="620" aria-hidden="true">
+        <rect width="1680" height="620" fill="#f3efe6"/>
+        <g fill="none" stroke="#1c1f26" stroke-width="6"><rect x="40" y="40" width="1600" height="540"/><path d="M560 40v300M1100 40v300M40 340h1600M820 340v240"/></g>
+        <g fill="#0f766e" opacity=".14"><rect x="46" y="46" width="508" height="288"/><rect x="1106" y="46" width="528" height="288"/></g>
+        <g font-family="DejaVu Sans" font-size="26" fill="#5d6170" text-anchor="middle"><text x="300" y="200">الاستقبال</text><text x="830" y="200">قاعة الاجتماعات</text><text x="1370" y="200">المكاتب المفتوحة</text><text x="430" y="470">الخدمات</text><text x="1230" y="470">المستودع</text></g>
+      </svg>
+      <span class="nm-pin" data-x="18" data-y="32" data-label="مدخل الزوار">بطاقات مؤقتة وتسجيل إلكتروني</span>
+      <span class="nm-pin" data-x="49" data-y="30" data-label="غرفة ذكية">شاشة تفاعلية وحجز تلقائي</span>
+      <span class="nm-pin" data-x="80" data-y="74" data-label="منطقة التحميل">رصيف لشاحنتين في الوقت نفسه</span>
+    </div>
+  </div>
+</section>
+
+<!-- 9. slice below -->
+<section class="slide" data-title="slice below" id="s-slice">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الخامس: شق الشريحة</div>
+    <h1>الجدول الزمني للتحول الرقمي</h1>
+    <p class="lead">تنشق الشريحة أسفل المرحلة الثانية لتكشف شريطا بالتفاصيل، ثم تلتئم.</p>
+    <div class="row">
+      <div class="card"><span class="tag">٢٠٢٤</span><h3>التأسيس</h3><p>البنية السحابية والهوية الموحدة.</p></div>
+      <div class="card" id="ph2" data-step="1" data-act="slice" data-slice="below"><span class="tag">٢٠٢٥</span><h3>الأتمتة</h3><p>رقمنة ٧٠٪ من الإجراءات الداخلية.</p></div>
+      <div class="card"><span class="tag">٢٠٢٦</span><h3>الذكاء</h3><p>تحليلات تنبؤية ودعم القرار.</p></div>
+    </div>
+    <div class="note-row">
+      <div class="card"><h3>الميزانية</h3><p>٢٤٠ مليون ريال على ثلاث سنوات.</p></div>
+      <div class="card"><h3>الفريق</h3><p>٨٠ مختصا بين داخلي وشريك تنفيذ.</p></div>
+      <div class="card"><h3>الحوكمة</h3><p>لجنة توجيهية تجتمع كل شهر.</p></div>
+    </div>
+    <template data-detail-for="ph2">
+      <h3>مرحلة الأتمتة بالأرقام</h3>
+      <p>أتمتة ٣١٢ إجراء على ثلاث موجات، بدءا بالموارد البشرية ثم المالية ثم المشتريات.</p>
+      <div class="nm-stats"><div class="nm-stat"><b>٣١٢</b><span>إجراء</span></div><div class="nm-stat"><b>٪٤٥</b><span>خفض زمن المعاملة</span></div><div class="nm-stat"><b>١٨</b><span>شهرا</span></div></div>
+    </template>
+  </div>
+</section>
+
+<!-- 10. slice before (vertical) -->
+<section class="slide" data-title="slice before" id="s-slice-v">
+  <div class="camera-rig">
+    <div class="kicker">الفعل الخامس: شق عمودي</div>
+    <h1>ثلاثة مسارات للنمو</h1>
+    <div class="cols">
+      <div class="card" id="path1" data-step="1" data-act="slice" data-slice="after"><span class="tag">المسار الأول</span><h3>التوسع الجغرافي</h3><p>دخول ثلاث مدن جديدة خلال عامين، بدءا بالمدن ذات الطلب غير المخدوم.</p></div>
+      <div class="card"><span class="tag">المسار الثاني</span><h3>منتجات جديدة</h3><p>باقات للشركات الصغيرة والمتوسطة.</p></div>
+      <div class="card"><span class="tag">المسار الثالث</span><h3>الشراكات</h3><p>تكامل مع منصات الدفع والتوصيل.</p></div>
+    </div>
+    <template data-detail-for="path1">
+      <h3>المدن المستهدفة</h3>
+      <ol><li>حائل: الربع الأول</li><li>جازان: الربع الثالث</li><li>نجران: العام الثاني</li></ol>
+      <p>تكلفة الدخول التقديرية ١٨ مليون ريال لكل مدينة.</p>
+    </template>
+  </div>
+</section>
+
+</main>
+</div>
+<script>
+  document.write('<script src="' + (window.NM_LAB_REAL ? '../nm-deck.js' : 'shim-core.js') + '"><\/script>');
+</script>
+<script src="../nm-focus.js"></script>
+</body>
+</html>
