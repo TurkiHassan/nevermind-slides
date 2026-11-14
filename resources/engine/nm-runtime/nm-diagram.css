@@ -48,7 +48,7 @@
 .nm-dg-html { position: absolute; inset: 0; }
 
 /* connector overlay inside any host with data-links */
-.nm-links { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+.nm-links.nm-dg { position: absolute; inset: 0; grid-area: auto !important; pointer-events: none; z-index: 4; margin: 0; }
 
 /* ------------------------------------------------------------- nodes */
 .nm-dg-node {
@@ -105,8 +105,8 @@
 .nm-dg-chip { border-radius: 999px; padding: 10px 24px; font-size: 22px; font-weight: 500; min-width: 0; }
 .nm-dg-chip .nm-dg-s { font-size: 16px; margin-top: 0; }
 .nm-dg-pin { padding: 8px 20px 8px 18px; font-size: 21px; font-weight: 600; min-width: 0; gap: 10px; }
-.nm-dg-pin .nm-dg-txt::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--dg-accent); margin-inline-end: 10px; vertical-align: middle; }
-.nm-dg-pin.is-accent .nm-dg-txt::before { background: var(--dg-on-accent); }
+.nm-dg-pin::before { content: ""; flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--dg-accent); }
+.nm-dg-pin.is-accent::before { background: var(--dg-on-accent); }
 .nm-dg-colhead { font-size: 27px; font-weight: 700; padding: 18px 24px; }
 .nm-dg-cell { font-size: 23px; font-weight: 500; padding: 14px 24px; }
 .nm-dg-sidenode .nm-dg-t { font-size: 27px; font-weight: 700; }
@@ -182,9 +182,9 @@
 .nm-dg-dash { stroke-dasharray: 9 7; }
 .nm-dg-drawmask { fill: none; stroke: #fff; stroke-width: 14; stroke-linecap: butt; }
 .nm-dg-head { fill: currentColor; stroke: none; }
-.nm-dg-flowdots { fill: none; stroke: var(--dg-accent); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 28; animation: nm-dg-flow 1.15s linear infinite; }
+.nm-dg-flowdots { fill: none; stroke: var(--dg-accent); stroke-width: 4.5; stroke-linecap: round; stroke-dasharray: 0 34; animation: nm-dg-flow 1.3s linear infinite; }
 .nm-dg-flowdots.is-slow { animation-duration: 2s; }
-@keyframes nm-dg-flow { to { stroke-dashoffset: -28; } }
+@keyframes nm-dg-flow { to { stroke-dashoffset: -34; } }
 .slide:not(.active):not(.visible) .nm-dg-flowdots { animation-play-state: paused; }
 .nm-dg-axisline { color: color-mix(in oklab, var(--dg-ink) 62%, var(--dg-paper)); }
 

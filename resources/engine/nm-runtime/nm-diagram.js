@@ -169,6 +169,7 @@
     var two = s.substr(i, 2), close, shape, start;
     if (two === '((') { close = '))'; shape = 'circle'; start = i + 2; }
     else if (two === '([') { close = '])'; shape = 'pill'; start = i + 2; }
+    else if (two === '[(') { close = ')]'; shape = 'pill'; start = i + 2; }
     else if (two === '{{') { close = '}}'; shape = 'diamond'; start = i + 2; }
     else if (s[i] === '[') { close = ']'; shape = 'rect'; start = i + 1; }
     else if (s[i] === '(') { close = ')'; shape = 'pill'; start = i + 1; }
@@ -958,6 +959,27 @@
         placeLayer(L, des, sep);
       }
     }
+    /* keep non-members out of group containers */
+    M.groups.forEach(function (g, gi) {
+      var mem = V.filter(function (v) { return v.g === gi && !v.dummy; });
+      if (!mem.length) return;
+      var r0 = Math.min.apply(null, mem.map(function (v) { return v.r; })), r1_ = Math.max.apply(null, mem.map(function (v) { return v.r; }));
+      for (var pass = 0; pass < 2; pass++) {
+        var lo = Math.min.apply(null, mem.map(function (v) { return v.c - v.cs / 2; })) - (horiz ? 60 : 28) - 18;
+        var hi = Math.max.apply(null, mem.map(function (v) { return v.c + v.cs / 2; })) + (horiz ? 26 : 28) + 18;
+        var mid = (lo + hi) / 2;
+        for (var rr = r0; rr <= r1_; rr++) {
+          var L = layers[rr];
+          L.forEach(function (v, i) {
+            if (v.g === gi || v.dummy) return;
+            var a = v.c - v.cs / 2, b = v.c + v.cs / 2;
+            if (b <= lo || a >= hi) return;
+            if (v.c >= mid) { var d1 = hi - a; for (var k = i; k < L.length; k++) L[k].c += d1; }
+            else { var d2 = b - lo; for (var k2 = 0; k2 <= i; k2++) L[k2].c -= d2; }
+          });
+        }
+      }
+    });
     var cmin = Infinity, cmax = -Infinity;
     V.forEach(function (v) { cmin = Math.min(cmin, v.c - v.cs / 2); cmax = Math.max(cmax, v.c + v.cs / 2); });
     V.forEach(function (v) { v.c -= cmin; });
@@ -1069,6 +1091,22 @@
       var S = exitPoint(a.n, sv0.x, sv0.y, cvec.x, cvec.y), Tt = exitPoint(b.n, tv0.x, tv0.y, cvec.x, cvec.y);
       var A1 = map(a.p + offA, Lc), B1 = map(b.p + offB, Lc);
       var sp = { from: a.n, to: b.n, arrow: e.arrow, style: e.style, label: e.label, eord: 1e6 + e.idx, cls: 'is-back' };
+      var blocked = function (v) { return layers[v.r].some(function (w) { return w !== v && w.c > v.c && !w.dummy; }); };
+      var bA = blocked(a), bB = blocked(b);
+      if (bA || bB) {
+        var pts = [];
+        if (bA) {
+          var chA = a.p - T[a.r] / 2 - (a.r > 0 ? gaps[a.r - 1] * 0.32 : 30);
+          pts.push(portXY(a, a.cs * 0.3, -1), map(chA, a.c + a.cs * 0.3), map(chA, Lc));
+        } else pts.push(S, horiz ? pt(S.x, A1.y) : pt(A1.x, S.y));
+        if (bB) {
+          var chB = b.p + T[b.r] / 2 + (b.r < R - 1 ? gaps[b.r] * 0.32 : 30);
+          pts.push(map(chB, Lc), map(chB, b.c + b.cs * 0.3), portXY(b, b.cs * 0.3, 1));
+        } else pts.push(horiz ? pt(Tt.x, B1.y) : pt(B1.x, Tt.y), Tt);
+        sp.pts = pts; sp.radius = 20;
+        D.edge('f' + e.idx, sp);
+        return;
+      }
       if (edgeMode === 'curve') {
         var ext = map(0, Lc + 18), A2 = horiz ? pt(S.x, ext.y) : pt(ext.x, S.y), B2 = horiz ? pt(Tt.x, ext.y) : pt(ext.x, Tt.y);
         sp.bez = [S, A2, B2, Tt];
@@ -1500,8 +1538,8 @@
     if (xa[0]) { var XT = D.label('xt', esc(xa[0]), 'nm-dg-axtitle', pw * 0.6); D.put(XT, (px0 + px1) / 2, py1 + 62, false); }
     if (xa[1]) { var XL = D.label('xl', esc(xa[1]), 'nm-dg-axend', 260); D.put(XL, rtl ? px1 - XL.w / 2 : px0 + XL.w / 2, py1 + 62, false); }
     if (xa[2]) { var XH = D.label('xh', esc(xa[2]), 'nm-dg-axend', 260); D.put(XH, rtl ? px0 + XH.w / 2 : px1 - XH.w / 2, py1 + 62, false); }
-    if (ya[0]) { var YT = D.label('yt', esc(ya[0]) + (ya[2] ? ' <span>' + esc(ya[2]) + '</span>' : ''), 'nm-dg-axtitle', pw * 0.6); D.put(YT, rtl ? px1 + 22 - YT.w / 2 + 14 : px0 - 22 + YT.w / 2 - 14, py0 - 18 - YT.h / 2, false); }
-    if (ya[1]) { var YL = D.label('yl', esc(ya[1]), 'nm-dg-axend is-small', 200); D.put(YL, rtl ? px1 - 12 - YL.w / 2 : px0 + 12 + YL.w / 2, py1 - 12 - YL.h / 2, false); obstacles.push({ x: YL.x - YL.w / 2, y: YL.y - YL.h / 2, w: YL.w, h: YL.h }); }
+    if (ya[0]) { var YT = D.label('yt', esc(ya[0]) + (ya[2] ? ' <span>' + esc(ya[2]) + '</span>' : ''), 'nm-dg-axtitle', pw * 0.6); D.put(YT, rtl ? px1 + 22 - YT.w / 2 + 14 : px0 - 22 + YT.w / 2 - 14, py0 - 22 - YT.h / 2, false); }
+    if (ya[1]) { var YL = D.label('yl', esc(ya[1]), 'nm-dg-axend is-small', 200); D.put(YL, rtl ? px1 + 40 + YL.w / 2 : px0 - 40 - YL.w / 2, py1 - YL.h / 2, false); }
     var nodes = M.items.map(function (it, i) {
       var v = it.raw.split(/\s*[,،]\s*/).map(parseNum);
       var nd = D.syn('m' + i, { label: it.key || it.label, sub: it.key ? '' : it.sub, shape: 'pill', cls: 'nm-dg-pin', tone: it.accent ? ['accent'] : [] });
@@ -1552,8 +1590,9 @@
     var gap = 8, bandH = clamp((H - gap * (n - 1)) / n, 64, 150);
     bandH = Math.max(bandH, Math.max.apply(null, nodes.map(function (nd) { return nd.h; })) + 8);
     var Ht = bandH * n + gap * (n - 1);
-    var sx0 = rtl ? 0 : W - shapeW, scx = sx0 + shapeW / 2;
-    var tx1 = rtl ? W : tw, anyAcc = items.some(function (it) { return it.accent; });
+    var off = Math.max(0, (W - shapeW - gapX - tw) / 2);
+    var sx0 = rtl ? off : W - off - shapeW, scx = sx0 + shapeW / 2;
+    var tx1 = rtl ? W - off : off + tw, anyAcc = items.some(function (it) { return it.accent; });
     var max0 = hasVals ? Math.max.apply(null, vals) : 1;
     function widthAt(i, bottom) {
       if (kind === 'pyramid') { var y = i * (bandH + gap) + (bottom ? bandH : 0); return shapeW * Math.max(0.0, y / Ht); }
@@ -1566,7 +1605,7 @@
       var shade = anyAcc ? (it.accent ? ' is-accent' : ' is-neutral') : ' g' + Math.min(5, Math.round(i * 5 / Math.max(1, n - 1)));
       D.shape('band' + i, 'polygon', { points: ptsS, 'class': 'nm-dg-tier' + shade }, D.gBack, { attach: nodes[i] });
       var nd = nodes[i], cy = y0 + bandH / 2;
-      var tcx = rtl ? tx1 - tw / 2 : tw / 2;
+      var tcx = rtl ? tx1 - tw / 2 : tx1 - tw / 2;
       D.place(nd, tcx, cy);
       var wm = (wt + wb) / 2, edgeX = rtl ? scx + wm / 2 : scx - wm / 2, nodeEdge = rtl ? tcx - tw / 2 : tcx + tw / 2;
       D.shape('lead' + i, 'line', { x1: r1(edgeX + (rtl ? 10 : -10)), y1: r1(cy), x2: r1(nodeEdge + (rtl ? -14 : 14)), y2: r1(cy), 'class': 'nm-dg-leader' }, D.gBack, { attach: nd });

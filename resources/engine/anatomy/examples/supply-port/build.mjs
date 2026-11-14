@@ -91,7 +91,7 @@ sc.add(S.container(P, { id: "truck.queue.box", at: [LANE2, -61, 2.8], rot: 1, to
 sc.add(S.person(P, { id: "checker", at: [21, 79] }), S.person(P, { id: "lasher", at: [-6, -12] }), S.person(P, { id: "foreman", at: [-4, -9.4], h: 3.4 }));
 for (const [i, y] of [-74, -60, -14, 36, 58, 76].entries()) sc.add(S.bollard(P, { id: `bollard${i}`, at: [-10.2, y] }));
 for (const [i, at] of [[40, -24], [40, 46], [86, 24]].entries()) sc.add(S.lightMast(P, { id: `mast${i}`, at, h: 34 }));
-for (const [i, y] of [-74, -68].entries()) sc.add(S.cone(P, { id: `cone${i}`, at: [LANE2 + 2.6, y] }));
+for (const [i, y] of [-74, -68].entries()) sc.add(S.cone(P, { id: `cone${i}`, at: [LANE2 + 4.6, y] }));
 
 // ---------------------------------------------------------------- movers (the live parts)
 const xs = [...new Set([...Array.from({ length: 25 }, (_, i) => -36 + i * 3), ...GEOM.rows, GEOM.lane, ...GEOM.slots].map((v) => Math.round(v * 10) / 10))].sort((a, b) => a - b);
