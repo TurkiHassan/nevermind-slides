@@ -45,9 +45,11 @@ Dims, blurs and desaturates everything except the element; an accent ring draws 
 | Attribute | Values | Default |
 |---|---|---|
 | `data-focus-note` | short caption shown under the spotlight | none |
-| `data-focus-zoom` | empty, or a max zoom such as `1.8` | off |
+| `data-focus-zoom` | empty, or a ceiling such as `1.8` (default ceiling 2.4) | off |
 | `data-focus-shape` | `auto`, `rect`, `circle` | `auto` (round elements get a circle) |
 | `data-focus-pad` | px around the element | `18` |
+
+`data-focus-zoom` zooms the camera only as far as the element still fits the stage with 160px of air, never past the ceiling. An element that already fills most of the stage gets no zoom (plain spotlight). The camera never shows space outside the slide, so an element near an edge stays off-centre after the zoom; the spotlight, ring and note follow its real position, which is intended. Use it on small things (a sparkline, a table cell, a legend), not on a figure that fills its half of the slide.
 
 ```html
 <div class="card" data-step="1" data-act="focus" data-focus-note="أعلى نمو منذ عامين">...</div>
@@ -70,6 +72,7 @@ The element lifts out of the slide, the slide recedes, and a panel shows the det
 - `expand`: the element grows into a centred hero card holding the detail.
 - `sheet`: a drawer rises from the bottom; the slide shifts up so the element stays visible.
 - `popover`: a bubble opens next to the element on the side with most room.
+- Content taller than the room is never cut: the panel first shrinks its text (down to 75%), then scrolls inside with a fade at the bottom edge (mouse wheel). Still, keep it short.
 - Pages: write several templates with the same `data-detail-for`. Arrow keys page through them before the next step; the panel shows dots and arrows.
 
 ```html
@@ -127,7 +130,9 @@ Numbered pins drop onto a figure; each has a leader line to a label card placed 
 </div>
 ```
 
-Leave space beside the figure (keep it under about 1000px wide) so cards sit outside it.
+Leave space beside the figure (keep it under about 1000px wide) so cards sit outside it. Cards avoid the slide's headings and lead text.
+
+Pins, lens and focus also work on an inline SVG figure (for example an anatomy figure inside `<div data-anatomy="..." data-act="pins">`) and on single diagram nodes (`data-node-steps` on the figure, see diagrams.md).
 
 ## slice
 

@@ -55,7 +55,7 @@ Users are usually non-technical. Never ask them to run commands.
 | Anatomy: topic-native props (`scene.mjs`) | `resources/engine/anatomy/references/scene-kit.md` |
 | Anatomy: craft, API, verification | `resources/engine/anatomy/SKILL.md` and its `references/` |
 | Legacy v1 decks (old `SlidePresentation` class) | `references/motion-graphics-cookbook.md` |
-| A complete worked deck to imitate | `examples/showcase/` |
+| A complete worked deck to imitate (14 slides, every feature, passes every gate) | `examples/showcase/` (`deck.plan.json` then `deck.html`) |
 
 ---
 
@@ -175,10 +175,12 @@ This writes `<project_dir>/<slug>-slides.html`, stages fonts into `assets/fonts/
 
 Work slide by slide. Keep the generated structure; change content, not scaffolding.
 
-- **Text:** use the type classes (`nm-t-display`, `nm-t-h1`..`nm-t-h3`, `nm-t-lead`, `nm-t-body`, `nm-t-caption`, `nm-t-num`) and the layout compositions (`nm-l-*`) from `references/diagrams.md` section 6. Body text 28px or larger. One accent colour.
+- **Text and layout:** use the type classes (`nm-t-display`, `nm-t-h1`..`nm-t-h3`, `nm-t-lead`, `nm-t-body`, `nm-t-caption`, `nm-t-num`) and the compositions scaffold already placed (`nm-l-title`, `nm-l-section`, `nm-l-split`, `nm-l-hero-figure`, `nm-l-figure-full`, `nm-l-bento-3..6`, `nm-l-cards-2..4`, `nm-l-rail`, `nm-l-quote`, `nm-l-stat-row`, `nm-l-compare`, `nm-l-steps`; details in `references/diagrams.md` section 6). Body text 28px or larger. One accent colour. No Tailwind: the deck works offline (`scaffold --tailwind` only if the user wants the editor's token panel).
 - **Morph:** give an element the same `data-morph="id"` on two consecutive slides. Headings with identical text, identical images and diagram nodes pair automatically. Kinds: box, text, `words` (shared words fly individually), image, path, number. See `references/morph-and-motion.md`.
 - **Transition:** leave `data-transition="auto"` and set `data-rel`; set a name only for a deliberate effect (`fade-through`, `push`, `zoom-through`, `iris`, `wipe`, `curtain`, `depth`, `fold`, `dissolve`, `none`).
-- **Steps:** `data-step="N" data-act="reveal|zoom|highlight|focus|detail|lens|pins|slice|draw"`. Elements sharing N appear together. Arrows step first, then change slide.
+- **Steps:** `data-step="N" data-act="reveal|zoom|highlight|focus|detail|lens|pins|slice|draw"`. Elements sharing N appear together. Arrows step first, then change slide. `data-focus-zoom` is a ceiling: the camera zooms only as far as the subject fits.
+- **Images in frames:** put `data-morph` on the `<img>` inside `.nm-img`, not on the frame.
+- **Live iframes** (animated anatomy): the deck keeps the arrow keys; add `data-nm-keys="frame"` only if the frame must own the keyboard.
 - **Entrances:** automatic for top-level blocks. Override with `data-entrance="rise|fade|clip|scale|blur|draw|type|count|slide"`.
 - **Ambient motion:** `.mg-flow`, `.mg-pulse`, `.mg-radar`, `.mg-scan`, `.mg-drift` on SVG parts, and `data-flow="on"` on diagrams. Use them where something really flows or watches; never as filler.
 
@@ -193,7 +195,7 @@ Work slide by slide. Keep the generated structure; change content, not scaffoldi
 </figure>
 ```
 
-Pick the type with the table at the top of `references/diagrams.md`. Re-use the same `data-id` on the next slide with a different type, layout or emphasis and the nodes morph across. Connect your own cards with `data-node="a"` and `data-links="a>b: تسمية; b~>c"` on a parent.
+Pick the type with the table at the top of `references/diagrams.md`. Re-use the same `data-id` on the next slide with a different type, layout or emphasis and the nodes morph across. Reveal progressively with `data-steps="rank|node|edge|series|all"`, or name nodes yourself with `data-node-steps="enc:1, probe:2:highlight"`. `data-grow="1"` keeps a sparse diagram at natural size (default grows it to fill its cell). Connect your own cards with `data-node="a"` and `data-links="a>b: تسمية; b~>c"` on a parent.
 
 ### 3.5 Anatomy figures
 

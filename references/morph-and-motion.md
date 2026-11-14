@@ -55,7 +55,7 @@ Kinds (picked automatically; set `data-morph-kind` only to force):
 | `box` | anything else (cards, panels, groups) | `<div data-morph="panel" class="card">...</div>` |
 | `text` | text-only element, no background/border | `<h2 data-morph="t">العنوان</h2>` |
 | `words` | never automatic. Set it. Matching words fly one by one | `<h1 data-morph="t" data-morph-kind="words">الحركة تصنع المعنى</h1>` then `<h1 data-morph="t" data-morph-kind="words">المعنى يصنع الحركة</h1>` |
-| `image` | both are `<img>`. The crop (`object-fit`/`object-position`) morphs too | `<img data-morph="photo" src="a.jpg" style="object-fit:cover;border-radius:50%">` |
+| `image` | both are `<img>`. The crop (`object-fit`/`object-position`) morphs too | `<img data-morph="photo" src="a.jpg" style="object-fit:cover;border-radius:50%">` (inside an `nm-img` frame the img inherits the frame's arch / circle corners, so put `data-morph` on the `<img>`) |
 | `path` | both are SVG shapes: `path` `circle` `rect` `ellipse` `polygon` `polyline` `line` | `<circle data-morph="s" .../>` then `<polygon data-morph="s" .../>` |
 | `number` | both contain one number with different values. Counts between them, keeps Arabic-Indic or Western digits, separators and suffix | `<p data-morph="n">١٢٬٥٠٠ ريال</p>` then `<p data-morph="n">٤٨٬٢٠٠ ريال</p>` |
 
@@ -203,7 +203,7 @@ Controls appear when the mouse touches the bottom edge. A font button appears wh
 |---|---|
 | `deck.html#/3` | open slide 3 |
 | `deck.html#/3/2` | open slide 3 at step 2 |
-| `deck.html?nm-speed=0` | no animation, same final layout (audits, screenshots) |
+| `deck.html?nm-speed=0` | no animation, same final layout (audits, screenshots); `body` gets class `nm-instant` |
 | `deck.html?nm-speed=0.5` | everything at half speed (to inspect motion) |
 | `deck.html?nm-print` | all slides stacked, every step shown, no controls (PDF, review) |
 

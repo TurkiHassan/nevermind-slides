@@ -79,7 +79,7 @@
     .sc-meta { display: flex; gap: 12px; margin: 24px 0 0; }
     .sc-fill { block-size: 100%; }
     .sc-circle { inline-size: min(100%, 760px); block-size: auto !important; justify-self: center; }
-    .sc-plate { opacity: .5; }
+    .sc-plate { opacity: .32; }
     .sc-over { z-index: 1; }
     .sc-figure-cell { display: grid; place-items: center; min-block-size: 0; }
     .sc-anatomy { position: relative; block-size: 100%; aspect-ratio: 640 / 420; max-inline-size: 960px; }
@@ -90,6 +90,10 @@
     .sc-chart { block-size: 100%; }
     .sc-ico { inline-size: 64px; block-size: 64px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; color: var(--nm-accent); }
     .nm-card.is-accent .sc-ico { color: #fff; }
+    .nm-l-cards-3 > .nm-card > .sc-ico { margin-block-end: auto; }
+    .nm-l-cards-3 > .nm-card { padding: 48px 48px 52px; }
+    .nm-l-cards-3 > .nm-card > h3 { font-size: 44px; }
+    .nm-l-cards-3 > .nm-card > p { font-size: 30px; }
     .sc-num { font-size: 26px; font-weight: 800; color: var(--nm-accent); font-variant-numeric: tabular-nums; }
     .nm-card.is-accent .sc-num { color: #fff; }
     .sc-panel { block-size: 100%; justify-content: center; padding: 72px 80px; gap: 12px; }
@@ -160,7 +164,7 @@
   <div class="camera-rig">
     <figure class="nm-img nm-img-bleed nm-scrim-none sc-plate" aria-hidden="true"><img src="assets/img/plate-waves.svg" alt=""></figure>
     <div class="nm-slide-pad nm-l-section">
-    <p class="nm-section-num" aria-hidden="true">٠١</p>
+    <p class="nm-section-num" aria-hidden="true">١</p>
     <hr class="nm-rule is-accent">
     <p class="nm-kicker">الفصل الأول</p>
     <h2 class="nm-t-h1">من السفينة إلى الرصيف</h2>
@@ -312,7 +316,7 @@
       </ul>
     </header>
     <div class="sc-live" data-anatomy="supply-port" data-mode="animated" data-step="3" data-act="zoom" data-zoom-label="الرافعة" data-zoom-pad="60">
-      <iframe src="../../resources/engine/anatomy/examples/supply-port/supply-port-light.html" title="رصيف حاويات متحرك: رافعة ومكدس وشاحنات" loading="lazy"></iframe>
+      <iframe src="../../resources/engine/anatomy/examples/supply-port/supply-port-light.html" title="رصيف حاويات متحرك: رافعة ومكدس وشاحنات"></iframe>
     </div>
     </div>
   </div>
@@ -325,6 +329,7 @@
     <header class="nm-head">
       <p class="nm-kicker">المسار</p>
       <h2 class="nm-t-h2" data-morph="title" data-morph-kind="words">رحلة الحاوية في ست محطات</h2>
+      <p class="nm-t-lead">من لحظة الرسو إلى لحظة الخروج من البوابة، والمعين هو المحطة التي قد تعيد الحاوية خطوة إلى الوراء</p>
     </header>
     <figure class="nm-diagram" data-type="flow" data-id="journey" aria-label="رحلة الحاوية في ست محطات" data-steps="rank" data-step-from="1">
     <script type="text/nm-diagram">
@@ -363,7 +368,7 @@
   <div class="camera-rig">
     <figure class="nm-img nm-img-bleed sc-bleed"><img src="assets/img/container-yard.jpg" alt="صفوف حاويات مكدسة في ساحة الميناء"></figure>
     <div class="nm-slide-pad nm-l-section sc-over">
-    <p class="nm-section-num" aria-hidden="true">٠٢</p>
+    <p class="nm-section-num" aria-hidden="true">٢</p>
     <hr class="nm-rule is-accent">
     <p class="nm-kicker">الفصل الثاني</p>
     <h2 class="nm-t-h1">أين يضيع الوقت</h2>
@@ -382,7 +387,7 @@
       <p class="nm-t-lead">متوسط الساعات التي تقضيها الحاوية في كل محطة قبل أن تغادر الميناء</p>
     </header>
     <figure class="nm-diagram sc-chart" data-type="bars" data-id="dwell" aria-label="متوسط ساعات الانتظار في كل محطة" data-steps="series" data-step-from="1"
-            data-step="5" data-act="focus" data-focus-zoom="1.25" data-focus-note="الساحة وحدها أكثر من نصف الرحلة">
+            data-step="5" data-act="focus" data-focus-note="الساحة وحدها أكثر من نصف الرحلة">
     <script type="text/nm-diagram">
       unit:  ساعة
       الرصيف: ٦
@@ -435,7 +440,7 @@
     <div class="nm-head">
       <p class="nm-kicker">إيقاع الرافعة اليوم</p>
       <h2 class="nm-t-h2">الإنتاجية تتذبذب طوال الوردية</h2>
-      <svg class="sc-spark" viewBox="0 0 640 220" role="img" aria-label="إنتاجية متذبذبة خلال الوردية">
+      <svg class="sc-spark" viewBox="0 0 640 220" role="img" aria-label="إنتاجية متذبذبة خلال الوردية" data-step="2" data-act="focus" data-focus-zoom data-focus-note="الفارق بين أفضل ساعة وأسوئها يقارب الضعف">
         <line x1="0" y1="200" x2="640" y2="200" class="sc-axis"/>
         <polyline data-morph="trend" class="sc-trend" points="0,120 80,70 160,150 240,90 320,170 400,80 480,160 560,100 640,140"/>
       </svg>
@@ -477,7 +482,7 @@
     </div>
     <template data-detail-for="s12-more">
       <h3>الفرق في سنة واحدة</h3>
-      <div class="nm-stats"><div class="nm-stat"><b>+٥٥٪</b><span>حاويات في الساعة</span></div><div class="nm-stat"><b>−٤٠٪</b><span>انتظار الشاحنات</span></div><div class="nm-stat"><b>٠</b><span>حوادث على الرصيف</span></div></div>
+      <div class="nm-stats"><div class="nm-stat"><b>+٥٥٪</b><span>حاويات في الساعة</span></div><div class="nm-stat"><b>−٤٠٪</b><span>انتظار الشاحنات</span></div><div class="nm-stat"><b>صفر</b><span>حوادث على الرصيف</span></div></div>
     </template>
     </div>
   </div>

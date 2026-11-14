@@ -1241,8 +1241,8 @@ def _composition(layout: str, has_visual: bool, visual_is_graphic: bool, n_body:
 
 
 def _digits(n: int, arabic: bool) -> str:
-    s = f"{n:02d}"
-    return "".join(_AR_DIGITS[int(c)] for c in s) if arabic else s
+    # Arabic-Indic zero is a small dot, so "٠١" reads as a bullet: no zero padding in Arabic digits
+    return "".join(_AR_DIGITS[int(c)] for c in str(n)) if arabic else f"{n:02d}"
 
 
 def _build_slide(

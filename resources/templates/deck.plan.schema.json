@@ -48,14 +48,14 @@
         "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$" },
         "title": { "type": "string", "description": "Short label used as data-title and in the overview grid" },
         "role": { "enum": ["cover", "section", "concept", "mechanism", "evidence", "comparison", "process", "quote", "summary", "closing"] },
-        "layout": { "type": "string", "description": "nm-l-* composition name without the prefix, e.g. split, hero, stat" },
+        "layout": { "type": "string", "description": "short name (cover section split split-rev hero stat cards compare diagram timeline quote center list) or a real nm-l-* composition without the prefix (title, hero-figure, bento-4, cards-3, stat-row, rail, steps, ...)" },
         "visual": {
           "type": "object",
           "properties": {
             "type": { "enum": ["anatomy", "image", "diagram", "chart", "motion", "none"] },
             "ref": { "type": "string", "description": "anatomy: figure name (needs <ref>.brief.json); image: intended file stem" },
             "mode": { "enum": ["static", "animated"], "description": "required for anatomy" },
-            "diagram_type": { "type": "string", "description": "nm-diagram data-type, e.g. flow, cycle, bar" },
+            "diagram_type": { "type": "string", "description": "nm-diagram data-type (flow tree cycle hub swimlane sequence timeline layers matrix funnel pyramid venn compare bars line donut gauge stat) or an alias (bar column area pie stack network graph kpi)" },
             "query": { "type": "string", "description": "image search or generation prompt" }
           }
         },

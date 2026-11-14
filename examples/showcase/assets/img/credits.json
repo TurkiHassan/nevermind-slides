@@ -79,8 +79,8 @@
           1080
         ],
         "focus": {
-          "x": 50.6,
-          "y": 56.0
+          "x": 50.0,
+          "y": 72.0
         },
         "tool": "pillow",
         "slot": [
@@ -88,7 +88,7 @@
           1080
         ],
         "ratio": 1.7778,
-        "fitted_at": "2026-11-14T20:50:12+00:00",
+        "fitted_at": "2026-11-14T21:02:24+00:00",
         "css_fallback": false
       },
       "final": "assets/img/container-yard.jpg",
@@ -100,7 +100,7 @@
         "accent": "#c2410c",
         "grain": 0.2,
         "contrast": 1.0,
-        "treated_at": "2026-11-14T20:50:12+00:00"
+        "treated_at": "2026-11-14T21:02:24+00:00"
       }
     },
     {

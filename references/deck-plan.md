@@ -9,7 +9,7 @@ All commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command> ...`
 1. `plan-init --target-dir DIR --title "العنوان" [--slides N]` writes `DIR/deck.plan.json`. Without `--slides` you get the full 8-slide example. With `--slides N` (5..24) you get N stubs.
 2. Edit the plan. Keep headlines short, keep one idea per slide.
 3. `plan-lint --plan DIR/deck.plan.json [--output report.json]`. Fix every error. Read every warning.
-4. `scaffold --plan DIR/deck.plan.json [--out DIR/name-slides.html] [--force]`. Refuses to run while plan-lint has errors. Also stages fonts and runtime into `DIR/assets/`.
+4. `scaffold --plan DIR/deck.plan.json [--out DIR/name-slides.html] [--force] [--tailwind]`. Refuses to run while plan-lint has errors. Also stages fonts and runtime into `DIR/assets/`.
 5. Open the generated HTML. Each slide starts with a comment listing its remaining TODOs. Replace placeholders (`data-nm-todo`) with real content.
 6. `audit-deck --html-path FILE`. Fix errors. Placeholders left in the deck show up as warnings.
 7. `check --html-path FILE [--shots DIR] [--slides 1-5]`. Needs Node 20+ and Chrome. Exit code 2 means Node or Chrome is missing (not a deck problem). Read the contact sheet PNG and the per-slide table. Fix, rerun.
@@ -43,17 +43,17 @@ Other commands: `stage-runtime --target-dir DIR [--inline]` copies `assets/nm/` 
 | `mode` | `morph-and-zoom`, `morph-only`, `classic` |
 | `image_source` | `generate`, `web`, `none` |
 | `role` | `cover section concept mechanism evidence comparison process quote summary closing` |
-| `layout` | `cover section split split-rev hero stat cards compare diagram timeline quote center list` |
+| `layout` | short names `cover section split split-rev hero stat cards compare diagram timeline quote center list`, or any real `nm-layout.css` composition: `title section split hero-figure figure-full bento-3..6 cards-2..4 rail quote stat-row compare steps` (table below) |
 | `visual.type` | `anatomy image diagram chart motion none` |
 | `visual.mode` | `static`, `animated` (required for anatomy) |
-| `visual.diagram_type` | `flow cycle tree hub layers timeline compare matrix funnel venn bar line area donut pie gauge scatter stat network graph stack steps` |
+| `visual.diagram_type` | what `nm-diagram.js` renders: `flow tree cycle hub swimlane sequence timeline layers matrix funnel pyramid venn compare bars line donut gauge stat`; friendly aliases `bar column` (bars), `area` (line with fill), `pie` (donut), `stack` (layers), `network graph` (flow), `kpi` (stat) |
 | `rel` | `next deeper back-out chapter contrast time` |
 | `transition` | `auto fade-through push zoom-through iris wipe curtain depth fold dissolve none` |
 | step `act` | `reveal zoom highlight focus detail lens pins slice draw` |
 
 `morph` lists shared element ids. Conventional ids: `title` (headline), `kicker`, `visual`, `stat`, `body1..bodyN`. The same id must be on the previous or the next slide.
 
-Step `target`: `headline`, `kicker`, `visual`, `stat`, `body` (the whole list), `bodyN` (item N), or `node:<id>` (a node of a flow, tree, cycle or hub diagram; the node is created in the starter diagram). Steps are numbered in the order you write them. Default target is `visual`. One element carries one step; give two steps to two elements.
+Step `target`: `headline`, `kicker`, `visual`, `stat`, `body` (the whole list), `bodyN` (item N), or `node:<id>` (a node of a flow, tree, cycle, hub, swimlane or sequence diagram; the node is created in the starter diagram and the step lands in the figure's `data-node-steps`, so any act works on a single node). Steps are numbered in the order you write them. Default target is `visual`. One element carries one step; give two steps to two elements.
 
 On a diagram or chart, `reveal` or `draw` on `visual` builds the whole figure in one step. Write `visual:rank` (graph diagrams) or `visual:series` (charts) to build it piece by piece; the diagram then takes a block of step numbers, so later steps are renumbered for you. If you edit the diagram by hand afterwards, renumber the other `data-step` values on that slide.
 
@@ -97,13 +97,30 @@ The report also lists a per-slide motion score (0 to 10) and the slides that are
 
 ## What scaffold writes
 
-Each slide becomes `<section class="slide" data-title data-rel data-transition>` with a `.camera-rig` and an `nm-l-<layout>` composition. Text sits in slots (`nm-slot-head`, `nm-slot-body`, `nm-slot-visual`, `nm-slot-stat`) with `nm-t-*` type classes. Morph ids become `data-morph`; steps become `data-step` and `data-act`.
+Each slide becomes `<section class="slide" data-title data-rel data-transition>` with a `.camera-rig` holding one `<div class="nm-slide-pad nm-l-<composition>">` whose direct children are the parts that composition expects (no wrapper slots). Short plan names map to real compositions, adapting to the content:
+
+| Plan `layout` | Composition written | Children |
+|---|---|---|
+| `cover` | `nm-l-title` (with an image: `nm-l-split` 7:5) | `nm-kicker`, `h1.nm-t-display`, `nm-t-lead` |
+| `center` | `nm-l-title` (with a visual: `nm-l-split` 7:5) | kicker, `nm-t-h1`, lead |
+| `section` | `nm-l-section` | `nm-section-num` (chapter number), `nm-rule is-accent`, kicker, `nm-t-h1`, lead |
+| `split` / `split-rev` | `nm-l-split` (5:7 with a diagram or figure, 1:1 with a photo; `split-rev` puts the visual first) | `nm-head` text column, visual |
+| `hero`, `diagram`, `timeline` | `nm-l-hero-figure` | `nm-head`, figure |
+| `stat` | `nm-l-stat-row`, or `nm-l-split` with text when there are body points or a visual | `nm-stat-block` (`nm-t-num` + label) |
+| `cards` | `nm-l-cards-2..4` by body count (`nm-l-bento-*` with a visual) | `nm-head`, one `nm-card` per body point |
+| `compare` | `nm-l-compare` (with a visual: `nm-l-hero-figure`) | `nm-head`, two `nm-side` columns |
+| `quote` | `nm-l-quote` | `blockquote`, `cite` |
+| `list` | `nm-l-rail` (with a visual: `nm-l-split`) | `nm-rail-head`, `nm-rail-main` |
+
+One body point becomes a `nm-t-lead` paragraph, several become a `ul.nm-list`. Morph ids become `data-morph`; steps become `data-step` and `data-act`; a `detail` or `slice` step also writes the element `id` and a `<template data-detail-for>` to fill; a `pins` step on the visual writes a starter `.nm-pin`.
+
+The deck links only local files: fonts in `assets/fonts/`, the runtime in `assets/nm/`, `nm-layout.css` for layout and type. No CDN and no Tailwind, so it works with no network. `scaffold --tailwind` adds the Tailwind CDN mapped to the theme tokens (needs network; only for users of the bundled editor's token panel).
 
 Placeholders you must replace (each is marked `data-nm-todo` and explained in the slide's comment):
 
 - image: `assets/img/_placeholders/<slide>.svg` stands in; save the real file as `assets/img/<ref>.jpg`, set `src`, and record it in `assets/img/credits.json` (`scripts/image_fetch.py` does this for web images).
 - anatomy: a `div` with `data-anatomy="<ref>"`; build the figure with the anatomy engine and save `<ref>.brief.json`.
-- diagram and chart: a `figure.nm-diagram` whose `<script type="text/nm-diagram">` holds a starter text DSL (for example `a[Label] -> b[Label]` for flows, `Label: value` lines for charts); edit labels and values.
+- diagram and chart: a `figure.nm-diagram` with `data-type` (always a real type) and `data-id` (the visual `ref`), whose `<script type="text/nm-diagram">` holds a starter text DSL that renders as is (for example `a[Label] -> b[Label]` for flows, `Label: value` lines for charts); edit labels and values, keep node ids used by `data-node-steps`.
 - motion: an inline SVG placeholder; draw the motion graphic.
 
 When you change the plan after editing the HTML, do not rerun `scaffold --force` over your edits; copy the new slide by hand, or keep the old file (it is saved as `.bak`).
@@ -115,10 +132,10 @@ When you change the plan after editing the HTML, do not rerun `scaffold --force`
 | C-OUT | Element leaves the 1920x1080 stage. Decorative parts must be `aria-hidden` or `.nm-bleed`. |
 | C-CLIP | Text is cut by its box. |
 | C-OVERLAP | Two text blocks overlap by more than 8px. |
-| C-SMALL | Text under 22px (captions are exempt). |
+| C-SMALL | Text rendered under 22px, measured after transforms (captions are exempt; labels inside diagrams and charts may go down to 18px). |
 | C-CONTRAST | Text below 4.5:1 against its background (3:1 for text at 32px and above). Text over images is skipped. |
 | C-IMG | Broken image. |
 | C-FONT | A declared font did not load. |
 | C-GHOST | Morph ghosts left after a transition. |
-| C-STEPS | Declared steps are not all reachable with the arrow keys. |
-| C-CONSOLE | Console error or exception. Network errors for external hosts are warnings when offline (for example the Tailwind CDN). |
+| C-STEPS | Declared steps are not all reachable with the arrow keys (the release step core adds after a final transient act is expected, not counted as extra). |
+| C-CONSOLE | Console error or exception. Network errors for external hosts are warnings when offline (for example the Tailwind CDN of a `--tailwind` deck). |

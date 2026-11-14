@@ -1744,7 +1744,12 @@
       return { label: lab, raw: raw, value: parseNum(raw), sub: it.sub, accent: it.accent };
     });
   }
-  function unitText(raw, unit) { return unit && raw.indexOf(unit) < 0 ? raw + unit : raw; }
+  /* word units (ساعة, days) get a space; symbols (%, ٪, $) stick to the number */
+  function unitText(raw, unit) {
+    unit = String(unit || '').trim();
+    if (!unit || raw.indexOf(unit) >= 0) return raw;
+    return raw + (/^[A-Za-z\u0600-\u06FF]{2}/.test(unit) ? ' ' : '') + unit;
+  }
   function countLabel(D, key, raw, cls, maxW) {
     var L = D.label(key, esc(raw), cls + ' nm-dg-count', maxW);
     L.el.setAttribute('data-count', raw);

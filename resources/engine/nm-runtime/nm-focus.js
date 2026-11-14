@@ -535,6 +535,16 @@
     var inner = n;
     S.tween(inner, { opacity: '1', translate: '0px 0px' }, { from: { opacity: '0', translate: '0px 12px' }, dur: 520, delay: delay, ease: ease('enter') });
   }
+  /* data-focus-zoom is a ceiling, not a fixed scale: the camera zooms only as far as the element still fits
+     the stage with 160px of air (default ceiling 2.4). Returns 0 when zooming would not help (the element
+     already fills the stage); focus then stays a plain spotlight. Core clamps the camera at the slide edges,
+     so an element near an edge ends up off-centre; the spotlight and ring follow its real position. */
+  function focusZoom(el) {
+    if (!el.hasAttribute('data-focus-zoom')) return 0;
+    var r = rest(el), cap = num(el.getAttribute('data-focus-zoom'), 2.4);
+    var k = Math.min(cap > 1 ? cap : 2.4, (W - 320) / Math.max(1, r.w), (H - 320) / Math.max(1, r.h));
+    return k > 1.08 ? k : 0;
+  }
   IMPL.focus = {
     open: function (S) {
       var el = S.el, r = rest(el), g = focusGeom(el, r);
@@ -542,9 +552,9 @@
       var start = inflate(g, 90); start.r = g.r + 60;
       S.tween(S.veil, { opacity: '1' }, { from: { opacity: '0' }, dur: 620 });
       makeNote(S, el, 520);
-      if (el.hasAttribute('data-focus-zoom')) {
+      if (focusZoom(el)) {
         S.zoomed = true; setGeo(S.hole, start);
-        deck.camera.to(el, { scale: num(el.getAttribute('data-focus-zoom'), undefined), pad: 160, duration: camDur() });
+        deck.camera.to(el, { scale: focusZoom(el), pad: 160, duration: camDur() });
         track(S, start, camDur(), camDur() + 300);
       } else {
         setGeo(S.hole, g); S.g = g; placeNote(S, g);
@@ -554,12 +564,12 @@
     },
     cont: function (S, el) {
       if (S.closed) return false;
-      var wasZoom = S.zoomed, zoom = el.hasAttribute('data-focus-zoom'), from = readGeo(S.hole);
+      var wasZoom = S.zoomed, zoom = !!focusZoom(el), from = readGeo(S.hole);
       S.el = el;
       makeNote(S, el, 380);
       if (zoom) {
         S.zoomed = true;
-        deck.camera.to(el, { scale: num(el.getAttribute('data-focus-zoom'), undefined), pad: 160, duration: camDur() });
+        deck.camera.to(el, { scale: focusZoom(el), pad: 160, duration: camDur() });
         track(S, from, camDur(), camDur() + 300);
       } else if (wasZoom) {
         S.zoomed = false; deck.camera.reset();

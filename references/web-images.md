@@ -96,6 +96,7 @@ Add `--grain 0.3` for film noise. Without Pillow, `treat` exits 0 and prints the
 - Aspect: `nm-ar-16x9`, `nm-ar-4x3`, `nm-ar-1x1`, `nm-ar-3x4`, `nm-ar-21x9`.
 - Masks: `nm-mask-arch`, `nm-mask-circle`, `nm-mask-blob`, `nm-mask-slant`, `nm-mask-tab`, `nm-mask-notch`. They mirror in RTL by themselves.
 - Live treatments: `nm-duotone`, `nm-mono`, `nm-tint`, `nm-grain`, `nm-vignette`, `nm-halftone` (halftone needs a light paper colour).
+- Instant mode: under `body.nm-instant` (core sets it for `?nm-speed=0`, `?nm-print` and reduced motion) Ken Burns, parallax, reveal wipes and stack tilts stop and show their end state.
 - Motion: `nm-kenburns` (only while `.slide.active`), `nm-parallax` with `.nm-px nm-px-1..3` layers, `nm-reveal-wipe` (reveals on `.is-on`, so make it a step element).
 - Layouts: `nm-img-bleed` (full-slide background, scrim on the text side; put it first in the slide), `nm-img-stack` (2 to 3 tilted prints), `nm-img-strip` (film strip of 3 to 5).
 

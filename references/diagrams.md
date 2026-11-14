@@ -58,6 +58,10 @@ Attributes on the figure:
 | `data-orient` | `h` `v` (bars) | `h` |
 | `data-area` | `on` (line: fill under the first series) | off |
 | `data-numbers` | `off` (pyramid: hide tier numbers) | on |
+| `data-node-steps` | `id:N` or `id:N:act`, comma separated: single nodes get their own step | none |
+| `data-grow` | how much a sparse figure may scale up to fill its cell (`1` = natural size) | `1.4` |
+
+Single nodes: `data-node-steps="crane:1:lens, gate:2:focus"` gives a node its own step and act (any act; default `reveal`). A `reveal`/`draw` node hides until its step and its arrows appear with the later end; a transient act (`focus`, `lens`, `detail`, `highlight`, `zoom`) leaves the node visible and isolates it at that step. It combines with `data-steps`; node ids are the DSL ids. No helper script is needed.
 
 Steps: `rank` reveals layer by layer, `node` one node at a time, `edge` one arrow at a time (best for `sequence`), `series` one bar / slice / series at a time. Arrows draw on (`data-act="draw"`), nodes rise in (`data-act="reveal"`). Without steps the whole figure animates in when its slide becomes active.
 
@@ -259,7 +263,7 @@ Add `data-dir="ttb"` for a vertical timeline (more than 7 items).
 </figure>
 ```
 
-### bars (axis always starts at zero)
+### bars (axis always starts at zero; a word unit such as `unit: ساعة` is printed after a space)
 ```html
 <figure class="nm-diagram" data-type="bars" data-id="growth" data-steps="series">
   <script type="text/nm-diagram">
@@ -358,7 +362,7 @@ Put one composition class next to `nm-slide-pad` on the rig's child. Never posit
 | `nm-l-steps` | optional `nm-head`, then 2-6 steps (auto-numbered) |
 
 Type: `nm-t-display` 124, `nm-t-h1` 84, `nm-t-h2` 62, `nm-t-h3` 42, `nm-t-lead` 36, `nm-t-body` 30, `nm-t-caption` 24, `nm-t-num` 168 (px). Body text never below 28px.
-Parts: `nm-head` (title group), `nm-kicker`, `nm-card` (`is-accent`, `is-quiet`), `nm-chip`, `nm-rule` (`is-accent`), `nm-span-1..12`, `nm-gap-wide`, theme presets `nm-theme-light` / `nm-theme-dark`.
+Parts: `nm-head` (title group), `nm-kicker`, `nm-card` (`is-accent`, `is-quiet`), `nm-chip`, `nm-rule` (`is-accent`), `nm-list` (point list with accent ticks), `nm-stat-block` (`nm-t-num` + label), `nm-side` (a compare side), `nm-rail-head` / `nm-rail-main`, `nm-card-figure` (a figure inside a bento card), `nm-span-1..12`, `nm-gap-wide`, theme presets `nm-theme-light` / `nm-theme-dark`.
 
 ## 7. Theme
 

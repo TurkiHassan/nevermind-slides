@@ -71,7 +71,8 @@ NM.layer('ghost' | 'overlay')// the overlay layer elements
 NM.ease                      // named easings: { standard, emphasized, enter, exit, spring, springSoft, springBouncy } (CSS strings, springs as linear())
 NM.dur                       // named durations in ms: { fast, base, slow, morph, camera }
 NM.animate(el, keyframes, opts) // WAAPI wrapper that honours speed 0 / reduced motion; returns Animation
-NM.speed                     // 1 normally, 0 when ?nm-speed=0 or reduced motion
+NM.speed                     // 1 normally, 0 when ?nm-speed=0, ?nm-print or reduced motion
+NM.unclass(el, ...names)     // remove state classes; drops an empty class="" so author markup round-trips byte-identical
 NM.test.settle()             // Promise resolved when no runtime animation is pending
 ```
 
@@ -87,7 +88,9 @@ deck.on(name, fn)                // 'slidechange' | 'step' | 'ready' | 'beforesl
 
 DOM events on `document`: `nm:ready`, `nm:beforeslidechange`, `nm:slidechange` (`detail: { from, to, slide }`), `nm:step` (`detail: { slide, step, dir }`).
 
-State classes core maintains: `.slide.active` (also `.visible` for legacy CSS), `.slide.is-leaving`, `.is-on` on every step element that has been entered, `.is-current` on the step elements of the current step, `body.nm-ready`, `body.nm-overview`.
+State classes core maintains: `.slide.active` (also `.visible` for legacy CSS), `.slide.is-leaving`, `.is-on` on every step element that has been entered, `.is-current` on the step elements of the current step, `body.nm-ready`, `body.nm-overview`, `body.nm-instant` (speed 0: `?nm-speed=0`, `?nm-print`, reduced motion; every runtime CSS file drops its transitions and loops under it), `body.nm-print`. Core never leaves an empty `class=""` on author elements: stepping forward and back restores the markup byte for byte.
+
+Plugin hooks: while core measures the incoming side of a morph it puts `.nm-morph-measure` on each target element, so a plugin can cancel a pending entrance state for that instant (nm-diagram does this for its nodes); the ghost then flies to the element's real resting look. Overview thumbnails show every lasting step (`reveal`, `draw`) as on; transient acts are off. Clicking inside an `<iframe>` no longer captures the arrow keys: core takes keyboard focus back (opt out with `data-nm-keys="frame"` on the iframe). Edit mode (E) releases an open act first and skips text that plugins generate (diagram canvas, connector labels).
 
 ## 4. Step timeline (one numbering space per slide)
 
@@ -101,7 +104,7 @@ Any element inside a slide may carry `data-step="N"` (N ≥ 1) and `data-act="<a
 | `focus`, `detail`, `lens`, `pins`, `slice` | nm-focus | isolation acts | yes |
 | `draw` | nm-diagram | strokes draw on | no |
 
-A transient act is exited before the next step is entered and when leaving the slide. Legacy `data-zoom-step="N"` + `data-zoom-label` equals `data-step="N" data-act="zoom"`; in `morph-only` and `classic` modes zoom steps are skipped by arrows and reachable by click.
+A transient act is exited before the next step is entered and when leaving the slide. When the last step of a slide holds a transient act, core adds one release step: the next arrow closes the act, the one after leaves the slide (`check` counts it as expected). Legacy `data-zoom-step="N"` + `data-zoom-label` equals `data-step="N" data-act="zoom"`; in `morph-only` and `classic` modes zoom steps are skipped by arrows and reachable by click.
 
 `ctx` passed to acts: `{ deck, slide, rig, step, dir, instant }`. `enter`/`exit` may return a Promise; core does not block navigation on it.
 
