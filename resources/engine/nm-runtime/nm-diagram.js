@@ -2067,26 +2067,33 @@
     return x0 < r.x + r.w && x1 > r.x && y0 < r.y + r.h && y1 > r.y;
   }
   function planLink(lk, A, B, all) {
-    var dx = B.x - A.x, dy = B.y - A.y;
-    var cands = [];
-    var hA = dx < 0 ? 'l' : 'r', hB = dx < 0 ? 'r' : 'l', vA = dy < 0 ? 't' : 'b', vB = dy < 0 ? 'b' : 't';
-    var gx = Math.abs(dx) - (A.w + B.w) / 2, gy = Math.abs(dy) - (A.h + B.h) / 2;
-    if (gx > 16) cands.push([hA, hB]);
-    if (gy > 16) cands.push([vA, vB]);
-    if (gx > -A.w / 2 && gy > -B.h / 2) cands.push([hA, vB]);
-    if (gy > -A.h / 2 && gx > -B.w / 2) cands.push([vA, hB]);
-    if (!cands.length) cands.push(gx > gy ? [hA, hB] : [vA, vB]);
-    var best = null, bestS = Infinity;
-    cands.forEach(function (c, ci) {
-      var p = { lk: lk, A: A, B: B, sa: c[0], sb: c[1], oA: 0, oB: 0 };
-      var pts = buildLink(p, null, all), len = 0, hits = 0;
-      for (var i = 1; i < pts.length; i++) {
-        len += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
-        all.forEach(function (n) { if (n !== A && n !== B && segHits(pts[i - 1], pts[i], rectOf(n, 10))) hits++; });
-      }
-      var score = len + hits * 2000 + (pts.length - 2) * 60 + ci;
-      if (score < bestS) { bestS = score; best = p; }
+    var best = null, bestS = Infinity, sides = ['l', 'r', 't', 'b'];
+    var shrink = function (n) { return rectOf(n, -2); };
+    sides.forEach(function (sa) {
+      sides.forEach(function (sb) {
+        var p = { lk: lk, A: A, B: B, sa: sa, sb: sb, oA: 0, oB: 0 };
+        var pts = dedupe(buildLink(p, null, all)), n = pts.length;
+        if (n < 2) return;
+        var va = sideVec(sa), vb = sideVec(sb);
+        if ((pts[1].x - pts[0].x) * va.x + (pts[1].y - pts[0].y) * va.y <= 0.5) return;
+        if ((pts[n - 1].x - pts[n - 2].x) * vb.x + (pts[n - 1].y - pts[n - 2].y) * vb.y >= -0.5) return;
+        var len = 0, hits = 0, bad = false;
+        for (var i = 1; i < n; i++) {
+          var p0 = pts[i - 1], p1 = pts[i];
+          len += Math.hypot(p1.x - p0.x, p1.y - p0.y);
+          var m0 = pt(p0.x + (p1.x - p0.x) * 0.02, p0.y + (p1.y - p0.y) * 0.02), m1 = pt(p1.x - (p1.x - p0.x) * 0.02, p1.y - (p1.y - p0.y) * 0.02);
+          if (segHits(m0, m1, shrink(A)) || segHits(m0, m1, shrink(B))) { bad = true; break; }
+          all.forEach(function (o) { if (o !== A && o !== B && segHits(p0, p1, rectOf(o, 10))) hits++; });
+        }
+        if (bad) return;
+        var score = len + hits * 2000 + (n - 2) * 80;
+        if (score < bestS) { bestS = score; best = p; }
+      });
     });
+    if (!best) {
+      var dx = B.x - A.x, dy = B.y - A.y, hz = Math.abs(dx) > Math.abs(dy);
+      best = { lk: lk, A: A, B: B, sa: hz ? (dx < 0 ? 'l' : 'r') : (dy < 0 ? 't' : 'b'), sb: hz ? (dx < 0 ? 'r' : 'l') : (dy < 0 ? 'b' : 't'), oA: 0, oB: 0 };
+    }
     return best;
   }
 

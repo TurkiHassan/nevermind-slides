@@ -1,0 +1,27 @@
+{
+  "topic": "Container terminal throughput at one berth: how a quay crane, a buffer stack and trucks set the boxes per hour that reach the road",
+  "source_nouns": ["ship", "berth", "quay", "quay crane", "trolley", "spreader", "container", "bay", "stack", "truck", "lane", "gate", "yard", "warehouse", "bollard"],
+  "verbs": ["unload", "lift", "carry", "stack", "load", "drive", "wait"],
+  "quantities": [
+    { "name": "trolley speed", "value": 4, "unit": "m/s", "source": "typical ship-to-shore crane specification" },
+    { "name": "hoist speed loaded", "value": 1.5, "unit": "m/s", "source": "typical ship-to-shore crane specification" },
+    { "name": "land and lock time", "value": 12, "unit": "s", "source": "port-model.mjs SPEC.lock (alignment, sway damping, twistlocks)" },
+    { "name": "container length", "value": 12.2, "unit": "m", "source": "ISO 668, 40 ft box" }
+  ],
+  "rung": 2,
+  "rejected_rungs": [{ "rung": 1, "reason": "Throughput is not one object; it is the berth working: ship, crane, stack and trucks together." }],
+  "subject": "quay crane working a ship",
+  "setting": "container quay with the ship alongside, the yard and the gate behind",
+  "moves": "The crane lifts a box off the ship onto the buffer stack, then lifts the stacked box onto a waiting truck that drives out through the gate.",
+  "mapping": [
+    { "part": "ship bay", "meaning": "the work queue: six boxes to unload" },
+    { "part": "quay crane", "meaning": "the bottleneck resource that sets the rate" },
+    { "part": "trolley", "meaning": "horizontal travel time along the boom" },
+    { "part": "spreader", "meaning": "land, lock and unlock time" },
+    { "part": "stack", "meaning": "the buffer between quay and road" },
+    { "part": "truck", "meaning": "landside capacity, one box per visit" },
+    { "part": "gate", "meaning": "where a box leaves the terminal and counts as delivered" }
+  ],
+  "mode": "animated",
+  "props": ["scene.ship", "scene.quayCrane", "scene.container", "scene.containerStack", "scene.truck", "scene.gate", "scene.warehouse", "scene.water", "scene.bollard"]
+}

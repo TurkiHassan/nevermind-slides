@@ -196,3 +196,7 @@
 .nm-l-section > * { grid-column: 1 / span 9; }
 .nm-l-section > .nm-t-num, .nm-l-section > .nm-section-num { font-size: 220px; line-height: 1; color: var(--nm-l-accent); font-family: var(--nm-l-display); font-weight: 800; margin: 0; }
 .nm-l-section > .nm-rule.is-accent { inline-size: 160px; }
+
+/* wide gutters: use with data-links so connectors have room to route */
+.nm-gap-wide { --nm-gutter: 96px; column-gap: 96px; }
+.nm-gap-wide:is(.nm-l-bento-3, .nm-l-bento-4, .nm-l-bento-5, .nm-l-bento-6, .nm-l-cards-2, .nm-l-cards-3, .nm-l-cards-4) { row-gap: 88px; }
