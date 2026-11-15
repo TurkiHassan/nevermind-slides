@@ -9,7 +9,7 @@ metadata:
 
 # Nevermind Slides (`nevermind-slides`) v2
 
-`<SKILL_DIR>` is the folder containing this file. Everything is bundled inside it: fonts with a redistributable license (`resources/fonts/`; Thmanyah and ZIAN are not bundled, see below), the motion runtime (`resources/engine/nm-runtime/`), the `anatomy` isometric engine (`resources/engine/anatomy/`), the `frontend-slides` layout library (`resources/engine/frontend-slides/`), templates (`resources/templates/`) and the Nevermind Studio editor (`resources/nm-studio/nm-studio.mjs`).
+`<SKILL_DIR>` is the folder containing this file. Everything is bundled inside it: fonts with a redistributable license (`resources/fonts/`; Thmanyah and ZIAN are not bundled, see below), the motion runtime (`resources/engine/nm-runtime/`), the `anatomy` isometric engine (`resources/engine/anatomy/`), the layout presets the editor offers (`resources/layout-presets/`), templates (`resources/templates/`) and the Nevermind Studio editor (`resources/nm-studio/nm-studio.mjs`).
 
 All helper commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command>` (stdlib only; `uv run` also works).
 

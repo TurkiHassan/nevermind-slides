@@ -48,6 +48,18 @@
       "kind": "plan",
       "source": "tests/corpus/plans/ar-advisor.plan.json",
       "covers": "representation advice (NM-29): advisor on, content on every content slide; charts drawn from content.quantities (stat, donut, line), the reason for each representation in the slide comment, still slides (one number, a definition), a qualitative comparison as a table"
+    },
+    {
+      "name": "ar-layouts",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-layouts.plan.json",
+      "covers": "the twelve compositions ported from frontend-slides (NM-21) in Arabic, right to left: ledger, keynote, stat-strip, ledger-list, meridian, chapter, plate, triptych, monolith, terminal, staircase, waypoint"
+    },
+    {
+      "name": "en-layouts",
+      "kind": "plan",
+      "source": "tests/corpus/plans/en-layouts.plan.json",
+      "covers": "the same twelve compositions in English, left to right"
     }
   ],
   "planned": [],

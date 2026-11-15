@@ -1,0 +1,402 @@
+{
+  "title": "مزرعة النخيل الذكية",
+  "lang": "ar",
+  "theme": {
+    "preset": "olive"
+  },
+  "fonts": {
+    "pairing": "open"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "web",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "مزرعة النخيل الذكية",
+      "role": "cover",
+      "layout": "monolith",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "الزراعة الحديثة",
+        "headline": "مزرعة النخيل الذكية",
+        "body": [
+          "كيف تقلل الحساسات استهلاك الماء"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "title": "الفكرة",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "الفكرة",
+        "headline": "الحساس يقرر متى نسقي",
+        "body": [
+          "الرطوبة تقاس كل ساعة",
+          "الري يبدأ عند الحاجة فقط"
+        ]
+      }
+    },
+    {
+      "id": "s3",
+      "title": "المقارنة",
+      "role": "comparison",
+      "layout": "ledger",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "contrast",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "الري التقليدي مقابل الذكي",
+        "body": [
+          "جدول ثابت | مرتين يوميا مهما كان الطقس",
+          "هدر مرتفع | الماء يتسرب أعمق من الجذور",
+          "سقي حسب القياس | فقط حين تجف التربة",
+          "هدر أقل | الماء عند الجذور"
+        ]
+      }
+    },
+    {
+      "id": "s4",
+      "title": "الأرقام",
+      "role": "evidence",
+      "layout": "hero",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars"
+      },
+      "rel": "deeper",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "النتائج",
+        "headline": "استهلاك الماء في ثلاث مزارع"
+      }
+    },
+    {
+      "id": "s5",
+      "title": "الرقم الأهم",
+      "role": "evidence",
+      "layout": "keynote",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "deeper",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "توفير الماء في السنة الأولى",
+        "stat": {
+          "value": "٣٨٪",
+          "label": "أقل من الري التقليدي"
+        },
+        "body": [
+          "١٢٠٠ | متر مكعب لكل هكتار",
+          "٤ | أشهر لاسترداد التكلفة"
+        ]
+      }
+    },
+    {
+      "id": "s6",
+      "title": "الحقل",
+      "role": "concept",
+      "layout": "plate",
+      "visual": {
+        "type": "image",
+        "ref": "field",
+        "query": "date palm farm irrigation sensor"
+      },
+      "rel": "chapter",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "في الميدان",
+        "headline": "حساس في كل صف",
+        "body": [
+          "يُغرس الحساس على عمق نصف متر قرب الجذور"
+        ]
+      }
+    },
+    {
+      "id": "s7",
+      "title": "المؤشرات",
+      "role": "evidence",
+      "layout": "stat-strip",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "ثلاثة مؤشرات بعد سنة",
+        "body": [
+          "٣٨٪ | ماء أقل",
+          "١٢٪ | تمر أكثر",
+          "٩٠٪ | رضا المزارعين"
+        ]
+      }
+    },
+    {
+      "id": "s8",
+      "title": "الصور",
+      "role": "concept",
+      "layout": "triptych",
+      "visual": {
+        "type": "image",
+        "ref": "sensor",
+        "query": "soil moisture sensor"
+      },
+      "rel": "contrast",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "الحساس والمضخة والتطبيق"
+      }
+    },
+    {
+      "id": "s9",
+      "title": "الخطوات",
+      "role": "process",
+      "layout": "ledger-list",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "morph": [],
+      "steps": [
+        {
+          "act": "focus",
+          "target": "body1"
+        }
+      ],
+      "text": {
+        "headline": "أربع خطوات للتركيب",
+        "body": [
+          "المسح | نحدد أنواع التربة في المزرعة",
+          "الغرس | حساس لكل عشرين نخلة",
+          "الربط | الحساسات تتصل بالمضخة",
+          "المتابعة | التطبيق ينبه عند أي خلل"
+        ]
+      }
+    },
+    {
+      "id": "s10",
+      "title": "الدورة",
+      "role": "process",
+      "layout": "split",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "cycle"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "الحلقة",
+        "headline": "القياس والري يتكرران كل يوم"
+      }
+    },
+    {
+      "id": "s11",
+      "title": "الفصل الثاني",
+      "role": "section",
+      "layout": "chapter",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "الفصل الثاني",
+        "headline": "من التجربة إلى التوسع",
+        "body": [
+          "ما الذي تغير بعد الموسم الأول"
+        ]
+      }
+    },
+    {
+      "id": "s12",
+      "title": "المراحل",
+      "role": "process",
+      "layout": "hero",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "timeline"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "مراحل المشروع"
+      }
+    },
+    {
+      "id": "s13",
+      "title": "التاريخ",
+      "role": "process",
+      "layout": "meridian",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "time",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "أربع محطات",
+        "body": [
+          "٢٠٢٢ | التجربة | مزرعة واحدة",
+          "٢٠٢٣ | التوسع | ثلاث مزارع",
+          "٢٠٢٤ | الربط | تطبيق موحد",
+          "٢٠٢٥ | اليوم | خمسون مزرعة"
+        ]
+      }
+    },
+    {
+      "id": "s14",
+      "title": "الاتجاه",
+      "role": "evidence",
+      "layout": "split",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "line"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "الاستهلاك ينخفض كل عام"
+      }
+    },
+    {
+      "id": "s15",
+      "title": "المحاور",
+      "role": "section",
+      "layout": "waypoint",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "أين نحن الآن",
+        "body": [
+          "الفكرة",
+          "النتائج",
+          "التوسع",
+          "الخطوة التالية"
+        ]
+      }
+    },
+    {
+      "id": "s16",
+      "title": "البنية",
+      "role": "mechanism",
+      "layout": "hero",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "tree"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "من الحساس إلى القرار"
+      }
+    },
+    {
+      "id": "s17",
+      "title": "الدروس",
+      "role": "summary",
+      "layout": "staircase",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "back-out",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "ثلاثة دروس",
+        "body": [
+          "ابدأ بمزرعة واحدة",
+          "قس قبل أن تقرر",
+          "وسع حين تثبت الأرقام"
+        ]
+      }
+    },
+    {
+      "id": "s18",
+      "title": "الختام البصري",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "image",
+        "ref": "after",
+        "query": "green date palm farm"
+      },
+      "rel": "time",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "المزرعة بعد ثلاث سنوات"
+      }
+    },
+    {
+      "id": "s19",
+      "title": "الخاتمة",
+      "role": "closing",
+      "layout": "terminal",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "back-out",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "الماء يكفي حين نقيسه",
+        "body": [
+          "التواصل: فريق المشروع",
+          "المصادر: تقارير المزارع",
+          "التالي: موسم ٢٠٢٦"
+        ]
+      }
+    }
+  ]
+}

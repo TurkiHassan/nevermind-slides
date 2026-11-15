@@ -15,11 +15,11 @@
 // Exit codes: 0 clean, 1 problems found, 2 Node/Chrome unavailable.
 
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { crossSlide, pageQuality, qualityReport } from "./deck_quality.mjs";
+import { crossSlide, pageCompare, pageMotion, pageQuality, qualityReport } from "./deck_quality.mjs";
 
 if (typeof WebSocket === "undefined" && !process.execArgv.includes("--experimental-websocket")) {
   const child = spawn(process.execPath, ["--experimental-websocket", ...process.argv.slice(1)], { stdio: "inherit" });
@@ -39,6 +39,11 @@ function usage() {
   --out <json>      JSON report (default: <shots>/report.json)
   --quality <json>  quality report (default: <shots>/quality.json)
   --steps           also save a screenshot after every step
+  --save-baseline <dir>   copy every screenshot of this run into <dir> as the visual baseline (NM-07)
+  --baseline <dir>        compare every screenshot with <dir>; differences over the tolerance are C-BASELINE,
+                          with a diff image in <shots>/diff/ (same machine, same fonts and Chrome as the baseline)
+  --baseline-tolerance <r> share of differing pixels allowed (default 0.0005: an unchanged deck differs by 0, one changed word by about 0.002); --baseline-strict makes it an error
+  --motion          also arrive on every slide at full speed and measure the arrival (C-MOTION, C-JANK)
   --help            this text
 
 Exit codes: 0 clean, 1 problems found, 2 Node or Chrome unavailable.`);
@@ -55,6 +60,11 @@ function parse(argv) {
     else if (a === "--out") o.out = next();
     else if (a === "--quality") o.quality = next();
     else if (a === "--steps") o.steps = true;
+    else if (a === "--save-baseline") o.saveBaseline = next();
+    else if (a === "--baseline") o.baseline = next();
+    else if (a === "--baseline-tolerance") o.tolerance = Number(next());
+    else if (a === "--baseline-strict") o.strict = true;
+    else if (a === "--motion") o.motion = true;
     else if (a === "--help" || a === "-h") o.help = true;
     else rest.push(a);
   }
@@ -624,6 +634,51 @@ async function main() {
     for (const c of consoleLog.filter((c) => c.slide === -1)) {
       const external = c.kind === "network" && /^https?:/.test(c.url || "");
       deckProblems.push({ code: "C-CONSOLE", severity: external ? "warn" : "error", message: `${c.kind}: ${c.text}${external ? " (external resource; ignore when offline)" : ""}` });
+    }
+
+    // visual baseline (NM-07): every screenshot of this run against the saved one
+    const shotFiles = readdirSync(shots).filter((f) => /^s\d\d(-step\d+)?\.png$/.test(f)).sort();
+    const slideOf = (f) => reports.find((r) => r.slide === Number(f.slice(1, 3)));
+    if (o.saveBaseline) {
+      const dir = resolve(o.saveBaseline);
+      mkdirSync(dir, { recursive: true });
+      for (const f of shotFiles) copyFileSync(join(shots, f), join(dir, f));
+    }
+    if (o.baseline) {
+      const dir = resolve(o.baseline), tol = Number.isFinite(o.tolerance) ? o.tolerance : 0.0005;
+      const diffDir = join(shots, "diff");
+      for (const f of shotFiles) {
+        const r = slideOf(f);
+        if (!r) continue;
+        r.baseline = r.baseline || [];
+        if (!existsSync(join(dir, f))) {
+          r.issues.push({ code: "C-BASELINE", severity: "warn", message: `no baseline image ${f} in ${dir}; save one with --save-baseline`, selector: "" });
+          continue;
+        }
+        const cmp = await evaluate(`(${pageCompare.toString()})(${JSON.stringify(readFileSync(join(shots, f)).toString("base64"))}, ${JSON.stringify(readFileSync(join(dir, f)).toString("base64"))})`);
+        r.baseline.push({ file: f, ratio: Math.round(cmp.ratio * 100000) / 100000 });
+        if (cmp.ratio > tol) {
+          let where = "";
+          if (cmp.diff) { mkdirSync(diffDir, { recursive: true }); writeFileSync(join(diffDir, f), Buffer.from(cmp.diff, "base64")); where = `; diff image diff/${f}`; }
+          r.issues.push({ code: "C-BASELINE", severity: o.strict ? "error" : "warn", message: `${f} differs from the baseline on ${(cmp.ratio * 100).toFixed(2)}% of its pixels (tolerance ${(tol * 100).toFixed(2)}%)${where}`, selector: "", evidence: { ratio: cmp.ratio, tolerance: tol } });
+        }
+      }
+    }
+
+    // motion and performance at full speed (NM-08)
+    if (o.motion && hasNM) {
+      const loaded = new Promise((done) => { onLoad = done; setTimeout(done, 15000); });
+      await send("Page.navigate", { url: pathToFileURL(deck).href });
+      await loaded;
+      for (let t = 0; t < 60 && !(await evaluate("!!(window.NM && NM.deck && document.body.classList.contains('nm-ready'))")); t++) await sleep(150);
+      for (const idx of wanted) {
+        const m = await evaluate(`(${pageMotion.toString()})(${idx})`);
+        const r = reports.find((x) => x.slide === idx + 1);
+        if (!r) continue;
+        r.motion = m;
+        if (m.settle_ms > 2000) r.issues.push({ code: "C-MOTION", severity: "warn", message: `the slide takes ${m.settle_ms}ms to arrive at full speed (budget 2000ms: transition, morph and entrances)`, selector: "", evidence: m });
+        if (m.long_frames) r.issues.push({ code: "C-JANK", severity: "warn", message: `${m.long_frames} frame(s) of 50ms or more while the slide arrives (longest ${m.longest_frame_ms}ms)`, selector: "", evidence: m });
+      }
     }
 
     // contact sheet

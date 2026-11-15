@@ -19,6 +19,10 @@ NODE_PATH=$(npm root -g) npm test
 | `quality.test.mjs` | every visual quality code (NM-05, plus C-TABLE and C-MATH) fires on the slide of `tests/quality/violations` built to break it and stays silent on clean slides; the finished showcase raises only its three known diagram-fill notes; `quality.json` classifies every finding |
 | `editor-guard.test.mjs` | the bundled editor refuses to write runtime-generated content, a no-op save is byte-identical, a supported edit changes one line; on `ar-science`: tables and formulas reported, formulas and sentences holding one read-only for typing, MathML, TeX and cell edits one line each, runtime table and term state never saved |
 | `science.test.mjs` | tables and equations (NM-10, NM-11) on `ar-science` and `en-science`: Temml converts every `data-tex` offline, formulas run left to right and an inline formula keeps its place in an Arabic sentence, a derivation keeps its first line and its `data-term` parts fly as Morph ghosts, wide formulas shrink to fit, the raw-TeX fallback without the converter, numeric alignment, row and column steps, static highlight, the 20px floor and 36px growth, byte-identical round trip, motion and `?nm-speed=0` parity |
+| `choreo.test.mjs` | motion roles (NM-13): arrival within 1200ms, heading first, decoration fades, no parent and child entering together, shrinking gaps, still slides fade together, decks without the attribute keep the old stagger |
+| `baseline.test.mjs` | visual baseline (NM-07): an unchanged deck matches exactly, one changed word is caught with a diff image, strict mode fails; motion metrics (NM-08) per slide |
+| `annotations.test.mjs` | error bars and the scatter type (NM-12) on the diagram lab: whiskers and caps, bars from zero, labels 18px or more, points, trend, axis titles with units, right-to-left axis |
+| `eval.test.mjs` | the A/B harness (NM-27): identical runs tie, a broken gate loses, deterministic output, blind packets, verdicts counted with the key |
 
 ## Visual thresholds (calibrated, not uniform)
 

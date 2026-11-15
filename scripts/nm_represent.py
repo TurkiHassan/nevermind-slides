@@ -86,7 +86,7 @@ def visual_key(slide: dict[str, Any]) -> str:
     if t in ("chart", "diagram"):
         raw = str(v.get("diagram_type") or ("bars" if t == "chart" else "flow"))
         real = DIAGRAM_ALIASES.get(raw, raw)
-        family = "chart" if real in ("bars", "line", "donut", "gauge", "stat") else "diagram"
+        family = "chart" if real in ("bars", "line", "donut", "gauge", "stat", "scatter") else "diagram"
         return f"{family}:{real}"
     return t
 

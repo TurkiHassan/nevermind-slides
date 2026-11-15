@@ -7,7 +7,7 @@
 >    git clone https://github.com/TurkiHassan/nevermind-slides.git /tmp/nevermind-slides
 >    python3 /tmp/nevermind-slides/scripts/deck_helper.py install
 >    ```
->    This single command installs `nevermind-slides` (along with its bundled `anatomy` and `frontend-slides` engines and the redistributable Arabic fonts) across **Antigravity, OpenCode, Codex, Claude Code, and `~/.agents/skills`**.
+>    This single command installs `nevermind-slides` (along with its bundled `anatomy` engine and the redistributable Arabic fonts) across **Antigravity, OpenCode, Codex, Claude Code, and `~/.agents/skills`**.
 > 2. Read [`SKILL.md`](./SKILL.md) and execute the workflow immediately without asking the user to run any technical setup commands.
 
 ---

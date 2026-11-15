@@ -301,3 +301,11 @@ body.nm-overview .nm-dg :is(.nm-dg-stroke:not(.nm-dg-dash), .nm-dg-drawmask, .nm
   .nm-dg *, .nm-draw-stroke { transition: none !important; animation: none !important; }
   .nm-dg-flowdots { display: none; }
 }
+
+/* ------------------------------------------------------------- scientific annotations (roadmap NM-12) */
+.nm-dg-errbar { stroke: var(--dg-ink); stroke-width: 3; stroke-linecap: round; fill: none; }
+.nm-dg-point { fill: var(--dg-surface); stroke: var(--dg-edge); stroke-width: 3; }
+.nm-dg-point.is-accent { fill: var(--dg-accent); stroke: var(--dg-accent); }
+.nm-dg-trend { stroke: var(--dg-accent2); stroke-width: 3; stroke-dasharray: 10 8; fill: none; }
+.nm-dg-plabel { font-size: 20px; line-height: 1.3; color: var(--dg-ink); white-space: nowrap; }
+.nm-dg-plabel.is-accent { color: var(--dg-accent); font-weight: 700; }

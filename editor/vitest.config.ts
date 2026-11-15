@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 // Inside the skill repository the layout presets sit next to the editor; outside it the installed skill is used.
-const presetsInRepo = fileURLToPath(new URL('../resources/engine/frontend-slides/layout-presets', import.meta.url));
+const presetsInRepo = fileURLToPath(new URL('../resources/layout-presets', import.meta.url));
 
 export default defineConfig({
   test: {

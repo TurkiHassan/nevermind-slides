@@ -17771,7 +17771,7 @@ function uiFontsDir() {
 }
 
 // src/server/layout-presets.ts
-import { readFileSync } from "node:fs";
+import { existsSync as existsSync3, readFileSync } from "node:fs";
 import { homedir as homedir2 } from "node:os";
 import { join as join3 } from "node:path";
 var CATALOG = [
@@ -17807,7 +17807,13 @@ var LayoutPresetError = class extends Error {
     this.code = code;
   }
 };
-var defaultLayoutPresetsRoot = () => process.env.NM_LAYOUT_PRESETS_DIR || join3(homedir2(), ".claude", "skills", "nevermind-slides", "resources", "engine", "frontend-slides", "layout-presets");
+var defaultLayoutPresetsRoot = () => {
+  if (process.env.NM_LAYOUT_PRESETS_DIR) return process.env.NM_LAYOUT_PRESETS_DIR;
+  const skill = join3(homedir2(), ".claude", "skills", "nevermind-slides", "resources");
+  const current2 = join3(skill, "layout-presets");
+  const legacy = join3(skill, "engine", "frontend-slides", "layout-presets");
+  return existsSync3(current2) || !existsSync3(legacy) ? current2 : legacy;
+};
 function listLayoutPresets() {
   return CATALOG.map((preset) => ({ ...preset }));
 }
@@ -17833,7 +17839,7 @@ function readLayoutPreset(id, root = defaultLayoutPresetsRoot()) {
 
 // src/server/notes.ts
 import { randomUUID } from "node:crypto";
-import { existsSync as existsSync3 } from "node:fs";
+import { existsSync as existsSync4 } from "node:fs";
 import { mkdir as mkdir2, readFile as readFile2, rename as rename2, writeFile as writeFile2 } from "node:fs/promises";
 import { dirname as dirname2, join as join4 } from "node:path";
 var emptyNotes = () => ({ version: 1, notes: [] });
@@ -17928,7 +17934,7 @@ var NotesStore = class _NotesStore {
   }
   static async open(deckPath) {
     const notesPath = join4(dirname2(deckPath), ".nevermind", "notes.json");
-    if (!existsSync3(notesPath)) return new _NotesStore(deckPath, emptyNotes(), null);
+    if (!existsSync4(notesPath)) return new _NotesStore(deckPath, emptyNotes(), null);
     const text = await readFile2(notesPath, "utf8");
     const parsed = parseNotes(text);
     return new _NotesStore(deckPath, parsed, text);
@@ -18759,7 +18765,7 @@ async function saveUploadedImage(deckPath, input) {
 }
 
 // src/server/agent-proposals.ts
-import { constants, existsSync as existsSync4, mkdtempSync, readFileSync as readFileSync2, rmSync, statSync as statSync2 } from "node:fs";
+import { constants, existsSync as existsSync5, mkdtempSync, readFileSync as readFileSync2, rmSync, statSync as statSync2 } from "node:fs";
 import { copyFile as copyFile2, mkdir as mkdir4, unlink as unlink2 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename as basename3, dirname as dirname6, join as join7, resolve as resolve3, sep as sep2 } from "node:path";
@@ -18890,7 +18896,7 @@ var AgentProposalStore = class {
     const id = `ai-${this.nextId++}`;
     let suffix = 0;
     let assetPath = `assets/ai-${id}.png`;
-    while (existsSync4(resolve3(dirname6(selection.deckPath), assetPath))) {
+    while (existsSync5(resolve3(dirname6(selection.deckPath), assetPath))) {
       suffix++;
       assetPath = `assets/ai-${id}-${suffix}.png`;
     }
@@ -18907,7 +18913,7 @@ var AgentProposalStore = class {
     let referencePath;
     if (selection.src && !/^(?:[a-z]+:|\/\/|#)/i.test(selection.src)) {
       const candidate = resolve3(root, selection.src);
-      if ((candidate === root || candidate.startsWith(root + sep2)) && existsSync4(candidate)) referencePath = candidate;
+      if ((candidate === root || candidate.startsWith(root + sep2)) && existsSync5(candidate)) referencePath = candidate;
     }
     const controller = new AbortController();
     this.proposals.set(id, proposal);
@@ -19184,7 +19190,7 @@ function createLocalAgentRunners(options = {}) {
 
 // src/export/chromium.ts
 import { spawn as spawn3 } from "node:child_process";
-import { existsSync as existsSync5, readdirSync } from "node:fs";
+import { existsSync as existsSync6, readdirSync } from "node:fs";
 import { mkdtemp as mkdtemp2, rm as rm2, stat as stat2 } from "node:fs/promises";
 import { homedir as homedir4, tmpdir as tmpdir3 } from "node:os";
 import { join as join9 } from "node:path";
@@ -19197,7 +19203,7 @@ var ChromiumError = class extends Error {
     this.code = code;
   }
 };
-function findChrome(env = process.env, exists = existsSync5, list2 = (d) => {
+function findChrome(env = process.env, exists = existsSync6, list2 = (d) => {
   try {
     return readdirSync(d);
   } catch {

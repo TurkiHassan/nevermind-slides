@@ -12,7 +12,8 @@ Status legend: **OK** (license allows redistribution here) · **CHECK** (unclear
 | Component | Path | License | Copyright | Status |
 |---|---|---|---|---|
 | anatomy isometric engine | `resources/engine/anatomy/` | MIT (`resources/engine/anatomy/LICENSE`) | 2026 Ryan | OK |
-| frontend-slides (vendored, modified copy of zarazhangrui/frontend-slides) | `resources/engine/frontend-slides/` | MIT (`resources/engine/frontend-slides/LICENSE`) | 2025 Zara Zhang | OK; differs from upstream, upstream commit not recorded |
+| frontend-slides layout presets (23 presets the editor's layout panel offers, from a modified copy of zarazhangrui/frontend-slides) | `resources/layout-presets/` | MIT (`resources/layout-presets/LICENSE`) | 2025 Zara Zhang | OK; upstream commit not recorded. The rest of the bundle was removed in roadmap NM-21 (decision D4) |
+| Twelve compositions ported from those presets (ledger, keynote, stat-strip, ledger-list, meridian, chapter, plate, triptych, monolith, terminal, staircase, waypoint) | `resources/engine/nm-runtime/nm-layout.css` | MIT, attribution in the file | 2025 Zara Zhang | OK; rewritten (logical properties, no Tailwind) |
 | Temml 0.14.0 (TeX to MathML; optional, staged only by `stage-runtime --math` or a plan with TeX) | `resources/engine/nm-runtime/vendor/temml.min.js` | MIT (`resources/engine/nm-runtime/vendor/temml.LICENSE.txt`) | 2020 Ron Kok | OK; unmodified `dist/temml.min.js` from the npm package, sha256 `56b43381…66af9d` |
 
 ## Fonts (`resources/fonts/`)

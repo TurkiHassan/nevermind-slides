@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Contract tests for resources/engine/nm-runtime (references/runtime-contract.md). Not shipped with the skill.",
   "scripts": {
-    "test": "node --test --test-concurrency=1 contract.test.mjs corpus.test.mjs visual.test.mjs editor-guard.test.mjs quality.test.mjs ltr.test.mjs science.test.mjs choreo.test.mjs"
+    "test": "node --test --test-concurrency=1 contract.test.mjs corpus.test.mjs visual.test.mjs editor-guard.test.mjs quality.test.mjs ltr.test.mjs science.test.mjs choreo.test.mjs baseline.test.mjs annotations.test.mjs eval.test.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0"

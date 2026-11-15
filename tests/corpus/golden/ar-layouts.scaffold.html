@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="nm-runtime" content="2">
+<meta name="nm-stage" content="1920x1080">
+<meta name="generator" content="nevermind-slides scaffold">
+<title>مزرعة النخيل الذكية</title>
+
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+
+<style>
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
+    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
+    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+
+    /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
+    :root {
+      --nm-paper: #F4F5EC;
+      --nm-ink: #1E2418;
+      --nm-muted: #555D47;
+      --nm-line: #D3D8C2;
+      --nm-accent: #4F6B1F;
+      --nm-accent-2: #B5532A;
+      --nm-surface: #FFFFFF;
+      --nm-on-accent: #FFFFFF;
+      --nm-radius: 18px;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+      --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      /* legacy aliases */
+      --lp-accent: var(--nm-accent);
+      --slide-bg: var(--nm-paper);
+      --stage-bg: var(--nm-paper);
+      --lp-font-display: var(--nm-font-display);
+      --lp-font-body: var(--nm-font-body);
+      --lp-font-mono: var(--nm-font-mono);
+    }
+
+    /* Live font pairing classes on <body> */
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
+    body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
+
+    html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
+</style>
+</head>
+<body dir="rtl" class="font-mode-open" data-nm-mode="morph-and-zoom" data-nm-choreo="2">
+<script>
+  window.NM_CONFIG = {
+    fontModes: [{"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-open", "label": "ريدكس + بلكس"}]
+  };
+</script>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+  <!-- 1. s1 / cover / layout monolith -> nm-l-monolith
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s1" data-title="مزرعة النخيل الذكية" data-rel="next" data-transition="auto" data-role="cover">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-monolith">
+    <p class="nm-kicker">الزراعة الحديثة</p>
+    <h1 class="nm-t-display">مزرعة النخيل الذكية</h1>
+    <p class="nm-t-lead">كيف تقلل الحساسات استهلاك الماء</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 2. s2 / concept / layout split -> nm-l-split
+       TODO:
+       - edit diagram labels/values (flow) in the nm-diagram script block
+  -->
+  <section class="slide" id="s2" data-title="الفكرة" data-rel="deeper" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">الفكرة</p>
+      <h2 class="nm-t-h2">الحساس يقرر متى نسقي</h2>
+      <ul class="nm-list">
+        <li>الرطوبة تقاس كل ساعة</li>
+        <li>الري يبدأ عند الحاجة فقط</li>
+      </ul>
+    </header>
+    <figure class="nm-diagram" data-type="flow" data-id="s2-diagram" aria-label="الفكرة" data-nm-todo>
+    <script type="text/nm-diagram">
+      n1[العنصر الأول] -> n2[العنصر الثاني] -> n3[العنصر الثالث]
+      n2.accent
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 3. s3 / comparison / layout ledger -> nm-l-ledger
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s3" data-title="المقارنة" data-rel="contrast" data-transition="auto" data-role="comparison">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-ledger">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">الري التقليدي مقابل الذكي</h2>
+    </header>
+    <div class="nm-side is-favoured">
+      <h3 data-nm-todo>الجانب الأول</h3><div class="nm-row"><p>جدول ثابت</p><p>مرتين يوميا مهما كان الطقس</p></div><div class="nm-row"><p>هدر مرتفع</p><p>الماء يتسرب أعمق من الجذور</p></div>
+    </div>
+    <div class="nm-side">
+      <h3 data-nm-todo>الجانب الثاني</h3><div class="nm-row"><p>سقي حسب القياس</p><p>فقط حين تجف التربة</p></div><div class="nm-row"><p>هدر أقل</p><p>الماء عند الجذور</p></div>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. s4 / evidence / layout hero -> nm-l-hero-figure
+       TODO:
+       - edit chart labels/values (bars) in the nm-diagram script block
+  -->
+  <section class="slide" id="s4" data-title="الأرقام" data-rel="deeper" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">النتائج</p>
+      <h2 class="nm-t-h2" data-morph="title">استهلاك الماء في ثلاث مزارع</h2>
+    </header>
+    <figure class="nm-diagram" data-type="bars" data-id="s4-diagram" aria-label="الأرقام" data-nm-todo>
+    <script type="text/nm-diagram">
+      unit: ٪
+      العنصر الأول: ٣٠
+      العنصر الثاني: ٥٥ !
+      العنصر الثالث: ٤٢
+      العنصر الرابع: ٧٠
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 5. s5 / evidence / layout keynote -> nm-l-keynote
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s5" data-title="الرقم الأهم" data-rel="deeper" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-keynote">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">توفير الماء في السنة الأولى</h2>
+    </header>
+    <div><span class="nm-t-num" data-entrance="count">٣٨٪</span><p>أقل من الري التقليدي</p></div>
+    <div class="nm-keynote-rail"><div><strong>١٢٠٠</strong><span>متر مكعب لكل هكتار</span></div><div><strong>٤</strong><span>أشهر لاسترداد التكلفة</span></div></div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 6. s6 / concept / layout plate -> nm-l-plate
+       TODO:
+       - replace placeholder image with assets/img/field.jpg (web)
+  -->
+  <section class="slide" id="s6" data-title="الحقل" data-rel="chapter" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-plate">
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s6.svg" alt="date palm farm irrigation sensor" data-todo-src="assets/img/field.jpg"><!-- TODO: save the real image as assets/img/field.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: date palm farm irrigation sensor) --></figure>
+    <header class="nm-head">
+      <p class="nm-kicker">في الميدان</p>
+      <h2 class="nm-t-h2" data-morph="title">حساس في كل صف</h2>
+      <p class="nm-t-lead">يُغرس الحساس على عمق نصف متر قرب الجذور</p>
+    </header>
+    </div>
+  </div>
+  </section>
+
+  <!-- 7. s7 / evidence / layout stat-strip -> nm-l-stat-strip
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s7" data-title="المؤشرات" data-rel="next" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-stat-strip">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">ثلاثة مؤشرات بعد سنة</h2>
+    </header>
+    <div><span class="nm-t-num">٣٨٪</span><p>ماء أقل</p></div>
+    <div><span class="nm-t-num">١٢٪</span><p>تمر أكثر</p></div>
+    <div><span class="nm-t-num">٩٠٪</span><p>رضا المزارعين</p></div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 8. s8 / concept / layout triptych -> nm-l-triptych
+       TODO:
+       - replace placeholder image with assets/img/sensor.jpg (web)
+  -->
+  <section class="slide" id="s8" data-title="الصور" data-rel="contrast" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-triptych">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">الحساس والمضخة والتطبيق</h2>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8.svg" alt="soil moisture sensor" data-todo-src="assets/img/sensor.jpg"><!-- TODO: save the real image as assets/img/sensor.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: soil moisture sensor) --></figure>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8-2.svg" alt=""><figcaption data-nm-todo>اكتب نص البطاقة</figcaption></figure>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8-3.svg" alt=""><figcaption data-nm-todo>اكتب نص البطاقة</figcaption></figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 9. s9 / process / layout ledger-list -> nm-l-ledger-list
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s9" data-title="الخطوات" data-rel="chapter" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-ledger-list">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">أربع خطوات للتركيب</h2>
+    </header>
+    <ol>
+        <li data-step="1" data-act="focus"><strong>المسح</strong><p>نحدد أنواع التربة في المزرعة</p></li>
+        <li><strong>الغرس</strong><p>حساس لكل عشرين نخلة</p></li>
+        <li><strong>الربط</strong><p>الحساسات تتصل بالمضخة</p></li>
+        <li><strong>المتابعة</strong><p>التطبيق ينبه عند أي خلل</p></li>
+      </ol>
+    </div>
+  </div>
+  </section>
+
+  <!-- 10. s10 / process / layout split -> nm-l-split
+       TODO:
+       - edit diagram labels/values (cycle) in the nm-diagram script block
+  -->
+  <section class="slide" id="s10" data-title="الدورة" data-rel="deeper" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">الحلقة</p>
+      <h2 class="nm-t-h2">القياس والري يتكرران كل يوم</h2>
+    </header>
+    <figure class="nm-diagram" data-type="cycle" data-id="s10-diagram" aria-label="الدورة" data-nm-todo>
+    <script type="text/nm-diagram">
+      center: الدورة
+      n1[العنصر الأول]
+      n2[العنصر الثاني]
+      n3[العنصر الثالث]
+      n1.accent
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 11. s11 / section / layout chapter -> nm-l-chapter
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s11" data-title="الفصل الثاني" data-rel="chapter" data-transition="auto" data-role="section">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-chapter">
+    <p class="nm-section-num" aria-hidden="true">١</p>
+    <hr class="nm-rule is-accent">
+    <p class="nm-kicker">الفصل الثاني</p>
+    <h2 class="nm-t-h1" data-morph="title">من التجربة إلى التوسع</h2>
+    <p class="nm-t-lead">ما الذي تغير بعد الموسم الأول</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 12. s12 / process / layout hero -> nm-l-hero-figure
+       TODO:
+       - edit diagram labels/values (timeline) in the nm-diagram script block
+  -->
+  <section class="slide" id="s12" data-title="المراحل" data-rel="next" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">مراحل المشروع</h2>
+    </header>
+    <figure class="nm-diagram" data-type="timeline" data-id="s12-diagram" aria-label="المراحل" data-nm-todo>
+    <script type="text/nm-diagram">
+      ٢٠٢٤: البداية | اكتب ما حدث
+      ٢٠٢٥: التوسع | اكتب ما حدث !
+      ٢٠٢٦: الهدف
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 13. s13 / process / layout meridian -> nm-l-meridian
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s13" data-title="التاريخ" data-rel="time" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-meridian">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">أربع محطات</h2>
+    </header>
+    <ol>
+        <li><small>٢٠٢٢</small><strong>التجربة</strong><p>مزرعة واحدة</p></li>
+        <li><small>٢٠٢٣</small><strong>التوسع</strong><p>ثلاث مزارع</p></li>
+        <li><small>٢٠٢٤</small><strong>الربط</strong><p>تطبيق موحد</p></li>
+        <li><small>٢٠٢٥</small><strong>اليوم</strong><p>خمسون مزرعة</p></li>
+      </ol>
+    </div>
+  </div>
+  </section>
+
+  <!-- 14. s14 / evidence / layout split -> nm-l-split
+       TODO:
+       - edit chart labels/values (line) in the nm-diagram script block
+  -->
+  <section class="slide" id="s14" data-title="الاتجاه" data-rel="next" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">الاستهلاك ينخفض كل عام</h2>
+    </header>
+    <figure class="nm-diagram" data-type="line" data-id="s14-diagram" aria-label="الاتجاه" data-nm-todo>
+    <script type="text/nm-diagram">
+      x: ٢٠٢٣, ٢٠٢٤, ٢٠٢٥, ٢٠٢٦
+      series السلسلة الأولى: ١٢, ١٨, ٢٥, ٣١
+      series السلسلة الثانية: ٢٠, ٢٢, ٢٣, ٢٦
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 15. s15 / section / layout waypoint -> nm-l-waypoint
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s15" data-title="المحاور" data-rel="chapter" data-transition="auto" data-role="section">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-waypoint">
+    <h2 class="nm-t-h1">أين نحن الآن</h2>
+    <ol><li>الفكرة</li><li class="is-current">النتائج</li><li>التوسع</li><li>الخطوة التالية</li></ol>
+    </div>
+  </div>
+  </section>
+
+  <!-- 16. s16 / mechanism / layout hero -> nm-l-hero-figure
+       TODO:
+       - edit diagram labels/values (tree) in the nm-diagram script block
+  -->
+  <section class="slide" id="s16" data-title="البنية" data-rel="deeper" data-transition="auto" data-role="mechanism">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">من الحساس إلى القرار</h2>
+    </header>
+    <figure class="nm-diagram" data-type="tree" data-id="s16-diagram" aria-label="البنية" data-nm-todo>
+    <script type="text/nm-diagram">
+      n1[العنصر الأول]
+        n2[العنصر الثاني]
+        n3[العنصر الثالث]
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 17. s17 / summary / layout staircase -> nm-l-staircase
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s17" data-title="الدروس" data-rel="back-out" data-transition="auto" data-role="summary">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-staircase">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">ثلاثة دروس</h2>
+    </header>
+    <p>ابدأ بمزرعة واحدة</p>
+    <p>قس قبل أن تقرر</p>
+    <p>وسع حين تثبت الأرقام</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 18. s18 / concept / layout split -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/after.jpg (web)
+  -->
+  <section class="slide" id="s18" data-title="الختام البصري" data-rel="time" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="1:1">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">المزرعة بعد ثلاث سنوات</h2>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s18.svg" alt="green date palm farm" data-todo-src="assets/img/after.jpg"><!-- TODO: save the real image as assets/img/after.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: green date palm farm) --></figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 19. s19 / closing / layout terminal -> nm-l-terminal
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s19" data-title="الخاتمة" data-rel="back-out" data-transition="auto" data-role="closing">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-terminal">
+    <h2 class="nm-t-h1" data-morph="title">الماء يكفي حين نقيسه</h2>
+    <ul><li>التواصل: فريق المشروع</li><li>المصادر: تقارير المزارع</li><li>التالي: موسم ٢٠٢٦</li></ul>
+    </div>
+  </div>
+  </section>
+  </main>
+</div>
+
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@ Works with both `python3 scripts/deck_helper.py ...` and `uv run scripts/deck_he
 Subcommands:
   install           One-command global installer for non-technical users and AI agents.
                     Links/copies `research-to-motion-slides` (plus its bundled `anatomy`
-                    and `frontend-slides` engines) across Antigravity, OpenCode, Codex,
+                    engine) across Antigravity, OpenCode, Codex,
                     Claude Code, and ~/.agents/skills, and registers the OpenCode slash command.
   uninstall         Cleanly remove installed symlinks/copies of `research-to-motion-slides`
                     and the OpenCode slash command.
@@ -70,7 +70,7 @@ from typing import Any
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 FONTS_SOURCE_DIR = SKILL_ROOT / "resources" / "fonts"
 BUNDLED_ANATOMY_DIR = SKILL_ROOT / "resources" / "engine" / "anatomy"
-BUNDLED_FRONTEND_SLIDES_DIR = SKILL_ROOT / "resources" / "engine" / "frontend-slides"
+LAYOUT_PRESETS_DIR = SKILL_ROOT / "resources" / "layout-presets"  # read by the editor's layout panel
 RUNTIME_DIR = SKILL_ROOT / "resources" / "engine" / "nm-runtime"
 TEMPLATES_DIR = SKILL_ROOT / "resources" / "templates"
 DECK_CHECK_SCRIPT = SKILL_ROOT / "scripts" / "deck_check.mjs"
@@ -216,14 +216,12 @@ def cmd_install(args: argparse.Namespace) -> int:
         alias_target = root / "research-to-motion-slides"
         _safe_symlink_or_copy(source_root, alias_target, overwrite=True)
 
-        # Ensure bundled companion skills (`anatomy` and `frontend-slides`) are also available globally
+        # Ensure the bundled companion skill `anatomy` is also available globally (the frontend-slides bundle was
+        # retired in roadmap NM-21: its layouts live in nm-layout.css, its layout presets in resources/layout-presets)
         bundled_anatomy = source_root / "resources" / "engine" / "anatomy"
         if bundled_anatomy.exists():
             _safe_symlink_or_copy(bundled_anatomy, root / "anatomy", overwrite=False)
 
-        bundled_fs = source_root / "resources" / "engine" / "frontend-slides"
-        if bundled_fs.exists():
-            _safe_symlink_or_copy(bundled_fs, root / "frontend-slides", overwrite=False)
 
     # Register OpenCode slash command (/nevermind-slides and alias /research-to-motion-slides)
     xdg_config = Path(os.environ.get("XDG_CONFIG_HOME", str(home / ".config"))).expanduser()
@@ -492,7 +490,7 @@ IMAGE_SOURCES = ("generate", "web", "none")
 # Types nm-diagram.js renders (LAYOUTS.<name> in nm-diagram.js); the HTML must use these.
 BASE_DIAGRAM_TYPES = (
     "flow", "tree", "cycle", "hub", "swimlane", "sequence", "timeline", "layers", "matrix", "funnel",
-    "pyramid", "venn", "compare", "bars", "line", "donut", "gauge", "stat",
+    "pyramid", "venn", "compare", "bars", "line", "donut", "gauge", "stat", "scatter",
 )
 # Friendly plan names accepted by plan-lint; scaffold writes the real type.
 DIAGRAM_TYPE_ALIASES = {"bar": "bars", "column": "bars", "area": "line", "pie": "donut", "stack": "layers", "network": "flow", "graph": "flow", "kpi": "stat"}
@@ -1592,6 +1590,7 @@ _STARTER_DATA: dict[str, dict[str, tuple[list[str], int]]] = {
         "donut": (["center: ٦٢٪ | اكتب الوصف", "الجزء الأول: ٦٢ !", "الجزء الثاني: ٢١", "الجزء الثالث: ١٧"], 3),
         "gauge": (["value: ٧٠", "max: 100", "unit: ٪", "label: اكتب وصف المؤشر", "sub: الهدف ٩٠٪"], 1),
         "stat": (["اكتب وصف الرقم: ٧٠٪ | اكتب السياق !", "اكتب وصف الرقم الثاني: ١٢"], 2),
+        "scatter": (["x: المحور الأفقي | الوحدة", "y: المحور الرأسي | الوحدة", "النقطة الأولى: ١٠, ٢٠", "النقطة الثانية: ٢٥, ٣٥ !", "النقطة الثالثة: ٤٠, ٣٠"], 3),
     },
     "en": {
         "timeline": (["2024: Start | Write what happened", "2025: Growth | Write what happened !", "2026: Goal"], 3),
@@ -1606,6 +1605,7 @@ _STARTER_DATA: dict[str, dict[str, tuple[list[str], int]]] = {
         "donut": (["center: 62% | Write the description", "First part: 62 !", "Second part: 21", "Third part: 17"], 3),
         "gauge": (["value: 70", "max: 100", "unit: %", "label: Describe the indicator", "sub: Target 90%"], 1),
         "stat": (["Describe the number: 70% | Write the context !", "Describe the second number: 12"], 2),
+        "scatter": (["x: Horizontal axis | unit", "y: Vertical axis | unit", "First point: 10, 20", "Second point: 25, 35 !", "Third point: 40, 30"], 3),
     },
 }
 
@@ -1927,6 +1927,82 @@ def _composition(layout: str, has_visual: bool, visual_is_graphic: bool, n_body:
     return comp, attrs
 
 
+# Compositions ported from frontend-slides layout presets (NM-21, nm-layout.css): how scaffold fills them.
+PORTED_LAYOUTS = ("ledger", "keynote", "stat-strip", "ledger-list", "meridian", "chapter", "plate", "triptych",
+                  "monolith", "terminal", "staircase", "waypoint")
+
+
+def _parts(item: str) -> list[str]:
+    """A body item may carry its parts separated by " | " (value | label, date | title | description)."""
+    return [p.strip() for p in str(item).split(" | ")]
+
+
+def _ported_kids(comp: str, v: dict[str, Any]) -> list[str]:
+    body_items: list[str] = v["body_items"]
+    morph_attr, step_attrs, head = v["morph_attr"], v["step_attrs"], v["head"]
+    kicker_html, headline_html, visual_html, stat = v["kicker_html"], v["headline_html"], v["visual_html"], v["stat"]
+    attrs = lambda n: f'{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}'
+    items = list(enumerate(body_items, start=1))
+    if comp == "ledger":
+        half = (len(body_items) + 1) // 2
+
+        def side(part: list[tuple[int, str]], label: str, cls: str) -> str:
+            rows = "".join(
+                f'<div class="nm-row"{attrs(n)}><p>{_text(_parts(t)[0])}</p>' + (f"<p>{_text(_parts(t)[1])}</p>" if len(_parts(t)) > 1 else "") + "</div>"
+                for n, t in part
+            )
+            return f'<div class="nm-side{cls}">\n      <h3 data-nm-todo>{label}</h3>{rows}\n    </div>'
+        return [head(kicker_html, headline_html), side(items[:half], _t("side1"), " is-favoured"), side(items[half:], _t("side2"), "")]
+    if comp in ("ledger-list", "meridian"):
+        def li(n: int, t: str) -> str:
+            ps = _parts(t)
+            if comp == "meridian" and len(ps) > 1:
+                inner = f"<small>{_text(ps[0])}</small><strong>{_text(ps[1])}</strong>" + (f"<p>{_text(ps[2])}</p>" if len(ps) > 2 else "")
+            else:
+                inner = f"<strong>{_text(ps[0])}</strong>" + (f"<p>{_text(ps[1])}</p>" if len(ps) > 1 else "")
+            return f"<li{attrs(n)}>{inner}</li>"
+        return [head(kicker_html, headline_html), "<ol>\n        " + "\n        ".join(li(n, t) for n, t in items) + "\n      </ol>"]
+    if comp == "staircase":
+        return [head(kicker_html, headline_html)] + [f'<p{attrs(n)}>{_text(t)}</p>' for n, t in items]
+    if comp == "stat-strip":
+        tiles = []
+        if stat:
+            tiles.append(f'<div{morph_attr("stat")}{step_attrs("stat")}><span class="nm-t-num" data-entrance="count">{_esc(stat.get("value"))}</span><p>{_text(stat.get("label", ""))}</p></div>')
+        for n, t in items:
+            ps = _parts(t)
+            tiles.append(f'<div{attrs(n)}><span class="nm-t-num">{_text(ps[0])}</span><p>{_text(ps[1]) if len(ps) > 1 else ""}</p></div>' if len(ps) > 1
+                         else f"<div{attrs(n)}><p>{_text(t)}</p></div>")
+        return [head(kicker_html, headline_html)] + tiles
+    if comp == "keynote":
+        hero = (f'<div{morph_attr("stat")}{step_attrs("stat")}><span class="nm-t-num" data-entrance="count">{_esc(stat.get("value"))}</span>'
+                f'<p>{_text(stat.get("label", ""))}</p></div>') if stat else '<div data-nm-todo><span class="nm-t-num">0</span><p>اكتب وصف الرقم</p></div>'
+        rail = "".join(f'<div{attrs(n)}><strong>{_text(_parts(t)[0])}</strong><span>{_text(_parts(t)[1]) if len(_parts(t)) > 1 else ""}</span></div>' for n, t in items)
+        return [head(kicker_html, headline_html), hero] + ([f'<div class="nm-keynote-rail">{rail}</div>'] if rail else [])
+    if comp == "chapter":
+        num = f'<p class="nm-section-num" aria-hidden="true">{_digits(v["section_no"] or 1, v["arabic_digits"])}</p>'
+        return [num, '<hr class="nm-rule is-accent">', kicker_html, headline_html, v["lead"]()]
+    if comp == "monolith":
+        return [kicker_html, headline_html, v["lead"]()]
+    if comp == "terminal":
+        strip = "<ul>" + "".join(f"<li{attrs(n)}>{_text(t)}</li>" for n, t in items) + "</ul>" if len(items) > 1 else v["lead"]()
+        return [kicker_html, headline_html, strip]
+    if comp == "waypoint":
+        current = v["section_no"] or 1
+        cur_attr = ' class="is-current"'
+        lis = "".join(f"<li{cur_attr if n == current else ''}{attrs(n)}>{_text(t)}</li>" for n, t in items)
+        return [kicker_html, headline_html] + ([f"<ol>{lis}</ol>"] if lis else [])
+    if comp == "plate":
+        return [visual_html, head(kicker_html, headline_html, v["lead"]())]
+    if comp == "triptych":
+        extra = []
+        for k in (2, 3):
+            ph_rel = f"assets/img/_placeholders/{v['sid']}-{k}.svg"
+            v["extra_files"].append((v["out_dir"] / ph_rel, _placeholder_svg(f"placeholder {v['sid']} {k}")))
+            extra.append(f'<figure class="nm-img nm-ph-frame" data-nm-todo><img src="{ph_rel}" alt=""><figcaption data-nm-todo>{_t("card")}</figcaption></figure>')
+        return [head(kicker_html, headline_html)] + ([visual_html] if visual_html else []) + extra
+    return [head(kicker_html, headline_html, v["lead"]()), visual_html, stat_html if (stat_html := v["stat_html"]) else ""]
+
+
 def _digits(n: int, arabic: bool) -> str:
     # Arabic-Indic zero is a small dot, so "٠١" reads as a bullet: no zero padding in Arabic digits
     return "".join(_AR_DIGITS[int(c)] for c in str(n)) if arabic else f"{n:02d}"
@@ -2014,8 +2090,10 @@ def _build_slide(
     if not headline:
         todos.append("write text.headline")
     kicker_html = f'<p class="nm-kicker"{morph_attr("kicker")}{step_attrs("kicker")}>{_text(kicker)}</p>' if kicker else ""
-    if comp == "title":
+    if comp in ("title", "monolith"):
         h_tag, h_cls = ("h1", "nm-t-display") if role == "cover" else ("h2", "nm-t-h1")
+    elif comp in ("chapter", "terminal", "waypoint"):
+        h_tag, h_cls = "h2", "nm-t-h1"
     elif comp == "section":
         h_tag, h_cls = "h2", "nm-t-h1"
     elif comp in ("split", "rail"):
@@ -2177,6 +2255,8 @@ def _build_slide(
         kids = [head(kicker_html, headline_html)] + [
             f'<div{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_text(t)}</p></div>' for n, t in enumerate(body_items, start=1)
         ]
+    elif comp in PORTED_LAYOUTS:
+        kids = _ported_kids(comp, locals())
     else:
         kids = [head(kicker_html, headline_html, lead()), visual_html, stat_html]
     if visual_html and not any(visual_html in k for k in kids if k):
@@ -2283,7 +2363,7 @@ def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False,
     todo_count = 0
     section_no = 0
     for i, slide in enumerate(plan["slides"]):
-        if LAYOUT_ALIASES.get(str(slide.get("layout")), slide.get("layout")) == "section":
+        if LAYOUT_ALIASES.get(str(slide.get("layout")), slide.get("layout")) in ("section", "chapter", "waypoint"):
             section_no += 1
         s_html, todos, extra = _build_slide(slide, i, plan, out_dir, section_no)
         slides_html.append(s_html)
@@ -3054,6 +3134,17 @@ def cmd_check(args: argparse.Namespace) -> int:
         command += ["--shots", str(Path(args.shots).expanduser().resolve())]
     if args.slides:
         command += ["--slides", args.slides]
+    for flag, value in (("--save-baseline", args.save_baseline), ("--baseline", args.baseline)):
+        if value:
+            command += [flag, str(Path(value).expanduser().resolve())]
+    if args.baseline_tolerance is not None:
+        command += ["--baseline-tolerance", str(args.baseline_tolerance)]
+    if args.baseline_strict:
+        command.append("--baseline-strict")
+    if args.motion:
+        command.append("--motion")
+    if args.steps:
+        command.append("--steps")
     return subprocess.call(command)
 
 
@@ -3315,6 +3406,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_check.add_argument("--shots", default=None, help="Directory for screenshots and the contact sheet (default: <deck dir>/check-shots).")
     p_check.add_argument("--slides", default=None, help="Slides to check, e.g. 1-5 or 2,4,7 (default: all).")
     p_check.add_argument("--output", default=str(TEMP_DIR / "deck_check_report.json"), help="Output JSON report path.")
+    p_check.add_argument("--steps", action="store_true", help="Also screenshot every step (and compare them with --baseline).")
+    p_check.add_argument("--save-baseline", default=None, help="Save this run's screenshots into DIR as the visual baseline (NM-07).")
+    p_check.add_argument("--baseline", default=None, help="Compare the screenshots with the baseline in DIR (C-BASELINE, diff images in <shots>/diff/).")
+    p_check.add_argument("--baseline-tolerance", type=float, default=None, help="Share of differing pixels allowed (default 0.0005).")
+    p_check.add_argument("--baseline-strict", action="store_true", help="A baseline difference is an error, not a warning.")
+    p_check.add_argument("--motion", action="store_true", help="Also measure each slide's arrival at full speed (C-MOTION, C-JANK; NM-08).")
     p_check.set_defaults(func=cmd_check)
 
     return parser

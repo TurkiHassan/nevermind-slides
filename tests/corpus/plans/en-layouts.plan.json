@@ -1,0 +1,402 @@
+{
+  "title": "The smart palm farm",
+  "lang": "en",
+  "theme": {
+    "preset": "olive"
+  },
+  "fonts": {
+    "pairing": "open"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "web",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "The smart palm farm",
+      "role": "cover",
+      "layout": "monolith",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "The smart palm farm",
+        "kicker": "Modern farming",
+        "body": [
+          "How sensors cut water use"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "title": "The idea",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "The sensor decides when to water",
+        "kicker": "The idea",
+        "body": [
+          "Moisture is read every hour",
+          "Watering starts only when needed"
+        ]
+      }
+    },
+    {
+      "id": "s3",
+      "title": "Comparison",
+      "role": "comparison",
+      "layout": "ledger",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "contrast",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "Fixed schedule against sensing",
+        "body": [
+          "Fixed schedule | twice a day whatever the weather",
+          "High waste | water sinks below the roots",
+          "Watering by reading | only when the soil dries",
+          "Less waste | water stays at the roots"
+        ]
+      }
+    },
+    {
+      "id": "s4",
+      "title": "Numbers",
+      "role": "evidence",
+      "layout": "hero",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars"
+      },
+      "rel": "deeper",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "Water use on three farms",
+        "kicker": "Results"
+      }
+    },
+    {
+      "id": "s5",
+      "title": "Key number",
+      "role": "evidence",
+      "layout": "keynote",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "deeper",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "Water saved in the first year",
+        "body": [
+          "1200 | cubic metres per hectare",
+          "4 | months to pay back"
+        ],
+        "stat": {
+          "value": "38%",
+          "label": "less than fixed watering"
+        }
+      }
+    },
+    {
+      "id": "s6",
+      "title": "The field",
+      "role": "concept",
+      "layout": "plate",
+      "visual": {
+        "type": "image",
+        "ref": "field",
+        "query": "date palm farm irrigation sensor"
+      },
+      "rel": "chapter",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "A sensor in every row",
+        "kicker": "In the field",
+        "body": [
+          "The sensor sits half a metre deep near the roots"
+        ]
+      }
+    },
+    {
+      "id": "s7",
+      "title": "Indicators",
+      "role": "evidence",
+      "layout": "stat-strip",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "Three indicators after a year",
+        "body": [
+          "38% | less water",
+          "12% | more dates",
+          "90% | farmers satisfied"
+        ]
+      }
+    },
+    {
+      "id": "s8",
+      "title": "Pictures",
+      "role": "concept",
+      "layout": "triptych",
+      "visual": {
+        "type": "image",
+        "ref": "sensor",
+        "query": "soil moisture sensor"
+      },
+      "rel": "contrast",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "Sensor, pump and app"
+      }
+    },
+    {
+      "id": "s9",
+      "title": "Steps",
+      "role": "process",
+      "layout": "ledger-list",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "morph": [],
+      "steps": [
+        {
+          "act": "focus",
+          "target": "body1"
+        }
+      ],
+      "text": {
+        "headline": "Four steps to install",
+        "body": [
+          "Survey | map the soil types",
+          "Place | one sensor per twenty palms",
+          "Connect | sensors talk to the pump",
+          "Watch | the app warns of faults"
+        ]
+      }
+    },
+    {
+      "id": "s10",
+      "title": "Cycle",
+      "role": "process",
+      "layout": "split",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "cycle"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "Reading and watering repeat daily",
+        "kicker": "The loop"
+      }
+    },
+    {
+      "id": "s11",
+      "title": "Part two",
+      "role": "section",
+      "layout": "chapter",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "From trial to scale",
+        "kicker": "Part two",
+        "body": [
+          "What changed after the first season"
+        ]
+      }
+    },
+    {
+      "id": "s12",
+      "title": "Stages",
+      "role": "process",
+      "layout": "hero",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "timeline"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "Project stages"
+      }
+    },
+    {
+      "id": "s13",
+      "title": "History",
+      "role": "process",
+      "layout": "meridian",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "time",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "Four milestones",
+        "body": [
+          "2022 | Trial | one farm",
+          "2023 | Growth | three farms",
+          "2024 | Link | one shared app",
+          "2025 | Today | fifty farms"
+        ]
+      }
+    },
+    {
+      "id": "s14",
+      "title": "Trend",
+      "role": "evidence",
+      "layout": "split",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "line"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "Use falls every year"
+      }
+    },
+    {
+      "id": "s15",
+      "title": "Where we are",
+      "role": "section",
+      "layout": "waypoint",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "Where we are now",
+        "body": [
+          "The idea",
+          "Results",
+          "Scaling",
+          "Next step"
+        ]
+      }
+    },
+    {
+      "id": "s16",
+      "title": "Structure",
+      "role": "mechanism",
+      "layout": "hero",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "tree"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "From sensor to decision"
+      }
+    },
+    {
+      "id": "s17",
+      "title": "Lessons",
+      "role": "summary",
+      "layout": "staircase",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "back-out",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "headline": "Three lessons",
+        "body": [
+          "Start with one farm",
+          "Measure before deciding",
+          "Scale when the numbers hold"
+        ]
+      }
+    },
+    {
+      "id": "s18",
+      "title": "After",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "image",
+        "ref": "after",
+        "query": "green date palm farm"
+      },
+      "rel": "time",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "The farm three years on"
+      }
+    },
+    {
+      "id": "s19",
+      "title": "Closing",
+      "role": "closing",
+      "layout": "terminal",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "back-out",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "headline": "Water is enough when measured",
+        "body": [
+          "Contact: the project team",
+          "Sources: farm reports",
+          "Next: the 2026 season"
+        ]
+      }
+    }
+  ]
+}

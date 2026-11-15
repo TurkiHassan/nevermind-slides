@@ -19,6 +19,10 @@
 //                     excluded)
 //   C-TABLE    error  a table (figure.nm-table) does not fit its figure, or its cells render below 20px; warn: rows
 //                     with different numbers of cells
+//   C-BASELINE        the slide differs from the saved baseline image by more than the tolerance (NM-07,
+//                     check --baseline DIR; error with --baseline-strict)
+//   C-MOTION          a slide takes more than 2000ms to arrive at full speed (NM-08, check --motion)
+//   C-JANK            frames of 50ms or more while a slide arrives (NM-08, check --motion)
 //   C-MATH     error  TeX shown raw (data-tex without the converter, a TeX parse error, or $...$ / \frac left in
 //                     the text), or a <math> element that renders nothing
 
@@ -45,6 +49,9 @@ export const CODES = {
   "C-WIDOW": { tier: "NOTE", confidence: "likely", fix: "Rephrase the title or add text-wrap: balance so the last line holds two words or more." },
   "C-DENSITY": { tier: "NOTE", confidence: "possible", fix: "Move detail to the speaker note, a detail act or the next slide." },
   "C-TABLE": { tier: "HOLD", confidence: "confident", fix: "Split the table (8 rows x 6 columns at most), shorten cell text, or give the figure a larger cell (hero-figure)." },
+  "C-BASELINE": { tier: "FIX", confidence: "confident", fix: "Open the diff image in <shots>/diff/: if the change is intended, save a new baseline (check --save-baseline DIR); otherwise undo it." },
+  "C-MOTION": { tier: "NOTE", confidence: "likely", fix: "Shorten the arrival: fewer staggered blocks, a shorter transition, or data-entrance-auto=\"off\" on a busy slide." },
+  "C-JANK": { tier: "NOTE", confidence: "possible", fix: "Frames of 50ms or more while the slide arrives: fewer elements moving at once, smaller images, no live iframe during the morph. Machine dependent: confirm on the presenting computer." },
   "C-MATH": { tier: "HOLD", confidence: "confident", fix: "Write the formula as MathML, or stage the converter (stage-runtime --math) and fix the TeX; never leave $...$ or \\frac in slide text." },
 };
 
@@ -351,4 +358,69 @@ export function qualityReport(report) {
     deck,
     slides,
   };
+}
+
+// ----------------------------------------------------------------------------------------------- baseline (NM-07)
+
+/** In the page: compare two PNG data (base64) pixel by pixel on a canvas. A pixel differs when one channel differs
+ *  by more than 24 (antialiasing stays below). Returns the share of differing pixels and a diff image (base64 PNG,
+ *  the current frame faded with differing pixels in red). Self-contained: deck_check injects it with toString. */
+export async function pageCompare(a, b) {
+  const load = async (b64) => { const im = new Image(); im.src = "data:image/png;base64," + b64; await im.decode(); return im; };
+  const [ia, ib] = await Promise.all([load(a), load(b)]);
+  if (ia.width !== ib.width || ia.height !== ib.height) return { ratio: 1, size: [ia.width, ia.height, ib.width, ib.height], diff: null };
+  const W = ia.width, H = ia.height;
+  const ca = document.createElement("canvas"); ca.width = W; ca.height = H;
+  const ga = ca.getContext("2d"); ga.drawImage(ia, 0, 0);
+  const da = ga.getImageData(0, 0, W, H);
+  const cb = document.createElement("canvas"); cb.width = W; cb.height = H;
+  const gb = cb.getContext("2d"); gb.drawImage(ib, 0, 0);
+  const db = gb.getImageData(0, 0, W, H).data;
+  const pa = da.data;
+  let diff = 0;
+  for (let i = 0; i < pa.length; i += 4) {
+    const d = Math.abs(pa[i] - db[i]) > 24 || Math.abs(pa[i + 1] - db[i + 1]) > 24 || Math.abs(pa[i + 2] - db[i + 2]) > 24;
+    if (d) { diff++; pa[i] = 229; pa[i + 1] = 72; pa[i + 2] = 77; pa[i + 3] = 255; }
+    else { pa[i] = 255 - (255 - pa[i]) * 0.25; pa[i + 1] = 255 - (255 - pa[i + 1]) * 0.25; pa[i + 2] = 255 - (255 - pa[i + 2]) * 0.25; }
+  }
+  if (!diff) return { ratio: 0, diff: null };
+  ga.putImageData(da, 0, 0);
+  return { ratio: diff / (W * H), diff: ca.toDataURL("image/png").split(",")[1] };
+}
+
+// ----------------------------------------------------------------------------------------------- motion (NM-08)
+
+/** In the page, at full speed: arrive on slide `idx` from the previous one and measure how long the arrival takes
+ *  (until NM.test.settle resolves), the most animations running at once, and long animation frames (50ms or more)
+ *  during it. Self-contained: deck_check injects it with toString. */
+export async function pageMotion(idx) {
+  const deck = window.NM.deck;
+  if (idx > 0) { deck.go(idx - 1); await window.NM.test.settle(); }
+  const frames = [];
+  let observer = null;
+  for (const type of ["long-animation-frame", "longtask"]) {
+    try {
+      observer = new PerformanceObserver((list) => { for (const e of list.getEntries()) frames.push(Math.round(e.duration)); });
+      observer.observe({ type, buffered: false });
+      break;
+    } catch (e) { observer = null; }
+  }
+  let maxRunning = 0, sampling = true;
+  const sample = () => {
+    if (!sampling) return;
+    const n = document.getAnimations().filter((a) => a.playState === "running" && a.effect && a.effect.getTiming().iterations !== Infinity).length;
+    if (n > maxRunning) maxRunning = n;
+    requestAnimationFrame(sample);
+  };
+  const t0 = performance.now();
+  requestAnimationFrame(sample);
+  const r = deck.go(idx);
+  if (r && r.then) await r;
+  await window.NM.test.settle();
+  const settle = Math.round(performance.now() - t0);
+  sampling = false;
+  await new Promise((res) => setTimeout(res, 30));
+  if (observer) observer.disconnect();
+  const long = frames.filter((d) => d >= 50);
+  return { settle_ms: settle, max_running: maxRunning, long_frames: long.length, longest_frame_ms: long.length ? Math.max(...long) : 0, observer: !!observer };
 }
