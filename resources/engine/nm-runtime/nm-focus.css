@@ -120,8 +120,10 @@ template[data-detail-for] { display: none; }
 .nmf-pop .nmf-page h3, .nmf-pop .nmf-page h2 { font-size: 32px; }
 .nmf-page p { color: var(--nmf-muted); }
 .nmf-page .nm-kicker, .nmf-page small {
-  display: block; font-size: 20px; font-weight: 700; letter-spacing: .02em; color: var(--nmf-accent);
+  display: block; font-size: 20px; font-weight: 700; color: var(--nmf-accent);
 }
+/* tracking opens gaps in the joins of Arabic letters: Latin only */
+.nmf-page .nm-kicker:dir(ltr), .nmf-page small:dir(ltr) { letter-spacing: .02em; }
 .nmf-page ul, .nmf-page ol { list-style: none; padding: 0; }
 .nmf-page li { position: relative; padding-inline-start: 34px; margin: .32em 0; break-inside: avoid; }
 .nmf-page li::before { content: ""; position: absolute; inset-inline-start: 4px; top: .72em; width: 12px; height: 12px;

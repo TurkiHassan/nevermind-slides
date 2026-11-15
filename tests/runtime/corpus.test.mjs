@@ -31,14 +31,17 @@ after(async () => {
 
 for (const deck of DECKS) {
   describe(`corpus: ${deck.name}`, () => {
-    let states;
+    let states, total;
     before(async () => {
       const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
       const errors = [];
       page.on("pageerror", (e) => errors.push(String(e)));
       await page.goto(pathToFileURL(join(tmp, deck.name, "deck.html")).href + "?nm-speed=0");
       await page.waitForFunction(() => document.body.classList.contains("nm-ready"));
-      states = await walk(page, "ArrowLeft");
+      // "next" follows the reading direction: the left arrow in RTL decks, the right arrow in LTR decks
+      const next = await page.evaluate(() => (getComputedStyle(document.body).direction === "ltr" ? "ArrowRight" : "ArrowLeft"));
+      total = await page.evaluate(() => window.NM.deck.slides.length);
+      states = await walk(page, next);
       await page.close();
       assert.deepEqual(errors, [], "page errors");
     });
@@ -46,7 +49,7 @@ for (const deck of DECKS) {
     it("visits every slide in order and ends on the last one", () => {
       const slides = [...new Set(states.map((s) => s.slide))];
       assert.deepEqual(slides, slides.slice().sort((a, b) => a - b));
-      assert.equal(slides.length, Math.max(...slides));
+      assert.deepEqual(slides, Array.from({ length: total }, (_, i) => i + 1), "every slide of the deck is visited");
     });
 
     it("invariants hold at every position", () => {

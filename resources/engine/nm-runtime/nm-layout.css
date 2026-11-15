@@ -58,7 +58,7 @@
 .nm-t-h3 { font-size: 42px; line-height: 1.45; font-weight: 700; }
 .nm-t-lead { font-size: 36px; line-height: 1.7; font-weight: 400; color: var(--nm-l-muted); margin: 0; text-wrap: pretty; }
 .nm-t-body { font-size: 30px; line-height: 1.8; margin: 0; text-wrap: pretty; }
-.nm-t-caption { font-size: 24px; line-height: 1.65; color: var(--nm-l-muted); margin: 0; }
+.nm-t-caption { font-size: 24px; line-height: 1.65; color: var(--nm-l-muted); margin: 0; text-wrap: pretty; }
 .nm-t-num { font-size: 168px; line-height: 1.05; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--nm-l-accent); }
 .nm-t-accent { color: var(--nm-l-accent); }
 .nm-t-muted { color: var(--nm-l-muted); }
@@ -76,8 +76,8 @@
   background: var(--nm-l-surface); border: 1.5px solid var(--nm-l-line);
   min-height: 0; overflow: hidden;
 }
-.nm-card > h3, .nm-card > .nm-card-title { margin: 0; font-family: var(--nm-l-display); font-size: 38px; line-height: 1.45; font-weight: 700; }
-.nm-card > p { margin: 0; font-size: 28px; line-height: 1.75; color: var(--nm-l-muted); }
+.nm-card > h3, .nm-card > .nm-card-title { margin: 0; font-family: var(--nm-l-display); font-size: 38px; line-height: 1.45; font-weight: 700; text-wrap: balance; }
+.nm-card > p { margin: 0; font-size: 28px; line-height: 1.75; color: var(--nm-l-muted); text-wrap: pretty; }
 .nm-card.is-accent { background: var(--nm-l-accent); border-color: var(--nm-l-accent); color: #fff; }
 .nm-card.is-accent > p { color: color-mix(in oklab, #fff 82%, transparent); }
 .nm-card.is-quiet { background: transparent; }

@@ -1,0 +1,232 @@
+{
+  "title": "How a port moves a box",
+  "lang": "en",
+  "theme": {
+    "preset": "mist"
+  },
+  "fonts": {
+    "pairing": "open"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "web",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Cover",
+      "role": "cover",
+      "layout": "cover",
+      "visual": {
+        "type": "image",
+        "ref": "port-dusk",
+        "query": "container port cranes at dusk"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "Logistics, from the inside",
+        "headline": "How a port moves a box",
+        "body": [
+          "From ship to road in under a day"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "title": "Why it matters",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "hub",
+        "ref": "trade"
+      },
+      "rel": "deeper",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "body1"
+        },
+        {
+          "act": "reveal",
+          "target": "body2"
+        }
+      ],
+      "text": {
+        "kicker": "The hinge",
+        "headline": "Ports link the sea to the road",
+        "body": [
+          "Most world trade crosses a quay",
+          "One slow hour backs up the yard"
+        ]
+      }
+    },
+    {
+      "id": "s3",
+      "title": "The route",
+      "role": "process",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow",
+        "ref": "journey"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "draw",
+          "target": "visual:rank"
+        },
+        {
+          "act": "focus",
+          "target": "node:n2"
+        }
+      ],
+      "text": {
+        "kicker": "The route",
+        "headline": "Six stations for every container"
+      }
+    },
+    {
+      "id": "s4",
+      "title": "Waiting time",
+      "role": "evidence",
+      "layout": "stat",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "wait"
+      },
+      "rel": "contrast",
+      "transition": "auto",
+      "morph": [
+        "visual"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "stat"
+        },
+        {
+          "act": "detail",
+          "target": "stat"
+        }
+      ],
+      "text": {
+        "kicker": "Where time goes",
+        "headline": "Boxes wait more than they move",
+        "stat": {
+          "value": "72%",
+          "label": "of dwell time is waiting"
+        },
+        "body": [
+          "Average over one month of records"
+        ]
+      }
+    },
+    {
+      "id": "s5",
+      "title": "Three fixes",
+      "role": "comparison",
+      "layout": "compare",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "fixes"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "visual"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "Options",
+        "headline": "Three ways to shorten the wait",
+        "body": [
+          "Book truck slots ahead",
+          "Clear customs before arrival"
+        ]
+      }
+    },
+    {
+      "id": "s6",
+      "title": "Roadmap",
+      "role": "process",
+      "layout": "timeline",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "timeline",
+        "ref": "roadmap"
+      },
+      "rel": "time",
+      "transition": "auto",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "Next years",
+        "headline": "Four stages to a paperless port"
+      }
+    },
+    {
+      "id": "s7",
+      "title": "Quote",
+      "role": "quote",
+      "layout": "quote",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "chapter",
+      "transition": "auto",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "A harbour master",
+        "headline": "In a port, time is the real cargo"
+      }
+    },
+    {
+      "id": "s8",
+      "title": "Closing",
+      "role": "closing",
+      "layout": "center",
+      "visual": {
+        "type": "image",
+        "ref": "truck-gate",
+        "query": "truck leaving container terminal gate"
+      },
+      "rel": "back-out",
+      "transition": "auto",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "Takeaway",
+        "headline": "Every saved minute reaches the shelf",
+        "body": [
+          "Start with the truck slots"
+        ]
+      }
+    }
+  ]
+}

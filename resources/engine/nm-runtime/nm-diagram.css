@@ -12,7 +12,7 @@
   --dg-accent2: var(--nm-accent-2, #0f766e);
   --dg-surface: var(--nm-surface, color-mix(in oklab, var(--dg-paper) 82%, #fff));
   --dg-border: color-mix(in oklab, var(--dg-ink) 24%, var(--dg-paper));
-  --dg-on-accent: #fff;
+  --dg-on-accent: var(--nm-on-accent, #fff); /* scaffold sets --nm-on-accent by contrast; old decks keep white */
   --dg-danger: #b42318;
   --dg-ok: #15803d;
   --dg-warn: #b45309;

@@ -57,10 +57,12 @@ class StructureRulesTest(unittest.TestCase):
         plan["mode"] = "wild"
         self.assertIn("P002", codes(self.lint(plan)))
 
-    def test_p002_lang_is_arabic_only_today(self):
-        # Documents current behaviour; NM-09 will add "en" and must update this test on purpose.
+    def test_p002_lang(self):
+        # NM-09: Arabic and English decks; anything else is refused with the list of choices.
         plan = example_plan()
         plan["lang"] = "en"
+        self.assertNotIn("P002", codes(self.lint(plan)))
+        plan["lang"] = "fr"
         self.assertIn("P002", codes(self.lint(plan)))
 
     def test_p002_bad_act(self):

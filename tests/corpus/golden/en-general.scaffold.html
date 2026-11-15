@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="nm-runtime" content="2">
+<meta name="nm-stage" content="1920x1080">
+<meta name="generator" content="nevermind-slides scaffold">
+<title>How a port moves a box</title>
+
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+
+<style>
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
+    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
+    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+
+    /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
+    :root {
+      --nm-paper: #F1F5F9;
+      --nm-ink: #0F172A;
+      --nm-muted: #475569;
+      --nm-line: #CBD5E1;
+      --nm-accent: #1D4ED8;
+      --nm-accent-2: #0F766E;
+      --nm-surface: #FFFFFF;
+      --nm-on-accent: #FFFFFF;
+      --nm-radius: 16px;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+      --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      /* legacy aliases */
+      --lp-accent: var(--nm-accent);
+      --slide-bg: var(--nm-paper);
+      --stage-bg: var(--nm-paper);
+      --lp-font-display: var(--nm-font-display);
+      --lp-font-body: var(--nm-font-body);
+      --lp-font-mono: var(--nm-font-mono);
+    }
+
+    /* Live font pairing classes on <body> */
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
+    body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
+
+    html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
+</style>
+</head>
+<body dir="ltr" class="font-mode-open" data-nm-mode="morph-and-zoom">
+<script>
+  window.NM_CONFIG = {
+    fontModes: [{"className": "font-mode-qahwa", "label": "Qahwa"}, {"className": "font-mode-setabr", "label": "Setabr"}, {"className": "font-mode-kufi", "label": "Kufi"}, {"className": "font-mode-open", "label": "Readex + Plex"}]
+  };
+</script>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+  <!-- 1. s1 / cover / layout cover -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/port-dusk.jpg (web)
+  -->
+  <section class="slide" id="s1" data-title="Cover" data-rel="next" data-transition="auto" data-role="cover">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <header class="nm-head">
+      <p class="nm-kicker">Logistics, from the inside</p>
+      <h1 class="nm-t-h1" data-morph="title">How a port moves a box</h1>
+      <p class="nm-t-lead">From ship to road in under a day</p>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s1.svg" alt="container port cranes at dusk" data-todo-src="assets/img/port-dusk.jpg"><!-- TODO: save the real image as assets/img/port-dusk.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: container port cranes at dusk) --></figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 2. s2 / concept / layout split -> nm-l-split
+       TODO:
+       - edit diagram labels/values (hub) in the nm-diagram script block
+  -->
+  <section class="slide" id="s2" data-title="Why it matters" data-rel="deeper" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">The hinge</p>
+      <h2 class="nm-t-h2" data-morph="title">Ports link the sea to the road</h2>
+      <ul class="nm-list">
+        <li data-step="1" data-act="reveal">Most world trade crosses a quay</li>
+        <li data-step="2" data-act="reveal">One slow hour backs up the yard</li>
+      </ul>
+    </header>
+    <figure class="nm-diagram" data-type="hub" data-id="trade" aria-label="Why it matters" data-nm-todo>
+    <script type="text/nm-diagram">
+      core((Why it matters)).accent
+      core -- n1[Item 1]
+      core -- n2[Item 2]
+      core -- n3[Item 3]
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 3. s3 / process / layout diagram -> nm-l-hero-figure
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="rank"); if you add or remove nodes, renumber the other data-step values on this slide
+       - step 4 focus on diagram node "n2" (data-node-steps on the figure; keep the node id when you edit the DSL)
+       - edit diagram labels/values (flow) in the nm-diagram script block
+  -->
+  <section class="slide" id="s3" data-title="The route" data-rel="next" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">The route</p>
+      <h2 class="nm-t-h2" data-morph="title">Six stations for every container</h2>
+    </header>
+    <figure class="nm-diagram" data-type="flow" data-id="journey" aria-label="The route" data-nm-todo data-steps="rank" data-step-from="1" data-node-steps="n2:4:focus">
+    <script type="text/nm-diagram">
+      n2[Item 1] -> n1[Item 2] -> n3[Item 3]
+      n1.accent
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. s4 / evidence / layout stat -> nm-l-split
+       TODO:
+       - step 2 (detail) targets "stat" again; split it onto another element by hand
+       - edit chart labels/values (bars) in the nm-diagram script block
+  -->
+  <section class="slide" id="s4" data-title="Waiting time" data-rel="contrast" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="1:1">
+    <header class="nm-head">
+      <p class="nm-kicker">Where time goes</p>
+      <h2 class="nm-t-h2">Boxes wait more than they move</h2>
+      <p class="nm-t-lead">Average over one month of records</p>
+      <div class="nm-stat-block" data-step="1" data-act="reveal"><span class="nm-t-num" data-entrance="count">72%</span><p class="nm-t-body">of dwell time is waiting</p></div>
+    </header>
+    <figure class="nm-diagram" data-type="bars" data-id="wait" aria-label="Waiting time" data-nm-todo data-morph="visual">
+    <script type="text/nm-diagram">
+      unit: %
+      First item: 30
+      Second item: 55 !
+      Third item: 42
+      Fourth item: 70
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 5. s5 / comparison / layout compare -> nm-l-hero-figure
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="all"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit chart labels/values (bars) in the nm-diagram script block
+  -->
+  <section class="slide" id="s5" data-title="Three fixes" data-rel="next" data-transition="auto" data-role="comparison">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">Options</p>
+      <h2 class="nm-t-h2">Three ways to shorten the wait</h2>
+      <ul class="nm-list">
+        <li>Book truck slots ahead</li>
+        <li>Clear customs before arrival</li>
+      </ul>
+    </header>
+    <figure class="nm-diagram" data-type="bars" data-id="fixes" aria-label="Three fixes" data-nm-todo data-morph="visual" data-steps="all" data-step-from="1">
+    <script type="text/nm-diagram">
+      unit: %
+      First item: 30
+      Second item: 55 !
+      Third item: 42
+      Fourth item: 70
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 6. s6 / process / layout timeline -> nm-l-hero-figure
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="all"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit diagram labels/values (timeline) in the nm-diagram script block
+  -->
+  <section class="slide" id="s6" data-title="Roadmap" data-rel="time" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">Next years</p>
+      <h2 class="nm-t-h2">Four stages to a paperless port</h2>
+    </header>
+    <figure class="nm-diagram" data-type="timeline" data-id="roadmap" aria-label="Roadmap" data-nm-todo data-steps="all" data-step-from="1">
+    <script type="text/nm-diagram">
+      2024: Start | Write what happened
+      2025: Growth | Write what happened !
+      2026: Goal
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 7. s7 / quote / layout quote -> nm-l-quote
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s7" data-title="Quote" data-rel="chapter" data-transition="auto" data-role="quote">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-quote">
+    <blockquote>In a port, time is the real cargo</blockquote>
+    <cite>A harbour master</cite>
+    </div>
+  </div>
+  </section>
+
+  <!-- 8. s8 / closing / layout center -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/truck-gate.jpg (web)
+  -->
+  <section class="slide" id="s8" data-title="Closing" data-rel="back-out" data-transition="auto" data-role="closing">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <header class="nm-head">
+      <p class="nm-kicker">Takeaway</p>
+      <h2 class="nm-t-h2">Every saved minute reaches the shelf</h2>
+      <p class="nm-t-lead">Start with the truck slots</p>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8.svg" alt="truck leaving container terminal gate" data-todo-src="assets/img/truck-gate.jpg"><!-- TODO: save the real image as assets/img/truck-gate.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: truck leaving container terminal gate) --></figure>
+    </div>
+  </div>
+  </section>
+  </main>
+</div>
+
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+</body>
+</html>

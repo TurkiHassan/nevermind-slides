@@ -58,6 +58,12 @@ jobs:
       - run: python scripts/deck_helper.py audit-deck --html-path "$RUNNER_TEMP/showcase/deck.html"
       - run: python scripts/deck_helper.py check --html-path "$RUNNER_TEMP/showcase/deck.html" --shots "$RUNNER_TEMP/shots"
       - run: python scripts/image_fetch.py credits --project "$RUNNER_TEMP/showcase" --check "$RUNNER_TEMP/showcase/deck.html"
+      - name: Every corpus deck passes check (Arabic, English, bidi, stubs)
+        run: |
+          python tests/corpus/build.py --out "$RUNNER_TEMP/corpus"
+          for deck in "$RUNNER_TEMP"/corpus/*/deck.html; do
+            node scripts/deck_check.mjs "$deck" --shots "$(dirname "$deck")/shots"
+          done
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4

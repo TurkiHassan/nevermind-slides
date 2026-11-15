@@ -507,6 +507,7 @@ FONT_MODE_LABELS = {
     "kufi": "كوفي",
     "open": "ريدكس + بلكس",
 }
+FONT_MODE_LABELS_EN = {"thmanyah": "Thmanyah + KOMission", "sans": "Thmanyah Sans", "qahwa": "Qahwa", "setabr": "Setabr", "kufi": "Kufi", "open": "Readex + Plex"}
 
 DIGIT_GROUPS = {
     "western": re.compile(r"[0-9]"),
@@ -715,8 +716,8 @@ def lint_plan(plan: Any) -> dict[str, Any]:
         return {"passed": False, "errors": errors, "warnings": warnings, "slides": []}
 
     lang = plan.get("lang", "ar")
-    if lang != "ar":
-        err("P002", f"`lang` must be \"ar\", got \"{lang}\"")
+    if lang not in LANGS:
+        err("P002", f"`lang` must be one of {', '.join(LANGS)}, got \"{lang}\"")
     mode = plan.get("mode", "morph-and-zoom")
     if mode not in MODES:
         err("P002", f"`mode` \"{mode}\" is invalid; use one of: {', '.join(MODES)}")
@@ -1009,7 +1010,20 @@ _STUB_VISUAL = {
 }
 
 
-def make_stub_plan(title: str, count: int) -> dict[str, Any]:
+_STUB_TEXT = {
+    "ar": {"kicker": "اكتب العنوان الفرعي", "headline": "اكتب عنوان الشريحة", "opening": "اكتب جملة افتتاحية قصيرة",
+           "stat_label": "اكتب وصف الرقم", "stat_source": "اكتب مصدر الرقم", "speaker": "اكتب اسم القائل", "quote": "اكتب الاقتباس هنا",
+           "point1": "اكتب نقطة قصيرة", "point2": "اكتب نقطة ثانية", "action": "اكتب خطوة عملية واحدة",
+           "cover": "الغلاف", "closing": "الخاتمة", "slide": "اكتب اسم الشريحة"},
+    "en": {"kicker": "Write the subtitle", "headline": "Write the slide title", "opening": "Write a short opening sentence",
+           "stat_label": "Describe the number", "stat_source": "Write the source of the number", "speaker": "Write who said it", "quote": "Write the quote here",
+           "point1": "Write a short point", "point2": "Write a second point", "action": "Write one practical step",
+           "cover": "Cover", "closing": "Closing", "slide": "Name the slide"},
+}
+
+
+def make_stub_plan(title: str, count: int, lang: str = "ar") -> dict[str, Any]:
+    st = _STUB_TEXT[lang if lang in _STUB_TEXT else "ar"]
     roles = ["cover"]
     for k in range(count - 2):
         roles.append(_STUB_CYCLE[k % len(_STUB_CYCLE)])
@@ -1036,20 +1050,20 @@ def make_stub_plan(title: str, count: int) -> dict[str, Any]:
             steps = [{"act": "reveal", "target": "stat"}]
         elif role in ("comparison", "process"):
             steps = [{"act": "reveal", "target": "visual"}]
-        text: dict[str, Any] = {"kicker": "اكتب العنوان الفرعي", "headline": "اكتب عنوان الشريحة"}
+        text: dict[str, Any] = {"kicker": st["kicker"], "headline": st["headline"]}
         if role == "cover":
-            text = {"kicker": "اكتب العنوان الفرعي", "headline": title, "body": ["اكتب جملة افتتاحية قصيرة"]}
+            text = {"kicker": st["kicker"], "headline": title, "body": [st["opening"]]}
         elif role == "evidence":
-            text["stat"] = {"value": "0%", "label": "اكتب وصف الرقم"}
-            text["body"] = ["اكتب مصدر الرقم"]
+            text["stat"] = {"value": "0%", "label": st["stat_label"]}
+            text["body"] = [st["stat_source"]]
         elif role == "quote":
-            text = {"kicker": "اكتب اسم القائل", "headline": "اكتب الاقتباس هنا"}
+            text = {"kicker": st["speaker"], "headline": st["quote"]}
         elif role in ("concept", "closing", "comparison"):
-            text["body"] = ["اكتب نقطة قصيرة", "اكتب نقطة ثانية"] if role != "closing" else ["اكتب خطوة عملية واحدة"]
+            text["body"] = [st["point1"], st["point2"]] if role != "closing" else [st["action"]]
         slides.append(
             {
                 "id": f"s{i + 1}",
-                "title": "الغلاف" if role == "cover" else ("الخاتمة" if role == "closing" else "اكتب اسم الشريحة"),
+                "title": st["cover"] if role == "cover" else (st["closing"] if role == "closing" else st["slide"]),
                 "role": role,
                 "layout": layout,
                 "visual": visual,
@@ -1063,7 +1077,7 @@ def make_stub_plan(title: str, count: int) -> dict[str, Any]:
         )
     return {
         "title": title,
-        "lang": "ar",
+        "lang": lang if lang in _STUB_TEXT else "ar",
         "theme": {"preset": "paper"},
         "fonts": {"pairing": "thmanyah"},
         "mode": "morph-and-zoom",
@@ -1080,11 +1094,13 @@ def cmd_plan_init(args: argparse.Namespace) -> int:
         print(f"Error: {out} already exists. Use --force to overwrite it.", file=sys.stderr)
         return 1
     example = TEMPLATES_DIR / "deck.plan.example.json"
-    if args.slides is None:
+    if args.slides is None and getattr(args, "lang", "ar") != "ar":
+        plan = make_stub_plan(args.title, 8, args.lang)  # the full example is written in Arabic
+    elif args.slides is None:
         try:
             plan = json.loads(example.read_text(encoding="utf-8"))
         except (OSError, ValueError):
-            plan = make_stub_plan(args.title, 8)
+            plan = make_stub_plan(args.title, 8, getattr(args, "lang", "ar"))
         plan["title"] = args.title
         if plan.get("slides"):
             plan["slides"][0].setdefault("text", {})["headline"] = args.title
@@ -1092,7 +1108,7 @@ def cmd_plan_init(args: argparse.Namespace) -> int:
         if not 5 <= args.slides <= 24:
             print("Error: --slides must be between 5 and 24.", file=sys.stderr)
             return 1
-        plan = make_stub_plan(args.title, args.slides)
+        plan = make_stub_plan(args.title, args.slides, getattr(args, "lang", "ar"))
     write_json_output(out, plan)
     print(f"Plan written to {out} ({len(plan['slides'])} slides). Fill it in, then run: plan-lint --plan {out}")
     return 0
@@ -1169,6 +1185,22 @@ def _esc(text: Any) -> str:
     return html_lib.escape(str(text), quote=True)
 
 
+# A Latin-led run with digits or neutral punctuation ("GPT-4 (2023)", "v2.1", "CO2/kWh") inside Arabic text: the
+# bidi algorithm can move its punctuation and digits. <bdi> keeps it in one piece (check code C-BIDI).
+_LATIN_RUN = re.compile(r"[(\[]?[A-Za-z][A-Za-z0-9]*(?:(?:\s?[-+/.:%]\s?|\s)?[(\[]?[A-Za-z0-9]+[)\]%]?)*[)\]]?")
+_RISKY = re.compile(r"[0-9\-+/.:%()\[\]]")
+_ARABIC_LETTER = re.compile(r"[\u0621-\u064A]")
+
+
+def _text(text: Any) -> str:
+    """Escaped element text; in Arabic decks, risky Latin or numeric runs are isolated with <bdi>."""
+    raw = str(text)
+    out = _esc(raw)
+    if _SCAFFOLD["lang"] != "ar" or not _ARABIC_LETTER.search(raw):
+        return out
+    return _LATIN_RUN.sub(lambda m: f"<bdi>{m.group(0)}</bdi>" if _RISKY.search(m.group(0)) else m.group(0), out)
+
+
 def _slug(title: str) -> str:
     ascii_part = re.sub(r"[^a-z0-9]+", "-", title.lower().encode("ascii", "ignore").decode()).strip("-")
     return ascii_part or "deck"
@@ -1198,6 +1230,84 @@ GRAPH_DIAGRAM_TYPES = ("flow", "tree", "cycle", "hub", "swimlane", "sequence")
 PROGRESSIVE_MODES = ("rank", "node", "edge", "series")
 _ORDINALS = ("الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس")
 _AR_DIGITS = "٠١٢٣٤٥٦٧٨٩"
+LANGS = ("ar", "en")
+_DIR = {"ar": "rtl", "en": "ltr"}
+
+# Scaffold context, set by render_deck for the plan being built: language and digit system of the deck.
+_SCAFFOLD: dict[str, Any] = {"lang": "ar", "arabic_digits": True}
+_TO_WESTERN = str.maketrans({**{a: str(i) for i, a in enumerate(_AR_DIGITS)}, "٪": "%", "٫": ".", "٬": ","})
+
+# Placeholder text the scaffold writes, per language (the author replaces all of it).
+_STRINGS: dict[str, dict[str, Any]] = {
+    "ar": {
+        "item": lambda k: f"العنصر {_ORDINALS[k]}" if k < len(_ORDINALS) else f"عنصر {k + 1}",
+        "idea": "الفكرة", "team1": "الفريق الأول", "team2": "الفريق الثاني",
+        "seq": ["actors: a[الطرف الأول], b[الطرف الثاني]", "a -> b: الطلب", "b -.-> a: الرد"],
+        "detail": ("اكتب سطرا تمهيديا", "اكتب عنوان التفصيل", "جملة أو جملتان تشرحان العنصر."),
+        "pin": ("اكتب اسم الجزء", "سطر قصير يشرح الجزء"),
+        "card": "اكتب نص البطاقة", "side1": "الجانب الأول", "side2": "الجانب الثاني",
+    },
+    "en": {
+        "item": lambda k: f"Item {k + 1}",
+        "idea": "The idea", "team1": "Team one", "team2": "Team two",
+        "seq": ["actors: a[First party], b[Second party]", "a -> b: Request", "b -.-> a: Reply"],
+        "detail": ("Write an opening line", "Write the detail title", "One or two sentences that explain the element."),
+        "pin": ("Name the part", "A short line that explains the part"),
+        "card": "Write the card text", "side1": "First side", "side2": "Second side",
+    },
+}
+_STARTER_DATA: dict[str, dict[str, tuple[list[str], int]]] = {
+    "ar": {
+        "timeline": (["٢٠٢٤: البداية | اكتب ما حدث", "٢٠٢٥: التوسع | اكتب ما حدث !", "٢٠٢٦: الهدف"], 3),
+        "layers": (["الطبقة العليا: عنصر، عنصر", "الطبقة الوسطى: عنصر، عنصر !", "الأساس: عنصر"], 3),
+        "matrix": (["x: الجهد | منخفض | مرتفع", "y: الأثر | منخفض | مرتفع", "عنصر أول: 0.25, 0.8 !", "عنصر ثان: 0.7, 0.35"], 2),
+        "funnel": (["المرحلة الأولى: ١٠٠", "المرحلة الثانية: ٤٠", "المرحلة الثالثة: ١٢ !"], 3),
+        "pyramid": (["القمة: اكتب الوصف", "الوسط: اكتب الوصف", "الأساس: اكتب الوصف !"], 3),
+        "venn": (["أ: المجال الأول", "ب: المجال الثاني", "أ&ب: التقاطع !"], 3),
+        "compare": (["head: الخيار الأول | الخيار الثاني !", "المعيار الأول: قيمة | قيمة", "المعيار الثاني: قيمة | قيمة"], 3),
+        "bars": (["unit: ٪", "العنصر الأول: ٣٠", "العنصر الثاني: ٥٥ !", "العنصر الثالث: ٤٢", "العنصر الرابع: ٧٠"], 4),
+        "line": (["x: ٢٠٢٣, ٢٠٢٤, ٢٠٢٥, ٢٠٢٦", "series السلسلة الأولى: ١٢, ١٨, ٢٥, ٣١", "series السلسلة الثانية: ٢٠, ٢٢, ٢٣, ٢٦"], 2),
+        "donut": (["center: ٦٢٪ | اكتب الوصف", "الجزء الأول: ٦٢ !", "الجزء الثاني: ٢١", "الجزء الثالث: ١٧"], 3),
+        "gauge": (["value: ٧٠", "max: 100", "unit: ٪", "label: اكتب وصف المؤشر", "sub: الهدف ٩٠٪"], 1),
+        "stat": (["اكتب وصف الرقم: ٧٠٪ | اكتب السياق !", "اكتب وصف الرقم الثاني: ١٢"], 2),
+    },
+    "en": {
+        "timeline": (["2024: Start | Write what happened", "2025: Growth | Write what happened !", "2026: Goal"], 3),
+        "layers": (["Top layer: part, part", "Middle layer: part, part !", "Base: part"], 3),
+        "matrix": (["x: Effort | low | high", "y: Impact | low | high", "First item: 0.25, 0.8 !", "Second item: 0.7, 0.35"], 2),
+        "funnel": (["First stage: 100", "Second stage: 40", "Third stage: 12 !"], 3),
+        "pyramid": (["Top: write the description", "Middle: write the description", "Base: write the description !"], 3),
+        "venn": (["A: First field", "B: Second field", "A&B: Overlap !"], 3),
+        "compare": (["head: Option one | Option two !", "First criterion: value | value", "Second criterion: value | value"], 3),
+        "bars": (["unit: %", "First item: 30", "Second item: 55 !", "Third item: 42", "Fourth item: 70"], 4),
+        "line": (["x: 2023, 2024, 2025, 2026", "series First series: 12, 18, 25, 31", "series Second series: 20, 22, 23, 26"], 2),
+        "donut": (["center: 62% | Write the description", "First part: 62 !", "Second part: 21", "Third part: 17"], 3),
+        "gauge": (["value: 70", "max: 100", "unit: %", "label: Describe the indicator", "sub: Target 90%"], 1),
+        "stat": (["Describe the number: 70% | Write the context !", "Describe the second number: 12"], 2),
+    },
+}
+
+
+def _plan_uses_arabic_digits(plan: dict[str, Any]) -> bool:
+    """English decks use Western digits. Arabic decks use Arabic-Indic digits unless the plan writes only Western ones."""
+    if plan.get("lang", "ar") != "ar":
+        return False
+    slides = json.dumps(plan.get("slides", []), ensure_ascii=False)
+    return not DIGIT_GROUPS["western"].search(slides) or bool(DIGIT_GROUPS["arabic-indic"].search(slides))
+
+
+def _set_scaffold_context(plan: dict[str, Any]) -> None:
+    _SCAFFOLD["lang"] = plan.get("lang", "ar") if plan.get("lang", "ar") in LANGS else "ar"
+    _SCAFFOLD["arabic_digits"] = _plan_uses_arabic_digits(plan)
+
+
+def _t(key: str) -> Any:
+    return _STRINGS[_SCAFFOLD["lang"]][key]
+
+
+def _num(text: str) -> str:
+    """Starter text in the deck's digit system (one system per deck, plan-lint R121)."""
+    return text if _SCAFFOLD["arabic_digits"] else text.translate(_TO_WESTERN)
 
 
 def _real_diagram_type(slide: dict[str, Any]) -> tuple[str, dict[str, str]]:
@@ -1275,8 +1385,8 @@ def _starter_dsl(slide: dict[str, Any], node_ids: list[str]) -> tuple[list[str],
     dtype, _ = _real_diagram_type(slide)
     ids = _starter_nodes(slide, node_ids)
     n = len(ids)
-    names = {i: (f"العنصر {_ORDINALS[k]}" if k < len(_ORDINALS) else f"عنصر {k + 1}") for k, i in enumerate(ids)}
-    title = str(slide.get("title") or "الفكرة")
+    names = {i: _t("item")(k) for k, i in enumerate(ids)}
+    title = str(slide.get("title") or _t("idea"))
     if dtype == "flow":
         lines = [" -> ".join(f"{i}[{names[i]}]" for i in ids), f"{ids[min(1, n - 1)]}.accent"]
         return lines, {"rank": n, "node": n, "edge": n - 1}
@@ -1290,28 +1400,15 @@ def _starter_dsl(slide: dict[str, Any], node_ids: list[str]) -> tuple[list[str],
         lines = [f"core(({title})).accent"] + [f"core -- {i}[{names[i]}]" for i in ids]
         return lines, {"rank": 2, "node": n + 1, "edge": n}
     if dtype == "swimlane":
-        lines = [f"lane الفريق الأول: {ids[0]}", f"lane الفريق الثاني: {' '.join(ids[1:])}",
+        lines = [f"lane {_t('team1')}: {ids[0]}", f"lane {_t('team2')}: {' '.join(ids[1:])}",
                  " -> ".join(f"{i}[{names[i]}]" for i in ids)]
         return lines, {"rank": n, "node": n, "edge": n - 1}
     if dtype == "sequence":
-        lines = ["actors: a[الطرف الأول], b[الطرف الثاني]", "a -> b: الطلب", "b -.-> a: الرد"]
+        lines = list(_t("seq"))
         return lines, {"rank": 2, "node": 2, "edge": 2}
-    data = {
-        "timeline": (["٢٠٢٤: البداية | اكتب ما حدث", "٢٠٢٥: التوسع | اكتب ما حدث !", "٢٠٢٦: الهدف"], 3),
-        "layers": (["الطبقة العليا: عنصر، عنصر", "الطبقة الوسطى: عنصر، عنصر !", "الأساس: عنصر"], 3),
-        "matrix": (["x: الجهد | منخفض | مرتفع", "y: الأثر | منخفض | مرتفع", "عنصر أول: 0.25, 0.8 !", "عنصر ثان: 0.7, 0.35"], 2),
-        "funnel": (["المرحلة الأولى: ١٠٠", "المرحلة الثانية: ٤٠", "المرحلة الثالثة: ١٢ !"], 3),
-        "pyramid": (["القمة: اكتب الوصف", "الوسط: اكتب الوصف", "الأساس: اكتب الوصف !"], 3),
-        "venn": (["أ: المجال الأول", "ب: المجال الثاني", "أ&ب: التقاطع !"], 3),
-        "compare": (["head: الخيار الأول | الخيار الثاني !", "المعيار الأول: قيمة | قيمة", "المعيار الثاني: قيمة | قيمة"], 3),
-        "bars": (["unit: ٪", "العنصر الأول: ٣٠", "العنصر الثاني: ٥٥ !", "العنصر الثالث: ٤٢", "العنصر الرابع: ٧٠"], 4),
-        "line": (["x: ٢٠٢٣, ٢٠٢٤, ٢٠٢٥, ٢٠٢٦", "series السلسلة الأولى: ١٢, ١٨, ٢٥, ٣١", "series السلسلة الثانية: ٢٠, ٢٢, ٢٣, ٢٦"], 2),
-        "donut": (["center: ٦٢٪ | اكتب الوصف", "الجزء الأول: ٦٢ !", "الجزء الثاني: ٢١", "الجزء الثالث: ١٧"], 3),
-        "gauge": (["value: ٧٠", "max: 100", "unit: ٪", "label: اكتب وصف المؤشر", "sub: الهدف ٩٠٪"], 1),
-        "stat": (["اكتب وصف الرقم: ٧٠٪ | اكتب السياق !", "اكتب وصف الرقم الثاني: ١٢"], 2),
-    }
+    data = _STARTER_DATA[_SCAFFOLD["lang"]]
     lines, series = data.get(dtype, data["bars"])
-    return lines, {"series": series}
+    return [_num(line) for line in lines], {"series": series}
 
 
 def _starter_step_count(slide: dict[str, Any], mode: str, node_ids: list[str]) -> int:
@@ -1381,9 +1478,7 @@ def _build_slide(
     layout = str(slide.get("layout") or "split")
     todos: list[str] = []
     extra_files: list[tuple[Path, str]] = []
-    arabic_digits = not DIGIT_GROUPS["western"].search(json.dumps(plan.get("slides", []), ensure_ascii=False)) or bool(
-        DIGIT_GROUPS["arabic-indic"].search(json.dumps(plan.get("slides", []), ensure_ascii=False))
-    )
+    arabic_digits = _SCAFFOLD["arabic_digits"]
 
     plan_steps = _plan_steps(slide)
     steps_map: dict[str, tuple[int, dict[str, Any]]] = plan_steps["elements"]
@@ -1406,8 +1501,8 @@ def _build_slide(
             if act == "detail":
                 out += ' data-detail="side"'
             templates.append(
-                f'<template data-detail-for="{eid}">\n      <small data-nm-todo>اكتب سطرا تمهيديا</small>\n'
-                f'      <h3 data-nm-todo>اكتب عنوان التفصيل</h3>\n      <p data-nm-todo>جملة أو جملتان تشرحان العنصر.</p>\n    </template>'
+                f'<template data-detail-for="{eid}">\n      <small data-nm-todo>{_t("detail")[0]}</small>\n'
+                f'      <h3 data-nm-todo>{_t("detail")[1]}</h3>\n      <p data-nm-todo>{_t("detail")[2]}</p>\n    </template>'
             )
             todos.append(f"fill the <template data-detail-for=\"{eid}\"> (one title, one or two sentences, up to four bullets or three stats)")
         if act == "focus" and step.get("note"):
@@ -1441,7 +1536,7 @@ def _build_slide(
     headline = text.get("headline")
     if not headline:
         todos.append("write text.headline")
-    kicker_html = f'<p class="nm-kicker"{morph_attr("kicker")}{step_attrs("kicker")}>{_esc(kicker)}</p>' if kicker else ""
+    kicker_html = f'<p class="nm-kicker"{morph_attr("kicker")}{step_attrs("kicker")}>{_text(kicker)}</p>' if kicker else ""
     if comp == "title":
         h_tag, h_cls = ("h1", "nm-t-display") if role == "cover" else ("h2", "nm-t-h1")
     elif comp == "section":
@@ -1451,19 +1546,19 @@ def _build_slide(
     else:
         h_tag, h_cls = "h2", "nm-t-h2"
     headline_html = (
-        f'<{h_tag} class="{h_cls}"{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline)}</{h_tag}>' if headline else ""
+        f'<{h_tag} class="{h_cls}"{morph_attr("headline")}{step_attrs("headline")}>{_text(headline)}</{h_tag}>' if headline else ""
     )
 
     def body_list(cls: str = "nm-list") -> str:
         if not body_items:
             return ""
-        lis = [f'<li{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}>{_esc(item)}</li>' for n, item in enumerate(body_items, start=1)]
+        lis = [f'<li{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}>{_text(item)}</li>' for n, item in enumerate(body_items, start=1)]
         return f'<ul class="{cls}"{morph_attr("body")}{step_attrs("body")}>\n        ' + "\n        ".join(lis) + "\n      </ul>"
 
     def lead() -> str:
         """One body item reads as a lead paragraph, several as a list."""
         if len(body_items) == 1:
-            return f'<p class="nm-t-lead"{morph_attr("body1") or morph_attr("body")}{step_attrs("body1") or step_attrs("body")}>{_esc(body_items[0])}</p>'
+            return f'<p class="nm-t-lead"{morph_attr("body1") or morph_attr("body")}{step_attrs("body1") or step_attrs("body")}>{_text(body_items[0])}</p>'
         return body_list()
 
     stat_html = ""
@@ -1471,7 +1566,7 @@ def _build_slide(
         stat_html = (
             f'<div class="nm-stat-block"{morph_attr("stat")}{step_attrs("stat")}>'
             f'<span class="nm-t-num" data-entrance="count">{_esc(stat.get("value"))}</span>'
-            f'<p class="nm-t-body">{_esc(stat.get("label", ""))}</p></div>'
+            f'<p class="nm-t-body">{_text(stat.get("label", ""))}</p></div>'
         )
 
     # --- visual
@@ -1531,7 +1626,7 @@ def _build_slide(
             todos.append("build the motion graphic (inline SVG)")
         pins_step = steps_map.get("visual")
         if pins_step and str(pins_step[1].get("act")) == "pins" and visual_html:
-            pin = '<span class="nm-pin" data-x="50" data-y="50" data-label="اكتب اسم الجزء" data-nm-todo>سطر قصير يشرح الجزء</span>'
+            pin = f'<span class="nm-pin" data-x="50" data-y="50" data-label="{_t("pin")[0]}" data-nm-todo>{_t("pin")[1]}</span>'
             visual_html = re.sub(r"(<!-- TODO)", pin + r"\1", visual_html, count=1) if "<!-- TODO" in visual_html else visual_html.replace("</figure>", pin + "</figure>", 1)
             todos.append("place one .nm-pin per part (data-x / data-y in percent of the figure)")
 
@@ -1560,9 +1655,9 @@ def _build_slide(
         kids = [visual_html, f'<figcaption class="nm-caption">{headline_html}</figcaption>' if headline_html else ""]
     elif comp.startswith("cards-") or comp.startswith("bento-"):
         cards = [
-            f'<article class="nm-card"{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_esc(item)}</p></article>'
+            f'<article class="nm-card"{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_text(item)}</p></article>'
             for n, item in enumerate(body_items, start=1)
-        ] or ['<article class="nm-card" data-nm-todo><p class="nm-t-body">اكتب نص البطاقة</p></article>'] * 3
+        ] or [f'<article class="nm-card" data-nm-todo><p class="nm-t-body">{_t("card")}</p></article>'] * 3
         if comp.startswith("bento-") and visual_html:
             cards.insert(0, f'<div class="nm-card is-quiet nm-card-figure">{visual_html}</div>')
         kids = [head(kicker_html, headline_html)] + cards
@@ -1573,19 +1668,19 @@ def _build_slide(
         a, b = body_items[:half], body_items[half:]
 
         def side(items: list[str], start: int, label: str) -> str:
-            lis = "".join(f'<li{morph_attr(f"body{start + k}")}{step_attrs(f"body{start + k}")}>{_esc(t)}</li>' for k, t in enumerate(items))
+            lis = "".join(f'<li{morph_attr(f"body{start + k}")}{step_attrs(f"body{start + k}")}>{_text(t)}</li>' for k, t in enumerate(items))
             return f'<div class="nm-side">\n      <h3 class="nm-t-h3" data-nm-todo>{label}</h3>\n      <ul class="nm-list">{lis}</ul>\n    </div>'
 
-        kids = [head(kicker_html, headline_html), side(a, 1, "الجانب الأول"), side(b, half + 1, "الجانب الثاني")]
+        kids = [head(kicker_html, headline_html), side(a, 1, _t("side1")), side(b, half + 1, _t("side2"))]
     elif comp == "quote":
-        quote = f'<blockquote{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline or "")}</blockquote>'
-        cite = f'<cite{morph_attr("kicker")}{step_attrs("kicker")}>{_esc(kicker)}</cite>' if kicker else ""
+        quote = f'<blockquote{morph_attr("headline")}{step_attrs("headline")}>{_text(headline or "")}</blockquote>'
+        cite = f'<cite{morph_attr("kicker")}{step_attrs("kicker")}>{_text(kicker)}</cite>' if kicker else ""
         kids = [quote, cite]
     elif comp == "rail":
         kids = [f'<aside class="nm-rail-head">\n      {kicker_html}\n      {headline_html}\n    </aside>', f'<div class="nm-rail-main">\n      {lead()}\n      {stat_html}\n    </div>']
     elif comp == "steps":
         kids = [head(kicker_html, headline_html)] + [
-            f'<div{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_esc(t)}</p></div>' for n, t in enumerate(body_items, start=1)
+            f'<div{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_text(t)}</p></div>' for n, t in enumerate(body_items, start=1)
         ]
     else:
         kids = [head(kicker_html, headline_html, lead()), visual_html, stat_html]
@@ -1632,6 +1727,14 @@ def _theme_css_vars(tokens: dict[str, Any]) -> str:
     ):
         if key in tokens:
             lines.append(f"      {css}: {tokens[key]};")
+    # Text on an accent fill (accent diagram nodes): white on dark accents, the theme's dark colour on light ones.
+    if "accent" in tokens:
+        dark = min((tokens.get("paper", "#000000"), tokens.get("ink", "#000000")), key=lambda c: _luminance(_hex_to_rgb(c)) if _hex_to_rgb(c) else 1)
+        try:
+            on = "#FFFFFF" if contrast_ratio("#FFFFFF", tokens["accent"]) >= contrast_ratio(dark, tokens["accent"]) else dark
+            lines.append(f"      --nm-on-accent: {on};")
+        except (ValueError, TypeError):
+            pass
     radius = tokens.get("radius", 20)
     radius_css = f"{radius}px" if isinstance(radius, (int, float)) else str(radius)
     lines.append(f"      --nm-radius: {radius_css};")
@@ -1659,13 +1762,15 @@ TAILWIND_BLOCK = """<!-- Tailwind CDN (opt-in, scaffold --tailwind): needs netwo
 def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False,
                 font_files: Any = None) -> tuple[str, list[tuple[Path, str]], int]:
     template = (TEMPLATES_DIR / "deck-skeleton.html").read_text(encoding="utf-8")
+    _set_scaffold_context(plan)
     tokens, _ = resolve_theme(plan.get("theme"))
     requested = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
     sources = _font_sources() if font_files is None else {name: Path(name) for name in font_files}
     families = _available_families(sources)
     pairing = resolve_pairing(requested, families)
     usable = [p for p in PAIRINGS if resolve_pairing(p, families) == p]
-    font_modes = [{"className": f"font-mode-{p}", "label": FONT_MODE_LABELS[p]} for p in usable]
+    labels = FONT_MODE_LABELS if _SCAFFOLD["lang"] == "ar" else FONT_MODE_LABELS_EN
+    font_modes = [{"className": f"font-mode-{p}", "label": labels[p]} for p in usable]
     font_faces = "\n".join(
         f"    @font-face {{ font-family: '{family}'; src: url('assets/fonts/{name}') format('{fmt}'); font-weight: {weight}; font-display: swap; }}"
         for family, name, fmt, weight in FONT_CATALOGUE if name in sources
@@ -1686,7 +1791,8 @@ def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False,
         files.extend(extra)
         todo_count += len(todos)
     replacements = {
-        "{{LANG}}": _esc(plan.get("lang", "ar")),
+        "{{LANG}}": _esc(_SCAFFOLD["lang"]),
+        "{{DIR}}": _DIR[_SCAFFOLD["lang"]],
         "{{TITLE}}": _esc(plan["title"]),
         "{{THEME_VARS}}": _theme_css_vars(tokens),
         "{{BODY_CLASS}}": f"font-mode-{pairing}",
@@ -2510,7 +2616,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_pinit = subparsers.add_parser("plan-init", help="Write <target-dir>/deck.plan.json from the bundled example or N stub slides.")
     p_pinit.add_argument("--target-dir", required=True, help="Project directory that will hold deck.plan.json.")
-    p_pinit.add_argument("--title", required=True, help="Deck title (Arabic).")
+    p_pinit.add_argument("--title", required=True, help="Deck title.")
+    p_pinit.add_argument("--lang", choices=LANGS, default="ar", help="Deck language: ar (right to left, default) or en.")
     p_pinit.add_argument("--slides", type=int, default=None, help="Number of stub slides (5..24). Omit to start from the full example.")
     p_pinit.add_argument("--force", action="store_true", help="Overwrite an existing deck.plan.json.")
     p_pinit.set_defaults(func=cmd_plan_init)

@@ -238,6 +238,9 @@
     var dirAttr = (document.body.getAttribute('dir') || document.documentElement.getAttribute('dir') || '').toLowerCase();
     if (!dirAttr) { document.body.setAttribute('dir', 'rtl'); dirAttr = 'rtl'; }
     rtl = dirAttr !== 'ltr';
+    var langAttr = (document.documentElement.getAttribute('lang') || document.body.getAttribute('lang') || '').toLowerCase();
+    T = rtl || /^ar\b/.test(langAttr) ? UI_TEXT.ar : UI_TEXT.en;
+    MODE_LABEL = T.modes;
 
     slides = $$(':scope > .slide', stage);
     if (!slides.length) slides = $$('.slide', stage);
@@ -1763,11 +1766,27 @@
     edit: '<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
   };
   var MODE_ORDER = ['morph-and-zoom', 'morph-only', 'classic'];
-  var MODE_LABEL = {
-    'morph-and-zoom': 'الحركة: تحويل وتقريب بالأسهم',
-    'morph-only': 'الحركة: تحويل فقط (التقريب بالنقر)',
-    'classic': 'الحركة: انتقال كلاسيكي'
+  // Chrome strings in the deck's language: Arabic for lang="ar" (and any RTL deck), English otherwise.
+  var UI_TEXT = {
+    ar: {
+      modes: { 'morph-and-zoom': 'الحركة: تحويل وتقريب بالأسهم', 'morph-only': 'الحركة: تحويل فقط (التقريب بالنقر)', 'classic': 'الحركة: انتقال كلاسيكي' },
+      nav: 'التحكم في الشرائح', prev: 'السابق', next: 'التالي', camera: 'الكاميرا (Z)', cameraOverview: 'الكاميرا: نظرة عامة', motion: 'نمط الحركة',
+      font: 'الخط', overview: 'نظرة شاملة (O)', edit: 'تعديل النصوص (E)', full: 'ملء الشاشة (F)', keys: 'اختصارات المفاتيح (?)', keysTitle: 'اختصارات المفاتيح',
+      help: ['الخطوة أو الشريحة التالية', 'الخطوة أو الشريحة السابقة', 'تخطي الخطوات', 'الشريحة الأولى أو الأخيرة', 'نظرة شاملة على الشرائح',
+        'تقريب الكاميرا أو إلغاؤه', 'إلغاء التقريب أو الإغلاق', 'ملء الشاشة', 'شاشة سوداء', 'تعديل النصوص مباشرة', 'هذه القائمة'],
+      editBadge: 'وضع التعديل: اضغط E للخروج', section: 'قسم ', zoom: 'تقريب ', step: 'الخطوة ', steps: 'الخطوات: ', sections: ' أقسام', overviewGrid: 'نظرة شاملة على الشرائح'
+    },
+    en: {
+      modes: { 'morph-and-zoom': 'Motion: morph and zoom with the arrows', 'morph-only': 'Motion: morph only (zoom on click)', 'classic': 'Motion: classic transitions' },
+      nav: 'Slide controls', prev: 'Previous', next: 'Next', camera: 'Camera (Z)', cameraOverview: 'Camera: overview', motion: 'Motion mode',
+      font: 'Font', overview: 'Overview (O)', edit: 'Edit text (E)', full: 'Full screen (F)', keys: 'Keyboard shortcuts (?)', keysTitle: 'Keyboard shortcuts',
+      help: ['Next step or slide', 'Previous step or slide', 'Skip steps', 'First or last slide', 'Overview of all slides',
+        'Zoom the camera in or out', 'Release zoom or close', 'Full screen', 'Black screen', 'Edit text in place', 'This list'],
+      editBadge: 'Edit mode: press E to leave', section: 'Section ', zoom: 'Zoom ', step: 'Step ', steps: 'Steps: ', sections: ' sections', overviewGrid: 'Overview of all slides'
+    }
   };
+  var T = UI_TEXT.ar;
+  var MODE_LABEL = T.modes;
   var fontIndex = 0;
   var hud = {};
   function btn(id, cls, icon, label, title) {
@@ -1785,27 +1804,27 @@
     if (!nav) {
       nav = el('nav', 'deck-controls');
       nav.id = 'deckControls';
-      nav.setAttribute('aria-label', 'التحكم في الشرائح');
-      var prevB = btn('prevBtn', '', ICON.prev, 'السابق', 'السابق');
+      nav.setAttribute('aria-label', T.nav);
+      var prevB = btn('prevBtn', '', ICON.prev, T.prev, T.prev);
       var counter = el('span'); counter.id = 'slideCounter'; counter.dir = 'ltr';
-      var nextB = btn('nextBtn', 'nm-primary', '', null, 'التالي');
-      nextB.innerHTML = '<span>التالي</span>' + ICON.next;
-      var cam = btn('cameraStatusBtn', '', ICON.zoom, null, 'الكاميرا (Z)');
-      cam.insertAdjacentHTML('beforeend', '<span id="cameraStatusLabel">الكاميرا: نظرة عامة</span>');
-      var mode = btn('motionModeBtn', '', ICON.motion, null, 'نمط الحركة');
+      var nextB = btn('nextBtn', 'nm-primary', '', null, T.next);
+      nextB.innerHTML = '<span>' + T.next + '</span>' + ICON.next;
+      var cam = btn('cameraStatusBtn', '', ICON.zoom, null, T.camera);
+      cam.insertAdjacentHTML('beforeend', '<span id="cameraStatusLabel">' + T.cameraOverview + '</span>');
+      var mode = btn('motionModeBtn', '', ICON.motion, null, T.motion);
       mode.insertAdjacentHTML('beforeend', '<span id="motionModeLabel"></span>');
       nav.appendChild(prevB); nav.appendChild(counter); nav.appendChild(nextB);
       nav.appendChild(el('span', 'nm-sep')); nav.appendChild(cam); nav.appendChild(mode);
       if (fontModes().length) {
-        var fb = btn('fontToggleBtn', '', ICON.font, null, 'الخط');
+        var fb = btn('fontToggleBtn', '', ICON.font, null, T.font);
         fb.insertAdjacentHTML('beforeend', '<span id="fontModeLabel"></span>');
         nav.appendChild(el('span', 'nm-sep')); nav.appendChild(fb);
       }
       nav.appendChild(el('span', 'nm-sep'));
-      nav.appendChild(btn('nmOverviewBtn', 'nm-icon', ICON.grid, null, 'نظرة شاملة (O)'));
-      nav.appendChild(btn('nmEditBtn', 'nm-icon', ICON.edit, null, 'تعديل النصوص (E)'));
-      nav.appendChild(btn('nmFullBtn', 'nm-icon', ICON.full, null, 'ملء الشاشة (F)'));
-      nav.appendChild(btn('nmHelpBtn', 'nm-icon', ICON.help, null, 'اختصارات المفاتيح (?)'));
+      nav.appendChild(btn('nmOverviewBtn', 'nm-icon', ICON.grid, null, T.overview));
+      nav.appendChild(btn('nmEditBtn', 'nm-icon', ICON.edit, null, T.edit));
+      nav.appendChild(btn('nmFullBtn', 'nm-icon', ICON.full, null, T.full));
+      nav.appendChild(btn('nmHelpBtn', 'nm-icon', ICON.help, null, T.keys));
       body.appendChild(nav);
     }
     var bind = function (id, fn) {
@@ -1825,23 +1844,24 @@
     var prog = document.querySelector('.nm-progress');
     if (!prog) { prog = el('div', 'nm-progress', '<i></i>'); body.appendChild(prog); }
     var help = el('div', 'nm-help');
-    help.innerHTML = '<div class="nm-help-card" role="dialog" aria-label="اختصارات المفاتيح"><h2>اختصارات المفاتيح</h2><dl>' +
-      [['<kbd>&larr;</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd>', 'الخطوة أو الشريحة التالية'],
-       ['<kbd>&rarr;</kbd> <kbd>PgUp</kbd>', 'الخطوة أو الشريحة السابقة'],
-       ['<kbd>Shift</kbd> + <kbd>&larr;</kbd> <kbd>&rarr;</kbd>', 'تخطي الخطوات'],
-       ['<kbd>Home</kbd> <kbd>End</kbd>', 'الشريحة الأولى أو الأخيرة'],
-       ['<kbd>O</kbd> <kbd>G</kbd>', 'نظرة شاملة على الشرائح'],
-       ['<kbd>Z</kbd>', 'تقريب الكاميرا أو إلغاؤه'],
-       ['<kbd>Esc</kbd>', 'إلغاء التقريب أو الإغلاق'],
-       ['<kbd>F</kbd>', 'ملء الشاشة'],
-       ['<kbd>B</kbd>', 'شاشة سوداء'],
-       ['<kbd>E</kbd>', 'تعديل النصوص مباشرة'],
-       ['<kbd>?</kbd>', 'هذه القائمة']].map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') +
+    var fwd = rtl ? '&larr;' : '&rarr;', back = rtl ? '&rarr;' : '&larr;';
+    help.innerHTML = '<div class="nm-help-card" role="dialog" aria-label="' + T.keysTitle + '"><h2>' + T.keysTitle + '</h2><dl>' +
+      [['<kbd>' + fwd + '</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd>', T.help[0]],
+       ['<kbd>' + back + '</kbd> <kbd>PgUp</kbd>', T.help[1]],
+       ['<kbd>Shift</kbd> + <kbd>&larr;</kbd> <kbd>&rarr;</kbd>', T.help[2]],
+       ['<kbd>Home</kbd> <kbd>End</kbd>', T.help[3]],
+       ['<kbd>O</kbd> <kbd>G</kbd>', T.help[4]],
+       ['<kbd>Z</kbd>', T.help[5]],
+       ['<kbd>Esc</kbd>', T.help[6]],
+       ['<kbd>F</kbd>', T.help[7]],
+       ['<kbd>B</kbd>', T.help[8]],
+       ['<kbd>E</kbd>', T.help[9]],
+       ['<kbd>?</kbd>', T.help[10]]].map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') +
       '</dl></div>';
     help.addEventListener('click', function () { toggleHelp(false); });
     body.appendChild(help);
     body.appendChild(el('div', 'nm-blackout'));
-    body.appendChild(el('div', 'nm-badge', 'وضع التعديل: اضغط E للخروج'));
+    body.appendChild(el('div', 'nm-badge', T.editBadge));
 
     hud.counter = document.getElementById('slideCounter');
     hud.cam = document.getElementById('cameraStatusLabel');
@@ -1882,12 +1902,12 @@
       var real = st.steps.filter(function (s) { return !s.release; }).length;
       if (activeZoom) {
         var zi = zoomSteps.findIndex(function (s) { return s.items.indexOf(activeZoom) >= 0; });
-        var label = activeZoom.el.getAttribute('data-zoom-label') || activeZoom.el.getAttribute('data-step-label') || ('قسم ' + (zi + 1));
-        hud.cam.textContent = 'تقريب ' + (zi + 1) + '/' + zoomSteps.length + ': ' + label;
+        var label = activeZoom.el.getAttribute('data-zoom-label') || activeZoom.el.getAttribute('data-step-label') || (T.section + (zi + 1));
+        hud.cam.textContent = T.zoom + (zi + 1) + '/' + zoomSteps.length + ': ' + label;
       } else if (st.index > 0 && real) {
-        hud.cam.textContent = 'الخطوة ' + Math.min(st.index, real) + '/' + real;
+        hud.cam.textContent = T.step + Math.min(st.index, real) + '/' + real;
       } else {
-        hud.cam.textContent = zoomSteps.length ? 'الكاميرا: نظرة عامة (' + zoomSteps.length + ' أقسام)' : (real ? 'الخطوات: ' + real : 'الكاميرا: نظرة عامة');
+        hud.cam.textContent = zoomSteps.length ? T.cameraOverview + ' (' + zoomSteps.length + T.sections + ')' : (real ? T.steps + real : T.cameraOverview);
       }
     }
     if (hud.mode) hud.mode.textContent = MODE_LABEL[deck.mode] || deck.mode;
@@ -1999,7 +2019,7 @@
     var ov = el('div', 'nm-overview');
     ov.id = 'nmOverview';
     ov.setAttribute('role', 'dialog');
-    ov.setAttribute('aria-label', 'نظرة شاملة على الشرائح');
+    ov.setAttribute('aria-label', T.overviewGrid);
     var grid = el('div', 'nm-overview-grid');
     grid.style.height = px(L.height);
     var cards = slides.map(function (s, i) {

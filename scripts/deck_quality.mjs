@@ -124,11 +124,11 @@ export async function pageQuality(idx, png) {
   for (const t of texts) {
     const el = t.parentElement;
     if (spaced.has(el) || !ARABIC_LETTER.test(t.data)) continue;
-    // Positive tracking opens gaps in the joins of Arabic letters. A small negative value (the display scale uses
-    // -0.005em) leaves the joins intact; a large negative one makes letters collide.
+    // Positive tracking opens gaps in the joins of Arabic letters (0.4px is already visible at 20px). A small
+    // negative value (the display scale uses -0.005em) leaves the joins intact; a large negative one makes letters collide.
     const ls = parseFloat(cs(el).letterSpacing) || 0;
     const fs = parseFloat(cs(el).fontSize) || 16;
-    if (ls > 0.5) { spaced.add(el); add("C-ARABIC", el, `letter-spacing ${ls}px on Arabic text "${t.data.trim().slice(0, 30)}" opens gaps in the joins between letters`, "error"); }
+    if (ls > 0.25) { spaced.add(el); add("C-ARABIC", el, `letter-spacing ${ls}px on Arabic text "${t.data.trim().slice(0, 30)}" opens gaps in the joins between letters`, "error"); }
     else if (ls < -0.04 * fs) { spaced.add(el); add("C-ARABIC", el, `letter-spacing ${ls}px on Arabic text "${t.data.trim().slice(0, 30)}" makes letters collide`, "warn"); }
   }
   const flat = [];

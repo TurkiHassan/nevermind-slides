@@ -1,0 +1,522 @@
+[
+ {
+  "slide": 1,
+  "step": 0,
+  "active": [
+   1
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 2,
+  "step": 0,
+  "active": [
+   2
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s2.li#0",
+   "s2.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "trade",
+    "play": true,
+    "nodes": 4,
+    "shownNodes": 4
+   }
+  ]
+ },
+ {
+  "slide": 2,
+  "step": 1,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.li#0"
+  ],
+  "current": [
+   "s2.li#0"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s2.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "trade",
+    "play": true,
+    "nodes": 4,
+    "shownNodes": 4
+   }
+  ]
+ },
+ {
+  "slide": 2,
+  "step": 2,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.li#0",
+   "s2.li#1"
+  ],
+  "current": [
+   "s2.li#1"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "trade",
+    "play": true,
+    "nodes": 4,
+    "shownNodes": 4
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 0,
+  "active": [
+   3
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "journey",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 1
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 1,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.g#0",
+   "s3.div#3"
+  ],
+  "current": [
+   "s3.g#0",
+   "s3.div#3"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s3.div#4"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "journey",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 2
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 2,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.g#0",
+   "s3.g#1",
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "current": [
+   "s3.g#1",
+   "s3.div#4"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "journey",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 3,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.g#0",
+   "s3.g#1",
+   "s3.div#2",
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "current": [
+   "s3.div#2"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [
+   "div"
+  ],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "journey",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 4,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.g#0",
+   "s3.g#1",
+   "s3.div#2",
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "journey",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 4,
+  "step": 0,
+  "active": [
+   4
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s4.div#0"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "wait",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 4,
+  "step": 1,
+  "active": [
+   4
+  ],
+  "stepsOn": [
+   "s4.div#0"
+  ],
+  "current": [
+   "s4.div#0"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "wait",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 5,
+  "step": 0,
+  "active": [
+   5
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s5.rect#0",
+   "s5.rect#1",
+   "s5.rect#2",
+   "s5.rect#3",
+   "s5.div#4",
+   "s5.div#5",
+   "s5.div#6",
+   "s5.div#7",
+   "s5.div#8",
+   "s5.div#9",
+   "s5.div#10",
+   "s5.div#11"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "fixes",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 5,
+  "step": 1,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.rect#0",
+   "s5.rect#1",
+   "s5.rect#2",
+   "s5.rect#3",
+   "s5.div#4",
+   "s5.div#5",
+   "s5.div#6",
+   "s5.div#7",
+   "s5.div#8",
+   "s5.div#9",
+   "s5.div#10",
+   "s5.div#11"
+  ],
+  "current": [
+   "s5.rect#0",
+   "s5.rect#1",
+   "s5.rect#2",
+   "s5.rect#3",
+   "s5.div#4",
+   "s5.div#5",
+   "s5.div#6",
+   "s5.div#7",
+   "s5.div#8",
+   "s5.div#9",
+   "s5.div#10",
+   "s5.div#11"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "fixes",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 6,
+  "step": 0,
+  "active": [
+   6
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s6.line#0",
+   "s6.line#1",
+   "s6.line#2",
+   "s6.circle#3",
+   "s6.circle#4",
+   "s6.circle#5",
+   "s6.div#6",
+   "s6.div#7",
+   "s6.div#8",
+   "s6.div#9",
+   "s6.div#10",
+   "s6.div#11"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "roadmap",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 6,
+  "step": 1,
+  "active": [
+   6
+  ],
+  "stepsOn": [
+   "s6.line#0",
+   "s6.line#1",
+   "s6.line#2",
+   "s6.circle#3",
+   "s6.circle#4",
+   "s6.circle#5",
+   "s6.div#6",
+   "s6.div#7",
+   "s6.div#8",
+   "s6.div#9",
+   "s6.div#10",
+   "s6.div#11"
+  ],
+  "current": [
+   "s6.line#0",
+   "s6.line#1",
+   "s6.line#2",
+   "s6.circle#3",
+   "s6.circle#4",
+   "s6.circle#5",
+   "s6.div#6",
+   "s6.div#7",
+   "s6.div#8",
+   "s6.div#9",
+   "s6.div#10",
+   "s6.div#11"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "roadmap",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 7,
+  "step": 0,
+  "active": [
+   7
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 8,
+  "step": 0,
+  "active": [
+   8
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ }
+]

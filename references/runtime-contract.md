@@ -121,7 +121,7 @@ A transient act is exited before the next step is entered and when leaving the s
 
 ## 6. Theme variables every file reads
 
-`--nm-paper` (slide background), `--nm-ink` (text), `--nm-muted`, `--nm-line` (rules/edges), `--nm-accent`, `--nm-accent-2`, `--nm-surface` (cards), `--nm-radius`, `--nm-font-display`, `--nm-font-body`. Each file provides fallbacks so it works with no tokens defined. Legacy `--lp-accent`, `--slide-bg`, `--stage-bg` are honoured as fallbacks.
+`--nm-paper` (slide background), `--nm-ink` (text), `--nm-muted`, `--nm-line` (rules/edges), `--nm-accent`, `--nm-accent-2`, `--nm-surface` (cards), `--nm-radius`, `--nm-font-display`, `--nm-font-body`, `--nm-on-accent` (text on an accent fill; scaffold picks white or the theme's dark colour by contrast; absent means white). Each file provides fallbacks so it works with no tokens defined. Legacy `--lp-accent`, `--slide-bg`, `--stage-bg` are honoured as fallbacks.
 
 ## 7. Legacy names that must keep working
 

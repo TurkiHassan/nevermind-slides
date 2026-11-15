@@ -25,6 +25,8 @@ All helper commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command>` (s
 
 Fonts: Thmanyah and ZIAN are not bundled because their licenses forbid redistribution. `stage-fonts` copies them from the user's own font folders (or `NM_FONTS_DIR`) when present; otherwise `scaffold` switches the deck to the open pairing (`open`: Readex Pro + IBM Plex Sans Arabic) and prints a note. Never download or copy those fonts into the skill yourself; tell the user once, in Arabic, where to get them if they want them.
 
+English decks: set `"lang": "en"` in the plan (or `plan-init --lang en`); everything else is the same, left to right. In Arabic decks scaffold isolates risky Latin runs with `<bdi>`; do the same for text you add.
+
 Arabic and RTL rules everywhere: `dir="rtl"`, right-aligned text, never split Arabic words into letters, one digit system per deck (Arabic-Indic or Western), zero emojis (inline SVG icons only).
 
 ---

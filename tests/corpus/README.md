@@ -8,9 +8,11 @@ for every change: does the skill still write and play the decks it wrote before?
 | `ar-example` | `resources/templates/deck.plan.example.json` (scaffold) | every visual type, detail and focus steps, every `rel` |
 | `ar-stubs-24` | `plans/ar-stubs-24.plan.json` (scaffold) | the largest allowed deck, the stub layout cycle, placeholders |
 | `ar-showcase` | `examples/showcase` (hand-finished) | every morph kind, nine transitions, every isolation act, diagrams, charts, a live anatomy iframe |
+| `en-general` | `plans/en-general.plan.json` (scaffold) | English, left to right: Morph of a title and a chart, every `rel`, rank steps, node focus, detail, compare, timeline, quote |
+| `ar-bidi` | `plans/ar-bidi.plan.json` (scaffold) | Arabic dense with English terms, versions, units and years in parentheses; Western digits; a dark theme |
 
-Planned, once the features exist (`corpus.json` → `planned`): `en-general`, `ar-bidi` (NM-09), `ar-science` and
-`en-science` with tables and equations (NM-10, NM-11). They are not faked before then.
+Planned, once the features exist (`corpus.json` → `planned`): `ar-science` and `en-science` with tables and equations
+(NM-10, NM-11). They are not faked before then.
 Legacy v1 decks are covered by the editor suite (`editor/fixtures/legacy/`).
 
 ## Goldens

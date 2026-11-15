@@ -6,7 +6,7 @@ All commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command> ...`
 
 ## Workflow
 
-1. `plan-init --target-dir DIR --title "العنوان" [--slides N]` writes `DIR/deck.plan.json`. Without `--slides` you get the full 8-slide example. With `--slides N` (5..24) you get N stubs.
+1. `plan-init --target-dir DIR --title "العنوان" [--slides N] [--lang ar|en]` writes `DIR/deck.plan.json`. Without `--slides` you get the full 8-slide example (Arabic; English gets 8 stubs). With `--slides N` (5..24) you get N stubs in the chosen language.
 2. Edit the plan. Keep headlines short, keep one idea per slide.
 3. `plan-lint --plan DIR/deck.plan.json [--output report.json]`. Fix every error. Read every warning.
 4. `scaffold --plan DIR/deck.plan.json [--out DIR/name-slides.html] [--force] [--tailwind]`. Refuses to run while plan-lint has errors. Also stages fonts and runtime into `DIR/assets/`.
@@ -38,6 +38,7 @@ Other commands: `stage-runtime --target-dir DIR [--inline]` copies `assets/nm/` 
 
 | Field | Values |
 |---|---|
+| `lang` | `ar` (default: right to left, Arabic scaffolding) or `en` (left to right, English scaffolding, Western digits). The runtime takes its keys and its own labels from it. |
 | `theme.preset` | `paper`, `mist`, `dune`, `olive` (light); `ink`, `night-sea`, `emerald`, `ember` (dark). Or custom hex tokens `paper ink muted line accent accent2 surface radius`. A preset plus overrides is allowed. |
 | `fonts.pairing` | `thmanyah` (default), `sans`, `qahwa`, `setabr`, `kufi`, `open`. A pairing whose fonts are not installed falls back to `open` (Readex Pro + IBM Plex Sans Arabic, bundled under OFL); Thmanyah and ZIAN must be installed by the user (`NM_FONTS_DIR` or the system font folders) because their licenses forbid redistribution. |
 | `mode` | `morph-and-zoom`, `morph-only`, `classic` |
@@ -94,6 +95,12 @@ The report also lists a per-slide motion score (0 to 10) and the slides that are
 - Use `rel` to say why the slide follows: `deeper` zooms in, `back-out` zooms out, `chapter` and `contrast` break rhythm on purpose, `time` moves along a timeline.
 - Reveal one point per step. Isolate (`focus`, `detail`) the one thing the speaker is explaining.
 - Alternate dense and quiet slides. A `quote` or `section` slide is a breath.
+
+## Language, digits and mixed text
+
+- One digit system per deck. English decks use Western digits. An Arabic deck uses Arabic-Indic digits unless its plan writes only Western ones; the starter chart data and section numbers follow the same rule.
+- In Arabic decks, scaffold wraps Latin or numeric runs that carry punctuation or digits (`GPT-4 (2023)`, `v2.1`) in `<bdi>` so their order cannot jump. Plain Latin words are left alone. When you add such text by hand, wrap it the same way (`check` reports C-BIDI otherwise).
+- Text on an accent fill uses `--nm-on-accent`, which scaffold sets per theme by contrast (white on dark accents, the theme's dark colour on light ones).
 
 ## What scaffold writes
 

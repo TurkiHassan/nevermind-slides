@@ -18,13 +18,29 @@
       "kind": "deck",
       "source": "examples/showcase",
       "covers": "hand-finished 14-slide deck: every morph kind, nine transitions, every isolation act, diagrams, charts, live anatomy iframe"
+    },
+    {
+      "name": "en-general",
+      "kind": "plan",
+      "source": "tests/corpus/plans/en-general.plan.json",
+      "covers": "English, left to right: Morph (title, chart), every rel, flow with rank steps and a node focus, detail on a stat, compare, timeline, quote"
+    },
+    {
+      "name": "ar-bidi",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-bidi.plan.json",
+      "covers": "Arabic with English terms, versions, units and years in parentheses; Western digits in an Arabic deck; scaffold isolates risky runs with <bdi>"
     }
   ],
   "planned": [
-    { "name": "en-general", "needs": "NM-09 (plan-lint accepts lang: en)" },
-    { "name": "ar-bidi", "needs": "NM-09 (bidi isolation rules)" },
-    { "name": "ar-science", "needs": "NM-10 nm-table and NM-11 nm-math" },
-    { "name": "en-science", "needs": "NM-09, NM-10, NM-11" }
+    {
+      "name": "ar-science",
+      "needs": "NM-10 nm-table and NM-11 nm-math"
+    },
+    {
+      "name": "en-science",
+      "needs": "NM-09, NM-10, NM-11"
+    }
   ],
   "elsewhere": {
     "legacy-v1": "editor/fixtures/legacy/attention and editor/fixtures/legacy/mechanistic (v1 markup), covered by the editor suite"
