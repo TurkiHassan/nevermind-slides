@@ -39,7 +39,7 @@ Other commands: `stage-runtime --target-dir DIR [--inline]` copies `assets/nm/` 
 | Field | Values |
 |---|---|
 | `theme.preset` | `paper`, `mist`, `dune`, `olive` (light); `ink`, `night-sea`, `emerald`, `ember` (dark). Or custom hex tokens `paper ink muted line accent accent2 surface radius`. A preset plus overrides is allowed. |
-| `fonts.pairing` | `thmanyah` (default), `sans`, `qahwa`, `setabr`, `kufi` |
+| `fonts.pairing` | `thmanyah` (default), `sans`, `qahwa`, `setabr`, `kufi`, `open`. A pairing whose fonts are not installed falls back to `open` (Readex Pro + IBM Plex Sans Arabic, bundled under OFL); Thmanyah and ZIAN must be installed by the user (`NM_FONTS_DIR` or the system font folders) because their licenses forbid redistribution. |
 | `mode` | `morph-and-zoom`, `morph-only`, `classic` |
 | `image_source` | `generate`, `web`, `none` |
 | `role` | `cover section concept mechanism evidence comparison process quote summary closing` |

@@ -7,7 +7,7 @@
     "accent2": "#0F766E"
   },
   "fonts": {
-    "pairing": "sans"
+    "pairing": "open"
   },
   "mode": "morph-and-zoom",
   "image_source": "web",

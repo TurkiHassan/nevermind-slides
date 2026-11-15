@@ -4,7 +4,8 @@ Everything in this repository is MIT-licensed (see `LICENSE`) except the compone
 their own licenses. Each row records where the component came from and what its license allows.
 
 Status legend: **OK** (license allows redistribution here) · **CHECK** (unclear, needs written confirmation) ·
-**REMOVE** (license forbids redistribution; scheduled for removal, see `IMPROVEMENT_ROADMAP.md`, decision D2).
+**REMOVED** (license forbids redistribution; no longer in the tree, see `IMPROVEMENT_ROADMAP.md`, decision D2;
+`stage-fonts` picks these up from the user's own font folders or `NM_FONTS_DIR`).
 
 ## Code and engines
 
@@ -26,8 +27,11 @@ License text read from each file's OpenType `name` table (IDs 13 and 14).
 | Qahwa Arabic | `Qahwa-Arabic-Black.otf` | "Completely free, for both personal and commercial use" · "All Rights Reserved" (redistribution not stated) | CHECK |
 | Zain Rounded | `ZainRounded-VF.ttf` | "eula or whatever" (no usable license) | CHECK |
 | KOMission | `KOMission-Black.otf` | none in the file · designer Ahmed Hafez | CHECK |
-| Thmanyah Sans / Serif Display / Serif Text | `thmanyah*.otf` (15 files) | Thmanyah Font License: **forbids** redistributing, uploading or hosting the files on any website, server or platform; downloads only from the official Thmanyah site | **REMOVE** |
-| ZIAN | `ZIAN-VF.ttf` | "ALL RIGHTS RESERVED, to buy commercial version contact us" · © 2026 MUQLA FONTS | **REMOVE** |
+| Thmanyah Sans / Serif Display / Serif Text | (was `thmanyah*.otf`, 15 files) | Thmanyah Font License: **forbids** redistributing, uploading or hosting the files on any website, server or platform; downloads only from the official Thmanyah site | **REMOVED** |
+| ZIAN | (was `ZIAN-VF.ttf`) | "ALL RIGHTS RESERVED, to buy commercial version contact us" · © 2026 MUQLA FONTS | **REMOVED** |
+
+Decks staged with fonts from the user's own folders contain those font files in `assets/fonts/`; they are
+licensed to that user and the folder should not be published.
 
 Removing files from the current tree does not remove them from git history. If a rights holder asks, history
 must be rewritten by the repository owner.

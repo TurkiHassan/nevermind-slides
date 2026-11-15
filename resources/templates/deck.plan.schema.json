@@ -27,7 +27,7 @@
     "fonts": {
       "type": "object",
       "properties": {
-        "pairing": { "enum": ["thmanyah", "qahwa", "setabr", "kufi", "sans"], "default": "thmanyah" }
+        "pairing": { "enum": ["thmanyah", "qahwa", "setabr", "kufi", "sans", "open"], "default": "thmanyah" }
       }
     },
     "mode": { "enum": ["morph-and-zoom", "morph-only", "classic"], "default": "morph-and-zoom" },

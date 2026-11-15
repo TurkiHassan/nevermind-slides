@@ -9,7 +9,7 @@ metadata:
 
 # Nevermind Slides (`nevermind-slides`) v2
 
-`<SKILL_DIR>` is the folder containing this file. Everything is bundled inside it: fonts (`resources/fonts/`), the motion runtime (`resources/engine/nm-runtime/`), the `anatomy` isometric engine (`resources/engine/anatomy/`), the `frontend-slides` layout library (`resources/engine/frontend-slides/`), templates (`resources/templates/`) and the Nevermind Studio editor (`resources/nm-studio/nm-studio.mjs`).
+`<SKILL_DIR>` is the folder containing this file. Everything is bundled inside it: fonts with a redistributable license (`resources/fonts/`; Thmanyah and ZIAN are not bundled, see below), the motion runtime (`resources/engine/nm-runtime/`), the `anatomy` isometric engine (`resources/engine/anatomy/`), the `frontend-slides` layout library (`resources/engine/frontend-slides/`), templates (`resources/templates/`) and the Nevermind Studio editor (`resources/nm-studio/nm-studio.mjs`).
 
 All helper commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command>` (stdlib only; `uv run` also works).
 
@@ -22,6 +22,8 @@ All helper commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command>` (s
 3. **Every slide earns its motion from the story.** Each slide declares its narrative relation (`rel`) to the previous one. Continuity comes from shared elements (`morph`), not from effects.
 4. **Pictures come from the topic's own world.** Anatomy figures follow the subject-first ladder; a generic dial gauge or test rig is a failure unless the topic is that object.
 5. **Nothing is delivered until the gates pass:** `plan-lint`, `audit-deck`, `check` (headless Chrome), `image_fetch.py credits --check`, and `brief-check` for every anatomy figure.
+
+Fonts: Thmanyah and ZIAN are not bundled because their licenses forbid redistribution. `stage-fonts` copies them from the user's own font folders (or `NM_FONTS_DIR`) when present; otherwise `scaffold` switches the deck to the open pairing (`open`: Readex Pro + IBM Plex Sans Arabic) and prints a note. Never download or copy those fonts into the skill yourself; tell the user once, in Arabic, where to get them if they want them.
 
 Arabic and RTL rules everywhere: `dir="rtl"`, right-aligned text, never split Arabic words into letters, one digit system per deck (Arabic-Indic or Western), zero emojis (inline SVG icons only).
 
@@ -139,7 +141,7 @@ Present the proposal to the user as a table: slide, visual type, subject (for an
 2. **الطول:** قصير 5-7 / متوسط 8-12 (موصى به) / طويل 12-18
 3. **الكثافة:** متوازن (موصى به) / بصري أولاً / بطاقات مرجعية مفصّلة
 4. **مجسمات anatomy:** اعتماد المقترح (موصى به) / متحركة في كل الشروحات / ثابتة فقط / بدون anatomy
-5. **الخطوط:** ثمانية Display + KOMission وThmanyah Sans (موصى به) / قهوة + IBM Plex / سطبر أو زيان + Readex Pro / الخليل الكوفي + IBM Plex
+5. **الخطوط:** ريدكس + IBM Plex (مفتوحة، موصى به) / ثمانية Display + KOMission (إن كانت مثبّتة لدى المستخدم) / قهوة + IBM Plex / سطبر + Readex Pro / الخليل الكوفي + IBM Plex
 6. **الحركة:** Morph + تقريب الكاميرا بالأسهم (موصى به، `morph-and-zoom`) / Morph فقط (`morph-only`) / انتقال هادئ (`classic`)
 7. **النمط:** A / B / C من المعاينات المفتوحة
 

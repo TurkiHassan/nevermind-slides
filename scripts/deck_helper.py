@@ -15,9 +15,10 @@ Subcommands:
                     Claude Code, and ~/.agents/skills, and registers the OpenCode slash command.
   uninstall         Cleanly remove installed symlinks/copies of `research-to-motion-slides`
                     and the OpenCode slash command.
-  stage-fonts       Copy bundled Thmanyah Display, Thmanyah Sans, KOMission, Qahwa,
-                    Setabr, Alkhalil, ZIAN, IBM Plex Sans Arabic, Zain Rounded, and Readex Pro
-                    fonts from resources/fonts/ into the project's assets/fonts/ directory.
+  stage-fonts       Copy the catalogue fonts into the project's assets/fonts/ directory: the
+                    bundled ones from resources/fonts/, and Thmanyah or ZIAN from the user's
+                    own font folders (NM_FONTS_DIR first) because their licenses forbid
+                    redistribution. Missing fonts make decks use the open pairing.
   audit-deck        Validate an HTML presentation deck against all strict quality gates
                     (Zero Emojis, @font-face declarations, existing URL-decoded asset/font paths,
                     1920x1080 stage + hidden controls structure, motion graphics presence,
@@ -293,28 +294,141 @@ def cmd_uninstall(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# Fonts: catalogue, sources and pairings
+# ---------------------------------------------------------------------------
+# Fonts whose license allows redistribution ship in resources/fonts/. Fonts whose license forbids it
+# (Thmanyah, ZIAN; see THIRD_PARTY_NOTICES.md) are found on the user's machine instead: NM_FONTS_DIR, then the
+# usual per-user and system font folders. A pairing whose fonts are missing falls back to the open pairing.
+
+# (family, file, css format, css weight)
+FONT_CATALOGUE: tuple[tuple[str, str, str, str], ...] = (
+    ("Thmanyah Display", "thmanyahserifdisplay-Light.otf", "opentype", "300"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Regular.otf", "opentype", "400"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Medium.otf", "opentype", "500"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Bold.otf", "opentype", "700"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Black.otf", "opentype", "900"),
+    ("KOMission", "KOMission-Black.otf", "opentype", "100 900"),
+    ("Thmanyah Sans", "thmanyahsans-Light.otf", "opentype", "300"),
+    ("Thmanyah Sans", "thmanyahsans-Regular.otf", "opentype", "400"),
+    ("Thmanyah Sans", "thmanyahsans-Medium.otf", "opentype", "500"),
+    ("Thmanyah Sans", "thmanyahsans-Bold.otf", "opentype", "700"),
+    ("Thmanyah Sans", "thmanyahsans-Black.otf", "opentype", "900"),
+    ("Qahwa Arabic", "Qahwa-Arabic-Black.otf", "opentype", "900"),
+    ("Setabr Display", "SetabrDisplay-Regular.otf", "opentype", "400 800"),
+    ("Alkhalil Kufi", "Alkhalil-Kufi.otf", "opentype", "400 800"),
+    ("ZIAN", "ZIAN-VF.ttf", "truetype", "100 900"),
+    ("IBM Plex Sans Arabic", "IBMPlexSansArabic-Regular.ttf", "truetype", "400"),
+    ("IBM Plex Sans Arabic", "IBMPlexSansArabic-Medium.ttf", "truetype", "500"),
+    ("IBM Plex Sans Arabic", "IBMPlexSansArabic-SemiBold.ttf", "truetype", "600 700"),
+    ("Zain Rounded", "ZainRounded-VF.ttf", "truetype", "100 900"),
+    ("Readex Pro", "ReadexPro-VF.ttf", "truetype", "100 900"),
+)
+# Families the user must install themselves: name, where to get them.
+USER_INSTALLED_FONTS = {
+    "Thmanyah Display": "https://font.thmanyah.com",
+    "Thmanyah Sans": "https://font.thmanyah.com",
+    "ZIAN": "the MUQLA foundry (commercial license)",
+}
+OPEN_PAIRING = "open"
+# pairing: (display stack, body stack, families that must be present)
+PAIRING_FONTS: dict[str, tuple[str, str, tuple[str, ...]]] = {
+    "thmanyah": ("'Thmanyah Display', 'Readex Pro', sans-serif",
+                 "'KOMission', 'Thmanyah Sans', 'IBM Plex Sans Arabic', sans-serif",
+                 ("Thmanyah Display", "Thmanyah Sans")),
+    "sans": ("'Thmanyah Display', 'Readex Pro', sans-serif",
+             "'Thmanyah Sans', 'KOMission', 'IBM Plex Sans Arabic', sans-serif",
+             ("Thmanyah Display", "Thmanyah Sans")),
+    "qahwa": ("'Qahwa Arabic', 'Readex Pro', sans-serif",
+              "'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif",
+              ("Qahwa Arabic", "IBM Plex Sans Arabic")),
+    "setabr": ("'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif",
+               "'Readex Pro', 'IBM Plex Sans Arabic', sans-serif",
+               ("Setabr Display", "Readex Pro")),
+    "kufi": ("'Alkhalil Kufi', 'Readex Pro', sans-serif",
+             "'IBM Plex Sans Arabic', sans-serif",
+             ("Alkhalil Kufi", "IBM Plex Sans Arabic")),
+    OPEN_PAIRING: ("'Readex Pro', 'IBM Plex Sans Arabic', sans-serif",
+                   "'IBM Plex Sans Arabic', 'Readex Pro', sans-serif",
+                   ("Readex Pro", "IBM Plex Sans Arabic")),
+}
+FONT_EXTENSIONS = (".otf", ".ttf", ".woff2")
+
+
+def _user_font_dirs() -> list[Path]:
+    dirs: list[Path] = []
+    env = os.environ.get("NM_FONTS_DIR")
+    if env:
+        dirs.extend(Path(p).expanduser() for p in env.split(os.pathsep) if p)
+    home = Path.home()
+    dirs += [home / ".fonts", home / ".local" / "share" / "fonts", home / "Library" / "Fonts",
+             Path("/Library/Fonts"), Path("/usr/local/share/fonts"), Path("/usr/share/fonts")]
+    for var in ("LOCALAPPDATA", "WINDIR"):
+        base = os.environ.get(var)
+        if base:
+            dirs.append(Path(base) / ("Microsoft/Windows/Fonts" if var == "LOCALAPPDATA" else "Fonts"))
+    return dirs
+
+
+def _font_sources() -> dict[str, Path]:
+    """Catalogue file name -> where it was found. Bundled fonts win over the user's copies."""
+    wanted = {f.lower(): f for _, f, _, _ in FONT_CATALOGUE}
+    found: dict[str, Path] = {}
+    roots = [FONTS_SOURCE_DIR] + _user_font_dirs()
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for dirpath, _dirs, files in os.walk(root):
+            for name in files:
+                canonical = wanted.get(name.lower())
+                if canonical and canonical not in found:
+                    found[canonical] = Path(dirpath) / name
+        if len(found) == len(wanted):
+            break
+    return found
+
+
+def _available_families(files: Any) -> set[str]:
+    names = set(files)
+    return {family for family, f, _, _ in FONT_CATALOGUE if f in names}
+
+
+def resolve_pairing(requested: str, families: set[str]) -> str:
+    """The requested pairing when its fonts are present, else the open pairing."""
+    need = PAIRING_FONTS.get(requested, PAIRING_FONTS["thmanyah"])[2]
+    return requested if all(f in families for f in need) else OPEN_PAIRING
+
+
+def _missing_font_hint(families: set[str]) -> str:
+    missing = sorted({f for f in USER_INSTALLED_FONTS if f not in families})
+    if not missing:
+        return ""
+    where = sorted({USER_INSTALLED_FONTS[f] for f in missing})
+    return (f"Not bundled (their licenses forbid redistribution): {', '.join(missing)}. "
+            f"Get them from {' / '.join(where)}, install them or put the files in NM_FONTS_DIR, then rerun stage-fonts. "
+            f"Until then decks use the open pairing (Readex Pro + IBM Plex Sans Arabic).")
+
+
 def _stage_fonts(target_dir: Path) -> dict[str, Any]:
     dest_fonts_dir = target_dir / "assets" / "fonts"
     dest_fonts_dir.mkdir(parents=True, exist_ok=True)
 
-    if not FONTS_SOURCE_DIR.exists():
-        return {
-            "status": "error",
-            "message": f"Bundled fonts directory not found at {FONTS_SOURCE_DIR}",
-            "staged_files": [],
-        }
-
+    sources = _font_sources()
     staged_files: list[str] = []
-    for ext in ("*.otf", "*.ttf", "*.woff2"):
-        for font_file in sorted(FONTS_SOURCE_DIR.glob(ext)):
-            dest_file = dest_fonts_dir / font_file.name
-            shutil.copy2(font_file, dest_file)
-            staged_files.append(str(dest_file.relative_to(target_dir)))
+    for _family, name, _fmt, _weight in FONT_CATALOGUE:
+        src = sources.get(name)
+        if src is None:
+            continue
+        dest_file = dest_fonts_dir / name
+        if src.resolve() != dest_file.resolve():
+            shutil.copy2(src, dest_file)
+        staged_files.append(str(dest_file.relative_to(target_dir)))
 
+    families = _available_families(name for name in sources)
     if not staged_files:
         return {
             "status": "error",
-            "message": f"No font files (.otf/.ttf/.woff2) found inside {FONTS_SOURCE_DIR}",
+            "message": f"No catalogue font files found in {FONTS_SOURCE_DIR} or the user font folders",
             "staged_files": [],
         }
 
@@ -324,6 +438,9 @@ def _stage_fonts(target_dir: Path) -> dict[str, Any]:
         "fonts_dir": str(dest_fonts_dir),
         "staged_count": len(staged_files),
         "staged_files": staged_files,
+        "families": sorted(families),
+        "user_installed": sorted(str(sources[n]) for n in sources if not str(sources[n]).startswith(str(FONTS_SOURCE_DIR))),
+        "missing_hint": _missing_font_hint(families),
         "bundled_anatomy_kit": str(BUNDLED_ANATOMY_DIR / "kit" / "iso-kit.mjs"),
     }
 
@@ -337,6 +454,10 @@ def cmd_stage_fonts(args: argparse.Namespace) -> int:
         print(f"Error: {result['message']}", file=sys.stderr)
         return 1
     print(f"Staged {result['staged_count']} font files to {result['fonts_dir']}. Report written to {output_path}")
+    if result.get("user_installed"):
+        print("Note: fonts copied from your own font folders are licensed to you; do not publish the deck folder with them.")
+    if result.get("missing_hint"):
+        print(f"Note: {result['missing_hint']}")
     return 0
 
 
@@ -357,7 +478,7 @@ MODES = ("morph-and-zoom", "morph-only", "classic")
 ROLES = ("cover", "section", "concept", "mechanism", "evidence", "comparison", "process", "quote", "summary", "closing")
 VISUAL_TYPES = ("anatomy", "image", "diagram", "chart", "motion", "none")
 VISUAL_MODES = ("static", "animated")
-PAIRINGS = ("thmanyah", "qahwa", "setabr", "kufi", "sans")
+PAIRINGS = ("thmanyah", "qahwa", "setabr", "kufi", "sans", "open")
 IMAGE_SOURCES = ("generate", "web", "none")
 # Types nm-diagram.js renders (LAYOUTS.<name> in nm-diagram.js); the HTML must use these.
 BASE_DIAGRAM_TYPES = (
@@ -381,6 +502,7 @@ FONT_MODE_LABELS = {
     "qahwa": "قهوة",
     "setabr": "ستابر",
     "kufi": "كوفي",
+    "open": "ريدكس + بلكس",
 }
 
 DIGIT_GROUPS = {
@@ -1531,11 +1653,24 @@ TAILWIND_BLOCK = """<!-- Tailwind CDN (opt-in, scaffold --tailwind): needs netwo
 """
 
 
-def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False) -> tuple[str, list[tuple[Path, str]], int]:
+def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False,
+                font_files: Any = None) -> tuple[str, list[tuple[Path, str]], int]:
     template = (TEMPLATES_DIR / "deck-skeleton.html").read_text(encoding="utf-8")
     tokens, _ = resolve_theme(plan.get("theme"))
-    pairing = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
-    font_modes = [{"className": f"font-mode-{p}", "label": FONT_MODE_LABELS[p]} for p in PAIRINGS]
+    requested = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
+    sources = _font_sources() if font_files is None else {name: Path(name) for name in font_files}
+    families = _available_families(sources)
+    pairing = resolve_pairing(requested, families)
+    usable = [p for p in PAIRINGS if resolve_pairing(p, families) == p]
+    font_modes = [{"className": f"font-mode-{p}", "label": FONT_MODE_LABELS[p]} for p in usable]
+    font_faces = "\n".join(
+        f"    @font-face {{ font-family: '{family}'; src: url('assets/fonts/{name}') format('{fmt}'); font-weight: {weight}; font-display: swap; }}"
+        for family, name, fmt, weight in FONT_CATALOGUE if name in sources
+    )
+    mode_css = "\n".join(
+        f"    body.font-mode-{p} {{ --nm-font-display: {PAIRING_FONTS[p][0]}; --nm-font-body: {PAIRING_FONTS[p][1]}; }}"
+        for p in usable
+    )
     slides_html: list[str] = []
     files: list[tuple[Path, str]] = []
     todo_count = 0
@@ -1554,6 +1689,10 @@ def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False) -> 
         "{{BODY_CLASS}}": f"font-mode-{pairing}",
         "{{MODE}}": _esc(plan.get("mode", "morph-and-zoom")),
         "{{FONT_MODES_JSON}}": json.dumps(font_modes, ensure_ascii=False),
+        "{{FONT_FACES}}": font_faces,
+        "{{FONT_MODE_CSS}}": mode_css,
+        "{{FONT_DISPLAY}}": PAIRING_FONTS[pairing][0],
+        "{{FONT_BODY}}": PAIRING_FONTS[pairing][1],
         "{{SLIDES}}": "\n\n".join(slides_html),
         "{{TAILWIND}}": TAILWIND_BLOCK if tailwind else "",
     }
@@ -1600,6 +1739,11 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
         print(f"  warn    {w['code']}  {w['message']}")
     if fonts["status"] != "ok":
         print(f"Warning: fonts not staged: {fonts.get('message')}", file=sys.stderr)
+    requested = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
+    used = resolve_pairing(requested, set(fonts.get("families", [])))
+    if used != requested:
+        print(f"Note: font pairing \"{requested}\" needs fonts that are not installed; the deck uses \"{used}\". "
+              f"{fonts.get('missing_hint', '')}".rstrip())
     if runtime["status"] != "ok":
         print(f"Warning: runtime not staged: {runtime.get('message')}", file=sys.stderr)
     print(
@@ -1981,7 +2125,7 @@ def cmd_audit_deck(args: argparse.Namespace) -> int:
     font_face_blocks = "\n".join(re.findall(r"@font-face\s*\{[^}]+\}", content))
     has_display_font = bool(
         re.search(
-            r"font-family:\s*['\"](?:Thmanyah Serif Display|Qahwa Arabic|Setabr Display|Alkhalil Kufi|ZIAN)['\"]",
+            r"font-family:\s*['\"](?:Thmanyah Serif Display|Thmanyah Display|Qahwa Arabic|Setabr Display|Alkhalil Kufi|ZIAN|Readex Pro)['\"]",
             font_face_blocks,
         )
     )
@@ -1993,7 +2137,7 @@ def cmd_audit_deck(args: argparse.Namespace) -> int:
     )
     if not has_display_font:
         errors.append(
-            "Missing `@font-face` declaration for a bundled Display font (Thmanyah Serif Display, Qahwa Arabic, Setabr Display, Alkhalil Kufi, or ZIAN)."
+            "Missing `@font-face` declaration for a Display font (Thmanyah Display, Qahwa Arabic, Setabr Display, Alkhalil Kufi, ZIAN or Readex Pro)."
         )
     if not has_body_font:
         errors.append(
@@ -2023,6 +2167,12 @@ def cmd_audit_deck(args: argparse.Namespace) -> int:
 
     if missing_assets:
         errors.append(f"Missing {len(missing_assets)} referenced local asset file(s): {', '.join(missing_assets)}")
+        licensed = {name for family, name, _f, _w in FONT_CATALOGUE if family in USER_INSTALLED_FONTS}
+        if any(Path(m).name in licensed for m in missing_assets):
+            errors.append(
+                "Thmanyah/ZIAN fonts are not bundled (their licenses forbid redistribution). Install them and run "
+                "stage-fonts, or rerun scaffold so the deck uses the open pairing."
+            )
 
     # 4. Slide Positioning, 1920x1080 Stage & Hidden Controls Check
     slide_tags = re.findall(r"<section\b[^>]*class=[\"']([^\"']*\bslide\b[^\"']*)[\"'][^>]*>", content)

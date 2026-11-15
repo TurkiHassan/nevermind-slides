@@ -25,8 +25,8 @@ SOFTWARE.
 Third-Party Font & Engine Notices:
 1. Open-Source Fonts (`IBMPlexSansArabic`, `ReadexPro`, `ZainRounded`, `Alkhalil-Kufi`):
    Licensed under the SIL Open Font License 1.1 (https://openfontlicense.org).
-2. Display & Editorial Fonts (`Thmanyah Serif Display`, `Thmanyah Sans`, `Thmanyah Serif Text`,
-   `KOMission`, `Qahwa Arabic`, `Setabr Display`, `ZIAN`):
+2. Display & Editorial Fonts (`KOMission`, `Qahwa Arabic`, `Setabr Display`; Thmanyah and ZIAN are no
+   longer bundled because their licenses forbid redistribution, see THIRD_PARTY_NOTICES.md):
    Included for local desktop/browser presentation rendering; all rights and trademarks belong
    to their respective type foundries and rights holders.
 3. Bundled Engines (`resources/engine/anatomy` and `resources/engine/frontend-slides`):

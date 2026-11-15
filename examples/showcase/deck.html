@@ -15,22 +15,11 @@
 <link rel="stylesheet" href="assets/nm/nm-media.css">
 
 <style>
-    /* ==== 1. BUNDLED LOCAL FONTS (assets/fonts/) ==== */
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
     @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
     @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
     @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
     @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
-    @font-face { font-family: 'ZIAN'; src: url('assets/fonts/ZIAN-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
     @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
     @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
     @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
@@ -47,8 +36,8 @@
       --nm-accent-2: #0F766E;
       --nm-surface: #FFFFFF;
       --nm-radius: 16px;
-      --nm-font-display: 'Thmanyah Display', serif;
-      --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
       --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
       /* legacy aliases */
       --lp-accent: var(--nm-accent);
@@ -60,11 +49,10 @@
     }
 
     /* Live font pairing classes on <body> */
-    body.font-mode-thmanyah { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif; }
-    body.font-mode-sans     { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'Thmanyah Sans', 'KOMission', sans-serif; }
-    body.font-mode-qahwa    { --nm-font-display: 'Qahwa Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
-    body.font-mode-setabr   { --nm-font-display: 'Setabr Display', 'ZIAN', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
-    body.font-mode-kufi     { --nm-font-display: 'Alkhalil Kufi', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
     body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
 
     html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
@@ -111,10 +99,10 @@
     .sc-sources ul { list-style: none; margin: 0; padding: 0; }
 </style>
 </head>
-<body dir="rtl" class="font-mode-sans" data-nm-mode="morph-and-zoom">
+<body dir="rtl" class="font-mode-open" data-nm-mode="morph-and-zoom">
 <script>
   window.NM_CONFIG = {
-    fontModes: [{"className": "font-mode-thmanyah", "label": "ثمانية + كومشن"}, {"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-sans", "label": "ثمانية سانس"}]
+    fontModes: [{"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-open", "label": "ريدكس + بلكس"}]
   };
 </script>
 <div class="deck-viewport">
