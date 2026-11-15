@@ -1,0 +1,323 @@
+{
+  "title": "لماذا تسقط الأجسام معا؟",
+  "lang": "ar",
+  "theme": {
+    "preset": "paper"
+  },
+  "fonts": {
+    "pairing": "open"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "none",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "الغلاف",
+      "role": "cover",
+      "layout": "cover",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "فيزياء السقوط الحر",
+        "headline": "لماذا تسقط الأجسام معا؟",
+        "body": [
+          "تجربة قديمة تشرحها ثلاث معادلات وجدول قياسات"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "title": "السرعة",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "equation",
+        "mathml": "<math><mi data-term=\"v\">v</mi><mo>=</mo><mi data-term=\"g\">g</mi><mo>⁢</mo><mi data-term=\"t\">t</mi></math>",
+        "caption": "السرعة تساوي التسارع مضروبا في الزمن"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "body1"
+        },
+        {
+          "act": "reveal",
+          "target": "body2"
+        }
+      ],
+      "text": {
+        "kicker": "الفكرة",
+        "headline": "السرعة تزداد بانتظام",
+        "body": [
+          "تسارع الجاذبية \\(g \\approx 9.8\\ \\mathrm{m/s^2}\\) ثابت قرب سطح الأرض",
+          "كل ثانية تضيف إلى السرعة المقدار نفسه"
+        ]
+      }
+    },
+    {
+      "id": "s3",
+      "title": "الاشتقاق",
+      "role": "mechanism",
+      "layout": "diagram",
+      "visual": {
+        "type": "equation",
+        "lines": [
+          {
+            "mathml": "<math><mi data-term=\"v\">v</mi><mo>=</mo><mi data-term=\"g\">g</mi><mo>⁢</mo><mi data-term=\"t\">t</mi></math>",
+            "note": "نبدأ من السرعة"
+          },
+          {
+            "mathml": "<math><mi>d</mi><mo>=</mo><msubsup><mo>∫</mo><mn>0</mn><mi>t</mi></msubsup><mi>g</mi><mo>⁢</mo><mi>τ</mi><mspace width=\"0.2em\"></mspace><mi>d</mi><mi>τ</mi></math>",
+            "note": "المسافة مساحة ما تحت منحنى السرعة"
+          },
+          {
+            "mathml": "<math><mi data-term=\"d\">d</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>⁢</mo><mi>g</mi><mo>⁢</mo><msup><mi>t</mi><mn>2</mn></msup></math>",
+            "note": "المسافة تكبر مع مربع الزمن"
+          }
+        ]
+      },
+      "rel": "deeper",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:line"
+        }
+      ],
+      "text": {
+        "kicker": "من السرعة إلى المسافة",
+        "headline": "ثلاثة أسطر تكفي"
+      }
+    },
+    {
+      "id": "s4",
+      "title": "الزمن من الارتفاع",
+      "role": "concept",
+      "layout": "split-rev",
+      "visual": {
+        "type": "equation",
+        "tex": "t = \\sqrt{\\frac{2\\data{term=d}{d}}{g}}",
+        "caption": "الزمن لا يحتوي الكتلة"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "النتيجة",
+        "headline": "الكتلة لا تظهر في المعادلة",
+        "body": [
+          "نعكس العلاقة \\(d = \\tfrac{1}{2} g t^2\\) فنحصل على زمن السقوط من الارتفاع وحده"
+        ]
+      }
+    },
+    {
+      "id": "s5",
+      "title": "القياسات",
+      "role": "evidence",
+      "layout": "diagram",
+      "visual": {
+        "type": "table",
+        "ref": "drops",
+        "columns": [
+          "الجسم",
+          "الارتفاع (م)",
+          "الزمن المقيس (ث)",
+          "الزمن المحسوب (ث)",
+          "الفرق (٪)"
+        ],
+        "rows": [
+          [
+            "كرة حديد",
+            "5",
+            "1.02",
+            "1.01",
+            "1.0"
+          ],
+          [
+            "كرة زجاج",
+            "5",
+            "1.01",
+            "1.01",
+            "0.0"
+          ],
+          [
+            "كرة خشب",
+            "5",
+            "1.03",
+            "1.01",
+            "2.0"
+          ],
+          [
+            "حجر",
+            "10",
+            "1.44",
+            "1.43",
+            "0.7"
+          ],
+          [
+            "مفتاح",
+            "10",
+            "1.43",
+            "1.43",
+            "0.0"
+          ],
+          [
+            "كرة مطاط",
+            "10",
+            "1.46",
+            "1.43",
+            "2.1"
+          ],
+          [
+            "كتاب",
+            "20",
+            "2.04",
+            "2.02",
+            "1.0"
+          ],
+          [
+            "ريشة",
+            "20",
+            "4.80",
+            "2.02",
+            "138"
+          ]
+        ],
+        "highlight": "r8",
+        "caption": "ثمانية أجسام من ثلاثة ارتفاعات؛ الريشة وحدها تخالف الحساب"
+      },
+      "rel": "chapter",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:row"
+        }
+      ],
+      "text": {
+        "kicker": "التجربة",
+        "headline": "ثمانية أجسام وثلاثة ارتفاعات"
+      }
+    },
+    {
+      "id": "s6",
+      "title": "الهواء",
+      "role": "comparison",
+      "layout": "compare",
+      "visual": {
+        "type": "table",
+        "ref": "air",
+        "columns": [
+          "الجسم",
+          "في الفراغ (ث)",
+          "في الهواء (ث)",
+          "الفرق (٪)"
+        ],
+        "rows": [
+          [
+            "كرة حديد",
+            "1.43",
+            "1.44",
+            "0.7"
+          ],
+          [
+            "كتاب",
+            "1.43",
+            "1.47",
+            "2.8"
+          ],
+          [
+            "ريشة",
+            "1.43",
+            "3.40",
+            "138"
+          ]
+        ]
+      },
+      "rel": "contrast",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "highlight",
+          "target": "visual:col"
+        }
+      ],
+      "text": {
+        "kicker": "السبب",
+        "headline": "الهواء وحده يبطئ الريشة"
+      }
+    },
+    {
+      "id": "s7",
+      "title": "المنحنى",
+      "role": "evidence",
+      "layout": "split",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "line",
+        "ref": "curve"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "draw",
+          "target": "visual:series"
+        }
+      ],
+      "text": {
+        "kicker": "الشكل",
+        "headline": "المسافة تتبع مربع الزمن",
+        "body": [
+          "المنحنى قطع مكافئ لا خط مستقيم"
+        ]
+      }
+    },
+    {
+      "id": "s8",
+      "title": "الخلاصة",
+      "role": "summary",
+      "layout": "cards",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "back-out",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "focus",
+          "target": "body1"
+        },
+        {
+          "act": "focus",
+          "target": "body2"
+        }
+      ],
+      "text": {
+        "kicker": "الخلاصة",
+        "headline": "ما الذي تعلمناه",
+        "body": [
+          "السرعة تزداد بانتظام مع الزمن",
+          "المسافة تتبع مربع الزمن",
+          "الكتلة لا تغير زمن السقوط في الفراغ"
+        ]
+      }
+    }
+  ]
+}

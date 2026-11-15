@@ -1,6 +1,7 @@
 import { postOps, save } from './actions.ts';
 import { editLayer, frameWin } from './frame.ts';
-import { bumpLayout, diagramSource, info, selection, textSession, toast } from './state.ts';
+import { elementByKey } from './frame.ts';
+import { bumpLayout, diagramSource, formulaSource, info, selection, textSession, toast } from './state.ts';
 import type { NodeKey, TextSessionResult } from './types.ts';
 
 let bridgedWindow: Window | null = null;
@@ -34,8 +35,18 @@ export function beginTextSession(key: NodeKey): boolean {
     // Runtime-generated content: a diagram opens its DSL source for editing; anything else says why it is read-only.
     selection.value = key;
     const diagram = started.readOnly === 'diagram' ? info.value?.diagrams.find((d) => d.key === key) : undefined;
-    if (diagram?.sourceKey) diagramSource.value = { figureKey: key, sourceKey: diagram.sourceKey };
-    else toast.value = 'readOnlyGenerated';
+    if (diagram?.sourceKey) { diagramSource.value = { figureKey: key, sourceKey: diagram.sourceKey }; return true; }
+    if (started.readOnly === 'math') {
+      // the formula root: the outermost <math>, or the data-tex host around a generated one
+      const el = elementByKey(key);
+      let math: Element | null = el?.closest('math') ?? null;
+      while (math?.parentElement?.closest('math')) math = math.parentElement.closest('math');
+      const root = el?.closest('[data-tex]') ?? math;
+      const rootKey = root?.getAttribute('data-nm-key') ?? null;
+      const eq = rootKey ? info.value?.equations.find((e) => e.key === rootKey) : undefined;
+      if (eq) { selection.value = eq.key; formulaSource.value = { key: eq.key, kind: eq.kind, source: eq.source }; return true; }
+    }
+    toast.value = started.readOnly === 'math' || started.readOnly === 'contains-math' ? 'readOnlyMath' : 'readOnlyGenerated';
     return true;
   }
   selection.value = key;

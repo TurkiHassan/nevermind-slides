@@ -22,9 +22,12 @@ The single source of truth for how the bundled runtime files fit together. A dec
 | `nm-focus.css`, `nm-focus.js` | Isolation acts: `focus`, `detail`, `lens`, `pins`, `slice` |
 | `nm-diagram.css`, `nm-diagram.js` | Declarative diagrams, connectors between DOM nodes, small charts |
 | `nm-media.css` | Image frames, focal crop, masks, duotone/grain treatments, slow camera moves |
+| `nm-table.css`, `nm-table.js` | Optional. Data tables: row and column steps, numeric alignment, highlight, fit between 20px and 36px |
+| `nm-math.css`, `nm-math.js` | Optional. Equations: native MathML (no library), `data-tex` through the optional converter, `data-term` morph pairs, fit |
+| `vendor/temml.min.js` | Optional, staged only by `stage-runtime --math`: TeX to MathML (Temml, MIT). Never fetched from the network |
 | `scripts/image_fetch.py` | Web image search, download, crop, treat, credits |
 
-Load order in a deck (end of `<body>`): `nm-deck.js`, then plugins in any order. CSS in `<head>`.
+Load order in a deck (end of `<body>`): `nm-deck.js`, then plugins in any order, except that `vendor/temml.min.js` comes before `nm-math.js`. CSS in `<head>`. The optional files are linked only by decks that use them; a deck without tables or formulas links exactly the files above.
 
 ```html
 <meta name="nm-runtime" content="2">
@@ -92,7 +95,9 @@ DOM events on `document`: `nm:ready`, `nm:beforeslidechange`, `nm:slidechange` (
 
 State classes core maintains: `.slide.active` (also `.visible` for legacy CSS), `.slide.is-leaving`, `.is-on` on every step element that has been entered, `.is-current` on the step elements of the current step, `body.nm-ready`, `body.nm-overview`, `body.nm-instant` (speed 0: `?nm-speed=0`, `?nm-print`, reduced motion; every runtime CSS file drops its transitions and loops under it), `body.nm-print`. Core never leaves an empty `class=""` on author elements: stepping forward and back restores the markup byte for byte.
 
-Generated markup: every subtree a plugin builds inside author content carries `data-nm-generated="<kind>"` on its root (`diagram` for the `.nm-dg-canvas` of a figure, `links` for the `.nm-links` connector layer). It is rendered from source (the DSL script, `data-links`) and is never saved; editors must not write it back and must edit the source instead.
+Generated markup: every subtree a plugin builds inside author content carries `data-nm-generated="<kind>"` on its root (`diagram` for the `.nm-dg-canvas` of a figure, `links` for the `.nm-links` connector layer, `math` for the MathML, or the raw-TeX fallback, that nm-math renders inside a `data-tex` host). It is rendered from source (the DSL script, `data-links`) and is never saved; editors must not write it back and must edit the source instead.
+
+Runtime state on author elements (never saved, never part of the source; editors keep the file as written): nm-table writes `data-step`, `data-act` and `data-nm-tb-step` on the rows or cells it numbers, `.nm-tb-num` on numeric cells, `.nm-tb-hl` for `data-highlight`, `data-nm-step-base` and the `--nm-tb-fit` custom property on the figure; nm-math writes `data-morph="term-<x>"` and `data-nm-term-morph` on `data-term` parts without their own `data-morph`, `data-nm-math-error` on a `data-tex` host it could not convert, and `--nm-eq-fit` on an equation figure. nm-diagram already writes `data-nm-step-base`. Every plugin that changes layout after webfonts load counts that wait in `NM.pending`.
 
 Plugin hooks: while core measures the incoming side of a morph it puts `.nm-morph-measure` on each target element, so a plugin can cancel a pending entrance state for that instant (nm-diagram does this for its nodes); the ghost then flies to the element's real resting look. Overview thumbnails show every lasting step (`reveal`, `draw`) as on; transient acts are off. Clicking inside an `<iframe>` no longer captures the arrow keys: core takes keyboard focus back (opt out with `data-nm-keys="frame"` on the iframe). Edit mode (E) releases an open act first and skips text that plugins generate (diagram canvas, connector labels).
 
@@ -107,6 +112,8 @@ Any element inside a slide may carry `data-step="N"` (N ≥ 1) and `data-act="<a
 | `highlight` | core | element gets `.is-current` emphasis, nothing else changes | yes |
 | `focus`, `detail`, `lens`, `pins`, `slice` | nm-focus | isolation acts | yes |
 | `draw` | nm-diagram | strokes draw on | no |
+
+Tables (`figure.nm-table`): `data-steps="row|col|none"` gives one step per body row or data column, numbered from `data-step-from` (else after the slide's other steps); `data-steps-act="reveal|highlight"` (reveal keeps the header visible, highlight takes the header cell along); `data-highlight="r2 c3"` is static emphasis. Equations: a derivation reveals `div.nm-eq-line` elements with ordinary `data-step`; `data-term="x"` on a formula part pairs it with the same term on the neighbouring slide for Morph.
 
 A transient act is exited before the next step is entered and when leaving the slide. When the last step of a slide holds a transient act, core adds one release step: the next arrow closes the act, the one after leaves the slide (`check` counts it as expected). Legacy `data-zoom-step="N"` + `data-zoom-label` equals `data-step="N" data-act="zoom"`; in `morph-only` and `classic` modes zoom steps are skipped by arrows and reachable by click.
 

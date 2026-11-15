@@ -1,6 +1,6 @@
 ---
 name: nevermind-slides
-description: "Transforms research papers, technical articles, or complex topics into Arabic story-driven explanations and cinematic 1920x1080 HTML presentations. A bundled runtime does all motion from data-* attributes (shared-element Morph with arcs and springs, ten narrative transitions, camera zoom, isolation acts that lift a part of a slide out to show details, declarative diagrams and charts), so the author writes a plan and plain HTML. Includes subject-first anatomy isometric figures drawn from the topic's own world, generated or web-sourced images cropped and toned to the deck, bundled Arabic fonts, zero emojis, and automated plan, audit and headless-Chrome checks."
+description: "Transforms research papers, technical articles, or complex topics into Arabic story-driven explanations and cinematic 1920x1080 HTML presentations. A bundled runtime does all motion from data-* attributes (shared-element Morph with arcs and springs, ten narrative transitions, camera zoom, isolation acts that lift a part of a slide out to show details, declarative diagrams and charts, data tables, native MathML equations), so the author writes a plan and plain HTML. Includes subject-first anatomy isometric figures drawn from the topic's own world, generated or web-sourced images cropped and toned to the deck, bundled Arabic fonts, zero emojis, and automated plan, audit and headless-Chrome checks."
 user-invocable: true
 compatibility: codex, claude-code, opencode, antigravity
 metadata:
@@ -53,6 +53,7 @@ Users are usually non-technical. Never ask them to run commands.
 | Morph, transitions, steps, entrances, camera, keys | `references/morph-and-motion.md` |
 | Isolate part of a slide: focus, detail, lens, pins, slice | `references/focus-isolation.md` |
 | Diagrams, charts, connectors, `nm-l-*` layouts, type scale | `references/diagrams.md` |
+| Tables, equations, derivations, TeX | `references/tables-and-equations.md` |
 | Images when no generator exists: search, crop, tone, credits | `references/web-images.md` |
 | Runtime contract (API for advanced use only) | `references/runtime-contract.md` |
 | Anatomy: choose the subject | `resources/engine/anatomy/references/subject-first.md` |
@@ -103,6 +104,8 @@ Read the source and fill this table for yourself (one row per future slide). It 
 | Steps, flow, architecture, hierarchy, cycle, actors exchanging messages | Diagram | `diagram` with `diagram_type`: flow, tree, cycle, hub, timeline, layers, swimlane, sequence |
 | Positioning, proportions, overlap, comparison of two options | Diagram | matrix, funnel, pyramid, venn, compare |
 | Numbers that matter | Chart | `chart`: bars, line, donut, gauge, stat |
+| Exact values to compare across rows and columns (results, measurements) | Table | `table` (`columns`, `rows`; 8 x 6 at most) |
+| A law, a definition, a loss function, a derivation | Equation (native MathML; TeX optional) | `equation` (`mathml`, `tex` or `lines`) |
 | A story, a human moment, a place, an atmosphere | Image (generated, else web) | `image` |
 | A strong sentence | Typography alone (quote layout) | `none` (never two in a row) |
 
@@ -201,6 +204,10 @@ Work slide by slide. Keep the generated structure; change content, not scaffoldi
 
 Pick the type with the table at the top of `references/diagrams.md`. Re-use the same `data-id` on the next slide with a different type, layout or emphasis and the nodes morph across. Reveal progressively with `data-steps="rank|node|edge|series|all"`, or name nodes yourself with `data-node-steps="enc:1, probe:2:highlight"`. `data-grow="1"` keeps a sparse diagram at natural size (default grows it to fill its cell). Connect your own cards with `data-node="a"` and `data-links="a>b: تسمية; b~>c"` on a parent.
 
+### 3.4b Tables and equations
+
+Tables are a real `<table>` inside `figure.nm-table`; reveal or highlight them row by row with `data-steps="row|col"`. Equations are native `<math>` (no library); TeX in `data-tex` only when the user writes TeX (scaffold stages the converter). Put `data-term="x"` on the same part of consecutive formulas so it flies to the next slide. Details: `references/tables-and-equations.md`.
+
 ### 3.5 Anatomy figures
 
 For every `anatomy` slide:
@@ -248,7 +255,7 @@ python3 "<SKILL_DIR>/scripts/image_fetch.py" credits --project "<project_dir>" -
 ```
 
 1. `audit-deck`: `"passed": true`. It checks emojis, fonts, assets, vocabulary of every `data-*` value (with suggestions), morph pairing, step numbering, detail templates, anatomy briefs, credits, and hand-written navigation.
-2. `check`: opens the deck in headless Chrome, walks every slide and step, and reports text outside the stage, clipped or overlapping text, small text, low contrast, broken images, unloaded fonts, leftover morph ghosts, empty frames, broken Arabic joins, unisolated Latin runs, widows, dense slides, diagrams that use little of their box, nearly empty slides and drifting titles. Read `quality.json` in the shots folder: fix every `HOLD`, then the `FIX` items. **Open the contact sheet PNG and look at it.** Fix anything that looks cramped, misaligned or empty, then rerun.
+2. `check`: opens the deck in headless Chrome, walks every slide and step, and reports text outside the stage, clipped or overlapping text, small text, low contrast, broken images, unloaded fonts, leftover morph ghosts, empty frames, broken Arabic joins, unisolated Latin runs, widows, dense slides, diagrams that use little of their box, nearly empty slides, drifting titles, tables that do not fit and formulas shown as raw TeX. Read `quality.json` in the shots folder: fix every `HOLD`, then the `FIX` items. **Open the contact sheet PNG and look at it.** Fix anything that looks cramped, misaligned or empty, then rerun.
 3. Clean previews: `cleanup-previews --target-dir "<project_dir>"`.
 4. Open the deck (`open-files`) and give a short Arabic summary: slide count, the visual plan, keys (الأسهم للتنقل، O للنظرة العامة، F ملء الشاشة، E تعديل النصوص، ? المساعدة).
 5. Offer the visual editor:

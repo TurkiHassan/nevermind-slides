@@ -30,18 +30,21 @@
       "kind": "plan",
       "source": "tests/corpus/plans/ar-bidi.plan.json",
       "covers": "Arabic with English terms, versions, units and years in parentheses; Western digits in an Arabic deck; scaffold isolates risky runs with <bdi>"
-    }
-  ],
-  "planned": [
+    },
     {
       "name": "ar-science",
-      "needs": "NM-10 nm-table and NM-11 nm-math"
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-science.plan.json",
+      "covers": "Arabic science deck: native MathML equations, a derivation revealed line by line with data-term morphs, inline TeX in Arabic sentences and a TeX display formula (Temml staged by scaffold), an 8x5 measurement table with row steps and a static highlight, a 3x4 table with column highlight steps, a line chart; Western digits in an Arabic deck"
     },
     {
       "name": "en-science",
-      "needs": "NM-09, NM-10, NM-11"
+      "kind": "plan",
+      "source": "tests/corpus/plans/en-science.plan.json",
+      "covers": "English machine-learning paper: architecture flow with rank steps, a TeX loss with inline TeX, a TeX derivation with a data-term morph, a 6x5 results table with row highlight steps and a static highlight, a training curve, a focus step"
     }
   ],
+  "planned": [],
   "elsewhere": {
     "legacy-v1": "editor/fixtures/legacy/attention and editor/fixtures/legacy/mechanistic (v1 markup), covered by the editor suite"
   }

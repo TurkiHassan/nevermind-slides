@@ -10,9 +10,10 @@ for every change: does the skill still write and play the decks it wrote before?
 | `ar-showcase` | `examples/showcase` (hand-finished) | every morph kind, nine transitions, every isolation act, diagrams, charts, a live anatomy iframe |
 | `en-general` | `plans/en-general.plan.json` (scaffold) | English, left to right: Morph of a title and a chart, every `rel`, rank steps, node focus, detail, compare, timeline, quote |
 | `ar-bidi` | `plans/ar-bidi.plan.json` (scaffold) | Arabic dense with English terms, versions, units and years in parentheses; Western digits; a dark theme |
+| `ar-science` | `plans/ar-science.plan.json` (scaffold) | Arabic physics: native MathML, a derivation revealed line by line whose `data-term` parts fly from the previous slide, inline TeX inside Arabic sentences and a TeX display formula (Temml staged by scaffold), an 8x5 measurement table with row steps and a static highlight, a 3x4 table with column highlight steps, a line chart, focus steps |
+| `en-science` | `plans/en-science.plan.json` (scaffold) | English ML paper: architecture flow with rank steps, a TeX loss with inline TeX, a TeX derivation with a `data-term` morph, a 6x5 results table with row highlight steps, a training curve |
 
-Planned, once the features exist (`corpus.json` → `planned`): `ar-science` and `en-science` with tables and equations
-(NM-10, NM-11). They are not faked before then.
+Not covered yet: error bars, scatter plots and pins on a figure in the science decks (NM-12).
 Legacy v1 decks are covered by the editor suite (`editor/fixtures/legacy/`).
 
 ## Goldens

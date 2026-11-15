@@ -5,7 +5,7 @@ import { requirePatchable } from './attrs.ts';
 import { escapeText, isCollapsible, normaliseVisible, textUnits } from './html-text.ts';
 import { RAW_TEXT_TAGS, VOID_TAGS, type SourceDoc, type SourceNode } from './source.ts';
 import type { Splice } from './splice.ts';
-import { isDiagramSource, runtimeOwned, runtimeOwnedMessage } from './runtime-owned.ts';
+import { isDiagramSource, isMathRoot, runtimeOwned, runtimeOwnedMessage } from './runtime-owned.ts';
 
 /** One visible UTF-16 code unit with the raw range it comes from. */
 interface VisibleChar {
@@ -157,6 +157,7 @@ function within(doc: SourceDoc, id: number, ancestor: number): boolean {
 /** Minimal splices that make `visibleText(doc, id)` equal `normaliseVisible(next)`. */
 export function setText(doc: SourceDoc, id: number, next: string): Splice[] {
   if (isDiagramSource(requirePatchable(doc, id))) return setDiagramSource(doc, id, next);
+  if (isMathRoot(doc, doc.nodes[id])) return setMathSource(doc, id, next);
   const owned = runtimeOwned(doc, id);
   if (owned) throw new OpError('unsupported', runtimeOwnedMessage(id, owned));
   const root = requireTextTarget(doc, id);
@@ -239,6 +240,38 @@ export function setDiagramSource(doc: SourceDoc, id: number, next: string): Spli
   const n = requirePatchable(doc, id);
   if (!isDiagramSource(n) || n.endTagStart === null) throw new OpError('invalid', `node ${id} is not a diagram source block`);
   if (/<\/script/i.test(next)) throw new OpError('invalid', 'diagram source must not contain "</script"');
+  const start = n.startTagEnd;
+  const have = doc.text.slice(start, n.endTagStart);
+  if (have === next) return [];
+  let a = 0;
+  while (a < have.length && a < next.length && have[a] === next[a]) a++;
+  let s = 0;
+  while (s < have.length - a && s < next.length - a && have[have.length - 1 - s] === next[next.length - 1 - s]) s++;
+  return [{ start: start + a, end: start + have.length - s, text: next.slice(a, next.length - s) }];
+}
+
+const UNSAFE_MATH = /<\s*\/?\s*(script|style|iframe|object|embed|foreignobject|math)\b|\son[a-z]+\s*=|javascript:/i;
+const TAG = /<(\/?)([A-Za-z][\w:-]*)((?:\s+[^\s=>\/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*(\/?)>/g;
+
+/**
+ * Replace the MathML inside a <math> element (its inner markup, raw). The new markup must be balanced MathML with no
+ * scripts, styles, frames, event handlers or nested <math>; only the differing middle is spliced, so changing one
+ * token changes one place in the file. The root <math> start tag (display, dir, data-term) stays as written.
+ */
+export function setMathSource(doc: SourceDoc, id: number, next: string): Splice[] {
+  const n = requirePatchable(doc, id);
+  if (!isMathRoot(doc, n) || n.endTagStart === null) throw new OpError('invalid', `node ${id} is not a <math> element`);
+  if (UNSAFE_MATH.test(next)) throw new OpError('invalid', 'formula markup must not contain scripts, styles, frames, event handlers or another <math>');
+  const stack: string[] = [];
+  const rest = next.replace(TAG, (_m, close: string, name: string, _attrs: string, selfClose: string) => {
+    const tag = name.toLowerCase();
+    if (selfClose) return '';
+    if (!close) stack.push(tag);
+    else if (stack.pop() !== tag) throw new OpError('invalid', `formula markup is not balanced at </${tag}>`);
+    return '';
+  });
+  if (stack.length) throw new OpError('invalid', `formula markup leaves <${stack[stack.length - 1]}> open`);
+  if (/[<>]/.test(rest)) throw new OpError('invalid', 'formula markup holds a stray "<" or ">"; write &lt; or &gt; inside tokens');
   const start = n.startTagEnd;
   const have = doc.text.slice(start, n.endTagStart);
   if (have === next) return [];

@@ -13,6 +13,7 @@ Status legend: **OK** (license allows redistribution here) · **CHECK** (unclear
 |---|---|---|---|---|
 | anatomy isometric engine | `resources/engine/anatomy/` | MIT (`resources/engine/anatomy/LICENSE`) | 2026 Ryan | OK |
 | frontend-slides (vendored, modified copy of zarazhangrui/frontend-slides) | `resources/engine/frontend-slides/` | MIT (`resources/engine/frontend-slides/LICENSE`) | 2025 Zara Zhang | OK; differs from upstream, upstream commit not recorded |
+| Temml 0.14.0 (TeX to MathML; optional, staged only by `stage-runtime --math` or a plan with TeX) | `resources/engine/nm-runtime/vendor/temml.min.js` | MIT (`resources/engine/nm-runtime/vendor/temml.LICENSE.txt`) | 2020 Ron Kok | OK; unmodified `dist/temml.min.js` from the npm package, sha256 `56b43381…66af9d` |
 
 ## Fonts (`resources/fonts/`)
 

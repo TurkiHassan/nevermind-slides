@@ -166,14 +166,14 @@ function resolveRaw(doc: SourceDoc, op: Op, ctx: TokenContext): Splice[] {
       return setStyleSplices(doc, op.id, op.prop, op.value);
     case 'insertHtml': {
       const owned = runtimeOwned(doc, op.parent);
-      if (owned && owned !== 'contains-generated') throw new OpError('unsupported', runtimeOwnedMessage(op.parent, owned));
+      if (owned && owned !== 'contains-generated' && owned !== 'contains-math') throw new OpError('unsupported', runtimeOwnedMessage(op.parent, owned));
       return insertHtmlSplices(doc, op.parent, op.index, op.html);
     }
     case 'remove':
       return removeSplices(doc, op.id);
     case 'move': {
       const owned = runtimeOwned(doc, op.parent);
-      if (owned && owned !== 'contains-generated') throw new OpError('unsupported', runtimeOwnedMessage(op.parent, owned));
+      if (owned && owned !== 'contains-generated' && owned !== 'contains-math') throw new OpError('unsupported', runtimeOwnedMessage(op.parent, owned));
       return moveSplices(doc, op.id, op.parent, op.index);
     }
     case 'duplicate':

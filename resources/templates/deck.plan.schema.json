@@ -52,11 +52,19 @@
         "visual": {
           "type": "object",
           "properties": {
-            "type": { "enum": ["anatomy", "image", "diagram", "chart", "motion", "none"] },
+            "type": { "enum": ["anatomy", "image", "diagram", "chart", "motion", "table", "equation", "none"] },
             "ref": { "type": "string", "description": "anatomy: figure name (needs <ref>.brief.json); image: intended file stem" },
             "mode": { "enum": ["static", "animated"], "description": "required for anatomy" },
             "diagram_type": { "type": "string", "description": "nm-diagram data-type (flow tree cycle hub swimlane sequence timeline layers matrix funnel pyramid venn compare bars line donut gauge stat) or an alias (bar column area pie stack network graph kpi)" },
-            "query": { "type": "string", "description": "image search or generation prompt" }
+            "query": { "type": "string", "description": "image search or generation prompt" },
+            "columns": { "type": "array", "minItems": 2, "items": { "type": ["string", "number"] }, "description": "table: header labels" },
+            "rows": { "type": "array", "items": { "type": "array", "items": { "type": ["string", "number"] } }, "description": "table: body rows, each with one cell per column (8 rows x 6 columns at most to stay at 20px or more)" },
+            "row_headers": { "type": "boolean", "description": "table: the first column labels the rows (default true)" },
+            "highlight": { "type": "string", "description": "table: static emphasis, for example \"r2 c3\" (body row 2, data column 3)" },
+            "caption": { "type": "string", "description": "table or equation: a caption under the visual" },
+            "mathml": { "type": "string", "description": "equation: one native <math> element (the default, needs no library); data-term=\"x\" on a part links it to the same term on the next slide" },
+            "tex": { "type": "string", "description": "equation: TeX without $ delimiters; scaffold stages the optional Temml converter. \\data{term=x}{...} links a term" },
+            "lines": { "type": "array", "items": { "type": "object", "properties": { "mathml": { "type": "string" }, "tex": { "type": "string" }, "note": { "type": "string" } } }, "description": "equation: a derivation, one formula per line with an optional note; step target visual:line reveals them in order" }
           }
         },
         "rel": { "enum": ["next", "deeper", "back-out", "chapter", "contrast", "time"], "default": "next" },
@@ -74,7 +82,7 @@
             "required": ["act"],
             "properties": {
               "act": { "enum": ["reveal", "zoom", "highlight", "focus", "detail", "lens", "pins", "slice", "draw"] },
-              "target": { "type": "string", "description": "headline | kicker | visual | stat | body | bodyN | node:<id> | any element id" },
+              "target": { "type": "string", "description": "headline | kicker | visual | visual:<mode> (diagram: rank node edge series; table: row col; derivation: line) | stat | body | bodyN | node:<id> | any element id" },
               "note": { "type": "string" }
             }
           }

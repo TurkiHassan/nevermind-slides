@@ -61,6 +61,8 @@ export interface DeckInfo {
   steps: { slideId: number; id: number; step: number; act: string; key: NodeKey; slideKey: NodeKey | null }[];
   diagrams: { slideId: number; id: number; type: string; dataId: string | null; sourceId: number | null; key: NodeKey; slideKey: NodeKey | null; sourceKey: NodeKey | null }[];
   detailTemplates: { id: number; target: string; key: NodeKey }[];
+  tables: { slideId: number; id: number; tableId: number | null; dataId: string | null; rows: number; columns: number; steps: string | null; stepsAct: string | null; highlight: string | null; key: NodeKey; slideKey: NodeKey | null; tableKey: NodeKey | null }[];
+  equations: { slideId: number; id: number; kind: 'mathml' | 'tex'; display: boolean; source: string; terms: string[]; key: NodeKey; slideKey: NodeKey | null }[];
   anatomy: { slideId: number; id: number; kind: 'svg' | 'iframe'; name: string; variables: Record<string, string>; key: NodeKey; slideKey: NodeKey | null }[];
   identity: { colours: Record<string, unknown>; fonts: Record<string, unknown> };
   runtime: { version: number | null; native: boolean };
@@ -110,7 +112,7 @@ export interface DiskChangedEvent {
 }
 
 /** The edit layer inside the preview frame (src/server/edit-layer/edit-mode.js). */
-export type ReadOnlyReason = 'diagram' | 'generated' | 'contains-generated';
+export type ReadOnlyReason = 'diagram' | 'generated' | 'contains-generated' | 'math' | 'contains-math';
 
 export interface EditLayer {
   goTo(i: number): void;

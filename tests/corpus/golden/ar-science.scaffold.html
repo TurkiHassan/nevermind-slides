@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="nm-runtime" content="2">
+<meta name="nm-stage" content="1920x1080">
+<meta name="generator" content="nevermind-slides scaffold">
+<title>لماذا تسقط الأجسام معا؟</title>
+
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+<link rel="stylesheet" href="assets/nm/nm-table.css">
+<link rel="stylesheet" href="assets/nm/nm-math.css">
+
+<style>
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
+    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
+    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+
+    /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
+    :root {
+      --nm-paper: #FAF7F0;
+      --nm-ink: #1B1A17;
+      --nm-muted: #5E5A50;
+      --nm-line: #D9D3C4;
+      --nm-accent: #B4441F;
+      --nm-accent-2: #1F5F5B;
+      --nm-surface: #FFFFFF;
+      --nm-on-accent: #FFFFFF;
+      --nm-radius: 20px;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+      --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      /* legacy aliases */
+      --lp-accent: var(--nm-accent);
+      --slide-bg: var(--nm-paper);
+      --stage-bg: var(--nm-paper);
+      --lp-font-display: var(--nm-font-display);
+      --lp-font-body: var(--nm-font-body);
+      --lp-font-mono: var(--nm-font-mono);
+    }
+
+    /* Live font pairing classes on <body> */
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
+    body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
+
+    html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
+</style>
+</head>
+<body dir="rtl" class="font-mode-open" data-nm-mode="morph-and-zoom">
+<script>
+  window.NM_CONFIG = {
+    fontModes: [{"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-open", "label": "ريدكس + بلكس"}]
+  };
+</script>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+  <!-- 1. s1 / cover / layout cover -> nm-l-title
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s1" data-title="الغلاف" data-rel="next" data-transition="auto" data-role="cover">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-title">
+    <p class="nm-kicker">فيزياء السقوط الحر</p>
+    <h1 class="nm-t-display">لماذا تسقط الأجسام معا؟</h1>
+    <p class="nm-t-lead">تجربة قديمة تشرحها ثلاث معادلات وجدول قياسات</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 2. s2 / concept / layout split -> nm-l-split
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s2" data-title="السرعة" data-rel="deeper" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">الفكرة</p>
+      <h2 class="nm-t-h2">السرعة تزداد بانتظام</h2>
+      <ul class="nm-list">
+        <li data-step="1" data-act="reveal">تسارع الجاذبية <span class="nm-math" data-tex="g \approx 9.8\ \mathrm{m/s^2}"></span> ثابت قرب سطح الأرض</li>
+        <li data-step="2" data-act="reveal">كل ثانية تضيف إلى السرعة المقدار نفسه</li>
+      </ul>
+    </header>
+    <figure class="nm-equation" data-id="s2-equation" aria-label="السرعة">
+    <math display="block"><mi data-term="v">v</mi><mo>=</mo><mi data-term="g">g</mi><mo>⁢</mo><mi data-term="t">t</mi></math>
+    <figcaption>السرعة تساوي التسارع مضروبا في الزمن</figcaption>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 3. s3 / mechanism / layout diagram -> nm-l-hero-figure
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s3" data-title="الاشتقاق" data-rel="deeper" data-transition="auto" data-role="mechanism">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">من السرعة إلى المسافة</p>
+      <h2 class="nm-t-h2" data-morph="title">ثلاثة أسطر تكفي</h2>
+    </header>
+    <figure class="nm-equation" data-id="s3-equation" aria-label="الاشتقاق">
+    <div class="nm-eq-line"><math display="block"><mi data-term="v">v</mi><mo>=</mo><mi data-term="g">g</mi><mo>⁢</mo><mi data-term="t">t</mi></math><p class="nm-eq-note">نبدأ من السرعة</p></div>
+    <div class="nm-eq-line" data-step="1" data-act="reveal"><math display="block"><mi>d</mi><mo>=</mo><msubsup><mo>∫</mo><mn>0</mn><mi>t</mi></msubsup><mi>g</mi><mo>⁢</mo><mi>τ</mi><mspace width="0.2em"></mspace><mi>d</mi><mi>τ</mi></math><p class="nm-eq-note">المسافة مساحة ما تحت منحنى السرعة</p></div>
+    <div class="nm-eq-line" data-step="2" data-act="reveal"><math display="block"><mi data-term="d">d</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>⁢</mo><mi>g</mi><mo>⁢</mo><msup><mi>t</mi><mn>2</mn></msup></math><p class="nm-eq-note">المسافة تكبر مع مربع الزمن</p></div>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. s4 / concept / layout split-rev -> nm-l-split
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s4" data-title="الزمن من الارتفاع" data-rel="next" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <figure class="nm-equation" data-id="s4-equation" aria-label="الزمن من الارتفاع">
+    <span class="nm-math" data-display="block" data-tex="t = \sqrt{\frac{2\data{term=d}{d}}{g}}"></span>
+    <figcaption>الزمن لا يحتوي الكتلة</figcaption>
+  </figure>
+    <header class="nm-head">
+      <p class="nm-kicker">النتيجة</p>
+      <h2 class="nm-t-h2" data-morph="title">الكتلة لا تظهر في المعادلة</h2>
+      <p class="nm-t-lead">نعكس العلاقة <span class="nm-math" data-tex="d = \tfrac{1}{2} g t^2"></span> فنحصل على زمن السقوط من الارتفاع وحده</p>
+    </header>
+    </div>
+  </div>
+  </section>
+
+  <!-- 5. s5 / evidence / layout diagram -> nm-l-hero-figure
+       TODO:
+       - table builds one step per body row from number 1 (data-steps="row"); if you add other steps on this slide, number them after the table's
+  -->
+  <section class="slide" id="s5" data-title="القياسات" data-rel="chapter" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">التجربة</p>
+      <h2 class="nm-t-h2">ثمانية أجسام وثلاثة ارتفاعات</h2>
+    </header>
+    <figure class="nm-table" data-id="drops" aria-label="القياسات" data-highlight="r8" data-steps="row" data-step-from="1">
+    <table>
+      <thead>
+        <tr><th scope="col">الجسم</th><th scope="col">الارتفاع (م)</th><th scope="col">الزمن المقيس (ث)</th><th scope="col">الزمن المحسوب (ث)</th><th scope="col">الفرق (٪)</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">كرة حديد</th><td>5</td><td>1.02</td><td>1.01</td><td>1.0</td></tr>
+        <tr><th scope="row">كرة زجاج</th><td>5</td><td>1.01</td><td>1.01</td><td>0.0</td></tr>
+        <tr><th scope="row">كرة خشب</th><td>5</td><td>1.03</td><td>1.01</td><td>2.0</td></tr>
+        <tr><th scope="row">حجر</th><td>10</td><td>1.44</td><td>1.43</td><td>0.7</td></tr>
+        <tr><th scope="row">مفتاح</th><td>10</td><td>1.43</td><td>1.43</td><td>0.0</td></tr>
+        <tr><th scope="row">كرة مطاط</th><td>10</td><td>1.46</td><td>1.43</td><td>2.1</td></tr>
+        <tr><th scope="row">كتاب</th><td>20</td><td>2.04</td><td>2.02</td><td>1.0</td></tr>
+        <tr><th scope="row">ريشة</th><td>20</td><td>4.80</td><td>2.02</td><td>138</td></tr>
+      </tbody>
+    </table>
+    <figcaption>ثمانية أجسام من ثلاثة ارتفاعات؛ الريشة وحدها تخالف الحساب</figcaption>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 6. s6 / comparison / layout compare -> nm-l-hero-figure
+       TODO:
+       - table builds one step per data column from number 1 (data-steps="col"); if you add other steps on this slide, number them after the table's
+  -->
+  <section class="slide" id="s6" data-title="الهواء" data-rel="contrast" data-transition="auto" data-role="comparison">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">السبب</p>
+      <h2 class="nm-t-h2" data-morph="title">الهواء وحده يبطئ الريشة</h2>
+    </header>
+    <figure class="nm-table" data-id="air" aria-label="الهواء" data-steps="col" data-step-from="1" data-steps-act="highlight">
+    <table>
+      <thead>
+        <tr><th scope="col">الجسم</th><th scope="col">في الفراغ (ث)</th><th scope="col">في الهواء (ث)</th><th scope="col">الفرق (٪)</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">كرة حديد</th><td>1.43</td><td>1.44</td><td>0.7</td></tr>
+        <tr><th scope="row">كتاب</th><td>1.43</td><td>1.47</td><td>2.8</td></tr>
+        <tr><th scope="row">ريشة</th><td>1.43</td><td>3.40</td><td>138</td></tr>
+      </tbody>
+    </table>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 7. s7 / evidence / layout split -> nm-l-split
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="series"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit chart labels/values (line) in the nm-diagram script block
+  -->
+  <section class="slide" id="s7" data-title="المنحنى" data-rel="next" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">الشكل</p>
+      <h2 class="nm-t-h2" data-morph="title">المسافة تتبع مربع الزمن</h2>
+      <p class="nm-t-lead">المنحنى قطع مكافئ لا خط مستقيم</p>
+    </header>
+    <figure class="nm-diagram" data-type="line" data-id="curve" aria-label="المنحنى" data-nm-todo data-steps="series" data-step-from="1">
+    <script type="text/nm-diagram">
+      x: 2023, 2024, 2025, 2026
+      series السلسلة الأولى: 12, 18, 25, 31
+      series السلسلة الثانية: 20, 22, 23, 26
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 8. s8 / summary / layout cards -> nm-l-cards-3
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s8" data-title="الخلاصة" data-rel="back-out" data-transition="auto" data-role="summary">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-cards-3">
+    <header class="nm-head">
+      <p class="nm-kicker">الخلاصة</p>
+      <h2 class="nm-t-h2" data-morph="title">ما الذي تعلمناه</h2>
+    </header>
+    <article class="nm-card" data-step="1" data-act="focus"><p class="nm-t-body">السرعة تزداد بانتظام مع الزمن</p></article>
+    <article class="nm-card" data-step="2" data-act="focus"><p class="nm-t-body">المسافة تتبع مربع الزمن</p></article>
+    <article class="nm-card"><p class="nm-t-body">الكتلة لا تغير زمن السقوط في الفراغ</p></article>
+    </div>
+  </div>
+  </section>
+  </main>
+</div>
+
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+<script src="assets/nm/nm-table.js"></script>
+<script src="assets/nm/vendor/temml.min.js"></script>
+<script src="assets/nm/nm-math.js"></script>
+</body>
+</html>

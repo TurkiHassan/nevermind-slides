@@ -373,10 +373,14 @@
   // session on it, or on an element that contains it, would write the drawing back into the deck: refuse, and say
   // why. Classes cover decks whose staged runtime predates data-nm-generated.
   var GENERATED = '[data-nm-generated],.nm-dg-canvas,.nm-links';
+  // A formula (native <math>, or a data-tex host the runtime converts) is edited through its source, never retyped.
+  var FORMULA = 'math,[data-tex]';
   function readOnlyReason(el) {
     if (!el || !el.closest) return null;
+    if (el.closest(FORMULA)) return 'math';
     if (el.closest(GENERATED)) return 'generated';
     if (el.matches('.nm-diagram')) return 'diagram';
+    if (el.querySelector(FORMULA)) return 'contains-math'; // before generated: TeX hosts hold generated MathML
     if (el.querySelector(GENERATED + ',.nm-diagram')) return 'contains-generated';
     return null;
   }

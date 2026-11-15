@@ -1,0 +1,72 @@
+/* nm-math.css - Nevermind Runtime v2: equations (roadmap NM-11).
+   Native MathML is the default (Chromium renders it with no library). Formulas read left to right inside Arabic
+   slides; Chromium's own stylesheet already gives <math> direction: ltr, and these rules keep it so for the hosts too.
+   No math font is bundled: the stack below uses one installed on the machine, else the browser's math fallback. */
+
+:root { --nm-font-math: 'STIX Two Math', 'Latin Modern Math', 'Cambria Math', 'Noto Sans Math', math; }
+
+.slide math { font-family: var(--nm-font-math); }
+.slide math:not([dir]) { direction: ltr; }
+.slide math[display="block"] { display: block math; margin-block: 0.3em; }
+
+/* data-tex host: inline by default, a block with data-display="block" */
+.nm-math { display: inline-block; direction: ltr; unicode-bidi: isolate; }
+.nm-math[data-display="block"] { display: block; text-align: center; }
+.nm-math[data-display="block"] > math { display: block math; }
+
+/* an equation figure: one formula, or a derivation of several lines */
+.nm-equation {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 36px;
+  margin: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  font-size: var(--nm-eq-fit, var(--nm-eq-size, 88px));
+  color: var(--nm-ink, inherit);
+}
+.nm-equation:has(> .nm-eq-line) { font-size: var(--nm-eq-fit, var(--nm-eq-size, 64px)); gap: 40px; }
+.nm-equation math { font-size: 1em; }
+.nm-eq-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 48px;
+  inline-size: 100%;
+}
+.nm-eq-line > :is(math, .nm-math) { grid-column: 2; margin: 0; }
+.nm-eq-note {
+  grid-column: 3;
+  margin: 0;
+  font-family: var(--nm-font-body, inherit);
+  font-size: max(26px, 0.42em);
+  line-height: 1.5;
+  color: var(--nm-muted, #5b5f66);
+  text-align: start;
+  text-wrap: pretty;
+}
+.nm-equation > figcaption {
+  font-family: var(--nm-font-body, inherit);
+  font-size: 26px;
+  color: var(--nm-muted, #5b5f66);
+  text-align: center;
+}
+
+/* a term linked across equations (data-term): quiet emphasis while it is the current step */
+.slide [data-term].nm-highlighted { outline: 0; box-shadow: none; color: var(--nm-accent, #c2410c); }
+
+/* TeX shown raw because the converter is not staged (check reports C-MATH) */
+.nm-math-raw {
+  font-family: var(--nm-font-mono, ui-monospace, monospace);
+  font-size: 0.7em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  color: var(--nm-muted, #5b5f66);
+  border: 2px dashed currentColor;
+  border-radius: 8px;
+  padding: 0.1em 0.4em;
+}

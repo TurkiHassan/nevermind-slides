@@ -15,7 +15,12 @@
 //   C-BIDI            a Latin or numeric run with neutral punctuation inside Arabic text, not isolated (<bdi> or
 //                     dir); punctuation and order can jump
 //   C-WIDOW           a title ends with a single word on its last line
-//   C-DENSITY         more than 60 words of visible text on one slide (diagram labels excluded)
+//   C-DENSITY         more than 60 words of visible text on one slide (diagram labels, table cells and formulas
+//                     excluded)
+//   C-TABLE    error  a table (figure.nm-table) does not fit its figure, or its cells render below 20px; warn: rows
+//                     with different numbers of cells
+//   C-MATH     error  TeX shown raw (data-tex without the converter, a TeX parse error, or $...$ / \frac left in
+//                     the text), or a <math> element that renders nothing
 
 export const CODES = {
   "C-OUT": { tier: "HOLD", confidence: "confident", fix: "Move or shrink the element so it stays inside 1920x1080, or mark decoration aria-hidden / .nm-bleed." },
@@ -39,6 +44,8 @@ export const CODES = {
   "C-BIDI": { tier: "FIX", confidence: "likely", fix: "Wrap the Latin or numeric run in <bdi> (or give it dir=\"ltr\")." },
   "C-WIDOW": { tier: "NOTE", confidence: "likely", fix: "Rephrase the title or add text-wrap: balance so the last line holds two words or more." },
   "C-DENSITY": { tier: "NOTE", confidence: "possible", fix: "Move detail to the speaker note, a detail act or the next slide." },
+  "C-TABLE": { tier: "HOLD", confidence: "confident", fix: "Split the table (8 rows x 6 columns at most), shorten cell text, or give the figure a larger cell (hero-figure)." },
+  "C-MATH": { tier: "HOLD", confidence: "confident", fix: "Write the formula as MathML, or stage the converter (stage-runtime --math) and fix the TeX; never leave $...$ or \\frac in slide text." },
 };
 
 // ----------------------------------------------------------------------------------------------- in the page
@@ -87,6 +94,7 @@ export async function pageQuality(idx, png) {
   const tw = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT);
   for (let n; (n = tw.nextNode());) {
     if (!n.data.trim() || !n.parentElement || skip(n.parentElement) || !shown(n.parentElement)) continue;
+    if (n.parentElement.closest("math")) continue; // formulas: Latin by nature, checked by C-MATH
     texts.push(n);
   }
 
@@ -194,11 +202,52 @@ export async function pageQuality(idx, png) {
   // C-DENSITY: visible words, diagram labels and generated text excluded
   let words = 0;
   for (const t of texts) {
-    if (t.parentElement.closest(".nm-diagram, [data-nm-generated], svg, .nm-detail, .nm-sheet, .nm-sources")) continue; // image credits are required
+    if (t.parentElement.closest(".nm-diagram, [data-nm-generated], svg, .nm-detail, .nm-sheet, .nm-sources, table, .nm-math-raw")) continue; // image credits are required; tables are read by row
     words += (t.data.trim().match(/\S+/g) || []).length;
   }
   metrics.words = words;
   if (words > 60) add("C-DENSITY", null, `${words} words of visible text (budget 60)`, "warn", { words });
+
+  // C-TABLE: tables that do not fit their figure, or set below 20px
+  for (const fig of slide.querySelectorAll(".nm-table")) {
+    const table = fig.querySelector("table");
+    if (!table || !shown(fig)) continue;
+    const box = rectOf(fig), t = rectOf(table);
+    const cap = fig.querySelector(":scope > figcaption");
+    const bottom = Math.max(t.y + t.h, cap && shown(cap) ? rectOf(cap).y + rectOf(cap).h : 0);
+    if (t.x < box.x - 2 || t.x + t.w > box.x + box.w + 2 || bottom > box.y + box.h + 2) {
+      add("C-TABLE", fig, `the table (${table.rows.length} rows) does not fit its ${Math.round(box.w)}x${Math.round(box.h)} figure (needs ${Math.round(t.w)}x${Math.round(bottom - box.y)})`, "error", { box, table: t });
+    }
+    let smallest = Infinity, widest = 0;
+    const widths = new Set();
+    for (const tr of table.rows) {
+      let n = 0;
+      for (const c of tr.cells) { n += c.colSpan || 1; const f = parseFloat(cs(c).fontSize); if (f < smallest) smallest = f; }
+      widths.add(n); widest = Math.max(widest, n);
+    }
+    if (smallest < 19.5) add("C-TABLE", fig, `table cells render at ${Math.round(smallest)}px; keep them at 20px or more (split the table)`, "error", { fontSize: smallest });
+    const spans = Array.from(table.querySelectorAll("td, th")).some((c) => (c.rowSpan || 1) > 1);
+    if (widths.size > 1 && !spans) add("C-TABLE", fig, `table rows hold different numbers of cells (${[...widths].sort((a, b) => a - b).join(", ")}); give every row ${widest}`, "warn");
+  }
+
+  // C-MATH: TeX shown raw, formulas that render nothing
+  for (const raw of slide.querySelectorAll(".nm-math-raw")) {
+    if (!shown(raw)) continue;
+    const host = raw.closest("[data-tex]");
+    const why = host && host.getAttribute("data-nm-math-error") === "parse" ? "the TeX does not parse" : "the TeX converter (Temml) is not loaded";
+    add("C-MATH", host || raw, `formula "${raw.textContent.trim().slice(0, 40)}" is shown as raw TeX: ${why}`, "error");
+  }
+  const TEX = /\\(frac|sqrt|sum|int|alpha|beta|gamma|delta|theta|lambda|sigma|mu|pi|cdot|times|mathrm|mathbf|mathcal|left|right|partial|nabla|infty|hat|bar|vec)\b|\$[^$\s]*[\\^_{}][^$]*\$|\\\(|\\\[/;
+  for (const t of texts) {
+    if (t.parentElement.closest("code, pre, kbd, .nm-math-raw")) continue;
+    const m = TEX.exec(t.data);
+    if (m) { add("C-MATH", t.parentElement, `raw TeX in the text ("${t.data.slice(Math.max(0, m.index - 8), m.index + 20).trim()}"); write it as MathML or as data-tex`, "error"); break; }
+  }
+  for (const m of slide.querySelectorAll("math")) {
+    if (!shown(m) || (m.parentElement && m.parentElement.closest("math"))) continue;
+    const r = m.getBoundingClientRect();
+    if (m.textContent.trim() && (r.width < 1 || r.height < 1)) add("C-MATH", m, "a <math> element renders nothing (empty box)", "error");
+  }
 
   // C-FILL: diagrams and figures that draw on a small part of their box
   const fills = [];

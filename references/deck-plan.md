@@ -15,7 +15,7 @@ All commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command> ...`
 7. `check --html-path FILE [--shots DIR] [--slides 1-5]`. Needs Node 20+ and Chrome. Exit code 2 means Node or Chrome is missing (not a deck problem). Read the contact sheet PNG and the per-slide table. Fix, rerun.
 8. `open-files FILE` for the final look.
 
-Other commands: `stage-runtime --target-dir DIR [--inline]` copies `assets/nm/` (use `--inline` for a paste-in `nm-inline.html`). `scaffold --force` regenerates only the output HTML (the old one is kept as `.bak`); assets and placeholder images are never overwritten.
+Other commands: `stage-runtime --target-dir DIR [--inline] [--math]` copies `assets/nm/` (use `--inline` for a paste-in `nm-inline.html`; `--math` adds the optional TeX converter for hand-written `data-tex` formulas, see `references/tables-and-equations.md`). `scaffold --force` regenerates only the output HTML (the old one is kept as `.bak`); assets and placeholder images are never overwritten.
 
 ## Plan shape
 
@@ -45,9 +45,11 @@ Other commands: `stage-runtime --target-dir DIR [--inline]` copies `assets/nm/` 
 | `image_source` | `generate`, `web`, `none` |
 | `role` | `cover section concept mechanism evidence comparison process quote summary closing` |
 | `layout` | short names `cover section split split-rev hero stat cards compare diagram timeline quote center list`, or any real `nm-layout.css` composition: `title section split hero-figure figure-full bento-3..6 cards-2..4 rail quote stat-row compare steps` (table below) |
-| `visual.type` | `anatomy image diagram chart motion none` |
+| `visual.type` | `anatomy image diagram chart motion table equation none` (tables and equations: `references/tables-and-equations.md`) |
 | `visual.mode` | `static`, `animated` (required for anatomy) |
 | `visual.diagram_type` | what `nm-diagram.js` renders: `flow tree cycle hub swimlane sequence timeline layers matrix funnel pyramid venn compare bars line donut gauge stat`; friendly aliases `bar column` (bars), `area` (line with fill), `pie` (donut), `stack` (layers), `network graph` (flow), `kpi` (stat) |
+| `visual.columns`, `visual.rows` | table: header labels, then one list of cells per body row (text or numbers; numbers follow the deck's digit system, text is written as given). `row_headers` (default `true`) makes the first column label the rows. `highlight`: static emphasis such as `"r2 c3"`. `caption` |
+| `visual.mathml`, `visual.tex`, `visual.lines` | equation: one native `<math>` element (the default, no library), or TeX without `$` (scaffold then stages the optional Temml converter), or `lines`, a derivation: `[{ "mathml" or "tex", "note" }]`. `caption` |
 | `rel` | `next deeper back-out chapter contrast time` |
 | `transition` | `auto fade-through push zoom-through iris wipe curtain depth fold dissolve none` |
 | step `act` | `reveal zoom highlight focus detail lens pins slice draw` |
@@ -55,6 +57,10 @@ Other commands: `stage-runtime --target-dir DIR [--inline]` copies `assets/nm/` 
 `morph` lists shared element ids. Conventional ids: `title` (headline), `kicker`, `visual`, `stat`, `body1..bodyN`. The same id must be on the previous or the next slide.
 
 Step `target`: `headline`, `kicker`, `visual`, `stat`, `body` (the whole list), `bodyN` (item N), or `node:<id>` (a node of a flow, tree, cycle, hub, swimlane or sequence diagram; the node is created in the starter diagram and the step lands in the figure's `data-node-steps`, so any act works on a single node). Steps are numbered in the order you write them. Default target is `visual`. One element carries one step; give two steps to two elements.
+
+On a table, `reveal` or `highlight` on `visual:row` gives one step per body row, `visual:col` one per data column (highlight takes the header cell along; reveal keeps the header visible). On a derivation (`lines`), `reveal` on `visual:line` keeps the first line on screen and reveals the next ones one per step. The runtime numbers these steps from `data-step-from`, so later plan steps are renumbered for you.
+
+Inline formulas inside any text: write TeX between `\(` and `\)` (in JSON: `"\\(x^2\\)"`); scaffold turns it into an `nm-math` host and stages the converter.
 
 On a diagram or chart, `reveal` or `draw` on `visual` builds the whole figure in one step. Write `visual:rank` (graph diagrams) or `visual:series` (charts) to build it piece by piece; the diagram then takes a block of step numbers, so later steps are renumbered for you. If you edit the diagram by hand afterwards, renumber the other `data-step` values on that slide.
 
@@ -86,6 +92,11 @@ Errors block `scaffold`. Warnings are advice.
 | R121 | warn | Do not mix Western (0-9) and Arabic-Indic digits in one deck. |
 | R122 | warn | Custom theme contrast: ink on paper at least 7:1, accent on paper at least 3:1. |
 | R123 R124 | warn | Image without `ref` or `query`; diagram or chart without `diagram_type`. |
+| R125 | error | A table needs `columns` (2 or more) and `rows`, every row with one cell per column; `highlight` names existing rows (`r1`..) and data columns (`c1`..). |
+| R126 | warn | A table larger than 8 rows x 6 columns cannot stay at 20px or more. Split it, or move rows to a `detail` act. |
+| R127 | error | An equation (or each derivation line) needs exactly one of `mathml` (one `<math>` element, no scripts or event handlers) or `tex`. |
+| R128 | error | `tex` starts with a `$`, `\(` or `\[` delimiter. Write the formula without delimiters. |
+| R129 | warn | A derivation of more than 4 lines. Continue on the next slide and link the shared terms with `data-term`. |
 
 The report also lists a per-slide motion score (0 to 10) and the slides that are flat (score 2 or less). Give flat slides a morph, a step or an isolation act.
 
@@ -98,7 +109,7 @@ The report also lists a per-slide motion score (0 to 10) and the slides that are
 
 ## Language, digits and mixed text
 
-- One digit system per deck. English decks use Western digits. An Arabic deck uses Arabic-Indic digits unless its plan writes only Western ones; the starter chart data and section numbers follow the same rule.
+- One digit system per deck. Digits inside formulas do not count (MathML and TeX write Western digits). English decks use Western digits. An Arabic deck uses Arabic-Indic digits unless its plan writes only Western ones; the starter chart data and section numbers follow the same rule.
 - In Arabic decks, scaffold wraps Latin or numeric runs that carry punctuation or digits (`GPT-4 (2023)`, `v2.1`) in `<bdi>` so their order cannot jump. Plain Latin words are left alone. When you add such text by hand, wrap it the same way (`check` reports C-BIDI otherwise).
 - Text on an accent fill uses `--nm-on-accent`, which scaffold sets per theme by contrast (white on dark accents, the theme's dark colour on light ones).
 
@@ -117,6 +128,7 @@ Each slide becomes `<section class="slide" data-title data-rel data-transition>`
 | `cards` | `nm-l-cards-2..4` by body count (`nm-l-bento-*` with a visual) | `nm-head`, one `nm-card` per body point |
 | `compare` | `nm-l-compare` (with a visual: `nm-l-hero-figure`) | `nm-head`, two `nm-side` columns |
 | `quote` | `nm-l-quote` | `blockquote`, `cite` |
+| (any, with a table or equation) | as for a diagram: `nm-l-hero-figure` for `hero`/`diagram`/`compare`, `nm-l-split` 5:7 for `split` | `figure.nm-table` around a real `<table>`, or `figure.nm-equation` |
 | `list` | `nm-l-rail` (with a visual: `nm-l-split`) | `nm-rail-head`, `nm-rail-main` |
 
 One body point becomes a `nm-t-lead` paragraph, several become a `ul.nm-list`. Morph ids become `data-morph`; steps become `data-step` and `data-act`; a `detail` or `slice` step also writes the element `id` and a `<template data-detail-for>` to fill; a `pins` step on the visual writes a starter `.nm-pin`.
@@ -150,7 +162,9 @@ When you change the plan after editing the HTML, do not rerun `scaffold --force`
 | C-ARABIC | error: positive letter-spacing on Arabic text, or one Arabic word split across elements (the letters lose their joins). Warning: Arabic-Indic and Western digits on one slide. |
 | C-BIDI | warn: Latin or numeric text with punctuation inside Arabic (`GPT-4 (2023)`) and not isolated. Wrap it in `<bdi>`. |
 | C-WIDOW | warn: a title ends with one word on its own line. |
-| C-DENSITY | warn: more than 60 words of visible text (diagram labels and the image sources block excluded). |
+| C-DENSITY | warn: more than 60 words of visible text (diagram labels, table cells, formulas and the image sources block excluded). |
+| C-TABLE | error: a table does not fit its figure, or its cells render below 20px (the runtime already set it as small as 20px). Warning: rows with different numbers of cells. |
+| C-MATH | error: TeX shown raw (a `data-tex` formula without the converter, a TeX parse error, or `\frac`, `$x^2$` left in the text), or a `<math>` element that renders nothing. |
 | C-FILL | warn: a diagram draws on less than 45% of its box. Let it grow (`data-grow`) or give it a smaller cell. |
 | C-EMPTY | warn: a content slide carries ink on less than 4% of the stage (cover, section, quote and closing exempt). |
 | C-DRIFT | warn: the title of a top-anchored composition sits more than 8px from the titles of the other slides with the same composition. |

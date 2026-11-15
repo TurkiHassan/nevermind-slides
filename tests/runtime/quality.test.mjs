@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const HELPER = join(ROOT, "scripts", "deck_helper.py");
-const NEW_CODES = ["C-FRAME", "C-ARABIC", "C-EMPTY", "C-FILL", "C-DRIFT", "C-BIDI", "C-WIDOW", "C-DENSITY"];
+const NEW_CODES = ["C-FRAME", "C-ARABIC", "C-EMPTY", "C-FILL", "C-DRIFT", "C-BIDI", "C-WIDOW", "C-DENSITY", "C-TABLE", "C-MATH"];
 let tmp;
 
 function stage(src, name) {
@@ -58,8 +58,17 @@ describe("quality codes on the violations fixture", () => {
     expect(11, "C-DRIFT");
     for (const s of [9, 10, 12]) assert.deepEqual(codesOn(res.report, s).filter((i) => i.code === "C-DRIFT"), [], `slide ${s}`);
   });
-  it("clean slides raise none of the new codes", () => {
-    for (const s of [1, 13]) assert.deepEqual(codesOn(res.report, s), [], `slide ${s}`);
+  it("C-TABLE: a table taller than its figure is an error, after the runtime set it at the 20px floor", () => {
+    const hits = expect(14, "C-TABLE", "error");
+    assert.ok(hits.some((h) => /does not fit/.test(h.message)), JSON.stringify(hits));
+  });
+  it("C-MATH: TeX left in the text and a data-tex formula without the converter are errors", () => {
+    const hits = expect(15, "C-MATH", "error");
+    assert.ok(hits.some((h) => /raw TeX in the text/.test(h.message)), "\\frac in a paragraph");
+    assert.ok(hits.some((h) => /converter/.test(h.message)), "data-tex without Temml");
+  });
+  it("clean slides raise none of the new codes (a table, and Western digits inside a formula next to Arabic-Indic text)", () => {
+    for (const s of [1, 13, 16]) assert.deepEqual(codesOn(res.report, s), [], `slide ${s}`);
   });
   it("errors fail the check; quality.json classifies every finding", () => {
     assert.equal(res.status, 1);

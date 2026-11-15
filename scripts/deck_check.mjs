@@ -225,8 +225,17 @@ function pageInspect(idx) {
 
   // text blocks
   const texts = [];
+  const MATHML = "http://www.w3.org/1998/Math/MathML";
   for (const el of all) {
     if (inSvg(el) || decor(el)) continue;
+    // a formula is one text block: its tokens sit tight and scripts are smaller by design (NM-11)
+    if (el.namespaceURI === MATHML) {
+      if (el.localName !== "math" || (el.parentElement && el.parentElement.closest("math"))) continue;
+      const rc = el.getBoundingClientRect();
+      if (rc.width < 1 || rc.height < 1) continue;
+      texts.push({ el, client: { left: rc.left, top: rc.top, right: rc.right, bottom: rc.bottom }, rect: toStage({ left: rc.left, top: rc.top, width: rc.width, height: rc.height }), text: short(el.textContent.replace(/\s+/g, " ").trim()) });
+      continue;
+    }
     const own = Array.from(el.childNodes).filter((n) => n.nodeType === 3 && n.textContent.trim());
     if (!own.length) continue;
     const range = document.createRange();

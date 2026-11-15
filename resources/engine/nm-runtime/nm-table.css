@@ -1,0 +1,89 @@
+/* nm-table.css - Nevermind Runtime v2: data tables (roadmap NM-10).
+   A real <table> inside <figure class="nm-table">: editable, copyable, read by screen readers. Columns follow the
+   deck direction (dir="rtl" puts the first column on the right). Numeric columns (marked by nm-table.js) align to
+   the physical right in both directions: digits run left to right in Arabic and Latin alike, so the right edge lines
+   up units with units. Reads theme variables (contract section 6) with fallbacks. */
+
+.nm-table {
+  --tb-ink: var(--nm-ink, #1b1d22);
+  --tb-muted: var(--nm-muted, color-mix(in oklab, var(--tb-ink) 60%, var(--tb-paper)));
+  --tb-paper: var(--nm-paper, var(--slide-bg, #fbfaf7));
+  --tb-line: var(--nm-line, color-mix(in oklab, var(--tb-ink) 22%, var(--tb-paper)));
+  --tb-accent: var(--nm-accent, var(--lp-accent, #c2410c));
+  --tb-surface: var(--nm-surface, color-mix(in oklab, var(--tb-paper) 86%, #fff));
+  --tb-hl: color-mix(in oklab, var(--tb-accent) 16%, var(--tb-paper));
+  --tb-size: 28px;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  margin: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  color: var(--tb-ink);
+  font-family: var(--nm-font-body, inherit);
+  font-size: var(--nm-tb-fit, var(--tb-size));
+  line-height: 1.45;
+}
+.nm-table > table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 1em;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+.nm-table :is(th, td) {
+  padding: 0.5em 0.85em;
+  text-align: start;
+  vertical-align: middle;
+  border-block-end: 1.5px solid var(--tb-line);
+  text-wrap: pretty;
+  transition: background-color 0.35s cubic-bezier(0.2, 0, 0, 1), color 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+.nm-table thead th {
+  font-family: var(--nm-font-display, inherit);
+  font-weight: 700;
+  font-size: 0.86em;
+  color: var(--tb-muted);
+  border-block-end: 3px solid var(--tb-ink);
+  padding-block: 0.4em 0.55em;
+  text-wrap: balance;
+}
+.nm-table tbody th { font-weight: 600; }
+.nm-table tbody tr:last-child > * { border-block-end: 0; }
+.nm-table tfoot :is(th, td) { border-block-start: 3px solid var(--tb-ink); border-block-end: 0; font-weight: 700; }
+.nm-table > table > caption,
+.nm-table > figcaption {
+  caption-side: bottom;
+  margin-block-start: 0.6em;
+  font-size: max(20px, 0.78em);
+  color: var(--tb-muted);
+  text-align: start;
+}
+
+/* numeric cells (nm-table.js adds .nm-tb-num to every cell of a column that holds numbers) */
+.nm-table .nm-tb-num { text-align: right; white-space: nowrap; }
+
+/* emphasis: data-highlight="r3 c2" (static) and the highlight act on a row or a column */
+.nm-table :is(th, td).nm-tb-hl,
+.nm-table tr.nm-tb-hl > :is(th, td) { background: var(--tb-hl); color: var(--tb-ink); font-weight: 700; }
+.nm-table tr.nm-highlighted,
+.nm-table :is(th, td).nm-highlighted {
+  outline: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+.nm-table tr.nm-highlighted > :is(th, td),
+.nm-table :is(th, td).nm-highlighted { background: var(--tb-hl); color: var(--tb-ink); }
+.nm-table tr.nm-highlighted > :first-child { box-shadow: inset calc(4px * var(--tb-start-sign, 1)) 0 0 var(--tb-accent); }
+.nm-table:dir(rtl) { --tb-start-sign: -1; }
+
+body.nm-instant .nm-table :is(th, td) { transition: none !important; }
+
+@media print {
+  .nm-table :is(th, td) { transition: none; }
+}

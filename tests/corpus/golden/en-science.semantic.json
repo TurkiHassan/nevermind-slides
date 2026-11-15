@@ -1,0 +1,614 @@
+[
+ {
+  "slide": 1,
+  "step": 0,
+  "active": [
+   1
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 2,
+  "step": 0,
+  "active": [
+   2
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s2.div#2",
+   "s2.div#3",
+   "s2.div#4"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "arch",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 2,
+  "step": 1,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.div#2"
+  ],
+  "current": [
+   "s2.div#2"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s2.div#3",
+   "s2.div#4"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "arch",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 1
+   }
+  ]
+ },
+ {
+  "slide": 2,
+  "step": 2,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.g#0",
+   "s2.div#2",
+   "s2.div#3"
+  ],
+  "current": [
+   "s2.g#0",
+   "s2.div#3"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s2.div#4"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "arch",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 2
+   }
+  ]
+ },
+ {
+  "slide": 2,
+  "step": 3,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.g#0",
+   "s2.g#1",
+   "s2.div#2",
+   "s2.div#3",
+   "s2.div#4"
+  ],
+  "current": [
+   "s2.g#1",
+   "s2.div#4"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "arch",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 0,
+  "active": [
+   3
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s3.li#0",
+   "s3.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 3,
+  "step": 1,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.li#0"
+  ],
+  "current": [
+   "s3.li#0"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s3.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 3,
+  "step": 2,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.li#0",
+   "s3.li#1"
+  ],
+  "current": [
+   "s3.li#1"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 4,
+  "step": 0,
+  "active": [
+   4
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s4.div#0",
+   "s4.div#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 4,
+  "step": 1,
+  "active": [
+   4
+  ],
+  "stepsOn": [
+   "s4.div#0"
+  ],
+  "current": [
+   "s4.div#0"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s4.div#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 4,
+  "step": 2,
+  "active": [
+   4
+  ],
+  "stepsOn": [
+   "s4.div#0",
+   "s4.div#1"
+  ],
+  "current": [
+   "s4.div#1"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 0,
+  "active": [
+   5
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 1,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.tr#0"
+  ],
+  "current": [
+   "s5.tr#0"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 2,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.tr#0",
+   "s5.tr#1"
+  ],
+  "current": [
+   "s5.tr#1"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 3,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.tr#0",
+   "s5.tr#1",
+   "s5.tr#2"
+  ],
+  "current": [
+   "s5.tr#2"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 4,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.tr#0",
+   "s5.tr#1",
+   "s5.tr#2",
+   "s5.tr#3"
+  ],
+  "current": [
+   "s5.tr#3"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 5,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.tr#0",
+   "s5.tr#1",
+   "s5.tr#2",
+   "s5.tr#3",
+   "s5.tr#4"
+  ],
+  "current": [
+   "s5.tr#4"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 6,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.tr#0",
+   "s5.tr#1",
+   "s5.tr#2",
+   "s5.tr#3",
+   "s5.tr#4",
+   "s5.tr#5"
+  ],
+  "current": [
+   "s5.tr#5"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 5,
+  "step": 7,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.tr#0",
+   "s5.tr#1",
+   "s5.tr#2",
+   "s5.tr#3",
+   "s5.tr#4",
+   "s5.tr#5"
+  ],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 6,
+  "step": 0,
+  "active": [
+   6
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s6.circle#2",
+   "s6.circle#3",
+   "s6.div#4",
+   "s6.div#5"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "curve",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 6,
+  "step": 1,
+  "active": [
+   6
+  ],
+  "stepsOn": [
+   "s6.path#0",
+   "s6.circle#2",
+   "s6.div#4"
+  ],
+  "current": [
+   "s6.path#0",
+   "s6.circle#2",
+   "s6.div#4"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s6.circle#3",
+   "s6.div#5"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "curve",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 6,
+  "step": 2,
+  "active": [
+   6
+  ],
+  "stepsOn": [
+   "s6.path#0",
+   "s6.path#1",
+   "s6.circle#2",
+   "s6.circle#3",
+   "s6.div#4",
+   "s6.div#5"
+  ],
+  "current": [
+   "s6.path#1",
+   "s6.circle#3",
+   "s6.div#5"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "curve",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 7,
+  "step": 0,
+  "active": [
+   7
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 7,
+  "step": 1,
+  "active": [
+   7
+  ],
+  "stepsOn": [
+   "s7.article#0"
+  ],
+  "current": [
+   "s7.article#0"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [
+   "div"
+  ],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 7,
+  "step": 2,
+  "active": [
+   7
+  ],
+  "stepsOn": [
+   "s7.article#0"
+  ],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ }
+]

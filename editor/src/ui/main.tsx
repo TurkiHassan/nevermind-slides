@@ -9,6 +9,7 @@ import { bringUpToDate, eventLog, refreshState, reloadPreview, serial, subscribe
 import { Fihris, thumbStats } from './fihris.tsx';
 import { elementByKey, loadPreview } from './frame.ts';
 import { DiagramDialog } from './diagram-dialog.tsx';
+import { FormulaDialog } from './formula-dialog.tsx';
 import { ExportDialog } from './export-dialog.tsx';
 import { Header } from './header.tsx';
 import { Panel } from './panel.tsx';
@@ -116,6 +117,7 @@ function App() {
       <Toast />
       <ExportDialog />
       <DiagramDialog />
+      <FormulaDialog />
     </div>
   );
 }
