@@ -54,6 +54,7 @@ describe("motion metrics (NM-08)", () => {
       assert.ok(s.motion.settle_ms > 0 && s.motion.settle_ms < 5000, `slide ${s.slide}: ${s.motion.settle_ms}ms`);
       assert.ok(s.motion.max_running >= 0);
       assert.equal(s.motion.observer, true, "long animation frames observed");
+      for (const k of ["long_script_ms", "long_render_ms", "long_other_ms"]) assert.ok(Number.isFinite(s.motion[k]), k);
     }
   });
 });

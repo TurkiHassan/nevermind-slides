@@ -400,7 +400,15 @@ export async function pageMotion(idx) {
   let observer = null;
   for (const type of ["long-animation-frame", "longtask"]) {
     try {
-      observer = new PerformanceObserver((list) => { for (const e of list.getEntries()) frames.push(Math.round(e.duration)); });
+      observer = new PerformanceObserver((list) => {
+        for (const e of list.getEntries()) {
+          // where a long frame went (Long Animation Frames): scripts, then style, layout and paint, then the rest
+          // (raster, compositing, decoding, GC outside the main thread's scripts); roadmap NM-18 decides on this
+          const script = (e.scripts || []).reduce((n, x) => n + x.duration, 0);
+          const render = e.styleAndLayoutStart ? e.startTime + e.duration - e.styleAndLayoutStart : 0;
+          frames.push({ d: Math.round(e.duration), script: Math.round(script), render: Math.round(render) });
+        }
+      });
       observer.observe({ type, buffered: false });
       break;
     } catch (e) { observer = null; }
@@ -421,6 +429,11 @@ export async function pageMotion(idx) {
   sampling = false;
   await new Promise((res) => setTimeout(res, 30));
   if (observer) observer.disconnect();
-  const long = frames.filter((d) => d >= 50);
-  return { settle_ms: settle, max_running: maxRunning, long_frames: long.length, longest_frame_ms: long.length ? Math.max(...long) : 0, observer: !!observer };
+  const long = frames.filter((f) => f.d >= 50);
+  const sum = (k) => long.reduce((n, f) => n + f[k], 0);
+  return {
+    settle_ms: settle, max_running: maxRunning, long_frames: long.length, longest_frame_ms: long.length ? Math.max(...long.map((f) => f.d)) : 0,
+    long_script_ms: sum("script"), long_render_ms: sum("render"), long_other_ms: Math.max(0, sum("d") - sum("script") - sum("render")),
+    observer: !!observer,
+  };
 }

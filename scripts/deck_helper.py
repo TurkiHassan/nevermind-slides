@@ -474,6 +474,8 @@ def cmd_stage_fonts(args: argparse.Namespace) -> int:
 
 ACTS = ("reveal", "zoom", "highlight", "focus", "detail", "lens", "pins", "slice", "draw")
 ISOLATION_ACTS = ("focus", "detail", "lens", "pins", "slice")
+# Acts a hand-written deck may use beyond the plan's: gsap comes from the optional adapter nm-gsap.js (NM-17).
+RUNTIME_ACTS = ACTS + ("gsap",)
 ONCE_PER_SLIDE_ACTS = ("detail", "slice", "lens")
 TRANSIENT_ACTS = ("zoom", "highlight", "focus", "detail", "lens", "pins", "slice")
 TRANSITIONS = (
@@ -2714,7 +2716,7 @@ def _audit_contract(
         where = f"Slide {slide + 1}" if slide is not None else "Deck"
         checks: list[tuple[str, tuple[str, ...]]] = []
         if "data-act" in a:
-            checks.append(("data-act", ACTS))
+            checks.append(("data-act", RUNTIME_ACTS))
         if "data-transition" in a:
             checks.append(("data-transition", TRANSITIONS))
         if "data-nm-transition" in a:
@@ -2773,6 +2775,14 @@ def _audit_contract(
                                  "assets/nm/vendor/temml.min.js before nm-math.js (or write the formula as MathML, which needs nothing).")
         elif "nm-math.js" in linked and content.find("vendor/temml.min.js") > content.find("nm-math.js"):
             module_issues.append("error:assets/nm/vendor/temml.min.js must be linked before nm-math.js.")
+    if any(e["attrs"].get("data-act") == "gsap" for e in dom.elements):
+        if "nm-gsap.js" not in linked:
+            module_issues.append("error:The deck uses data-act=\"gsap\" but does not link assets/nm/nm-gsap.js; add it after nm-deck.js.")
+        if not re.search(r"<script[^>]+src=[\"'][^\"']*gsap[^\"']*(?<!nm-gsap\.js)[\"']", content):
+            module_issues.append("warn:data-act=\"gsap\" needs GSAP itself (window.gsap), which the skill does not bundle; without it those elements only fade in. Link a local copy of GSAP before nm-gsap.js.")
+    bad_at = sorted({e["attrs"]["data-at"] for e in dom.elements if "data-at" in e["attrs"] and not re.fullmatch(r"\s*(?:(?:<|>|@[\w-]+)\s*)?(?:[+-]=\s*)?(?:-?[\d.]+\s*(?:ms|s)?)?\s*", e["attrs"]["data-at"]) or (e["attrs"].get("data-at", "x").strip() == "")})
+    for v in bad_at:
+        module_issues.append(f"warn:data-at=\"{v}\" cannot be read; write <, >, +=200, <+=150, 300 or @label (references/morph-and-motion.md).")
     for issue in module_issues:
         kind, msg = issue.split(":", 1)
         (errors if kind == "error" else warnings).append(msg)

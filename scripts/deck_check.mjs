@@ -677,7 +677,7 @@ async function main() {
         if (!r) continue;
         r.motion = m;
         if (m.settle_ms > 2000) r.issues.push({ code: "C-MOTION", severity: "warn", message: `the slide takes ${m.settle_ms}ms to arrive at full speed (budget 2000ms: transition, morph and entrances)`, selector: "", evidence: m });
-        if (m.long_frames) r.issues.push({ code: "C-JANK", severity: "warn", message: `${m.long_frames} frame(s) of 50ms or more while the slide arrives (longest ${m.longest_frame_ms}ms)`, selector: "", evidence: m });
+        if (m.long_frames) r.issues.push({ code: "C-JANK", severity: "warn", message: `${m.long_frames} frame(s) of 50ms or more while the slide arrives (longest ${m.longest_frame_ms}ms; scripts ${m.long_script_ms}ms, style, layout and paint ${m.long_render_ms}ms, other ${m.long_other_ms}ms)`, selector: "", evidence: m });
       }
     }
 

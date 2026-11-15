@@ -24,6 +24,7 @@ The single source of truth for how the bundled runtime files fit together. A dec
 | `nm-media.css` | Image frames, focal crop, masks, duotone/grain treatments, slow camera moves |
 | `nm-table.css`, `nm-table.js` | Optional. Data tables: row and column steps, numeric alignment, highlight, fit between 20px and 36px |
 | `nm-math.css`, `nm-math.js` | Optional. Equations: native MathML (no library), `data-tex` through the optional converter, `data-term` morph pairs, fit |
+| `nm-gsap.js` | Optional GSAP adapter (`data-act="gsap"`); contains no GSAP and loads nothing, works only when the deck provides `window.gsap` |
 | `vendor/temml.min.js` | Optional, staged only by `stage-runtime --math`: TeX to MathML (Temml, MIT). Never fetched from the network |
 | `scripts/image_fetch.py` | Web image search, download, crop, treat, credits |
 
@@ -113,6 +114,9 @@ Any element inside a slide may carry `data-step="N"` (N ≥ 1) and `data-act="<a
 | `highlight` | core | element gets `.is-current` emphasis, nothing else changes | yes |
 | `focus`, `detail`, `lens`, `pins`, `slice` | nm-focus | isolation acts | yes |
 | `draw` | nm-diagram | strokes draw on | no |
+| `gsap` | nm-gsap | a GSAP tween on the step's timeline (`data-gsap` JSON: `from`, `duration`, `ease`); without `window.gsap` a plain fade | no |
+
+Timing inside a step (`data-at`, NM-14): `"<"` with the previous element of the step, `">"` or `"+=200"` when it ends (plus or minus ms), `"<+=150"` after it starts, `"300"` from the step start, `"@name"` at a label set by `data-at-label="name"`; `s` or `ms` units. Resolved by core into `ctx.at` (ms) for lasting acts; `reveal` adds it to the entrance delay. Steps without `data-at` are unchanged.
 
 Tables (`figure.nm-table`): `data-steps="row|col|none"` gives one step per body row or data column, numbered from `data-step-from` (else after the slide's other steps); `data-steps-act="reveal|highlight"` (reveal keeps the header visible, highlight takes the header cell along); `data-highlight="r2 c3"` is static emphasis. Equations: a derivation reveals `div.nm-eq-line` elements with ordinary `data-step`; `data-term="x"` on a formula part pairs it with the same term on the neighbouring slide for Morph.
 

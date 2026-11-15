@@ -212,7 +212,7 @@ When you change the plan after editing the HTML, do not rerun `scaffold --force`
 | C-MATH | error: TeX shown raw (a `data-tex` formula without the converter, a TeX parse error, or `\frac`, `$x^2$` left in the text), or a `<math>` element that renders nothing. |
 | C-BASELINE | with `--baseline DIR`: a screenshot differs from the saved one on more than 0.05% of its pixels (an unchanged deck differs by 0 on the same machine, one changed word by about 0.2%); a diff image goes to `<shots>/diff/`. `--save-baseline DIR` saves one; `--baseline-strict` makes it an error; `--steps` adds every step. Compare on the machine that made the baseline (fonts and Chrome change antialiasing). |
 | C-MOTION | with `--motion`: a slide takes more than 2000ms to arrive at full speed (transition, morph and entrances). `report.json` records per slide `settle_ms`, the most animations running at once, and long frames. |
-| C-JANK | with `--motion`: frames of 50ms or more while a slide arrives. Machine dependent: confirm on the presenting computer. |
+| C-JANK | with `--motion`: frames of 50ms or more while a slide arrives, with where the time went (scripts; style, layout and paint; other: raster, compositing, decoding). Machine dependent: confirm on the presenting computer. |
 | C-FILL | warn: a diagram draws on less than 45% of its box. Let it grow (`data-grow`) or give it a smaller cell. |
 | C-EMPTY | warn: a content slide carries ink on less than 4% of the stage (cover, section, quote and closing exempt). |
 | C-DRIFT | warn: the title of a top-anchored composition sits more than 8px from the titles of the other slides with the same composition. |

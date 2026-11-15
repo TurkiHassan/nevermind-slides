@@ -311,6 +311,46 @@
   function makeCtx(slide, step, dir, instant, extra) {
     return Object.assign({ deck: deck, slide: slide, rig: rigOf(slide), step: step, dir: dir, instant: !!instant || instantNow() }, extra || {});
   }
+  /* data-at (roadmap NM-14): when an element starts inside its step, in the spirit of GSAP's position parameter.
+       (absent)   with the step (0ms)            "300"      300ms after the step starts
+       "<"        with the previous element      "<+=150"   150ms after the previous element starts
+       ">"        when the previous one ends     "+=200"    200ms after it ends ("-=200": 200ms before)
+       "@name"    at a label: data-at-label="name" on an element names the moment it starts ("@name+=100")
+     "Previous" is the previous element of the same step in document order. Only lasting acts with an entrance
+     (reveal, and plugins that read ctx.at) are timed; transient acts are not. Steps without data-at are untouched. */
+  function parseAt(v) {
+    v = String(v || '').trim();
+    var m = /^(?:(<|>|@[\w-]+))?\s*(?:([+-])=)?\s*(-?[\d.]+)?\s*(ms|s)?$/.exec(v);
+    if (!m || (!m[1] && !m[2] && m[3] == null)) return null;
+    var n = m[3] != null ? parseFloat(m[3]) * (m[4] === 's' ? 1000 : 1) : 0;
+    return { anchor: m[1] || (m[2] ? '>' : null), delta: m[2] === '-' ? -n : n, label: m[1] && m[1].charAt(0) === '@' ? m[1].slice(1) : null };
+  }
+  function stepTimer(step) {
+    if (!step.items.some(function (it) { return it.el.hasAttribute('data-at') || it.el.hasAttribute('data-at-label'); })) return null;
+    var prev = null, labels = {}, starts = new Map();
+    function endOf(e) {
+      var anims = e._nmAnims || [], end = starts.get(e) || 0;
+      anims.forEach(function (a) { var t = a.effect && a.effect.getTiming(); if (t) end = Math.max(end, (t.delay || 0) + (t.duration || 0)); });
+      return end;
+    }
+    return {
+      start: function (e) {
+        var spec = parseAt(e.getAttribute('data-at')), t = 0;
+        if (spec) {
+          if (spec.label) t = (labels[spec.label] || 0) + spec.delta;
+          else if (spec.anchor === '<') t = (prev ? starts.get(prev) : 0) + spec.delta;
+          else if (spec.anchor === '>') t = (prev ? endOf(prev) : 0) + spec.delta;
+          else t = spec.delta;
+        } else if (e.hasAttribute('data-at') && window.console) console.warn('[nm-deck] cannot read data-at="' + e.getAttribute('data-at') + '" (write <, >, +=200, <+=150, 300 or @label)');
+        t = Math.max(0, t);
+        starts.set(e, t);
+        var name = e.getAttribute('data-at-label');
+        if (name) labels[name] = t;
+        return t;
+      },
+      done: function (e) { prev = e; }
+    };
+  }
   function enterItem(slide, it, ctx) {
     it.el.classList.add('is-on');
     var a = acts[it.act];
@@ -345,9 +385,13 @@
     if (target > cur) {
       for (var i = cur + 1; i <= target; i++) {
         var stepI = steps[i - 1], last = i === target;
+        var timing = stepTimer(stepI);
         stepI.items.forEach(function (it) {
           if (isTransient(it.act) && (!last || o.deferTransient)) { it.el.classList.add('is-on'); return; }
-          enterItem(slide, it, makeCtx(slide, i, 1, instant || !last));
+          var ctx = makeCtx(slide, i, 1, instant || !last);
+          if (timing) ctx.at = timing.start(it.el);
+          enterItem(slide, it, ctx);
+          if (timing) timing.done(it.el);
         });
       }
     } else if (target < cur) {
@@ -495,7 +539,7 @@
     NM.registerAct('reveal', {
       enter: function (e, ctx) {
         if (ctx.instant) return;
-        playEntrance(e, e.getAttribute('data-entrance') || 'rise', { dir: ctx.dir, delay: parseFloat(e.getAttribute('data-entrance-delay')) || 0 }, entranceBucket);
+        e._nmAnims = playEntrance(e, e.getAttribute('data-entrance') || 'rise', { dir: ctx.dir, delay: (ctx.at || 0) + (parseFloat(e.getAttribute('data-entrance-delay')) || 0) }, entranceBucket);
       },
       exit: function (e, ctx) {
         if (ctx.instant) return;

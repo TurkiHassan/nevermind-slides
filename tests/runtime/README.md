@@ -23,6 +23,8 @@ NODE_PATH=$(npm root -g) npm test
 | `baseline.test.mjs` | visual baseline (NM-07): an unchanged deck matches exactly, one changed word is caught with a diff image, strict mode fails; motion metrics (NM-08) per slide |
 | `annotations.test.mjs` | error bars and the scatter type (NM-12) on the diagram lab: whiskers and caps, bars from zero, labels 18px or more, points, trend, axis titles with units, right-to-left axis |
 | `eval.test.mjs` | the A/B harness (NM-27): identical runs tie, a broken gate loses, deterministic output, blind packets, verdicts counted with the key |
+| `timing.test.mjs` | `data-at` (NM-14): a chain of three on the animation timeline within ±16ms, absolute times, overlaps, labels, unchanged steps, nothing animated at speed 0 (fixture `fixtures/timing`) |
+| `gsap.test.mjs` | `nm-gsap.js` (NM-17) with a recording stand-in for `window.gsap`: one timeline per step, `data-at` positions, only tweened properties cleared, nothing at speed 0, a fade and one warning without GSAP |
 
 ## Visual thresholds (calibrated, not uniform)
 

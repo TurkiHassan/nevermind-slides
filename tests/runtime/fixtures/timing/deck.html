@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>توقيت داخل الخطوة</title>
+<meta name="nm-runtime" content="2">
+<link rel="stylesheet" href="../../../../resources/engine/nm-runtime/nm-deck.css">
+<link rel="stylesheet" href="../../../../resources/engine/nm-runtime/nm-layout.css">
+<style> html, body { margin: 0; height: 100%; background: #f7f4ee; } </style>
+</head>
+<body dir="rtl" data-nm-mode="morph-and-zoom">
+<!-- Fixture for tests/runtime/timing.test.mjs (data-at, roadmap NM-14) and gsap.test.mjs (nm-gsap.js, NM-17). -->
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+    <section class="slide" data-title="سلسلة">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-title">
+        <h2 class="nm-t-h1">ثلاثة عناصر في خطوة واحدة</h2>
+        <p class="nm-t-lead" id="a" data-step="1">الأول يبدأ مع الخطوة</p>
+        <p class="nm-t-lead" id="b" data-step="1" data-at="&lt;+=200">الثاني بعد بداية الأول بمئتي جزء من الثانية</p>
+        <p class="nm-t-lead" id="c" data-step="1" data-at="&gt;">الثالث حين ينتهي الثاني</p>
+      </div></div>
+    </section>
+    <section class="slide" data-title="تسميات" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-title">
+        <h2 class="nm-t-h1">نقطة مسمّاة</h2>
+        <p class="nm-t-lead" id="d" data-step="1" data-at="300" data-at-label="mid">يبدأ بعد ثلاثمئة</p>
+        <p class="nm-t-lead" id="e" data-step="1" data-at="+=-100">قبل نهاية السابق بمئة</p>
+        <p class="nm-t-lead" id="f" data-step="1" data-at="@mid+=50">بعد النقطة المسمّاة بخمسين</p>
+        <p class="nm-t-lead" id="g" data-step="1">دون data-at: مع الخطوة</p>
+      </div></div>
+    </section>
+    <section class="slide" data-title="GSAP" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-title">
+        <h2 class="nm-t-h1">محوّل GSAP</h2>
+        <p class="nm-t-lead" id="g1" data-step="1" data-act="gsap" data-gsap='{"from": {"x": 80, "opacity": 0}, "duration": 0.6}'>عنصر يحرّكه GSAP</p>
+        <p class="nm-t-lead" id="g2" data-step="1" data-act="gsap" data-at="&lt;+=250" data-gsap='{"from": {"y": 40, "opacity": 0}}'>عنصر ثان في الخط الزمني نفسه</p>
+        <p class="nm-t-lead" id="g3" data-step="2" data-act="gsap">خطوة ثانية بالإعداد الافتراضي</p>
+      </div></div>
+    </section>
+  </main>
+</div>
+<script src="../../../../resources/engine/nm-runtime/nm-deck.js"></script>
+<script src="../../../../resources/engine/nm-runtime/nm-gsap.js"></script>
+</body>
+</html>
