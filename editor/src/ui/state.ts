@@ -53,7 +53,7 @@ export type Banner =
   | { kind: 'error'; message: string };
 export const banner = signal<Banner | null>(null);
 /** A quiet status message, by dictionary key so it follows a language switch. */
-export type ToastKey = 'agentUpdated' | 'savedToast' | 'resolvedReload' | 'resolvedOk';
+export type ToastKey = 'agentUpdated' | 'savedToast' | 'resolvedReload' | 'resolvedOk' | 'readOnlyGenerated';
 export const toast = signal<ToastKey | null>(null);
 
 export const slideCount = computed(() => info.value?.slides.length ?? 0);

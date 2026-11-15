@@ -5,6 +5,7 @@ import { requirePatchable } from './attrs.ts';
 import { escapeText, isCollapsible, normaliseVisible, textUnits } from './html-text.ts';
 import { RAW_TEXT_TAGS, VOID_TAGS, type SourceDoc, type SourceNode } from './source.ts';
 import type { Splice } from './splice.ts';
+import { isDiagramSource, runtimeOwned, runtimeOwnedMessage } from './runtime-owned.ts';
 
 /** One visible UTF-16 code unit with the raw range it comes from. */
 interface VisibleChar {
@@ -155,6 +156,9 @@ function within(doc: SourceDoc, id: number, ancestor: number): boolean {
 
 /** Minimal splices that make `visibleText(doc, id)` equal `normaliseVisible(next)`. */
 export function setText(doc: SourceDoc, id: number, next: string): Splice[] {
+  if (isDiagramSource(requirePatchable(doc, id))) return setDiagramSource(doc, id, next);
+  const owned = runtimeOwned(doc, id);
+  if (owned) throw new OpError('unsupported', runtimeOwnedMessage(id, owned));
   const root = requireTextTarget(doc, id);
   const chars = visibleChars(doc, root);
   const want = normaliseVisible(next);
@@ -225,4 +229,22 @@ export function setText(doc: SourceDoc, id: number, next: string): Splice[] {
     else splices.push({ start: at, end: at, text: escapeInserted(inserted) });
   }
   return splices;
+}
+
+/**
+ * Replace the DSL of a <script type="text/nm-diagram"> block. Raw text: no escaping, no whitespace folding. Only the
+ * differing middle is spliced, so an edit to one line of the DSL changes that line in the file and nothing else.
+ */
+export function setDiagramSource(doc: SourceDoc, id: number, next: string): Splice[] {
+  const n = requirePatchable(doc, id);
+  if (!isDiagramSource(n) || n.endTagStart === null) throw new OpError('invalid', `node ${id} is not a diagram source block`);
+  if (/<\/script/i.test(next)) throw new OpError('invalid', 'diagram source must not contain "</script"');
+  const start = n.startTagEnd;
+  const have = doc.text.slice(start, n.endTagStart);
+  if (have === next) return [];
+  let a = 0;
+  while (a < have.length && a < next.length && have[a] === next[a]) a++;
+  let s = 0;
+  while (s < have.length - a && s < next.length - a && have[have.length - 1 - s] === next[next.length - 1 - s]) s++;
+  return [{ start: start + a, end: start + have.length - s, text: next.slice(a, next.length - s) }];
 }

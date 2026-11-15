@@ -1,6 +1,6 @@
 import { postOps, save } from './actions.ts';
 import { editLayer, frameWin } from './frame.ts';
-import { bumpLayout, selection, textSession } from './state.ts';
+import { bumpLayout, selection, textSession, toast } from './state.ts';
 import type { NodeKey, TextSessionResult } from './types.ts';
 
 let bridgedWindow: Window | null = null;
@@ -30,6 +30,12 @@ export function beginTextSession(key: NodeKey): boolean {
   ensureBridge();
   const started = editLayer()?.beginText(key) ?? null;
   if (!started) return false;
+  if ('readOnly' in started) {
+    // Runtime-generated content (a diagram, connector labels): select it and say why it cannot be typed into.
+    selection.value = key;
+    toast.value = 'readOnlyGenerated';
+    return true;
+  }
   selection.value = key;
   textSession.value = key;
   bumpLayout();

@@ -432,6 +432,7 @@
     fig.classList.add('nm-dg', 'nm-dg-t-' + this.type);
     if (!fig.hasAttribute('role')) fig.setAttribute('role', 'img');
     this.canvas = h('div', 'nm-dg-canvas', null);
+    this.canvas.setAttribute('data-nm-generated', 'diagram'); // rendered from the DSL: not source, editors keep out
     this.svg = sv('svg', { 'class': 'nm-dg-svg', 'aria-hidden': 'true' }, this.canvas);
     this.defs = sv('defs', null, this.svg);
     this.gBack = sv('g', { 'class': 'nm-dg-back' }, this.svg);
@@ -2019,6 +2020,7 @@
     this.box = host.querySelector(':scope > .camera-rig') || host;
     if (getComputedStyle(this.box).position === 'static') this.box.style.position = 'relative';
     this.layer = h('div', 'nm-links nm-dg', null);
+    this.layer.setAttribute('data-nm-generated', 'links'); // connector layer drawn from data-links: not source
     this.svg = sv('svg', { 'class': 'nm-dg-svg', 'aria-hidden': 'true' }, this.layer);
     this.gBack = sv('g', null, this.svg); this.gEdges = sv('g', { 'class': 'nm-dg-edges' }, this.svg); this.gFront = sv('g', null, this.svg);
     this.html = h('div', 'nm-dg-html', this.layer);

@@ -92,6 +92,8 @@ DOM events on `document`: `nm:ready`, `nm:beforeslidechange`, `nm:slidechange` (
 
 State classes core maintains: `.slide.active` (also `.visible` for legacy CSS), `.slide.is-leaving`, `.is-on` on every step element that has been entered, `.is-current` on the step elements of the current step, `body.nm-ready`, `body.nm-overview`, `body.nm-instant` (speed 0: `?nm-speed=0`, `?nm-print`, reduced motion; every runtime CSS file drops its transitions and loops under it), `body.nm-print`. Core never leaves an empty `class=""` on author elements: stepping forward and back restores the markup byte for byte.
 
+Generated markup: every subtree a plugin builds inside author content carries `data-nm-generated="<kind>"` on its root (`diagram` for the `.nm-dg-canvas` of a figure, `links` for the `.nm-links` connector layer). It is rendered from source (the DSL script, `data-links`) and is never saved; editors must not write it back and must edit the source instead.
+
 Plugin hooks: while core measures the incoming side of a morph it puts `.nm-morph-measure` on each target element, so a plugin can cancel a pending entrance state for that instant (nm-diagram does this for its nodes); the ghost then flies to the element's real resting look. Overview thumbnails show every lasting step (`reveal`, `draw`) as on; transient acts are off. Clicking inside an `<iframe>` no longer captures the arrow keys: core takes keyboard focus back (opt out with `data-nm-keys="frame"` on the iframe). Edit mode (E) releases an open act first and skips text that plugins generate (diagram canvas, connector labels).
 
 ## 4. Step timeline (one numbering space per slide)

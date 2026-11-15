@@ -107,6 +107,8 @@ export interface DiskChangedEvent {
 }
 
 /** The edit layer inside the preview frame (src/server/edit-layer/edit-mode.js). */
+export type ReadOnlyReason = 'diagram' | 'generated' | 'contains-generated';
+
 export interface EditLayer {
   goTo(i: number): void;
   hitLocal(x: number, y: number): { key: NodeKey; tag: string } | null;
@@ -114,7 +116,9 @@ export interface EditLayer {
   freeze(on: boolean): void;
   isFrozen(): boolean;
   slides(): Element[];
-  beginText(key: NodeKey): { key: NodeKey; text: string } | null;
+  /** A text session, or why the element is read-only (runtime-generated content), or null when it has no text. */
+  beginText(key: NodeKey): { key: NodeKey; text: string } | { key: NodeKey; readOnly: ReadOnlyReason } | null;
+  readOnlyReason(key: NodeKey): ReadOnlyReason | null;
   endText(commit: boolean): TextSessionResult | null;
   activeText(): { key: NodeKey; text: string } | null;
   previewEntrance(slide: number): void;
