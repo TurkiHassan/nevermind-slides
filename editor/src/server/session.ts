@@ -52,11 +52,14 @@ export interface FailedReplay { label: string; ops: KeyedOp[]; code: string; mes
 
 interface LogEntry { tx: Transaction; ops: KeyedOp[]; label: string; minted: NodeKey[] }
 
-export interface KeyedInfo extends Omit<DeckInfo, 'slides' | 'zoomSteps' | 'morph' | 'entrances' | 'anatomy'> {
+export interface KeyedInfo extends Omit<DeckInfo, 'slides' | 'zoomSteps' | 'morph' | 'entrances' | 'anatomy' | 'steps' | 'diagrams' | 'detailTemplates'> {
   slides: (DeckInfo['slides'][number] & { key: NodeKey })[];
   zoomSteps: (DeckInfo['zoomSteps'][number] & { key: NodeKey; slideKey: NodeKey | null })[];
   entrances: (DeckInfo['entrances'][number] & { key: NodeKey; slideKey: NodeKey | null })[];
   anatomy: (DeckInfo['anatomy'][number] & { key: NodeKey; slideKey: NodeKey | null })[];
+  steps: (DeckInfo['steps'][number] & { key: NodeKey; slideKey: NodeKey | null })[];
+  diagrams: (DeckInfo['diagrams'][number] & { key: NodeKey; slideKey: NodeKey | null; sourceKey: NodeKey | null })[];
+  detailTemplates: (DeckInfo['detailTemplates'][number] & { key: NodeKey })[];
   morph: Record<string, NodeKey[]>;
 }
 
@@ -156,6 +159,9 @@ export class Session {
       zoomSteps: info.zoomSteps.map((z) => ({ ...z, key: key(z.id), slideKey: z.slideId >= 0 ? key(z.slideId) : null })),
       entrances: info.entrances.map((item) => ({ ...item, key: key(item.id), slideKey: item.slideId >= 0 ? key(item.slideId) : null })),
       anatomy: info.anatomy.map((item) => ({ ...item, key: key(item.id), slideKey: item.slideId >= 0 ? key(item.slideId) : null })),
+      steps: info.steps.map((item) => ({ ...item, key: key(item.id), slideKey: item.slideId >= 0 ? key(item.slideId) : null })),
+      diagrams: info.diagrams.map((item) => ({ ...item, key: key(item.id), slideKey: item.slideId >= 0 ? key(item.slideId) : null, sourceKey: item.sourceId !== null ? key(item.sourceId) : null })),
+      detailTemplates: info.detailTemplates.map((item) => ({ ...item, key: key(item.id) })),
       morph,
     };
   }

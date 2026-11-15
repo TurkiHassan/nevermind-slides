@@ -1,6 +1,6 @@
 import { postOps, save } from './actions.ts';
 import { editLayer, frameWin } from './frame.ts';
-import { bumpLayout, selection, textSession, toast } from './state.ts';
+import { bumpLayout, diagramSource, info, selection, textSession, toast } from './state.ts';
 import type { NodeKey, TextSessionResult } from './types.ts';
 
 let bridgedWindow: Window | null = null;
@@ -31,9 +31,11 @@ export function beginTextSession(key: NodeKey): boolean {
   const started = editLayer()?.beginText(key) ?? null;
   if (!started) return false;
   if ('readOnly' in started) {
-    // Runtime-generated content (a diagram, connector labels): select it and say why it cannot be typed into.
+    // Runtime-generated content: a diagram opens its DSL source for editing; anything else says why it is read-only.
     selection.value = key;
-    toast.value = 'readOnlyGenerated';
+    const diagram = started.readOnly === 'diagram' ? info.value?.diagrams.find((d) => d.key === key) : undefined;
+    if (diagram?.sourceKey) diagramSource.value = { figureKey: key, sourceKey: diagram.sourceKey };
+    else toast.value = 'readOnlyGenerated';
     return true;
   }
   selection.value = key;

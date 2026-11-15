@@ -118,3 +118,36 @@ describe("editor guard for runtime-generated content", () => {
     assert.match(now.split("\n")[changed[0]], /رحلة الحاوية المعدّلة/);
   });
 });
+
+describe("diagram source editing (NM-23)", () => {
+  it("the editor knows each diagram's DSL source", async () => {
+    const st = await api("/api/state");
+    const diagrams = st.json.info.diagrams;
+    assert.ok(diagrams.length >= 3, `found ${diagrams.length} diagrams`);
+    assert.ok(diagrams.every((d) => d.sourceKey), "every diagram has a source key");
+    assert.equal(st.json.info.steps.length, (original.match(/\sdata-step="\d+"/g) ?? []).length, "every data-step reported");
+  });
+
+  it("editing the DSL changes one line of the file and the runtime redraws the diagram", async () => {
+    const before = readFileSync(deck, "utf8");
+    const figKey = await page.evaluate(() => document.querySelector(".slide[data-nm-current] figure.nm-diagram").getAttribute("data-nm-key"));
+    const st = await api("/api/state");
+    const diagram = st.json.info.diagrams.find((d) => d.key === figKey);
+    const dsl = await page.evaluate((k) => document.querySelector(`[data-nm-key="${k}"]`).textContent, diagram.sourceKey);
+    const line = dsl.split("\n").find((l) => /\[[^\]|]+/.test(l));
+    const label = /\[([^\]|]+)/.exec(line)[1].trim();
+    const next = dsl.replace(line, line.replace(label, "مرسى جديد"));
+    const r = await api("/api/ops", { ops: [{ kind: "setText", id: diagram.sourceKey, text: next }], baseVersion: st.json.version });
+    assert.equal(r.status, 200, JSON.stringify(r.json));
+    assert.equal((await api("/api/save", {})).status, 200);
+    const now = readFileSync(deck, "utf8");
+    assert.equal(changedLines(before, now).length, 1);
+    await page.goto(`${origin}/preview?t=${token}`); // the editor reloads its frame by URL (the deck rewrites location.hash)
+    await page.waitForFunction(() => window.__nm && window.NM && document.body.classList.contains("nm-ready"));
+    await page.evaluate(() => window.__nm.goTo(5));
+    await page.waitForFunction(() => document.querySelector(".slide[data-nm-current] .nm-dg-canvas .nm-dg-node"));
+    const labels = await page.evaluate(() => document.querySelector(".slide[data-nm-current] .nm-dg-canvas").textContent);
+    assert.match(labels, /مرسى جديد/);
+  });
+});
+

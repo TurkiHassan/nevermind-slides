@@ -65,3 +65,6 @@ export function slideTitle(i: number): string | null {
 
 /** The export dialog is open. */
 export const exportOpen = signal(false);
+
+/** The diagram source dialog: the figure being edited and its <script type="text/nm-diagram"> block. */
+export const diagramSource = signal<{ figureKey: NodeKey; sourceKey: NodeKey } | null>(null);

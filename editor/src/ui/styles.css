@@ -421,3 +421,11 @@ button:disabled, button[aria-disabled='true'] { cursor: default; }
 .export-download { color: var(--ink); }
 .export-run:disabled { color: var(--ink3); opacity: 0.6; }
 .export-warn .path { font-family: var(--num); font-size: 11px; color: var(--ink); }
+
+/* Diagram source dialog (runtime v2 diagrams are edited through their DSL) */
+.diagram-dialog { inline-size: min(760px, 92vw); }
+.diagram-dialog textarea { display: block; box-sizing: border-box; inline-size: 100%; min-block-size: 220px; font-family: var(--ui); font-size: 16px; line-height: 1.8; /* a proportional face: monospace fallbacks break Arabic joining */ padding: 12px 14px; border: 0; border-radius: 14px; background: var(--paper, #f1ede6); color: var(--ink); box-shadow: var(--inset, inset 0 1px 3px rgba(0, 0, 0, 0.12)); resize: vertical; }
+.diagram-dialog .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; margin-block-start: 14px; }
+.diagram-dialog .dialog-actions button { padding: 8px 18px; border: 0; border-radius: 12px; font: inherit; cursor: pointer; }
+.diagram-dialog .dialog-actions button:disabled { opacity: 0.45; cursor: default; }
+.motion-list li[aria-current='true'] { font-weight: 700; }

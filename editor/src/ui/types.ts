@@ -58,6 +58,9 @@ export interface DeckInfo {
   morph: Record<string, NodeKey[]>;
   zoomSteps: { slideId: number; id: number; step: number; label: string | null; key: NodeKey; slideKey: NodeKey | null }[];
   entrances: { slideId: number; id: number; kind: string; order: number; delay: number; legacy: boolean; key: NodeKey; slideKey: NodeKey | null }[];
+  steps: { slideId: number; id: number; step: number; act: string; key: NodeKey; slideKey: NodeKey | null }[];
+  diagrams: { slideId: number; id: number; type: string; dataId: string | null; sourceId: number | null; key: NodeKey; slideKey: NodeKey | null; sourceKey: NodeKey | null }[];
+  detailTemplates: { id: number; target: string; key: NodeKey }[];
   anatomy: { slideId: number; id: number; kind: 'svg' | 'iframe'; name: string; variables: Record<string, string>; key: NodeKey; slideKey: NodeKey | null }[];
   identity: { colours: Record<string, unknown>; fonts: Record<string, unknown> };
   runtime: { version: number | null; native: boolean };
