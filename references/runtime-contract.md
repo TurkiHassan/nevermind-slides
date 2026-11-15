@@ -59,6 +59,7 @@ Load order in a deck (end of `<body>`): `nm-deck.js`, then plugins in any order,
 - Core injects everything else when missing: bottom controls (`#deckControls`, hidden until the bottom 32px hotzone `#controlsHotzone` is hovered), progress line, overview grid, key help, and two overlay layers inside the stage above all slides: `#nmGhostLayer` (morph ghosts) and `#nmOverlayLayer` (plugins).
 - `<section class="slide">` never carries class `relative`.
 - Body config attributes: `data-nm-mode` = `morph-and-zoom` (default) | `morph-only` | `classic`; `data-nm-transition` = deck default transition; `data-nm-automorph` = `on` (default) | `off`.
+- `data-nm-choreo="2"` on `<body>` (scaffold writes it; absent means the original stagger, unchanged): automatic entrances get a role, `lead` (headings: first), `support` (body, cards, figures: gaps 120, 90, 70, 55, 45, 40, 35ms, at most 440ms in all), `deco` (kicker, rules, section numbers: fade only) or `static` (none); `data-motion-role` on an element overrides the guess. Headers holding several parts are opened so the parts enter and the header does not: never a parent and a child at once. Arrival settles within 1200ms. `data-nm-still` on a slide fades its parts in together (scaffold writes it where the representation advice says a still slide reads best). Diagrams keep their own internal build.
 - Optional `window.NM_CONFIG = { fontModes: [{ className, label }], ... }` defined before `nm-deck.js`.
 
 ## 3. Global API (`window.NM`)

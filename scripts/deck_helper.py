@@ -37,6 +37,8 @@ Subcommands:
                     paste-in snippet; `--math` adds the optional TeX converter (Temml).
   plan-init         Write <target-dir>/deck.plan.json from the bundled example (or N stub slides).
   plan-lint         Validate deck.plan.json and apply the motion-director design rules.
+  theme-derive      Three palettes from the materials and tools of the topic (contrast-checked),
+                    optional previews, `--apply N` writes one into the plan.
   plan-advise       Suggest a representation, acts and Morph for each slide from its described
                     information (`content`), with reasons in Arabic and English (advice.json).
                     `--apply` writes the first suggestion into unlocked slides that fit poorly.
@@ -527,6 +529,21 @@ PLAN_EMOJI_REGEX = re.compile(EMOJI_REGEX.pattern[:-2] + "\uFE0F\u20E3]+")
 
 
 _REPRESENT: Any = None
+_IDENTITY: Any = None
+
+
+def _identity() -> Any:
+    """scripts/nm_identity.py (identity derived from the topic, NM-19), loaded next to this file."""
+    global _IDENTITY
+    if _IDENTITY is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("nm_identity", Path(__file__).resolve().parent / "nm_identity.py")
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        sys.modules["nm_identity"] = module
+        spec.loader.exec_module(module)
+        _IDENTITY = module
+    return _IDENTITY
 
 
 def _represent() -> Any:
@@ -640,15 +657,19 @@ def _iter_strings(node: Any):
             yield from _iter_strings(value)
 
 
-def resolve_theme(theme: Any) -> tuple[dict[str, Any], list[str]]:
-    """Return (tokens, problems). Preset first, then explicit token overrides."""
+def resolve_theme(theme: Any, plan: Any = None) -> tuple[dict[str, Any], list[str]]:
+    """Return (tokens, problems). theme.derive (palette from the topic, NM-19) or a preset first, then explicit
+    token overrides."""
     presets = _load_themes()
     problems: list[str] = []
     default_name = "paper" if "paper" in presets else next(iter(presets), "")
     tokens: dict[str, Any] = {}
     theme = theme if isinstance(theme, dict) else {}
     preset = theme.get("preset")
-    if preset:
+    derived = _identity().pick(plan) if isinstance(theme.get("derive"), dict) and isinstance(plan, dict) else None
+    if derived:
+        tokens.update({k: v for k, v in derived.items() if k in THEME_TOKENS})
+    elif preset:
         if preset in presets:
             tokens.update({k: v for k, v in presets[preset].items() if k in THEME_TOKENS})
         else:
@@ -662,7 +683,7 @@ def resolve_theme(theme: Any) -> tuple[dict[str, Any], list[str]]:
     for key in THEME_TOKENS:
         if key in theme:
             tokens[key] = theme[key]
-    if not preset and theme and not all(k in theme for k in ("paper", "ink", "accent")):
+    if not preset and not derived and theme and not all(k in theme for k in ("paper", "ink", "accent")):
         problems.append("custom theme needs at least paper, ink and accent (or set theme.preset)")
     for key in THEME_TOKENS:
         if key == "radius" or key not in tokens:
@@ -871,7 +892,11 @@ def lint_plan(plan: Any) -> dict[str, Any]:
         hint = _closest(pairing, PAIRINGS)
         err("P002", f"`fonts.pairing` \"{pairing}\" is invalid" + (f"; did you mean \"{hint}\"?" if hint else f"; use one of: {', '.join(PAIRINGS)}"))
 
-    tokens, theme_problems = resolve_theme(plan.get("theme"))
+    tokens, theme_problems = resolve_theme(plan.get("theme"), plan)
+    if isinstance((plan.get("theme") or {}).get("derive") if isinstance(plan.get("theme"), dict) else None, dict):
+        ident = _identity().derive(plan)
+        if ident["source"] == "title":
+            warn("R130", "theme.derive found no material word of the topic in the plan; the palette comes from the title alone. Name the topic's materials and tools in theme.derive.materials (for example [\"ميناء\", \"بحر\"])")
     for problem in theme_problems:
         err("P003", problem)
     if tokens.get("paper") and tokens.get("ink") and not theme_problems:
@@ -1166,6 +1191,55 @@ def cmd_plan_lint(args: argparse.Namespace) -> int:
     return 0 if report["passed"] else 1
 
 
+def cmd_theme_derive(args: argparse.Namespace) -> int:
+    plan_path = Path(args.plan).expanduser().resolve()
+    plan, problem = _load_plan(plan_path)
+    if problem or not isinstance(plan, dict):
+        print(f"theme-derive FAILED: {problem or 'plan must be a JSON object'}", file=sys.stderr)
+        return 1
+    ni = _identity()
+    theme = dict(plan.get("theme") or {}) if isinstance(plan.get("theme"), dict) else {}
+    spec = dict(theme.get("derive") or {}) if isinstance(theme.get("derive"), dict) else {}
+    if args.materials:
+        spec["materials"] = [m.strip() for m in re.split(r"[,،]", args.materials) if m.strip()]
+    if args.mood:
+        spec["mood"] = args.mood
+    work = {**plan, "theme": {**theme, "derive": spec}}
+    result = ni.derive(work)
+    lang = plan.get("lang", "ar")
+    if args.output:
+        write_json_output(Path(args.output), result)
+    print(ni.table(result, lang))
+    if args.previews:
+        out = Path(args.previews).expanduser().resolve()
+        out.mkdir(parents=True, exist_ok=True)
+        slides = [s for s in plan.get("slides") or [] if isinstance(s, dict)]
+        sample = [slides[0]] + [s for s in slides[1:] if _visual_type(s) != "none"][:1] if slides else []
+        for i, pal in enumerate(result["palettes"]):
+            preview = {**plan, "theme": {**pal["tokens"]}, "slides": sample}
+            html_text, files, _ = render_deck(preview, out)
+            for path, content in files:
+                if not path.exists():
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(content, encoding="utf-8")
+            (out / f"style-{'abc'[i]}.html").write_text(html_text, encoding="utf-8")
+        _stage_fonts(out)
+        _stage_runtime(out, math=_plan_features({"slides": sample})["tex"])
+        print(f"\nPreviews: {out}/style-a.html, style-b.html, style-c.html (open all three)")
+    if args.apply:
+        n = args.apply
+        if not 1 <= n <= 3:
+            print("Error: --apply takes 1, 2 or 3", file=sys.stderr)
+            return 1
+        pal = result["palettes"][n - 1]
+        new_theme = {**pal["tokens"], "derived": {"materials": result["materials"], "mood": result["mood"], "palette": n,
+                                                  "names": pal["names"]["ar" if lang == "ar" else "en"]}}
+        shutil.copy2(plan_path, plan_path.with_name(plan_path.name + ".bak"))
+        write_json_output(plan_path, {**plan, "theme": new_theme})
+        print(f"\nPalette {'ABC'[n - 1]} written into the plan's theme as fixed colours (the old plan is kept as .bak).")
+    return 0
+
+
 def cmd_plan_advise(args: argparse.Namespace) -> int:
     plan_path = Path(args.plan).expanduser().resolve()
     plan, problem = _load_plan(plan_path)
@@ -1265,7 +1339,8 @@ def make_stub_plan(title: str, count: int, lang: str = "ar") -> dict[str, Any]:
             steps = [{"act": "reveal", "target": "stat"}]
         elif role in ("comparison", "process"):
             steps = [{"act": "reveal", "target": "visual"}]
-        text: dict[str, Any] = {"kicker": st["kicker"], "headline": st["headline"]}
+        # a kicker above every title reads template-made (NM-20, T101): stubs offer one on every third content slide
+        text: dict[str, Any] = {"kicker": st["kicker"], "headline": st["headline"]} if i % 3 == 1 else {"headline": st["headline"]}
         if role == "cover":
             text = {"kicker": st["kicker"], "headline": title, "body": [st["opening"]]}
         elif role == "evidence":
@@ -1293,7 +1368,7 @@ def make_stub_plan(title: str, count: int, lang: str = "ar") -> dict[str, Any]:
     return {
         "title": title,
         "lang": lang if lang in _STUB_TEXT else "ar",
-        "theme": {"preset": "paper"},
+        "theme": {"derive": {"materials": [], "mood": ""}},  # colours from the topic (NM-19); theme-derive shows the three
         "fonts": {"pairing": "thmanyah"},
         "mode": "morph-and-zoom",
         "image_source": "generate",
@@ -2125,6 +2200,8 @@ def _build_slide(
         "data-transition": _slide_transition(slide),
         "data-role": str(role),
     }
+    if advice and advice.get("still"):
+        attrs["data-nm-still"] = ""  # motion roles (NM-13): this slide's parts fade in together
     note = slide.get("speaker_note")
     note_html = f'\n    <aside class="nm-speaker-note" hidden>{_esc(note)}</aside>' if note else ""
     todo_text = "\n".join(f"       - {_cmt(t)}" for t in todos) if todos else "       - none"
@@ -2185,7 +2262,7 @@ def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False,
     _set_scaffold_context(plan)
     _SCAFFOLD["advice"] = {e["index"] - 1: e for e in _represent().advise_plan(plan)["slides"]} if _has_content(plan) else {}
     features = _plan_features(plan)
-    tokens, _ = resolve_theme(plan.get("theme"))
+    tokens, _ = resolve_theme(plan.get("theme"), plan)
     requested = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
     sources = _font_sources() if font_files is None else {name: Path(name) for name in font_files}
     families = _available_families(sources)
@@ -2300,6 +2377,8 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 _VISUAL_TAGS = {"svg", "img", "figure", "canvas", "iframe", "video"}
+_VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+_ORDINAL_NUMBER = re.compile(r"^(0[1-9]|٠[١-٩])(?:[.\s)]|$)")
 _SKIP_TEXT_TAGS = {"script", "style", "template", "aside", "math"}  # formulas are not prose (digits, word counts)
 
 
@@ -2320,12 +2399,15 @@ class _DeckDom(HTMLParser):
         self._src_depth = 0
         self._script_buf: list[str] | None = None
         self._table = 0
+        self._stack: list[dict[str, Any]] = []
+        self._heading: dict[str, Any] | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         a = {k: (v if v is not None else "") for k, v in attrs}
         classes = a.get("class", "").split()
         if tag == "section" and "slide" in classes:
-            self.slides.append({"attrs": a, "words": 0, "has_visual": False, "todo": False})
+            self.slides.append({"attrs": a, "words": 0, "has_visual": False, "todo": False,
+                                "heading": False, "kicker": False, "cards3": False, "numbered": 0, "accent_word": 0})
             self._cur = len(self.slides) - 1
             self._depth = 1
         elif tag == "section" and self._cur is not None:
@@ -2340,6 +2422,21 @@ class _DeckDom(HTMLParser):
                 self.slides[self._cur]["todo"] = True
         if tag in _SKIP_TEXT_TAGS:
             self._skip.append(tag)
+        # template tells (NM-20): headings, kickers, card rows, a single coloured word in a title
+        if self._cur is not None:
+            sl = self.slides[self._cur]
+            if tag in ("h1", "h2"):
+                sl["heading"] = True
+                self._heading = {"tag": tag, "marks": 0}
+            elif self._heading is not None and tag in ("span", "em", "mark", "strong", "b") and (
+                    any("accent" in c for c in classes) or "color" in a.get("style", "")):
+                self._heading["marks"] += 1
+            if any(c in ("nm-kicker", "eyebrow", "kicker") for c in classes):
+                sl["kicker"] = True
+            if "nm-card" in classes and self._stack:
+                self._stack[-1]["cards"] += 1
+        if tag not in _VOID_TAGS:
+            self._stack.append({"tag": tag, "cards": 0})
         if tag == "table":
             self._table += 1
         # the image credits block (.nm-sources) is required boilerplate: not counted as slide text
@@ -2356,6 +2453,16 @@ class _DeckDom(HTMLParser):
             self._script_buf = None
         if tag in _SKIP_TEXT_TAGS and self._skip and self._skip[-1] == tag:
             self._skip.pop()
+        for k in range(len(self._stack) - 1, -1, -1):
+            if self._stack[k]["tag"] == tag:
+                if self._stack[k]["cards"] >= 3 and self._cur is not None:
+                    self.slides[self._cur]["cards3"] = True
+                del self._stack[k:]
+                break
+        if self._heading is not None and tag == self._heading["tag"]:
+            if self._heading["marks"] == 1 and self._cur is not None:
+                self.slides[self._cur]["accent_word"] += 1
+            self._heading = None
         if tag == "table" and self._table:
             self._table -= 1
         if self._src_tag == tag:
@@ -2374,6 +2481,8 @@ class _DeckDom(HTMLParser):
         if self._skip or self._src_tag is not None:
             return
         stripped = data.strip()
+        if stripped and self._cur is not None and _ORDINAL_NUMBER.match(stripped):
+            self.slides[self._cur]["numbered"] += 1
         if stripped and self._cur is not None:
             if not self._table:  # table cells are data, read by row, not prose: no word budget
                 self.slides[self._cur]["words"] += len(stripped.split())
@@ -2420,6 +2529,30 @@ def _vocab_error(where: str, attr: str, value: str, valid: tuple[str, ...]) -> s
     return f'{where}: {attr}="{value}" is not in the runtime vocabulary' + (
         f'; did you mean "{hint}"?' if hint else f"; valid: {', '.join(valid)}"
     )
+
+
+def _template_tells(dom: Any, warnings: list[str]) -> list[str]:
+    """Marks of a deck assembled from a template rather than designed for its topic (roadmap NM-20). Warnings only:
+    each can be right on purpose, none is right on every slide."""
+    tells: list[str] = []
+    content = [(i, s) for i, s in enumerate(dom.slides) if s["attrs"].get("data-role") not in ("cover", "section", "quote", "closing")]
+    titled = [(i, s) for i, s in content if s["heading"]]
+    if len(titled) >= 4:
+        kick = [i + 1 for i, s in titled if s["kicker"]]
+        if len(kick) / len(titled) > 0.7:
+            tells.append(f"T101: a kicker (eyebrow line) sits above the title on {len(kick)} of {len(titled)} content slides; keep it only where it adds information (a chapter name, a source), not as decoration.")
+    if len(content) >= 4:
+        cards = [i + 1 for i, s in content if s["cards3"]]
+        if len(cards) > len(content) / 2:
+            tells.append(f"T102: rows of three or more identical cards on {len(cards)} of {len(content)} content slides ({', '.join(map(str, cards))}); give some of them a diagram, a table, a figure or one strong sentence instead.")
+    numbered = [i + 1 for i, s in enumerate(dom.slides) if s["numbered"] >= 2 and s["attrs"].get("data-role") not in ("process", "timeline")]
+    if numbered:
+        tells.append(f"T103: items numbered 01, 02... on slide(s) {', '.join(map(str, numbered))}, whose content is not a sequence; number only steps that happen in order.")
+    accented = [i + 1 for i, s in enumerate(dom.slides) if s["accent_word"]]
+    if len(accented) >= 2:
+        tells.append(f"T104: one coloured word in the title on slides {', '.join(map(str, accented))}; spend the accent on the one thing the slide proves, once in the deck.")
+    warnings.extend(tells)
+    return tells
 
 
 _DSL_RESERVED = {"unit", "x", "y", "max", "min", "value", "label", "sub", "center", "head", "actors", "lane", "title", "series"}
@@ -2704,6 +2837,7 @@ def _audit_contract(
     contract["digit_systems"] = used
 
     contract["plan_data"] = _audit_plan_data(dom, base_dir, warnings)
+    contract["template_tells"] = _template_tells(dom, warnings)
 
     contract["slide_count"] = len(dom.slides)
     contract["motion_driven"] = bool(
@@ -3153,6 +3287,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_plint.add_argument("--plan", required=True, help="Path to deck.plan.json.")
     p_plint.add_argument("--output", default=None, help="Optional JSON report path.")
     p_plint.set_defaults(func=cmd_plan_lint)
+
+    p_td = subparsers.add_parser("theme-derive", help="Three palettes from the materials and tools of the topic, contrast-checked (NM-19).")
+    p_td.add_argument("--plan", required=True, help="Path to deck.plan.json (its title, text and content.entities are read).")
+    p_td.add_argument("--materials", default=None, help="Comma-separated materials of the topic; overrides what is found in the plan.")
+    p_td.add_argument("--mood", default=None, help="calm | energetic | serious | warm | cool | dark (Arabic words work too).")
+    p_td.add_argument("--previews", default=None, help="Write style-a/b/c.html (cover and one content slide in each palette) into this folder.")
+    p_td.add_argument("--apply", type=int, default=None, help="Write palette 1, 2 or 3 into the plan's theme as fixed colours.")
+    p_td.add_argument("--output", default=None, help="Optional JSON report path.")
+    p_td.set_defaults(func=cmd_theme_derive)
 
     p_adv = subparsers.add_parser("plan-advise", help="Suggest representations, acts and Morph from each slide's described information (NM-29).")
     p_adv.add_argument("--plan", required=True, help="Path to deck.plan.json.")

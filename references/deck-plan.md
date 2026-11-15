@@ -40,6 +40,7 @@ Other commands: `stage-runtime --target-dir DIR [--inline] [--math]` copies `ass
 |---|---|
 | `lang` | `ar` (default: right to left, Arabic scaffolding) or `en` (left to right, English scaffolding, Western digits). The runtime takes its keys and its own labels from it. |
 | `theme.preset` | `paper`, `mist`, `dune`, `olive` (light); `ink`, `night-sea`, `emerald`, `ember` (dark). Or custom hex tokens `paper ink muted line accent accent2 surface radius`. A preset plus overrides is allowed. |
+| `theme.derive` | colours from the topic (NM-19): `{ "materials": ["ميناء", "بحر"], "mood": "calm", "pick": 1 }`. Empty materials: they are found in the plan (title, headlines, body, `content.entities`). `pick` chooses palette 1 (light), 2 (tinted by the second material) or 3 (dark). Explicit tokens still override. `theme-derive --plan FILE [--materials ...] [--mood ...] [--previews DIR] [--apply N]` shows the three. `plan-init` starts new plans from `derive`. The lexicon is data: `resources/templates/identity-lexicon.json` |
 | `fonts.pairing` | `thmanyah` (default), `sans`, `qahwa`, `setabr`, `kufi`, `open`. A pairing whose fonts are not installed falls back to `open` (Readex Pro + IBM Plex Sans Arabic, bundled under OFL); Thmanyah and ZIAN must be installed by the user (`NM_FONTS_DIR` or the system font folders) because their licenses forbid redistribution. |
 | `mode` | `morph-and-zoom`, `morph-only`, `classic` |
 | `image_source` | `generate`, `web`, `none` |
@@ -129,6 +130,7 @@ Errors block `scaffold`. Warnings are advice.
 | R127 | error | An equation (or each derivation line) needs exactly one of `mathml` (one `<math>` element, no scripts or event handlers) or `tex`. |
 | R128 | error | `tex` starts with a `$`, `\(` or `\[` delimiter. Write the formula without delimiters. |
 | R129 | warn | A derivation of more than 4 lines. Continue on the next slide and link the shared terms with `data-term`. |
+| R130 | warn | `theme.derive` found no material word of the topic; the palette comes from the title alone. Name the topic's materials. |
 
 With `"advisor": true` only (advisory, never errors):
 
@@ -211,5 +213,16 @@ When you change the plan after editing the HTML, do not rerun `scaffold --force`
 | C-FILL | warn: a diagram draws on less than 45% of its box. Let it grow (`data-grow`) or give it a smaller cell. |
 | C-EMPTY | warn: a content slide carries ink on less than 4% of the stage (cover, section, quote and closing exempt). |
 | C-DRIFT | warn: the title of a top-anchored composition sits more than 8px from the titles of the other slides with the same composition. |
+
+## Template tells (`audit-deck`, NM-20)
+
+Warnings, never errors: each can be right on purpose, none is right on every slide.
+
+| Code | Tell | Fix |
+|---|---|---|
+| T101 | A kicker (eyebrow line) above the title on more than 70% of content slides | Keep it where it adds information (a chapter, a source) |
+| T102 | Rows of three or more identical cards on more than half of the content slides | Give some a diagram, a table, a figure or one strong sentence |
+| T103 | Items numbered 01, 02 on a slide whose content is not a sequence | Number only steps that happen in order |
+| T104 | One coloured word in the title on two slides or more | Spend the accent once, on the one thing the slide proves |
 
 `check` also writes `quality.json` next to `report.json`: every finding with a tier (`HOLD` must be fixed before delivery, `FIX` should be, `NOTE` is advice), a confidence (`confident`, `likely`, `possible`), the evidence and a one-line fix, plus a score per slide and for the deck (`100 - 25 x HOLD - 5 x FIX - 1 x NOTE`). Fix every HOLD, then read the FIX items. Thresholds were calibrated on the golden corpus: the finished showcase passes with three diagram-fill notes.

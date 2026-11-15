@@ -800,6 +800,7 @@
       items.push({ el: e, kind: k, order: parseFloat(e.getAttribute('data-entrance-order')), delay: parseFloat(e.getAttribute('data-entrance-delay')) || 0 });
     });
     if (!items.length) return;
+    if (choreo() >= 2) { playChoreo(slide, items, startAt, o); return; }
     var sorted = readingSort(items.map(function (i) { return i.el; }));
     items.forEach(function (it) {
       var rank = sorted.indexOf(it.el);
@@ -812,6 +813,66 @@
       } else {
         d = startAt + (isFinite(it.order) ? (it.order - 1) * 120 : Math.min(rank, 9) * 75) + it.delay;
       }
+      playEntrance(it.el, it.kind, { dir: o.dir || 1, delay: d }, entranceBucket);
+    });
+  }
+
+  /* Choreography 2 (roadmap NM-13), opt-in with <body data-nm-choreo="2">; decks without it keep the stagger above.
+     Every automatic block gets a role: lead (the heading: it moves first), support (body, cards, figures: they
+     follow with gaps that shrink), deco (kicker, rules, section numbers: they fade, never travel) or static (no
+     entrance). data-motion-role on an element overrides the guess. A header holding several parts is opened so its
+     parts enter one by one and the header itself does not move: one entrance per container, never a parent and a
+     child at once. The whole arrival settles within 1200ms. A slide with data-nm-still (scaffold writes it when the
+     representation advice says a still slide reads best) fades its parts in together. */
+  var SUPPORT_GAPS = [120, 90, 70, 55, 45, 40, 35];
+  var STAGGER_CAP = 440;
+  function choreo() { return parseInt(body.getAttribute('data-nm-choreo'), 10) || 1; }
+  function motionRole(e) {
+    var r = e.getAttribute('data-motion-role');
+    if (r === 'lead' || r === 'support' || r === 'deco' || r === 'static') return r;
+    if (e.matches('h1,h2,h3,blockquote,.nm-t-display,.nm-t-h1,.nm-t-h2')) return 'lead';
+    if (e.matches('.nm-kicker,hr,.nm-rule,.nm-section-num,[aria-hidden="true"]')) return 'deco';
+    return 'support';
+  }
+  function openContainers(items, exclude) {
+    var out = [];
+    items.forEach(function (it) {
+      var e = it.el;
+      if (it.kind === 'auto' && e.matches('header,.nm-head,.nm-rail-head,.nm-rail-main')) {
+        var kids = Array.prototype.filter.call(e.children, usableBlock).filter(function (k) {
+          return !k.hasAttribute('data-step') && !k.hasAttribute('data-entrance') && !touches(k, exclude);
+        });
+        if (kids.length > 1) { kids.forEach(function (k) { out.push({ el: k, kind: 'auto' }); }); return; }
+      }
+      out.push(it);
+    });
+    return out;
+  }
+  function playChoreo(slide, items, startAt, o) {
+    var still = slide.hasAttribute('data-nm-still');
+    items = openContainers(items, o.exclude || new Set());
+    var autos = items.filter(function (i) { return i.kind === 'auto'; });
+    var sorted = readingSort(autos.map(function (i) { return i.el; }));
+    var leads = sorted.filter(function (e) { return motionRole(e) === 'lead'; });
+    var lead = leads[0] || null;
+    var supportAt = lead && !still ? SUPPORT_GAPS[0] : 0, k = 0;
+    sorted.forEach(function (e) {
+      var role = motionRole(e), kind, d;
+      if (role === 'static') return;
+      var r = rectInStage(e), big = r.w * r.h > W * H * 0.6;
+      if (still || role === 'deco') { kind = 'fade'; d = 0; }
+      else if (e === lead || role === 'lead') { kind = big ? 'fade' : 'rise'; d = 0; }
+      else {
+        kind = big ? 'fade' : 'rise';
+        d = Math.min(supportAt, STAGGER_CAP);
+        supportAt += SUPPORT_GAPS[Math.min(++k, SUPPORT_GAPS.length - 1)];
+      }
+      playEntrance(e, kind, { dir: o.dir || 1, delay: startAt + d }, entranceBucket);
+    });
+    // explicit data-entrance elements keep their own order and delay
+    items.forEach(function (it) {
+      if (it.kind === 'auto') return;
+      var d = startAt + (isFinite(it.order) ? (it.order - 1) * 120 : 0) + it.delay;
       playEntrance(it.el, it.kind, { dir: o.dir || 1, delay: d }, entranceBucket);
     });
   }

@@ -144,9 +144,16 @@ Present the proposal to the user as a table: slide, visual type, subject (for an
 
 ### 2.5 Three live style previews
 
-1. Pick 3 distinct directions suited to the topic from `resources/templates/themes.json` (8 presets with tuned contrast) combined with a font pairing.
-2. For each, write `<project_dir>/.frontend-slides/slide-previews/style-a.html` (b, c): one real slide of the deck (the cover or the strongest concept slide), built with the runtime and `nm-layout.css`, 1920x1080, RTL, zero emojis. Fastest path: `plan-init` a 5-slide plan, set the theme, `scaffold --out` into the previews folder.
-3. Open all three with `open-files`.
+The colours come from the topic's own world (its materials and tools), not from a stock palette:
+
+```bash
+python3 "<SKILL_DIR>/scripts/deck_helper.py" theme-derive --plan "<project_dir>/deck.plan.json" \
+  --previews "<project_dir>/.frontend-slides/slide-previews"
+```
+
+1. It reads the plan (title, headlines, `content.entities`; or `--materials "ميناء، بحر"`, `--mood calm|energetic|serious|warm|cool|dark`) and prints three named palettes (light, tinted, dark) with their contrast, all checked: ink 7:1, muted 4.5:1, accents 3:1.
+2. `--previews` writes `style-a.html`, `style-b.html`, `style-c.html` (the cover and one content slide in each palette) with the runtime staged. Pair each with a font pairing if you like.
+3. Open all three with `open-files`. After the user picks, `theme-derive --apply 1|2|3` writes it into the plan. The eight presets in `resources/templates/themes.json` stay available; `paper` and `ink` are not the starting point.
 
 ### 2.6 Ask the user (one message, numbered Arabic menu, or the ask tool if available)
 

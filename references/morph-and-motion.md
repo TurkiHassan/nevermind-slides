@@ -142,6 +142,8 @@ Unmarked top-level blocks of each slide rise in automatically, in reading order 
 - `data-entrance-auto="off"` on a slide (or `<body>`): no automatic entrances, only marked elements animate.
 - Elements that arrive by morph never play an entrance.
 
+Decks from `scaffold` carry `<body data-nm-choreo="2">` (motion roles, NM-13): the heading leads, body parts, cards and figures follow with gaps that shrink (120, 90, 70... ms), kickers, rules and section numbers only fade, a header's parts enter one by one while the header itself stays put, and the arrival settles within 1200ms. `data-motion-role="lead|support|deco|static"` overrides the guess on one element. A slide with `data-nm-still` (written where `plan-advise` says a still slide reads best) fades its parts in together. Remove the body attribute to get the original stagger back.
+
 ## 5. Steps inside a slide
 
 Arrow keys run steps first, then move to the next slide.
