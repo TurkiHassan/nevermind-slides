@@ -1,0 +1,301 @@
+{
+  "title": "كيف يرفع الميناء إنتاجيته",
+  "lang": "ar",
+  "theme": {
+    "preset": "dune"
+  },
+  "fonts": {
+    "pairing": "open"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "none",
+  "advisor": true,
+  "audience": "general",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "الغلاف",
+      "role": "cover",
+      "layout": "cover",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "عمليات الموانئ",
+        "headline": "كيف يرفع الميناء إنتاجيته",
+        "body": [
+          "أرقام من سنة تشغيل كاملة"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "title": "المؤشر",
+      "role": "evidence",
+      "layout": "stat",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "stat"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "content": {
+        "kind": "finding",
+        "quantities": [
+          {
+            "label": "حاويات في الساعة لكل رافعة",
+            "value": 31,
+            "unit": ""
+          }
+        ]
+      },
+      "text": {
+        "kicker": "النتيجة",
+        "headline": "إحدى وثلاثون حاوية في الساعة"
+      }
+    },
+    {
+      "id": "s3",
+      "title": "التعريف",
+      "role": "concept",
+      "layout": "center",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "content": {
+        "kind": "definition"
+      },
+      "text": {
+        "kicker": "المصطلح",
+        "headline": "الإنتاجية: حاويات لكل رافعة في الساعة"
+      }
+    },
+    {
+      "id": "s4",
+      "title": "المسار",
+      "role": "process",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow",
+        "ref": "route"
+      },
+      "rel": "chapter",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:rank"
+        }
+      ],
+      "content": {
+        "kind": "process",
+        "items": 4,
+        "sequence": "ordered",
+        "entities": [
+          "الرافعة",
+          "الشاحنة"
+        ]
+      },
+      "text": {
+        "kicker": "رحلة الحاوية",
+        "headline": "أربع محطات من السفينة إلى البوابة"
+      }
+    },
+    {
+      "id": "s5",
+      "title": "الوقت الضائع",
+      "role": "evidence",
+      "layout": "split",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "donut",
+        "ref": "lost-time"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [],
+      "content": {
+        "kind": "part-whole",
+        "entities": [
+          "الرافعة"
+        ],
+        "quantities": [
+          {
+            "label": "انتظار الشاحنات",
+            "value": 45,
+            "unit": "%"
+          },
+          {
+            "label": "إعادة الترتيب",
+            "value": 30,
+            "unit": "%"
+          },
+          {
+            "label": "الأعطال",
+            "value": 15,
+            "unit": "%"
+          },
+          {
+            "label": "أخرى",
+            "value": 10,
+            "unit": "%"
+          }
+        ]
+      },
+      "text": {
+        "kicker": "أين يضيع الوقت",
+        "headline": "نصف الوقت الضائع انتظار",
+        "body": [
+          "حصص من ساعات التوقف خلال سنة"
+        ]
+      }
+    },
+    {
+      "id": "s6",
+      "title": "الاتجاه",
+      "role": "evidence",
+      "layout": "hero",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "line",
+        "ref": "trend"
+      },
+      "rel": "time",
+      "morph": [],
+      "steps": [
+        {
+          "act": "draw",
+          "target": "visual:series"
+        }
+      ],
+      "content": {
+        "kind": "data",
+        "sequence": "ordered",
+        "quantities": [
+          {
+            "label": "2021",
+            "value": 22,
+            "unit": "حاوية/ساعة"
+          },
+          {
+            "label": "2022",
+            "value": 24,
+            "unit": "حاوية/ساعة"
+          },
+          {
+            "label": "2023",
+            "value": 27,
+            "unit": "حاوية/ساعة"
+          },
+          {
+            "label": "2024",
+            "value": 29,
+            "unit": "حاوية/ساعة"
+          },
+          {
+            "label": "2025",
+            "value": 31,
+            "unit": "حاوية/ساعة"
+          }
+        ]
+      },
+      "text": {
+        "kicker": "خمس سنوات",
+        "headline": "الإنتاجية ترتفع كل عام"
+      }
+    },
+    {
+      "id": "s7",
+      "title": "الخياران",
+      "role": "comparison",
+      "layout": "compare",
+      "visual": {
+        "type": "table",
+        "columns": [
+          "المعيار",
+          "جدولة الشاحنات",
+          "رافعة إضافية"
+        ],
+        "rows": [
+          [
+            "التكلفة",
+            "منخفضة",
+            "مرتفعة"
+          ],
+          [
+            "زمن التنفيذ",
+            "شهر",
+            "سنة"
+          ],
+          [
+            "الأثر المتوقع",
+            "+12%",
+            "+18%"
+          ],
+          [
+            "المخاطر",
+            "قليلة",
+            "متوسطة"
+          ]
+        ]
+      },
+      "rel": "contrast",
+      "morph": [],
+      "steps": [
+        {
+          "act": "highlight",
+          "target": "visual:row"
+        }
+      ],
+      "content": {
+        "kind": "comparison",
+        "dimensions": {
+          "options": 2,
+          "criteria": 4
+        }
+      },
+      "text": {
+        "kicker": "القرار",
+        "headline": "جدولة الشاحنات قبل شراء رافعة"
+      }
+    },
+    {
+      "id": "s8",
+      "title": "الخاتمة",
+      "role": "closing",
+      "layout": "cards",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "back-out",
+      "morph": [],
+      "steps": [
+        {
+          "act": "focus",
+          "target": "body1"
+        }
+      ],
+      "text": {
+        "kicker": "الخلاصة",
+        "headline": "ابدأ بالانتظار لا بالرافعات",
+        "body": [
+          "الانتظار نصف الوقت الضائع",
+          "الجدولة أرخص وأسرع",
+          "الرافعة الإضافية خطوة لاحقة"
+        ]
+      }
+    }
+  ]
+}

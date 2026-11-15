@@ -9,6 +9,7 @@ const mechanistic = loadFixture(MECHANISTIC);
 const minimal = loadFixture(MINIMAL)!;
 
 (attention === null ? describe.skip : describe)('attention deck', () => {
+  if (attention === null) { it('needs fixtures/real/attention (private, not in git)', () => {}); return; }
   const doc = parseSource(attention!);
   const info = inspectDeck(doc);
   const issues = lintDeck(doc, info, dirname(fixturePath(ATTENTION)));
@@ -43,6 +44,7 @@ const minimal = loadFixture(MINIMAL)!;
 });
 
 (mechanistic === null ? describe.skip : describe)('mechanistic deck', () => {
+  if (mechanistic === null) { it('needs fixtures/real/mechanistic (private, not in git)', () => {}); return; }
   const doc = parseSource(mechanistic!);
   const info = inspectDeck(doc);
   const issues = lintDeck(doc, info, dirname(fixturePath(MECHANISTIC)));

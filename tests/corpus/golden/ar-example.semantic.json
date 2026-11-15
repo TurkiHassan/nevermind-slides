@@ -1,0 +1,566 @@
+[
+ {
+  "slide": 1,
+  "step": 0,
+  "active": [
+   1
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 2,
+  "step": 0,
+  "active": [
+   2
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s2.li#0",
+   "s2.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 2,
+  "step": 1,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.li#0"
+  ],
+  "current": [
+   "s2.li#0"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s2.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 2,
+  "step": 2,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.li#0",
+   "s2.li#1"
+  ],
+  "current": [
+   "s2.li#1"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 2,
+  "step": 3,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.li#0",
+   "s2.li#1",
+   "s2.div#2"
+  ],
+  "current": [
+   "s2.div#2"
+  ],
+  "transient": true,
+  "hiddenSteps": [
+   "s2.div#2"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [
+   "div"
+  ],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 2,
+  "step": 4,
+  "active": [
+   2
+  ],
+  "stepsOn": [
+   "s2.li#0",
+   "s2.li#1",
+   "s2.div#2"
+  ],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 3,
+  "step": 0,
+  "active": [
+   3
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "signal-path",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 1
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 1,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.g#0",
+   "s3.g#1",
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "current": [
+   "s3.g#0",
+   "s3.g#1",
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "signal-path",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 2,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.g#0",
+   "s3.g#1",
+   "s3.div#2",
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "current": [
+   "s3.div#2"
+  ],
+  "transient": true,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [
+   "div"
+  ],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "signal-path",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 3,
+  "step": 3,
+  "active": [
+   3
+  ],
+  "stepsOn": [
+   "s3.g#0",
+   "s3.g#1",
+   "s3.div#2",
+   "s3.div#3",
+   "s3.div#4"
+  ],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "signal-path",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 4,
+  "step": 0,
+  "active": [
+   4
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s4.li#0",
+   "s4.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "before-after",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 4,
+  "step": 1,
+  "active": [
+   4
+  ],
+  "stepsOn": [
+   "s4.li#0"
+  ],
+  "current": [
+   "s4.li#0"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s4.li#1"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "before-after",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 4,
+  "step": 2,
+  "active": [
+   4
+  ],
+  "stepsOn": [
+   "s4.li#0",
+   "s4.li#1"
+  ],
+  "current": [
+   "s4.li#1"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "before-after",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 5,
+  "step": 0,
+  "active": [
+   5
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s5.div#0",
+   "s5.circle#3",
+   "s5.circle#4",
+   "s5.div#5",
+   "s5.div#6"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "retention-curve",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 5,
+  "step": 1,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.div#0"
+  ],
+  "current": [
+   "s5.div#0"
+  ],
+  "transient": false,
+  "hiddenSteps": [
+   "s5.circle#3",
+   "s5.circle#4",
+   "s5.div#5",
+   "s5.div#6"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "retention-curve",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 5,
+  "step": 2,
+  "active": [
+   5
+  ],
+  "stepsOn": [
+   "s5.div#0",
+   "s5.path#1",
+   "s5.path#2",
+   "s5.circle#3",
+   "s5.circle#4",
+   "s5.div#5",
+   "s5.div#6"
+  ],
+  "current": [
+   "s5.path#1",
+   "s5.path#2",
+   "s5.circle#3",
+   "s5.circle#4",
+   "s5.div#5",
+   "s5.div#6"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "retention-curve",
+    "play": true,
+    "nodes": 0,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 6,
+  "step": 0,
+  "active": [
+   6
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [
+   "s6.line#0",
+   "s6.line#1",
+   "s6.line#2",
+   "s6.circle#3",
+   "s6.circle#4",
+   "s6.circle#5",
+   "s6.div#6",
+   "s6.div#7",
+   "s6.div#8",
+   "s6.div#9",
+   "s6.div#10",
+   "s6.div#11"
+  ],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "learning-steps",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 0
+   }
+  ]
+ },
+ {
+  "slide": 6,
+  "step": 1,
+  "active": [
+   6
+  ],
+  "stepsOn": [
+   "s6.line#0",
+   "s6.line#1",
+   "s6.line#2",
+   "s6.circle#3",
+   "s6.circle#4",
+   "s6.circle#5",
+   "s6.div#6",
+   "s6.div#7",
+   "s6.div#8",
+   "s6.div#9",
+   "s6.div#10",
+   "s6.div#11"
+  ],
+  "current": [
+   "s6.line#0",
+   "s6.line#1",
+   "s6.line#2",
+   "s6.circle#3",
+   "s6.circle#4",
+   "s6.circle#5",
+   "s6.div#6",
+   "s6.div#7",
+   "s6.div#8",
+   "s6.div#9",
+   "s6.div#10",
+   "s6.div#11"
+  ],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": [
+   {
+    "id": "learning-steps",
+    "play": true,
+    "nodes": 3,
+    "shownNodes": 3
+   }
+  ]
+ },
+ {
+  "slide": 7,
+  "step": 0,
+  "active": [
+   7
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ },
+ {
+  "slide": 8,
+  "step": 0,
+  "active": [
+   8
+  ],
+  "stepsOn": [],
+  "current": [],
+  "transient": false,
+  "hiddenSteps": [],
+  "hiddenLasting": [],
+  "body": [],
+  "overlay": [],
+  "ghosts": 0,
+  "camera": "rest",
+  "figures": []
+ }
+]

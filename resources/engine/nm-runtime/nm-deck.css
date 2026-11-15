@@ -107,7 +107,8 @@ html, body {
    3. Steps and acts
    -------------------------------------------------------------------------- */
 .slide [data-step]:not([data-act]):not(.is-on),
-.slide [data-step][data-act="reveal"]:not(.is-on) {
+.slide [data-step][data-act="reveal"]:not(.is-on),
+.slide [data-step][data-act="gsap"]:not(.is-on) {
   visibility: hidden;
   opacity: 0;
 }

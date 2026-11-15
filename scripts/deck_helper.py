@@ -11,13 +11,14 @@ Works with both `python3 scripts/deck_helper.py ...` and `uv run scripts/deck_he
 Subcommands:
   install           One-command global installer for non-technical users and AI agents.
                     Links/copies `research-to-motion-slides` (plus its bundled `anatomy`
-                    and `frontend-slides` engines) across Antigravity, OpenCode, Codex,
+                    engine) across Antigravity, OpenCode, Codex,
                     Claude Code, and ~/.agents/skills, and registers the OpenCode slash command.
   uninstall         Cleanly remove installed symlinks/copies of `research-to-motion-slides`
                     and the OpenCode slash command.
-  stage-fonts       Copy bundled Thmanyah Display, Thmanyah Sans, KOMission, Qahwa,
-                    Setabr, Alkhalil, ZIAN, IBM Plex Sans Arabic, Zain Rounded, and Readex Pro
-                    fonts from resources/fonts/ into the project's assets/fonts/ directory.
+  stage-fonts       Copy the catalogue fonts into the project's assets/fonts/ directory: the
+                    bundled ones from resources/fonts/, and Thmanyah or ZIAN from the user's
+                    own font folders (NM_FONTS_DIR first) because their licenses forbid
+                    redistribution. Missing fonts make decks use the open pairing.
   audit-deck        Validate an HTML presentation deck against all strict quality gates
                     (Zero Emojis, @font-face declarations, existing URL-decoded asset/font paths,
                     1920x1080 stage + hidden controls structure, motion graphics presence,
@@ -32,9 +33,15 @@ Subcommands:
   notes             List or close the pinned notes the user left for the agent in Nevermind
                     Studio (`nm-studio notes list|done`).
   stage-runtime     Copy the nm-runtime v2 files (nm-deck, nm-focus, nm-diagram, nm-layout,
-                    nm-media) into <target-dir>/assets/nm/. `--inline` also writes a paste-in snippet.
+                    nm-media, nm-table, nm-math) into <target-dir>/assets/nm/. `--inline` also writes a
+                    paste-in snippet; `--math` adds the optional TeX converter (Temml).
   plan-init         Write <target-dir>/deck.plan.json from the bundled example (or N stub slides).
   plan-lint         Validate deck.plan.json and apply the motion-director design rules.
+  theme-derive      Three palettes from the materials and tools of the topic (contrast-checked),
+                    optional previews, `--apply N` writes one into the plan.
+  plan-advise       Suggest a representation, acts and Morph for each slide from its described
+                    information (`content`), with reasons in Arabic and English (advice.json).
+                    `--apply` writes the first suggestion into unlocked slides that fit poorly.
   scaffold          Generate the full deck HTML from a lint-clean plan (also stages fonts and runtime).
   check             Run the headless-Chrome runtime checks (scripts/deck_check.mjs): overflow,
                     contrast, fonts, images, steps, console errors, screenshots and a contact sheet.
@@ -63,7 +70,7 @@ from typing import Any
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 FONTS_SOURCE_DIR = SKILL_ROOT / "resources" / "fonts"
 BUNDLED_ANATOMY_DIR = SKILL_ROOT / "resources" / "engine" / "anatomy"
-BUNDLED_FRONTEND_SLIDES_DIR = SKILL_ROOT / "resources" / "engine" / "frontend-slides"
+LAYOUT_PRESETS_DIR = SKILL_ROOT / "resources" / "layout-presets"  # read by the editor's layout panel
 RUNTIME_DIR = SKILL_ROOT / "resources" / "engine" / "nm-runtime"
 TEMPLATES_DIR = SKILL_ROOT / "resources" / "templates"
 DECK_CHECK_SCRIPT = SKILL_ROOT / "scripts" / "deck_check.mjs"
@@ -209,14 +216,12 @@ def cmd_install(args: argparse.Namespace) -> int:
         alias_target = root / "research-to-motion-slides"
         _safe_symlink_or_copy(source_root, alias_target, overwrite=True)
 
-        # Ensure bundled companion skills (`anatomy` and `frontend-slides`) are also available globally
+        # Ensure the bundled companion skill `anatomy` is also available globally (the frontend-slides bundle was
+        # retired in roadmap NM-21: its layouts live in nm-layout.css, its layout presets in resources/layout-presets)
         bundled_anatomy = source_root / "resources" / "engine" / "anatomy"
         if bundled_anatomy.exists():
             _safe_symlink_or_copy(bundled_anatomy, root / "anatomy", overwrite=False)
 
-        bundled_fs = source_root / "resources" / "engine" / "frontend-slides"
-        if bundled_fs.exists():
-            _safe_symlink_or_copy(bundled_fs, root / "frontend-slides", overwrite=False)
 
     # Register OpenCode slash command (/nevermind-slides and alias /research-to-motion-slides)
     xdg_config = Path(os.environ.get("XDG_CONFIG_HOME", str(home / ".config"))).expanduser()
@@ -293,28 +298,144 @@ def cmd_uninstall(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# Fonts: catalogue, sources and pairings
+# ---------------------------------------------------------------------------
+# Fonts whose license allows redistribution ship in resources/fonts/. Fonts whose license forbids it
+# (Thmanyah, ZIAN; see THIRD_PARTY_NOTICES.md) are found on the user's machine instead: NM_FONTS_DIR, then the
+# usual per-user and system font folders. A pairing whose fonts are missing falls back to the open pairing.
+
+# (family, file, css format, css weight)
+FONT_CATALOGUE: tuple[tuple[str, str, str, str], ...] = (
+    ("Thmanyah Display", "thmanyahserifdisplay-Light.otf", "opentype", "300"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Regular.otf", "opentype", "400"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Medium.otf", "opentype", "500"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Bold.otf", "opentype", "700"),
+    ("Thmanyah Display", "thmanyahserifdisplay-Black.otf", "opentype", "900"),
+    ("KOMission", "KOMission-Black.otf", "opentype", "100 900"),
+    ("Thmanyah Sans", "thmanyahsans-Light.otf", "opentype", "300"),
+    ("Thmanyah Sans", "thmanyahsans-Regular.otf", "opentype", "400"),
+    ("Thmanyah Sans", "thmanyahsans-Medium.otf", "opentype", "500"),
+    ("Thmanyah Sans", "thmanyahsans-Bold.otf", "opentype", "700"),
+    ("Thmanyah Sans", "thmanyahsans-Black.otf", "opentype", "900"),
+    ("Qahwa Arabic", "Qahwa-Arabic-Black.otf", "opentype", "900"),
+    ("Setabr Display", "SetabrDisplay-Regular.otf", "opentype", "400 800"),
+    ("Alkhalil Kufi", "Alkhalil-Kufi.otf", "opentype", "400 800"),
+    ("ZIAN", "ZIAN-VF.ttf", "truetype", "100 900"),
+    ("IBM Plex Sans Arabic", "IBMPlexSansArabic-Regular.ttf", "truetype", "400"),
+    ("IBM Plex Sans Arabic", "IBMPlexSansArabic-Medium.ttf", "truetype", "500"),
+    ("IBM Plex Sans Arabic", "IBMPlexSansArabic-SemiBold.ttf", "truetype", "600 700"),
+    ("Zain Rounded", "ZainRounded-VF.ttf", "truetype", "100 900"),
+    ("Readex Pro", "ReadexPro-VF.ttf", "truetype", "100 900"),
+)
+# Families the user must install themselves: name, where to get them.
+USER_INSTALLED_FONTS = {
+    "Thmanyah Display": "https://font.thmanyah.com",
+    "Thmanyah Sans": "https://font.thmanyah.com",
+    "ZIAN": "the MUQLA foundry (commercial license)",
+}
+OPEN_PAIRING = "open"
+# pairing: (display stack, body stack, families that must be present)
+PAIRING_FONTS: dict[str, tuple[str, str, tuple[str, ...]]] = {
+    "thmanyah": ("'Thmanyah Display', 'Readex Pro', sans-serif",
+                 "'KOMission', 'Thmanyah Sans', 'IBM Plex Sans Arabic', sans-serif",
+                 ("Thmanyah Display", "Thmanyah Sans")),
+    "sans": ("'Thmanyah Display', 'Readex Pro', sans-serif",
+             "'Thmanyah Sans', 'KOMission', 'IBM Plex Sans Arabic', sans-serif",
+             ("Thmanyah Display", "Thmanyah Sans")),
+    "qahwa": ("'Qahwa Arabic', 'Readex Pro', sans-serif",
+              "'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif",
+              ("Qahwa Arabic", "IBM Plex Sans Arabic")),
+    "setabr": ("'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif",
+               "'Readex Pro', 'IBM Plex Sans Arabic', sans-serif",
+               ("Setabr Display", "Readex Pro")),
+    "kufi": ("'Alkhalil Kufi', 'Readex Pro', sans-serif",
+             "'IBM Plex Sans Arabic', sans-serif",
+             ("Alkhalil Kufi", "IBM Plex Sans Arabic")),
+    OPEN_PAIRING: ("'Readex Pro', 'IBM Plex Sans Arabic', sans-serif",
+                   "'IBM Plex Sans Arabic', 'Readex Pro', sans-serif",
+                   ("Readex Pro", "IBM Plex Sans Arabic")),
+}
+FONT_EXTENSIONS = (".otf", ".ttf", ".woff2")
+
+
+def _user_font_dirs() -> list[Path]:
+    # NM_FONTS_BUNDLED_ONLY=1: bundled fonts only (golden tests must not depend on what a machine has installed).
+    if os.environ.get("NM_FONTS_BUNDLED_ONLY") == "1":
+        return []
+    dirs: list[Path] = []
+    env = os.environ.get("NM_FONTS_DIR")
+    if env:
+        dirs.extend(Path(p).expanduser() for p in env.split(os.pathsep) if p)
+    home = Path.home()
+    dirs += [home / ".fonts", home / ".local" / "share" / "fonts", home / "Library" / "Fonts",
+             Path("/Library/Fonts"), Path("/usr/local/share/fonts"), Path("/usr/share/fonts")]
+    for var in ("LOCALAPPDATA", "WINDIR"):
+        base = os.environ.get(var)
+        if base:
+            dirs.append(Path(base) / ("Microsoft/Windows/Fonts" if var == "LOCALAPPDATA" else "Fonts"))
+    return dirs
+
+
+def _font_sources() -> dict[str, Path]:
+    """Catalogue file name -> where it was found. Bundled fonts win over the user's copies."""
+    wanted = {f.lower(): f for _, f, _, _ in FONT_CATALOGUE}
+    found: dict[str, Path] = {}
+    roots = [FONTS_SOURCE_DIR] + _user_font_dirs()
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for dirpath, _dirs, files in os.walk(root):
+            for name in files:
+                canonical = wanted.get(name.lower())
+                if canonical and canonical not in found:
+                    found[canonical] = Path(dirpath) / name
+        if len(found) == len(wanted):
+            break
+    return found
+
+
+def _available_families(files: Any) -> set[str]:
+    names = set(files)
+    return {family for family, f, _, _ in FONT_CATALOGUE if f in names}
+
+
+def resolve_pairing(requested: str, families: set[str]) -> str:
+    """The requested pairing when its fonts are present, else the open pairing."""
+    need = PAIRING_FONTS.get(requested, PAIRING_FONTS["thmanyah"])[2]
+    return requested if all(f in families for f in need) else OPEN_PAIRING
+
+
+def _missing_font_hint(families: set[str]) -> str:
+    missing = sorted({f for f in USER_INSTALLED_FONTS if f not in families})
+    if not missing:
+        return ""
+    where = sorted({USER_INSTALLED_FONTS[f] for f in missing})
+    return (f"Not bundled (their licenses forbid redistribution): {', '.join(missing)}. "
+            f"Get them from {' / '.join(where)}, install them or put the files in NM_FONTS_DIR, then rerun stage-fonts. "
+            f"Until then decks use the open pairing (Readex Pro + IBM Plex Sans Arabic).")
+
+
 def _stage_fonts(target_dir: Path) -> dict[str, Any]:
     dest_fonts_dir = target_dir / "assets" / "fonts"
     dest_fonts_dir.mkdir(parents=True, exist_ok=True)
 
-    if not FONTS_SOURCE_DIR.exists():
-        return {
-            "status": "error",
-            "message": f"Bundled fonts directory not found at {FONTS_SOURCE_DIR}",
-            "staged_files": [],
-        }
-
+    sources = _font_sources()
     staged_files: list[str] = []
-    for ext in ("*.otf", "*.ttf", "*.woff2"):
-        for font_file in sorted(FONTS_SOURCE_DIR.glob(ext)):
-            dest_file = dest_fonts_dir / font_file.name
-            shutil.copy2(font_file, dest_file)
-            staged_files.append(str(dest_file.relative_to(target_dir)))
+    for _family, name, _fmt, _weight in FONT_CATALOGUE:
+        src = sources.get(name)
+        if src is None:
+            continue
+        dest_file = dest_fonts_dir / name
+        if src.resolve() != dest_file.resolve():
+            shutil.copy2(src, dest_file)
+        staged_files.append(str(dest_file.relative_to(target_dir)))
 
+    families = _available_families(name for name in sources)
     if not staged_files:
         return {
             "status": "error",
-            "message": f"No font files (.otf/.ttf/.woff2) found inside {FONTS_SOURCE_DIR}",
+            "message": f"No catalogue font files found in {FONTS_SOURCE_DIR} or the user font folders",
             "staged_files": [],
         }
 
@@ -324,6 +445,9 @@ def _stage_fonts(target_dir: Path) -> dict[str, Any]:
         "fonts_dir": str(dest_fonts_dir),
         "staged_count": len(staged_files),
         "staged_files": staged_files,
+        "families": sorted(families),
+        "user_installed": sorted(str(sources[n]) for n in sources if not str(sources[n]).startswith(str(FONTS_SOURCE_DIR))),
+        "missing_hint": _missing_font_hint(families),
         "bundled_anatomy_kit": str(BUNDLED_ANATOMY_DIR / "kit" / "iso-kit.mjs"),
     }
 
@@ -337,6 +461,10 @@ def cmd_stage_fonts(args: argparse.Namespace) -> int:
         print(f"Error: {result['message']}", file=sys.stderr)
         return 1
     print(f"Staged {result['staged_count']} font files to {result['fonts_dir']}. Report written to {output_path}")
+    if result.get("user_installed"):
+        print("Note: fonts copied from your own font folders are licensed to you; do not publish the deck folder with them.")
+    if result.get("missing_hint"):
+        print(f"Note: {result['missing_hint']}")
     return 0
 
 
@@ -346,6 +474,8 @@ def cmd_stage_fonts(args: argparse.Namespace) -> int:
 
 ACTS = ("reveal", "zoom", "highlight", "focus", "detail", "lens", "pins", "slice", "draw")
 ISOLATION_ACTS = ("focus", "detail", "lens", "pins", "slice")
+# Acts a hand-written deck may use beyond the plan's: gsap comes from the optional adapter nm-gsap.js (NM-17).
+RUNTIME_ACTS = ACTS + ("gsap",)
 ONCE_PER_SLIDE_ACTS = ("detail", "slice", "lens")
 TRANSIENT_ACTS = ("zoom", "highlight", "focus", "detail", "lens", "pins", "slice")
 TRANSITIONS = (
@@ -355,14 +485,14 @@ RELS = ("next", "deeper", "back-out", "chapter", "contrast", "time")
 ENTRANCES = ("rise", "fade", "clip", "scale", "blur", "draw", "type", "count", "slide")
 MODES = ("morph-and-zoom", "morph-only", "classic")
 ROLES = ("cover", "section", "concept", "mechanism", "evidence", "comparison", "process", "quote", "summary", "closing")
-VISUAL_TYPES = ("anatomy", "image", "diagram", "chart", "motion", "none")
+VISUAL_TYPES = ("anatomy", "image", "diagram", "chart", "motion", "table", "equation", "none")
 VISUAL_MODES = ("static", "animated")
-PAIRINGS = ("thmanyah", "qahwa", "setabr", "kufi", "sans")
+PAIRINGS = ("thmanyah", "qahwa", "setabr", "kufi", "sans", "open")
 IMAGE_SOURCES = ("generate", "web", "none")
 # Types nm-diagram.js renders (LAYOUTS.<name> in nm-diagram.js); the HTML must use these.
 BASE_DIAGRAM_TYPES = (
     "flow", "tree", "cycle", "hub", "swimlane", "sequence", "timeline", "layers", "matrix", "funnel",
-    "pyramid", "venn", "compare", "bars", "line", "donut", "gauge", "stat",
+    "pyramid", "venn", "compare", "bars", "line", "donut", "gauge", "stat", "scatter",
 )
 # Friendly plan names accepted by plan-lint; scaffold writes the real type.
 DIAGRAM_TYPE_ALIASES = {"bar": "bars", "column": "bars", "area": "line", "pie": "donut", "stack": "layers", "network": "flow", "graph": "flow", "kpi": "stat"}
@@ -372,8 +502,11 @@ BASE_LAYOUTS = (
     "cards-2", "cards-3", "cards-4", "rail", "quote", "stat-row", "compare", "steps",
     "cover", "split-rev", "hero", "stat", "cards", "diagram", "timeline", "center", "list",
 )
-RUNTIME_JS_ORDER = ("nm-deck.js", "nm-focus.js", "nm-diagram.js")
-RUNTIME_CSS_ORDER = ("nm-deck.css", "nm-focus.css", "nm-diagram.css", "nm-media.css", "nm-layout.css")
+RUNTIME_JS_ORDER = ("nm-deck.js", "nm-focus.js", "nm-diagram.js", "nm-table.js", "nm-math.js")
+RUNTIME_CSS_ORDER = ("nm-deck.css", "nm-focus.css", "nm-diagram.css", "nm-media.css", "nm-layout.css", "nm-table.css", "nm-math.css")
+# Optional converter for data-tex (decision D3: native MathML is the default). Staged by stage-runtime --math, or by
+# scaffold when the plan holds TeX; never loaded from the network.
+MATH_VENDOR_FILES = ("temml.min.js", "temml.LICENSE.txt")
 
 FONT_MODE_LABELS = {
     "thmanyah": "ثمانية + كومشن",
@@ -381,7 +514,9 @@ FONT_MODE_LABELS = {
     "qahwa": "قهوة",
     "setabr": "ستابر",
     "kufi": "كوفي",
+    "open": "ريدكس + بلكس",
 }
+FONT_MODE_LABELS_EN = {"thmanyah": "Thmanyah + KOMission", "sans": "Thmanyah Sans", "qahwa": "Qahwa", "setabr": "Setabr", "kufi": "Kufi", "open": "Readex + Plex"}
 
 DIGIT_GROUPS = {
     "western": re.compile(r"[0-9]"),
@@ -391,6 +526,42 @@ DIGIT_GROUPS = {
 
 # Emoji plus invisible emoji glue (variation selector-16, zero-width joiner, keycap)
 PLAN_EMOJI_REGEX = re.compile(EMOJI_REGEX.pattern[:-2] + "\uFE0F\u20E3]+")
+
+
+_REPRESENT: Any = None
+_IDENTITY: Any = None
+
+
+def _identity() -> Any:
+    """scripts/nm_identity.py (identity derived from the topic, NM-19), loaded next to this file."""
+    global _IDENTITY
+    if _IDENTITY is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("nm_identity", Path(__file__).resolve().parent / "nm_identity.py")
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        sys.modules["nm_identity"] = module
+        spec.loader.exec_module(module)
+        _IDENTITY = module
+    return _IDENTITY
+
+
+def _represent() -> Any:
+    """scripts/nm_represent.py (representation intelligence, NM-29), loaded next to this file."""
+    global _REPRESENT
+    if _REPRESENT is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("nm_represent", Path(__file__).resolve().parent / "nm_represent.py")
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        sys.modules["nm_represent"] = module
+        spec.loader.exec_module(module)
+        _REPRESENT = module
+    return _REPRESENT
+
+
+def _has_content(plan: Any) -> bool:
+    return isinstance(plan, dict) and any(isinstance(s, dict) and isinstance(s.get("content"), dict) for s in plan.get("slides") or [])
 
 
 def _closest(value: str, options: Any) -> str:
@@ -486,15 +657,19 @@ def _iter_strings(node: Any):
             yield from _iter_strings(value)
 
 
-def resolve_theme(theme: Any) -> tuple[dict[str, Any], list[str]]:
-    """Return (tokens, problems). Preset first, then explicit token overrides."""
+def resolve_theme(theme: Any, plan: Any = None) -> tuple[dict[str, Any], list[str]]:
+    """Return (tokens, problems). theme.derive (palette from the topic, NM-19) or a preset first, then explicit
+    token overrides."""
     presets = _load_themes()
     problems: list[str] = []
     default_name = "paper" if "paper" in presets else next(iter(presets), "")
     tokens: dict[str, Any] = {}
     theme = theme if isinstance(theme, dict) else {}
     preset = theme.get("preset")
-    if preset:
+    derived = _identity().pick(plan) if isinstance(theme.get("derive"), dict) and isinstance(plan, dict) else None
+    if derived:
+        tokens.update({k: v for k, v in derived.items() if k in THEME_TOKENS})
+    elif preset:
         if preset in presets:
             tokens.update({k: v for k, v in presets[preset].items() if k in THEME_TOKENS})
         else:
@@ -508,7 +683,7 @@ def resolve_theme(theme: Any) -> tuple[dict[str, Any], list[str]]:
     for key in THEME_TOKENS:
         if key in theme:
             tokens[key] = theme[key]
-    if not preset and theme and not all(k in theme for k in ("paper", "ink", "accent")):
+    if not preset and not derived and theme and not all(k in theme for k in ("paper", "ink", "accent")):
         problems.append("custom theme needs at least paper, ink and accent (or set theme.preset)")
     for key in THEME_TOKENS:
         if key == "radius" or key not in tokens:
@@ -564,6 +739,139 @@ def motion_score(slide: dict[str, Any], prev: dict[str, Any] | None) -> int:
     return min(score, 10)
 
 
+# Tables and equations (roadmap NM-10, NM-11)
+_TEX_INLINE = re.compile(r"\\\((.+?)\\\)")
+_TEX_DELIMS = re.compile(r"^\s*(\$|\\\(|\\\[)")
+_UNSAFE_MARKUP = re.compile(r"<\s*(script|iframe|style|object|embed|foreignobject)\b|\son[a-z]+\s*=|javascript:", re.I)
+_HIGHLIGHT_TOKEN = re.compile(r"^([rc])(\d+)$", re.I)
+TABLE_STEP_MODES = ("row", "col")
+
+
+def _equation_sources(visual: dict[str, Any]) -> list[dict[str, Any]]:
+    """The formulas of an equation visual: `lines` (a derivation) or the visual itself (one formula)."""
+    lines = visual.get("lines")
+    if isinstance(lines, list):
+        return [ln if isinstance(ln, dict) else {} for ln in lines]
+    return [visual]
+
+
+def _visual_strings(slide: dict[str, Any]) -> list[str]:
+    """Visible text a table or equation visual puts on the slide (headers, cells, captions, notes; not the formulas)."""
+    visual = _visual_of(slide)
+    out: list[str] = []
+    vtype = visual.get("type")
+    if vtype == "table":
+        for c in visual.get("columns") or []:
+            out.append(str(c))
+        for row in visual.get("rows") or []:
+            if isinstance(row, list):
+                out.extend(str(c) for c in row)
+    if vtype == "equation":
+        out.extend(str(src.get("note")) for src in _equation_sources(visual) if src.get("note"))
+    if vtype in ("table", "equation") and visual.get("caption"):
+        out.append(str(visual["caption"]))
+    return [_TEX_INLINE.sub(" ", t) for t in out]
+
+
+def _plan_uses_tex(plan: dict[str, Any]) -> bool:
+    """True when the deck needs the TeX converter: equation sources in TeX, or inline \\( ... \\) in any text."""
+    for slide in plan.get("slides") or []:
+        if not isinstance(slide, dict):
+            continue
+        visual = _visual_of(slide)
+        if visual.get("type") == "equation" and any(isinstance(src.get("tex"), str) and src["tex"].strip() for src in _equation_sources(visual)):
+            return True
+        if any(_TEX_INLINE.search(t) for t in _iter_strings(slide.get("text"))) or any(_TEX_INLINE.search(t) for t in _visual_strings_raw(slide)):
+            return True
+    return False
+
+
+def _visual_strings_raw(slide: dict[str, Any]) -> list[str]:
+    visual = _visual_of(slide)
+    out: list[str] = []
+    if visual.get("type") == "table":
+        out += [str(c) for c in visual.get("columns") or []]
+        out += [str(c) for row in visual.get("rows") or [] if isinstance(row, list) for c in row]
+    if visual.get("type") == "equation":
+        out += [str(src.get("note")) for src in _equation_sources(visual) if src.get("note")]
+    if visual.get("caption"):
+        out.append(str(visual["caption"]))
+    return out
+
+
+def _lint_table(visual: dict[str, Any], where: str, i: int, err: Any, warn: Any) -> None:
+    cols, rows = visual.get("columns"), visual.get("rows")
+    if not (isinstance(cols, list) and len(cols) >= 2 and all(isinstance(c, (str, int, float)) for c in cols)):
+        err("R125", f"{where}: table visual needs `columns`, a list of at least 2 header labels", i + 1)
+        return
+    if not (isinstance(rows, list) and rows and all(isinstance(r, list) for r in rows)):
+        err("R125", f"{where}: table visual needs `rows`, a list of rows (each a list of cells)", i + 1)
+        return
+    for r, row in enumerate(rows):
+        if len(row) != len(cols):
+            err("R125", f"{where}: table row {r + 1} has {len(row)} cells but the table has {len(cols)} columns; make them equal", i + 1)
+        if not all(isinstance(c, (str, int, float)) for c in row):
+            err("R125", f"{where}: table row {r + 1} holds a cell that is not text or a number", i + 1)
+    if len(rows) > 8 or len(cols) > 6:
+        warn("R126", f"{where}: table is {len(rows)} rows x {len(cols)} columns; above 8 x 6 it cannot stay at 20px or more, split it or move rows to a detail act", i + 1)
+    spec = visual.get("highlight")
+    if spec is not None:
+        heads = 1 if visual.get("row_headers", True) else 0
+        for tok in re.split(r"[\s,;]+", str(spec).strip()):
+            m = _HIGHLIGHT_TOKEN.match(tok)
+            if not m:
+                err("R125", f"{where}: table highlight \"{tok}\" is not r<row> or c<column> (1-based, e.g. \"r2 c3\")", i + 1)
+            elif m.group(1).lower() == "r" and not 1 <= int(m.group(2)) <= len(rows):
+                err("R125", f"{where}: table highlight {tok}: the table has {len(rows)} body rows", i + 1)
+            elif m.group(1).lower() == "c" and not 1 <= int(m.group(2)) <= len(cols) - heads:
+                err("R125", f"{where}: table highlight {tok}: the table has {len(cols) - heads} data columns", i + 1)
+
+
+def _lint_equation(visual: dict[str, Any], where: str, i: int, err: Any, warn: Any) -> None:
+    lines = visual.get("lines")
+    if lines is not None and not (isinstance(lines, list) and lines):
+        err("R127", f"{where}: equation `lines` must be a non-empty list of {{\"mathml\" or \"tex\", \"note\"}}", i + 1)
+        return
+    sources = _equation_sources(visual)
+    for k, src in enumerate(sources):
+        label = f"equation line {k + 1}" if lines is not None else "equation"
+        mathml, tex = src.get("mathml"), src.get("tex")
+        has_m = isinstance(mathml, str) and bool(mathml.strip())
+        has_t = isinstance(tex, str) and bool(tex.strip())
+        if has_m == has_t:
+            err("R127", f"{where}: {label} needs exactly one of `mathml` (native, the default) or `tex` (needs the Temml converter)", i + 1)
+        elif has_m:
+            body = mathml.strip()
+            if not re.match(r"^<math[\s>]", body) or not body.endswith("</math>") or body.count("<math") != 1:
+                err("R127", f"{where}: {label} `mathml` must be one <math> ... </math> element", i + 1)
+            if _UNSAFE_MARKUP.search(body):
+                err("R127", f"{where}: {label} `mathml` must not contain scripts, frames, styles or event handlers", i + 1)
+        elif _TEX_DELIMS.match(tex):
+            err("R128", f"{where}: {label} `tex` starts with a $, \\( or \\[ delimiter; write the formula without delimiters", i + 1)
+    if len(sources) > 4:
+        warn("R129", f"{where}: derivation has {len(sources)} lines; keep at most 4 on one slide and continue on the next (link terms with data-term)", i + 1)
+
+
+def _slide_fingerprint(slide: dict[str, Any]) -> tuple[str, str, str, tuple[str, ...]]:
+    """What a slide looks like, for R104/R105: composition, visual, how many points, which acts."""
+    layout = str(slide.get("layout") or "")
+    comp = LAYOUT_ALIASES.get(layout, layout)
+    text = slide.get("text") if isinstance(slide.get("text"), dict) else {}
+    body = [b for b in text.get("body") or [] if isinstance(b, str)]
+    n = len(body)
+    bucket = "0" if n == 0 else "1-2" if n <= 2 else "3-5" if n <= 5 else "6+"
+    acts = tuple(sorted({str(st.get("act")) for st in _slide_steps(slide)}))
+    return comp, _represent().visual_key(slide), bucket, acts
+
+
+_TITLE_MORPHS = {"title", "headline", "kicker"}
+
+
+def _intentional_series(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    """Two slides that share a morph id other than the title carry one element on purpose (a visual, a number)."""
+    return bool((set(_slide_morph(a)) & set(_slide_morph(b))) - _TITLE_MORPHS)
+
+
 def lint_plan(plan: Any) -> dict[str, Any]:
     errors: list[dict[str, Any]] = []
     warnings: list[dict[str, Any]] = []
@@ -590,8 +898,8 @@ def lint_plan(plan: Any) -> dict[str, Any]:
         return {"passed": False, "errors": errors, "warnings": warnings, "slides": []}
 
     lang = plan.get("lang", "ar")
-    if lang != "ar":
-        err("P002", f"`lang` must be \"ar\", got \"{lang}\"")
+    if lang not in LANGS:
+        err("P002", f"`lang` must be one of {', '.join(LANGS)}, got \"{lang}\"")
     mode = plan.get("mode", "morph-and-zoom")
     if mode not in MODES:
         err("P002", f"`mode` \"{mode}\" is invalid; use one of: {', '.join(MODES)}")
@@ -604,7 +912,11 @@ def lint_plan(plan: Any) -> dict[str, Any]:
         hint = _closest(pairing, PAIRINGS)
         err("P002", f"`fonts.pairing` \"{pairing}\" is invalid" + (f"; did you mean \"{hint}\"?" if hint else f"; use one of: {', '.join(PAIRINGS)}"))
 
-    tokens, theme_problems = resolve_theme(plan.get("theme"))
+    tokens, theme_problems = resolve_theme(plan.get("theme"), plan)
+    if isinstance((plan.get("theme") or {}).get("derive") if isinstance(plan.get("theme"), dict) else None, dict):
+        ident = _identity().derive(plan)
+        if ident["source"] == "title":
+            warn("R130", "theme.derive found no material word of the topic in the plan; the palette comes from the title alone. Name the topic's materials and tools in theme.derive.materials (for example [\"ميناء\", \"بحر\"])")
     for problem in theme_problems:
         err("P003", problem)
     if tokens.get("paper") and tokens.get("ink") and not theme_problems:
@@ -682,6 +994,10 @@ def lint_plan(plan: Any) -> dict[str, Any]:
         if dtype and dtype not in diagram_types_ok:
             hint = _closest(dtype, diagram_types_ok)
             err("P002", f"{where}: diagram_type \"{dtype}\" is unknown" + (f"; did you mean \"{hint}\"?" if hint else ""), i + 1)
+        if vtype == "table":
+            _lint_table(visual, where, i, err, warn)
+        if vtype == "equation":
+            _lint_equation(visual, where, i, err, warn)
 
         # morph
         morph = slide.get("morph")
@@ -730,17 +1046,21 @@ def lint_plan(plan: Any) -> dict[str, Any]:
     if slides and slides[-1].get("role") not in ("closing", "summary"):
         err("R102", f"slide {n} must have role \"closing\" or \"summary\"", n)
 
-    # layout repetition
+    # repetition by fingerprint (decision D9): two slides look alike when their composition (after the short
+    # names are resolved), visual, number of points and acts are the same, whatever the layout is called. A series
+    # carried by a shared element other than the title (Morph of a visual, a figure, a number) is intentional.
+    prints = [_slide_fingerprint(sl) for sl in slides]
     run = 1
     for i in range(1, n):
-        if slides[i].get("layout") and slides[i].get("layout") == slides[i - 1].get("layout"):
+        if slides[i].get("layout") and prints[i] == prints[i - 1] and not _intentional_series(slides[i - 1], slides[i]):
             run += 1
         else:
             run = 1
+        what = f"{prints[i][0]} with {prints[i][1]}, {prints[i][2]} points"
         if run == 3:
-            err("R104", f"slide {i + 1} ({slides[i].get('id', '?')}): layout \"{slides[i].get('layout')}\" is used on 3 slides in a row; change one of them", i + 1)
+            err("R104", f"slide {i + 1} ({slides[i].get('id', '?')}): three slides in a row look the same ({what}); change the composition or the visual of one, or carry one element across them with a morph id", i + 1)
         elif run == 2:
-            warn("R105", f"slide {i + 1} ({slides[i].get('id', '?')}): layout \"{slides[i].get('layout')}\" repeats the previous slide; vary it if you can", i + 1)
+            warn("R105", f"slide {i + 1} ({slides[i].get('id', '?')}): looks the same as the previous slide ({what}); vary it if you can", i + 1)
 
     # continuity and morph pairing
     for i in range(1, n):
@@ -790,9 +1110,40 @@ def lint_plan(plan: Any) -> dict[str, Any]:
             err("R120", "deck title contains an emoji; remove it")
 
     visible = [s for sl in slides for k in ("text",) for s in _iter_strings(sl.get(k))] + [str(plan.get("title") or "")]
+    visible = [_TEX_INLINE.sub(" ", s) for s in visible] + [s for sl in slides for s in _visual_strings(sl)]
     used = [name for name, rx in DIGIT_GROUPS.items() if any(rx.search(s) for s in visible)]
     if len(used) > 1:
         warn("R121", f"deck text mixes digit systems ({', '.join(used)}); pick one and use it everywhere")
+
+    # representation advice (NM-29): advisory warnings only, and only when the plan asks for them
+    still_slides: set[int] = set()
+    if plan.get("advisor") is True:
+        nr = _represent()
+        for i, slide in enumerate(slides):
+            content = slide.get("content")
+            if content is not None and not isinstance(content, dict):
+                warn("A200", f"slide {i + 1} ({slide.get('id', '?')}): `content` must be an object describing the information", i + 1)
+                continue
+            kind = (content or {}).get("kind")
+            if kind and kind not in nr.KINDS:
+                hint = _closest(kind, nr.KINDS)
+                warn("A200", f"slide {i + 1} ({slide.get('id', '?')}): content.kind \"{kind}\" is unknown" + (f"; did you mean \"{hint}\"?" if hint else f"; use one of: {', '.join(nr.KINDS)}"), i + 1)
+        advice = nr.advise_plan(plan)
+        names = nr.rules()["representations"]
+        for e in advice["slides"]:
+            where = f"slide {e['index']} ({e['slide']})"
+            if e["fit"] == "unknown" and slides[e["index"] - 1].get("role") not in ("cover", "closing", "section"):
+                warn("A200", f"{where}: {nr.code_text('A200', 'en')}", e["index"])
+            if e["fit"] in ("poor", "weak") and not e.get("locked") and e["recommend"]:
+                rec = e["recommend"][0]
+                code = "A290" if e["fit"] == "poor" else "A291"
+                warn(code, f"{where}: {nr.code_text(code, 'en')}: {names.get(e['current'], {}).get('en', e['current'])} -> {names[rec['visual']]['en']} ({rec['why'][0]}: {rec['text_en']}); run plan-advise, or lock the visual", e["index"])
+            for c in e.get("checks", []):
+                warn(c["code"], f"{where}: {c['en']}", e["index"])
+            if e.get("still"):
+                still_slides.add(e["index"])
+        for r in advice["repetition"]:
+            warn(r["code"], f"slides {', '.join(map(str, r['slides']))}: {r['en']}", r["slides"][0])
 
     slide_reports = []
     for i, slide in enumerate(slides):
@@ -818,7 +1169,8 @@ def lint_plan(plan: Any) -> dict[str, Any]:
         "slides": slide_reports,
         "motion_summary": {
             "average": round(sum(scores) / len(scores), 1) if scores else 0,
-            "flat_slides": [r["slide"] for r in slide_reports if r["motion_score"] <= 2],
+            # a slide the advisor marks still (definition, quote, one number) is not flat: stillness is its point
+            "flat_slides": [r["slide"] for r in slide_reports if r["motion_score"] <= 2 and r["slide"] not in still_slides],
         },
     }
 
@@ -863,6 +1215,93 @@ def cmd_plan_lint(args: argparse.Namespace) -> int:
     return 0 if report["passed"] else 1
 
 
+def cmd_theme_derive(args: argparse.Namespace) -> int:
+    plan_path = Path(args.plan).expanduser().resolve()
+    plan, problem = _load_plan(plan_path)
+    if problem or not isinstance(plan, dict):
+        print(f"theme-derive FAILED: {problem or 'plan must be a JSON object'}", file=sys.stderr)
+        return 1
+    ni = _identity()
+    theme = dict(plan.get("theme") or {}) if isinstance(plan.get("theme"), dict) else {}
+    spec = dict(theme.get("derive") or {}) if isinstance(theme.get("derive"), dict) else {}
+    if args.materials:
+        spec["materials"] = [m.strip() for m in re.split(r"[,،]", args.materials) if m.strip()]
+    if args.mood:
+        spec["mood"] = args.mood
+    work = {**plan, "theme": {**theme, "derive": spec}}
+    result = ni.derive(work)
+    lang = plan.get("lang", "ar")
+    if args.output:
+        write_json_output(Path(args.output), result)
+    print(ni.table(result, lang))
+    if args.previews:
+        out = Path(args.previews).expanduser().resolve()
+        out.mkdir(parents=True, exist_ok=True)
+        slides = [s for s in plan.get("slides") or [] if isinstance(s, dict)]
+        sample = [slides[0]] + [s for s in slides[1:] if _visual_type(s) != "none"][:1] if slides else []
+        for i, pal in enumerate(result["palettes"]):
+            preview = {**plan, "theme": {**pal["tokens"]}, "slides": sample}
+            html_text, files, _ = render_deck(preview, out)
+            for path, content in files:
+                if not path.exists():
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(content, encoding="utf-8")
+            (out / f"style-{'abc'[i]}.html").write_text(html_text, encoding="utf-8")
+        _stage_fonts(out)
+        _stage_runtime(out, math=_plan_features({"slides": sample})["tex"])
+        print(f"\nPreviews: {out}/style-a.html, style-b.html, style-c.html (open all three)")
+    if args.apply:
+        n = args.apply
+        if not 1 <= n <= 3:
+            print("Error: --apply takes 1, 2 or 3", file=sys.stderr)
+            return 1
+        pal = result["palettes"][n - 1]
+        new_theme = {**pal["tokens"], "derived": {"materials": result["materials"], "mood": result["mood"], "palette": n,
+                                                  "names": pal["names"]["ar" if lang == "ar" else "en"]}}
+        shutil.copy2(plan_path, plan_path.with_name(plan_path.name + ".bak"))
+        write_json_output(plan_path, {**plan, "theme": new_theme})
+        print(f"\nPalette {'ABC'[n - 1]} written into the plan's theme as fixed colours (the old plan is kept as .bak).")
+    return 0
+
+
+def cmd_plan_advise(args: argparse.Namespace) -> int:
+    plan_path = Path(args.plan).expanduser().resolve()
+    plan, problem = _load_plan(plan_path)
+    if problem or not isinstance(plan, dict):
+        print(f"Plan advise FAILED: {problem or 'plan must be a JSON object'}", file=sys.stderr)
+        return 1
+    nr = _represent()
+    advice = nr.advise_plan(plan)
+    out = Path(args.output).expanduser().resolve() if args.output else plan_path.parent / "advice.json"
+    out.write_text(nr.advice_json(advice), encoding="utf-8")
+    print(nr.table(advice))
+    described = sum(1 for e in advice["slides"] if e["fit"] != "unknown")
+    print(f"\nAdvice for {described} of {len(advice['slides'])} slides written to {out}")
+    if not described:
+        print("No slide describes its information yet: add content.kind (and items, quantities, entities...) to the slides; see references/deck-plan.md.")
+    if args.apply:
+        before = lint_plan(plan)
+        new, applied, skipped = nr.apply_advice(plan, advice)
+        after = lint_plan(new)
+        old_errs = {(e["code"], e["slide"]) for e in before["errors"]}
+        broke = sorted({e["slide"] for e in after["errors"] if (e["code"], e["slide"]) not in old_errs and e["slide"]})
+        for idx in broke:  # never let advice break the plan: keep the author's visual on that slide
+            new["slides"][idx - 1]["visual"] = plan["slides"][idx - 1].get("visual")
+            sid = plan["slides"][idx - 1].get("id")
+            applied = [a for a in applied if not a.startswith(f"{sid}:")]
+            skipped.append(f"{sid}: the suggestion would break plan-lint ({', '.join(e['code'] for e in after['errors'] if e['slide'] == idx)}); kept the current visual")
+        if applied:
+            shutil.copy2(plan_path, plan_path.with_name(plan_path.name + ".bak"))
+            write_json_output(plan_path, new)
+        for line in applied:
+            print(f"  applied  {line}")
+        for line in skipped:
+            print(f"  skipped  {line}")
+        if not applied:
+            print("Nothing to apply: every described slide fits, is locked, or needs data first.")
+    return 0
+
+
 # ---------------------------------------------------------------------------
 # plan-init
 # ---------------------------------------------------------------------------
@@ -884,7 +1323,20 @@ _STUB_VISUAL = {
 }
 
 
-def make_stub_plan(title: str, count: int) -> dict[str, Any]:
+_STUB_TEXT = {
+    "ar": {"kicker": "اكتب العنوان الفرعي", "headline": "اكتب عنوان الشريحة", "opening": "اكتب جملة افتتاحية قصيرة",
+           "stat_label": "اكتب وصف الرقم", "stat_source": "اكتب مصدر الرقم", "speaker": "اكتب اسم القائل", "quote": "اكتب الاقتباس هنا",
+           "point1": "اكتب نقطة قصيرة", "point2": "اكتب نقطة ثانية", "action": "اكتب خطوة عملية واحدة",
+           "cover": "الغلاف", "closing": "الخاتمة", "slide": "اكتب اسم الشريحة"},
+    "en": {"kicker": "Write the subtitle", "headline": "Write the slide title", "opening": "Write a short opening sentence",
+           "stat_label": "Describe the number", "stat_source": "Write the source of the number", "speaker": "Write who said it", "quote": "Write the quote here",
+           "point1": "Write a short point", "point2": "Write a second point", "action": "Write one practical step",
+           "cover": "Cover", "closing": "Closing", "slide": "Name the slide"},
+}
+
+
+def make_stub_plan(title: str, count: int, lang: str = "ar") -> dict[str, Any]:
+    st = _STUB_TEXT[lang if lang in _STUB_TEXT else "ar"]
     roles = ["cover"]
     for k in range(count - 2):
         roles.append(_STUB_CYCLE[k % len(_STUB_CYCLE)])
@@ -911,20 +1363,21 @@ def make_stub_plan(title: str, count: int) -> dict[str, Any]:
             steps = [{"act": "reveal", "target": "stat"}]
         elif role in ("comparison", "process"):
             steps = [{"act": "reveal", "target": "visual"}]
-        text: dict[str, Any] = {"kicker": "اكتب العنوان الفرعي", "headline": "اكتب عنوان الشريحة"}
+        # a kicker above every title reads template-made (NM-20, T101): stubs offer one on every third content slide
+        text: dict[str, Any] = {"kicker": st["kicker"], "headline": st["headline"]} if i % 3 == 1 else {"headline": st["headline"]}
         if role == "cover":
-            text = {"kicker": "اكتب العنوان الفرعي", "headline": title, "body": ["اكتب جملة افتتاحية قصيرة"]}
+            text = {"kicker": st["kicker"], "headline": title, "body": [st["opening"]]}
         elif role == "evidence":
-            text["stat"] = {"value": "0%", "label": "اكتب وصف الرقم"}
-            text["body"] = ["اكتب مصدر الرقم"]
+            text["stat"] = {"value": "0%", "label": st["stat_label"]}
+            text["body"] = [st["stat_source"]]
         elif role == "quote":
-            text = {"kicker": "اكتب اسم القائل", "headline": "اكتب الاقتباس هنا"}
+            text = {"kicker": st["speaker"], "headline": st["quote"]}
         elif role in ("concept", "closing", "comparison"):
-            text["body"] = ["اكتب نقطة قصيرة", "اكتب نقطة ثانية"] if role != "closing" else ["اكتب خطوة عملية واحدة"]
+            text["body"] = [st["point1"], st["point2"]] if role != "closing" else [st["action"]]
         slides.append(
             {
                 "id": f"s{i + 1}",
-                "title": "الغلاف" if role == "cover" else ("الخاتمة" if role == "closing" else "اكتب اسم الشريحة"),
+                "title": st["cover"] if role == "cover" else (st["closing"] if role == "closing" else st["slide"]),
                 "role": role,
                 "layout": layout,
                 "visual": visual,
@@ -938,8 +1391,8 @@ def make_stub_plan(title: str, count: int) -> dict[str, Any]:
         )
     return {
         "title": title,
-        "lang": "ar",
-        "theme": {"preset": "paper"},
+        "lang": lang if lang in _STUB_TEXT else "ar",
+        "theme": {"derive": {"materials": [], "mood": ""}},  # colours from the topic (NM-19); theme-derive shows the three
         "fonts": {"pairing": "thmanyah"},
         "mode": "morph-and-zoom",
         "image_source": "generate",
@@ -955,11 +1408,13 @@ def cmd_plan_init(args: argparse.Namespace) -> int:
         print(f"Error: {out} already exists. Use --force to overwrite it.", file=sys.stderr)
         return 1
     example = TEMPLATES_DIR / "deck.plan.example.json"
-    if args.slides is None:
+    if args.slides is None and getattr(args, "lang", "ar") != "ar":
+        plan = make_stub_plan(args.title, 8, args.lang)  # the full example is written in Arabic
+    elif args.slides is None:
         try:
             plan = json.loads(example.read_text(encoding="utf-8"))
         except (OSError, ValueError):
-            plan = make_stub_plan(args.title, 8)
+            plan = make_stub_plan(args.title, 8, getattr(args, "lang", "ar"))
         plan["title"] = args.title
         if plan.get("slides"):
             plan["slides"][0].setdefault("text", {})["headline"] = args.title
@@ -967,9 +1422,16 @@ def cmd_plan_init(args: argparse.Namespace) -> int:
         if not 5 <= args.slides <= 24:
             print("Error: --slides must be between 5 and 24.", file=sys.stderr)
             return 1
-        plan = make_stub_plan(args.title, args.slides)
+        plan = make_stub_plan(args.title, args.slides, getattr(args, "lang", "ar"))
+    if getattr(args, "advisor", False):
+        plan["advisor"] = True
+        plan.setdefault("audience", "general")
+        for slide in plan["slides"]:
+            if slide.get("role") not in ("cover", "closing"):
+                slide.setdefault("content", {"kind": "", "items": 0, "quantities": [], "entities": []})
     write_json_output(out, plan)
-    print(f"Plan written to {out} ({len(plan['slides'])} slides). Fill it in, then run: plan-lint --plan {out}")
+    nxt = "plan-advise" if getattr(args, "advisor", False) else "plan-lint"
+    print(f"Plan written to {out} ({len(plan['slides'])} slides). Fill it in, then run: {nxt} --plan {out}")
     return 0
 
 
@@ -985,7 +1447,7 @@ def _runtime_files() -> list[Path]:
     return sorted(files, key=lambda p: p.name)
 
 
-def _stage_runtime(target_dir: Path, inline: bool = False) -> dict[str, Any]:
+def _stage_runtime(target_dir: Path, inline: bool = False, math: bool = False) -> dict[str, Any]:
     dest = target_dir / "assets" / "nm"
     files = _runtime_files()
     if not files:
@@ -999,6 +1461,15 @@ def _stage_runtime(target_dir: Path, inline: bool = False) -> dict[str, Any]:
     for f in files:
         shutil.copy2(f, dest / f.name)
         staged.append(str((dest / f.name).relative_to(target_dir)))
+    if math:
+        vendor_src = RUNTIME_DIR / "vendor"
+        missing = [n for n in MATH_VENDOR_FILES if not (vendor_src / n).is_file()]
+        if missing:
+            return {"status": "error", "message": f"--math: {', '.join(missing)} not found in {vendor_src}", "staged_files": staged}
+        (dest / "vendor").mkdir(exist_ok=True)
+        for name in MATH_VENDOR_FILES:
+            shutil.copy2(vendor_src / name, dest / "vendor" / name)
+            staged.append(str((dest / "vendor" / name).relative_to(target_dir)))
     result: dict[str, Any] = {
         "status": "ok",
         "target_dir": str(target_dir),
@@ -1010,6 +1481,8 @@ def _stage_runtime(target_dir: Path, inline: bool = False) -> dict[str, Any]:
         ordered_css = [f for name in RUNTIME_CSS_ORDER for f in files if f.name == name]
         ordered_js = [f for name in RUNTIME_JS_ORDER for f in files if f.name == name]
         parts = [f"<style>\n{f.read_text(encoding='utf-8')}\n</style>" for f in ordered_css]
+        if math:
+            parts.append(f"<script>\n{(dest / 'vendor' / 'temml.min.js').read_text(encoding='utf-8')}\n</script>")
         parts += [f"<script>\n{f.read_text(encoding='utf-8')}\n</script>" for f in ordered_js]
         snippet = dest / "nm-inline.html"
         snippet.write_text("\n".join(parts) + "\n", encoding="utf-8")
@@ -1019,7 +1492,7 @@ def _stage_runtime(target_dir: Path, inline: bool = False) -> dict[str, Any]:
 
 def cmd_stage_runtime(args: argparse.Namespace) -> int:
     target_dir = Path(args.target_dir).expanduser().resolve()
-    result = _stage_runtime(target_dir, inline=args.inline)
+    result = _stage_runtime(target_dir, inline=args.inline, math=getattr(args, "math", False))
     if args.output:
         write_json_output(Path(args.output), result)
     if result["status"] != "ok":
@@ -1042,6 +1515,36 @@ _PH_GLYPH = (
 
 def _esc(text: Any) -> str:
     return html_lib.escape(str(text), quote=True)
+
+
+# A Latin-led run with digits or neutral punctuation ("GPT-4 (2023)", "v2.1", "CO2/kWh") inside Arabic text: the
+# bidi algorithm can move its punctuation and digits. <bdi> keeps it in one piece (check code C-BIDI).
+_LATIN_RUN = re.compile(r"[(\[]?[A-Za-z][A-Za-z0-9]*(?:(?:\s?[-+/.:%]\s?|\s)?[(\[]?[A-Za-z0-9]+[)\]%]?)*[)\]]?")
+_RISKY = re.compile(r"[0-9\-+/.:%()\[\]]")
+_ARABIC_LETTER = re.compile(r"[\u0621-\u064A]")
+
+
+def _text_plain(raw: str, arabic: bool) -> str:
+    out = _esc(raw)
+    if _SCAFFOLD["lang"] != "ar" or not arabic:
+        return out
+    return _LATIN_RUN.sub(lambda m: f"<bdi>{m.group(0)}</bdi>" if _RISKY.search(m.group(0)) else m.group(0), out)
+
+
+def _text(text: Any) -> str:
+    """Escaped element text; in Arabic decks, risky Latin or numeric runs are isolated with <bdi>.
+    Inline TeX written as \\( ... \\) becomes an nm-math host (rendered by nm-math.js with Temml)."""
+    raw = str(text)
+    arabic = bool(_ARABIC_LETTER.search(raw))
+    if "\\(" not in raw:
+        return _text_plain(raw, arabic)
+    parts, last = [], 0
+    for m in _TEX_INLINE.finditer(raw):
+        parts.append(_text_plain(raw[last:m.start()], arabic))
+        parts.append(f'<span class="nm-math" data-tex="{_esc(m.group(1).strip())}"></span>')
+        last = m.end()
+    parts.append(_text_plain(raw[last:], arabic))
+    return "".join(parts)
 
 
 def _slug(title: str) -> str:
@@ -1073,6 +1576,99 @@ GRAPH_DIAGRAM_TYPES = ("flow", "tree", "cycle", "hub", "swimlane", "sequence")
 PROGRESSIVE_MODES = ("rank", "node", "edge", "series")
 _ORDINALS = ("الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس")
 _AR_DIGITS = "٠١٢٣٤٥٦٧٨٩"
+LANGS = ("ar", "en")
+_DIR = {"ar": "rtl", "en": "ltr"}
+
+# Scaffold context, set by render_deck for the plan being built: language and digit system of the deck.
+_SCAFFOLD: dict[str, Any] = {"lang": "ar", "arabic_digits": True}
+_TO_WESTERN = str.maketrans({**{a: str(i) for i, a in enumerate(_AR_DIGITS)}, "٪": "%", "٫": ".", "٬": ","})
+
+# Placeholder text the scaffold writes, per language (the author replaces all of it).
+_STRINGS: dict[str, dict[str, Any]] = {
+    "ar": {
+        "item": lambda k: f"العنصر {_ORDINALS[k]}" if k < len(_ORDINALS) else f"عنصر {k + 1}",
+        "idea": "الفكرة", "team1": "الفريق الأول", "team2": "الفريق الثاني",
+        "seq": ["actors: a[الطرف الأول], b[الطرف الثاني]", "a -> b: الطلب", "b -.-> a: الرد"],
+        "detail": ("اكتب سطرا تمهيديا", "اكتب عنوان التفصيل", "جملة أو جملتان تشرحان العنصر."),
+        "pin": ("اكتب اسم الجزء", "سطر قصير يشرح الجزء"),
+        "card": "اكتب نص البطاقة", "side1": "الجانب الأول", "side2": "الجانب الثاني",
+    },
+    "en": {
+        "item": lambda k: f"Item {k + 1}",
+        "idea": "The idea", "team1": "Team one", "team2": "Team two",
+        "seq": ["actors: a[First party], b[Second party]", "a -> b: Request", "b -.-> a: Reply"],
+        "detail": ("Write an opening line", "Write the detail title", "One or two sentences that explain the element."),
+        "pin": ("Name the part", "A short line that explains the part"),
+        "card": "Write the card text", "side1": "First side", "side2": "Second side",
+    },
+}
+_STARTER_DATA: dict[str, dict[str, tuple[list[str], int]]] = {
+    "ar": {
+        "timeline": (["٢٠٢٤: البداية | اكتب ما حدث", "٢٠٢٥: التوسع | اكتب ما حدث !", "٢٠٢٦: الهدف"], 3),
+        "layers": (["الطبقة العليا: عنصر، عنصر", "الطبقة الوسطى: عنصر، عنصر !", "الأساس: عنصر"], 3),
+        "matrix": (["x: الجهد | منخفض | مرتفع", "y: الأثر | منخفض | مرتفع", "عنصر أول: 0.25, 0.8 !", "عنصر ثان: 0.7, 0.35"], 2),
+        "funnel": (["المرحلة الأولى: ١٠٠", "المرحلة الثانية: ٤٠", "المرحلة الثالثة: ١٢ !"], 3),
+        "pyramid": (["القمة: اكتب الوصف", "الوسط: اكتب الوصف", "الأساس: اكتب الوصف !"], 3),
+        "venn": (["أ: المجال الأول", "ب: المجال الثاني", "أ&ب: التقاطع !"], 3),
+        "compare": (["head: الخيار الأول | الخيار الثاني !", "المعيار الأول: قيمة | قيمة", "المعيار الثاني: قيمة | قيمة"], 3),
+        "bars": (["unit: ٪", "العنصر الأول: ٣٠", "العنصر الثاني: ٥٥ !", "العنصر الثالث: ٤٢", "العنصر الرابع: ٧٠"], 4),
+        "line": (["x: ٢٠٢٣, ٢٠٢٤, ٢٠٢٥, ٢٠٢٦", "series السلسلة الأولى: ١٢, ١٨, ٢٥, ٣١", "series السلسلة الثانية: ٢٠, ٢٢, ٢٣, ٢٦"], 2),
+        "donut": (["center: ٦٢٪ | اكتب الوصف", "الجزء الأول: ٦٢ !", "الجزء الثاني: ٢١", "الجزء الثالث: ١٧"], 3),
+        "gauge": (["value: ٧٠", "max: 100", "unit: ٪", "label: اكتب وصف المؤشر", "sub: الهدف ٩٠٪"], 1),
+        "stat": (["اكتب وصف الرقم: ٧٠٪ | اكتب السياق !", "اكتب وصف الرقم الثاني: ١٢"], 2),
+        "scatter": (["x: المحور الأفقي | الوحدة", "y: المحور الرأسي | الوحدة", "النقطة الأولى: ١٠, ٢٠", "النقطة الثانية: ٢٥, ٣٥ !", "النقطة الثالثة: ٤٠, ٣٠"], 3),
+    },
+    "en": {
+        "timeline": (["2024: Start | Write what happened", "2025: Growth | Write what happened !", "2026: Goal"], 3),
+        "layers": (["Top layer: part, part", "Middle layer: part, part !", "Base: part"], 3),
+        "matrix": (["x: Effort | low | high", "y: Impact | low | high", "First item: 0.25, 0.8 !", "Second item: 0.7, 0.35"], 2),
+        "funnel": (["First stage: 100", "Second stage: 40", "Third stage: 12 !"], 3),
+        "pyramid": (["Top: write the description", "Middle: write the description", "Base: write the description !"], 3),
+        "venn": (["A: First field", "B: Second field", "A&B: Overlap !"], 3),
+        "compare": (["head: Option one | Option two !", "First criterion: value | value", "Second criterion: value | value"], 3),
+        "bars": (["unit: %", "First item: 30", "Second item: 55 !", "Third item: 42", "Fourth item: 70"], 4),
+        "line": (["x: 2023, 2024, 2025, 2026", "series First series: 12, 18, 25, 31", "series Second series: 20, 22, 23, 26"], 2),
+        "donut": (["center: 62% | Write the description", "First part: 62 !", "Second part: 21", "Third part: 17"], 3),
+        "gauge": (["value: 70", "max: 100", "unit: %", "label: Describe the indicator", "sub: Target 90%"], 1),
+        "stat": (["Describe the number: 70% | Write the context !", "Describe the second number: 12"], 2),
+        "scatter": (["x: Horizontal axis | unit", "y: Vertical axis | unit", "First point: 10, 20", "Second point: 25, 35 !", "Third point: 40, 30"], 3),
+    },
+}
+
+
+def _plan_uses_arabic_digits(plan: dict[str, Any]) -> bool:
+    """English decks use Western digits. Arabic decks use Arabic-Indic digits unless the plan writes only Western ones."""
+    if plan.get("lang", "ar") != "ar":
+        return False
+    # formulas are not text: digits inside MathML or TeX do not decide the deck's digit system
+    def no_formulas(slide: Any) -> Any:
+        if isinstance(slide, dict) and isinstance(slide.get("content"), dict):
+            # numbers in content.quantities are data (JSON numbers are always written 0-9); the deck formats them
+            content = slide["content"]
+            qs = [{k: v for k, v in q.items() if k != "value"} if isinstance(q, dict) else q for q in content.get("quantities") or []]
+            slide = {**slide, "content": {k: v for k, v in content.items() if k not in ("quantities", "items", "dimensions", "formula")} | {"quantities": qs}}
+        if not isinstance(slide, dict) or _visual_of(slide).get("type") != "equation":
+            return slide
+        visual = {k: v for k, v in _visual_of(slide).items() if k not in ("mathml", "tex", "lines")}
+        visual["notes"] = [src.get("note") for src in _equation_sources(_visual_of(slide)) if src.get("note")]
+        return {**slide, "visual": visual}
+    slides = json.dumps([no_formulas(sl) for sl in plan.get("slides", [])], ensure_ascii=False)
+    slides = _TEX_INLINE.sub(" ", slides.replace("\\\\", "\\"))
+    return not DIGIT_GROUPS["western"].search(slides) or bool(DIGIT_GROUPS["arabic-indic"].search(slides))
+
+
+def _set_scaffold_context(plan: dict[str, Any]) -> None:
+    _SCAFFOLD["lang"] = plan.get("lang", "ar") if plan.get("lang", "ar") in LANGS else "ar"
+    _SCAFFOLD["arabic_digits"] = _plan_uses_arabic_digits(plan)
+
+
+def _t(key: str) -> Any:
+    return _STRINGS[_SCAFFOLD["lang"]][key]
+
+
+def _num(text: str) -> str:
+    """Starter text in the deck's digit system (one system per deck, plan-lint R121)."""
+    return text if _SCAFFOLD["arabic_digits"] else text.translate(_TO_WESTERN)
 
 
 def _real_diagram_type(slide: dict[str, Any]) -> tuple[str, dict[str, str]]:
@@ -1100,7 +1696,9 @@ def _plan_steps(slide: dict[str, Any]) -> dict[str, Any]:
     step ("all") or a block of steps when the target is written visual:rank or visual:series.
     """
     kind = _diagram_kind(slide)
-    out: dict[str, Any] = {"elements": {}, "diagram": None, "node_steps": [], "todos": [], "node_ids": []}
+    vtype = _visual_type(slide)
+    visual = _visual_of(slide)
+    out: dict[str, Any] = {"elements": {}, "diagram": None, "node_steps": [], "todos": [], "node_ids": [], "table": None, "lines": None}
     counter = 1
     for step in _slide_steps(slide):
         act = str(step.get("act") or "reveal")
@@ -1116,6 +1714,26 @@ def _plan_steps(slide: dict[str, Any]) -> dict[str, Any]:
                 out["node_ids"].append(nid)
             counter += 1
             continue
+        if key == "visual" and vtype == "table" and hint in TABLE_STEP_MODES and out["table"] is None and "visual" not in out["elements"]:
+            if act not in ("reveal", "highlight"):
+                out["todos"].append(f"visual:{hint} steps on a table take reveal or highlight, not {act}; used reveal")
+                act = "reveal"
+            rows = [r for r in visual.get("rows") or [] if isinstance(r, list)]
+            heads = 1 if visual.get("row_headers", True) else 0
+            n = len(rows) if hint == "row" else max(1, len(visual.get("columns") or []) - heads)
+            out["table"] = {"mode": hint, "start": counter, "act": act}
+            counter += max(1, n)
+            continue
+        if key == "visual" and vtype == "equation" and hint == "line" and isinstance(visual.get("lines"), list) and out["lines"] is None and "visual" not in out["elements"]:
+            if act != "reveal":
+                out["todos"].append(f"visual:line steps reveal the lines of a derivation, not {act}; used reveal")
+            # the first line stays on screen (it is what the previous slide ended on, and its data-term parts can
+            # fly in with Morph); the next lines reveal one per step
+            out["lines"] = {"start": counter}
+            counter += max(1, len(visual["lines"]) - 1)
+            continue
+        if hint and key == "visual" and vtype in ("table", "equation"):
+            out["todos"].append(f"visual:{hint} does not fit a {vtype} (table: visual:row or visual:col; derivation: visual:line); used a single step")
         if key == "visual" and kind and act in ("reveal", "draw") and out["diagram"] is None and "visual" not in out["elements"]:
             mode = hint if hint in PROGRESSIVE_MODES else "all"
             if hint and hint not in PROGRESSIVE_MODES:
@@ -1137,7 +1755,11 @@ def _plan_steps(slide: dict[str, Any]) -> dict[str, Any]:
 def _starter_nodes(slide: dict[str, Any], node_ids: list[str]) -> list[str]:
     ids = list(node_ids)
     k = 1
-    while len(ids) < 3:
+    content = slide.get("content") if isinstance(slide.get("content"), dict) else {}
+    items = content.get("items")
+    # as many starter nodes as the information has elements (content.items, NM-29), 3 when the plan does not say
+    want = max(3, min(6, items)) if isinstance(items, int) and not isinstance(items, bool) and items > 0 else 3
+    while len(ids) < want:
         cand = f"n{k}"
         k += 1
         if cand not in ids:
@@ -1145,13 +1767,46 @@ def _starter_nodes(slide: dict[str, Any], node_ids: list[str]) -> list[str]:
     return ids
 
 
+_DSL_KEYS = re.compile(r"[:|!\n]")
+
+
+def _quantity_dsl(slide: dict[str, Any]) -> tuple[list[str], dict[str, int]] | None:
+    """Chart DSL drawn from the plan's own numbers (content.quantities, NM-29) instead of starter data, or None."""
+    content = slide.get("content") if isinstance(slide.get("content"), dict) else {}
+    qs = [q for q in content.get("quantities") or [] if isinstance(q, dict) and q.get("value") is not None]
+    dtype, _ = _real_diagram_type(slide)
+    if not qs or _visual_type(slide) != "chart" or dtype not in ("bars", "donut", "line", "stat", "gauge", "funnel"):
+        return None
+    clean = lambda t: _DSL_KEYS.sub(" ", str(t)).strip()
+    to_ar = str.maketrans("0123456789.", "٠١٢٣٤٥٦٧٨٩٫")
+    val = lambda v: str(v).translate(to_ar) if _SCAFFOLD["arabic_digits"] else _num(str(v))  # the deck's digit system
+    units = sorted({str(q.get("unit") or "").strip() for q in qs} - {""})
+    unit = units[0] if len(units) == 1 else ""
+    nums = [float(nr_v) if (nr_v := _represent()._num(q.get("value"))) is not None else 0.0 for q in qs]
+    top = nums.index(max(nums))
+    if dtype == "line":
+        title = clean(slide.get("title") or "series")
+        return [f"x: {', '.join(clean(q.get('label')) for q in qs)}", f"series {title}: {', '.join(val(q.get('value')) for q in qs)}"], {"series": 1}
+    if dtype == "gauge":
+        q = qs[0]
+        return [f"value: {val(q.get('value'))}", f"max: {val(100) if unit in ('%', '٪') else val(max(nums) or 1)}"] + ([f"unit: {unit}"] if unit else []) + [f"label: {clean(q.get('label'))}"], {"series": 1}
+    if dtype == "stat":
+        return [f"{clean(q.get('label'))}: {val(q.get('value'))}{_num(str(q.get('unit') or ''))}" + (" !" if i == top else "") for i, q in enumerate(qs)], {"series": len(qs)}
+    lines = [f"unit: {unit}"] if unit and dtype == "bars" else []
+    lines += [f"{clean(q.get('label'))}: {val(q.get('value'))}" + (" !" if i == top else "") for i, q in enumerate(qs)]
+    return lines, {"series": len(qs)}
+
+
 def _starter_dsl(slide: dict[str, Any], node_ids: list[str]) -> tuple[list[str], dict[str, int]]:
     """Starter DSL lines that nm-diagram.js renders as is, plus how many steps each step mode makes."""
+    from_plan = _quantity_dsl(slide)
+    if from_plan:
+        return from_plan
     dtype, _ = _real_diagram_type(slide)
     ids = _starter_nodes(slide, node_ids)
     n = len(ids)
-    names = {i: (f"العنصر {_ORDINALS[k]}" if k < len(_ORDINALS) else f"عنصر {k + 1}") for k, i in enumerate(ids)}
-    title = str(slide.get("title") or "الفكرة")
+    names = {i: _t("item")(k) for k, i in enumerate(ids)}
+    title = str(slide.get("title") or _t("idea"))
     if dtype == "flow":
         lines = [" -> ".join(f"{i}[{names[i]}]" for i in ids), f"{ids[min(1, n - 1)]}.accent"]
         return lines, {"rank": n, "node": n, "edge": n - 1}
@@ -1165,28 +1820,15 @@ def _starter_dsl(slide: dict[str, Any], node_ids: list[str]) -> tuple[list[str],
         lines = [f"core(({title})).accent"] + [f"core -- {i}[{names[i]}]" for i in ids]
         return lines, {"rank": 2, "node": n + 1, "edge": n}
     if dtype == "swimlane":
-        lines = [f"lane الفريق الأول: {ids[0]}", f"lane الفريق الثاني: {' '.join(ids[1:])}",
+        lines = [f"lane {_t('team1')}: {ids[0]}", f"lane {_t('team2')}: {' '.join(ids[1:])}",
                  " -> ".join(f"{i}[{names[i]}]" for i in ids)]
         return lines, {"rank": n, "node": n, "edge": n - 1}
     if dtype == "sequence":
-        lines = ["actors: a[الطرف الأول], b[الطرف الثاني]", "a -> b: الطلب", "b -.-> a: الرد"]
+        lines = list(_t("seq"))
         return lines, {"rank": 2, "node": 2, "edge": 2}
-    data = {
-        "timeline": (["٢٠٢٤: البداية | اكتب ما حدث", "٢٠٢٥: التوسع | اكتب ما حدث !", "٢٠٢٦: الهدف"], 3),
-        "layers": (["الطبقة العليا: عنصر، عنصر", "الطبقة الوسطى: عنصر، عنصر !", "الأساس: عنصر"], 3),
-        "matrix": (["x: الجهد | منخفض | مرتفع", "y: الأثر | منخفض | مرتفع", "عنصر أول: 0.25, 0.8 !", "عنصر ثان: 0.7, 0.35"], 2),
-        "funnel": (["المرحلة الأولى: ١٠٠", "المرحلة الثانية: ٤٠", "المرحلة الثالثة: ١٢ !"], 3),
-        "pyramid": (["القمة: اكتب الوصف", "الوسط: اكتب الوصف", "الأساس: اكتب الوصف !"], 3),
-        "venn": (["أ: المجال الأول", "ب: المجال الثاني", "أ&ب: التقاطع !"], 3),
-        "compare": (["head: الخيار الأول | الخيار الثاني !", "المعيار الأول: قيمة | قيمة", "المعيار الثاني: قيمة | قيمة"], 3),
-        "bars": (["unit: ٪", "العنصر الأول: ٣٠", "العنصر الثاني: ٥٥ !", "العنصر الثالث: ٤٢", "العنصر الرابع: ٧٠"], 4),
-        "line": (["x: ٢٠٢٣, ٢٠٢٤, ٢٠٢٥, ٢٠٢٦", "series السلسلة الأولى: ١٢, ١٨, ٢٥, ٣١", "series السلسلة الثانية: ٢٠, ٢٢, ٢٣, ٢٦"], 2),
-        "donut": (["center: ٦٢٪ | اكتب الوصف", "الجزء الأول: ٦٢ !", "الجزء الثاني: ٢١", "الجزء الثالث: ١٧"], 3),
-        "gauge": (["value: ٧٠", "max: 100", "unit: ٪", "label: اكتب وصف المؤشر", "sub: الهدف ٩٠٪"], 1),
-        "stat": (["اكتب وصف الرقم: ٧٠٪ | اكتب السياق !", "اكتب وصف الرقم الثاني: ١٢"], 2),
-    }
+    data = _STARTER_DATA[_SCAFFOLD["lang"]]
     lines, series = data.get(dtype, data["bars"])
-    return lines, {"series": series}
+    return [_num(line) for line in lines], {"series": series}
 
 
 def _starter_step_count(slide: dict[str, Any], mode: str, node_ids: list[str]) -> int:
@@ -1202,10 +1844,81 @@ def _diagram_html(slide: dict[str, Any], sid: str, node_ids: list[str], attr_ext
     label = _esc(slide.get("title") or sid)
     did = _esc(visual.get("ref") or f"{sid}-diagram")
     extra_attr = _attrs(extra) if extra else ""
-    head = f'<figure class="nm-diagram" data-type="{_esc(dtype)}" data-id="{did}" aria-label="{label}"{extra_attr} data-nm-todo{attr_extra}>'
+    todo = "" if _quantity_dsl(slide) else " data-nm-todo"  # numbers from content.quantities are the author's own
+    head = f'<figure class="nm-diagram" data-type="{_esc(dtype)}" data-id="{did}" aria-label="{label}"{extra_attr}{todo}{attr_extra}>'
     lines, _ = _starter_dsl(slide, node_ids)
     body = "\n".join("      " + l for l in lines)
     return f'{head}\n    <script type="text/nm-diagram">\n{body}\n    </script>\n  </figure>'
+
+
+def _cell(value: Any) -> str:
+    """A table cell: numbers from the plan follow the deck's digit system, text is written as given."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        out = str(value)
+        if _SCAFFOLD["arabic_digits"]:
+            out = "".join(_AR_DIGITS[int(c)] if c.isdigit() else ("٫" if c == "." else c) for c in out)
+        return _esc(out)
+    return _text(value)
+
+
+def _table_html(slide: dict[str, Any], sid: str, attr_extra: str) -> str:
+    visual = _visual_of(slide)
+    cols = visual.get("columns") or []
+    rows = [r for r in visual.get("rows") or [] if isinstance(r, list)]
+    heads = bool(visual.get("row_headers", True))
+    tid = _esc(visual.get("ref") or f"{sid}-table")
+    label = _esc(slide.get("title") or sid)
+    hl = str(visual.get("highlight") or "").strip()
+    hl_attr = f' data-highlight="{_esc(" ".join(re.split(r"[\s,;]+", hl)))}"' if hl else ""
+    head_cells = "".join(f'<th scope="col">{_cell(c)}</th>' for c in cols)
+    body = []
+    for row in rows:
+        cells = [f'<th scope="row">{_cell(c)}</th>' if k == 0 and heads else f"<td>{_cell(c)}</td>" for k, c in enumerate(row)]
+        body.append("        <tr>" + "".join(cells) + "</tr>")
+    cap = f'\n    <figcaption>{_text(visual["caption"])}</figcaption>' if visual.get("caption") else ""
+    return (
+        f'<figure class="nm-table" data-id="{tid}" aria-label="{label}"{hl_attr}{attr_extra}>\n'
+        f"    <table>\n      <thead>\n        <tr>{head_cells}</tr>\n      </thead>\n      <tbody>\n"
+        + "\n".join(body)
+        + f"\n      </tbody>\n    </table>{cap}\n  </figure>"
+    )
+
+
+def _formula_html(src: dict[str, Any]) -> str:
+    """One display formula: the plan's MathML as written (display="block" added when absent), or a TeX host."""
+    mathml = src.get("mathml")
+    if isinstance(mathml, str) and mathml.strip():
+        m = mathml.strip()
+        if not re.match(r"<math\b[^>]*\bdisplay=", m):
+            m = "<math display=\"block\"" + m[len("<math"):]
+        return m
+    return f'<span class="nm-math" data-display="block" data-tex="{_esc(str(src.get("tex") or "").strip())}"></span>'
+
+
+def _equation_html(slide: dict[str, Any], sid: str, attr_extra: str, lines_step: dict[str, Any] | None) -> str:
+    visual = _visual_of(slide)
+    eid = _esc(visual.get("ref") or f"{sid}-equation")
+    label = _esc(slide.get("title") or sid)
+    inner: list[str] = []
+    if isinstance(visual.get("lines"), list):
+        for k, src in enumerate(_equation_sources(visual)):
+            st = f' data-step="{lines_step["start"] + k - 1}" data-act="reveal"' if lines_step and k else ""
+            note = f'<p class="nm-eq-note">{_text(src["note"])}</p>' if src.get("note") else ""
+            inner.append(f'<div class="nm-eq-line"{st}>{_formula_html(src)}{note}</div>')
+    else:
+        inner.append(_formula_html(visual))
+    if visual.get("caption"):
+        inner.append(f'<figcaption>{_text(visual["caption"])}</figcaption>')
+    return f'<figure class="nm-equation" data-id="{eid}" aria-label="{label}"{attr_extra}>\n    ' + "\n    ".join(inner) + "\n  </figure>"
+
+
+def _plan_features(plan: dict[str, Any]) -> dict[str, bool]:
+    """Optional runtime modules a deck needs; decks without tables or equations link exactly what they did before."""
+    slides = [s for s in plan.get("slides") or [] if isinstance(s, dict)]
+    table = any(_visual_type(s) == "table" for s in slides)
+    tex = _plan_uses_tex(plan)
+    math = tex or any(_visual_type(s) == "equation" for s in slides)
+    return {"table": table, "math": math, "tex": tex}
 
 
 # plan layout (short names kept as aliases) -> nm-layout.css composition
@@ -1240,6 +1953,82 @@ def _composition(layout: str, has_visual: bool, visual_is_graphic: bool, n_body:
     return comp, attrs
 
 
+# Compositions ported from frontend-slides layout presets (NM-21, nm-layout.css): how scaffold fills them.
+PORTED_LAYOUTS = ("ledger", "keynote", "stat-strip", "ledger-list", "meridian", "chapter", "plate", "triptych",
+                  "monolith", "terminal", "staircase", "waypoint")
+
+
+def _parts(item: str) -> list[str]:
+    """A body item may carry its parts separated by " | " (value | label, date | title | description)."""
+    return [p.strip() for p in str(item).split(" | ")]
+
+
+def _ported_kids(comp: str, v: dict[str, Any]) -> list[str]:
+    body_items: list[str] = v["body_items"]
+    morph_attr, step_attrs, head = v["morph_attr"], v["step_attrs"], v["head"]
+    kicker_html, headline_html, visual_html, stat = v["kicker_html"], v["headline_html"], v["visual_html"], v["stat"]
+    attrs = lambda n: f'{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}'
+    items = list(enumerate(body_items, start=1))
+    if comp == "ledger":
+        half = (len(body_items) + 1) // 2
+
+        def side(part: list[tuple[int, str]], label: str, cls: str) -> str:
+            rows = "".join(
+                f'<div class="nm-row"{attrs(n)}><p>{_text(_parts(t)[0])}</p>' + (f"<p>{_text(_parts(t)[1])}</p>" if len(_parts(t)) > 1 else "") + "</div>"
+                for n, t in part
+            )
+            return f'<div class="nm-side{cls}">\n      <h3 data-nm-todo>{label}</h3>{rows}\n    </div>'
+        return [head(kicker_html, headline_html), side(items[:half], _t("side1"), " is-favoured"), side(items[half:], _t("side2"), "")]
+    if comp in ("ledger-list", "meridian"):
+        def li(n: int, t: str) -> str:
+            ps = _parts(t)
+            if comp == "meridian" and len(ps) > 1:
+                inner = f"<small>{_text(ps[0])}</small><strong>{_text(ps[1])}</strong>" + (f"<p>{_text(ps[2])}</p>" if len(ps) > 2 else "")
+            else:
+                inner = f"<strong>{_text(ps[0])}</strong>" + (f"<p>{_text(ps[1])}</p>" if len(ps) > 1 else "")
+            return f"<li{attrs(n)}>{inner}</li>"
+        return [head(kicker_html, headline_html), "<ol>\n        " + "\n        ".join(li(n, t) for n, t in items) + "\n      </ol>"]
+    if comp == "staircase":
+        return [head(kicker_html, headline_html)] + [f'<p{attrs(n)}>{_text(t)}</p>' for n, t in items]
+    if comp == "stat-strip":
+        tiles = []
+        if stat:
+            tiles.append(f'<div{morph_attr("stat")}{step_attrs("stat")}><span class="nm-t-num" data-entrance="count">{_esc(stat.get("value"))}</span><p>{_text(stat.get("label", ""))}</p></div>')
+        for n, t in items:
+            ps = _parts(t)
+            tiles.append(f'<div{attrs(n)}><span class="nm-t-num">{_text(ps[0])}</span><p>{_text(ps[1]) if len(ps) > 1 else ""}</p></div>' if len(ps) > 1
+                         else f"<div{attrs(n)}><p>{_text(t)}</p></div>")
+        return [head(kicker_html, headline_html)] + tiles
+    if comp == "keynote":
+        hero = (f'<div{morph_attr("stat")}{step_attrs("stat")}><span class="nm-t-num" data-entrance="count">{_esc(stat.get("value"))}</span>'
+                f'<p>{_text(stat.get("label", ""))}</p></div>') if stat else '<div data-nm-todo><span class="nm-t-num">0</span><p>اكتب وصف الرقم</p></div>'
+        rail = "".join(f'<div{attrs(n)}><strong>{_text(_parts(t)[0])}</strong><span>{_text(_parts(t)[1]) if len(_parts(t)) > 1 else ""}</span></div>' for n, t in items)
+        return [head(kicker_html, headline_html), hero] + ([f'<div class="nm-keynote-rail">{rail}</div>'] if rail else [])
+    if comp == "chapter":
+        num = f'<p class="nm-section-num" aria-hidden="true">{_digits(v["section_no"] or 1, v["arabic_digits"])}</p>'
+        return [num, '<hr class="nm-rule is-accent">', kicker_html, headline_html, v["lead"]()]
+    if comp == "monolith":
+        return [kicker_html, headline_html, v["lead"]()]
+    if comp == "terminal":
+        strip = "<ul>" + "".join(f"<li{attrs(n)}>{_text(t)}</li>" for n, t in items) + "</ul>" if len(items) > 1 else v["lead"]()
+        return [kicker_html, headline_html, strip]
+    if comp == "waypoint":
+        current = v["section_no"] or 1
+        cur_attr = ' class="is-current"'
+        lis = "".join(f"<li{cur_attr if n == current else ''}{attrs(n)}>{_text(t)}</li>" for n, t in items)
+        return [kicker_html, headline_html] + ([f"<ol>{lis}</ol>"] if lis else [])
+    if comp == "plate":
+        return [visual_html, head(kicker_html, headline_html, v["lead"]())]
+    if comp == "triptych":
+        extra = []
+        for k in (2, 3):
+            ph_rel = f"assets/img/_placeholders/{v['sid']}-{k}.svg"
+            v["extra_files"].append((v["out_dir"] / ph_rel, _placeholder_svg(f"placeholder {v['sid']} {k}")))
+            extra.append(f'<figure class="nm-img nm-ph-frame" data-nm-todo><img src="{ph_rel}" alt=""><figcaption data-nm-todo>{_t("card")}</figcaption></figure>')
+        return [head(kicker_html, headline_html)] + ([visual_html] if visual_html else []) + extra
+    return [head(kicker_html, headline_html, v["lead"]()), visual_html, stat_html if (stat_html := v["stat_html"]) else ""]
+
+
 def _digits(n: int, arabic: bool) -> str:
     # Arabic-Indic zero is a small dot, so "٠١" reads as a bullet: no zero padding in Arabic digits
     return "".join(_AR_DIGITS[int(c)] for c in str(n)) if arabic else f"{n:02d}"
@@ -1256,13 +2045,23 @@ def _build_slide(
     layout = str(slide.get("layout") or "split")
     todos: list[str] = []
     extra_files: list[tuple[Path, str]] = []
-    arabic_digits = not DIGIT_GROUPS["western"].search(json.dumps(plan.get("slides", []), ensure_ascii=False)) or bool(
-        DIGIT_GROUPS["arabic-indic"].search(json.dumps(plan.get("slides", []), ensure_ascii=False))
-    )
+    arabic_digits = _SCAFFOLD["arabic_digits"]
 
     plan_steps = _plan_steps(slide)
     steps_map: dict[str, tuple[int, dict[str, Any]]] = plan_steps["elements"]
     todos.extend(plan_steps["todos"])
+    advice = (_SCAFFOLD.get("advice") or {}).get(idx)
+    if advice and advice["fit"] != "unknown":
+        lang_key = "text_ar" if _SCAFFOLD["lang"] == "ar" else "text_en"
+        rec = advice["recommend"][0] if advice["recommend"] else None
+        line = f"representation: {advice['current']} ({advice['fit']}"
+        if rec and rec["visual"] != advice["current"]:
+            line += f"; plan-advise suggests {rec['visual']}, {rec['why'][0]}: {rec[lang_key]}"
+        elif rec:
+            line += f"; {rec['why'][0]}: {rec[lang_key]}"
+        todos.append(line + ")")
+        if advice.get("still"):
+            todos.append("keep this slide still (" + advice["still_why"]["ar" if _SCAFFOLD["lang"] == "ar" else "en"] + ")")
     used_keys: set[str] = set()
     templates: list[str] = []
     templated: set[str] = set()
@@ -1281,8 +2080,8 @@ def _build_slide(
             if act == "detail":
                 out += ' data-detail="side"'
             templates.append(
-                f'<template data-detail-for="{eid}">\n      <small data-nm-todo>اكتب سطرا تمهيديا</small>\n'
-                f'      <h3 data-nm-todo>اكتب عنوان التفصيل</h3>\n      <p data-nm-todo>جملة أو جملتان تشرحان العنصر.</p>\n    </template>'
+                f'<template data-detail-for="{eid}">\n      <small data-nm-todo>{_t("detail")[0]}</small>\n'
+                f'      <h3 data-nm-todo>{_t("detail")[1]}</h3>\n      <p data-nm-todo>{_t("detail")[2]}</p>\n    </template>'
             )
             todos.append(f"fill the <template data-detail-for=\"{eid}\"> (one title, one or two sentences, up to four bullets or three stats)")
         if act == "focus" and step.get("note"):
@@ -1306,7 +2105,7 @@ def _build_slide(
     body_items = [b for b in (text.get("body") or []) if isinstance(b, str)]
     stat = text.get("stat") if isinstance(text.get("stat"), dict) and text["stat"].get("value") else None
     has_visual = vtype != "none"
-    comp, comp_attrs = _composition(layout, has_visual, vtype in ("diagram", "chart", "anatomy", "motion"), len(body_items), bool(stat))
+    comp, comp_attrs = _composition(layout, has_visual, vtype in ("diagram", "chart", "anatomy", "motion", "table", "equation"), len(body_items), bool(stat))
     if layout == "split-rev" and comp_attrs.get("data-ratio") in ("5:7", "7:5"):
         # data-ratio follows DOM order and split-rev puts the visual first
         comp_attrs["data-ratio"] = "7:5" if comp_attrs["data-ratio"] == "5:7" else "5:7"
@@ -1316,9 +2115,11 @@ def _build_slide(
     headline = text.get("headline")
     if not headline:
         todos.append("write text.headline")
-    kicker_html = f'<p class="nm-kicker"{morph_attr("kicker")}{step_attrs("kicker")}>{_esc(kicker)}</p>' if kicker else ""
-    if comp == "title":
+    kicker_html = f'<p class="nm-kicker"{morph_attr("kicker")}{step_attrs("kicker")}>{_text(kicker)}</p>' if kicker else ""
+    if comp in ("title", "monolith"):
         h_tag, h_cls = ("h1", "nm-t-display") if role == "cover" else ("h2", "nm-t-h1")
+    elif comp in ("chapter", "terminal", "waypoint"):
+        h_tag, h_cls = "h2", "nm-t-h1"
     elif comp == "section":
         h_tag, h_cls = "h2", "nm-t-h1"
     elif comp in ("split", "rail"):
@@ -1326,19 +2127,19 @@ def _build_slide(
     else:
         h_tag, h_cls = "h2", "nm-t-h2"
     headline_html = (
-        f'<{h_tag} class="{h_cls}"{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline)}</{h_tag}>' if headline else ""
+        f'<{h_tag} class="{h_cls}"{morph_attr("headline")}{step_attrs("headline")}>{_text(headline)}</{h_tag}>' if headline else ""
     )
 
     def body_list(cls: str = "nm-list") -> str:
         if not body_items:
             return ""
-        lis = [f'<li{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}>{_esc(item)}</li>' for n, item in enumerate(body_items, start=1)]
+        lis = [f'<li{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}>{_text(item)}</li>' for n, item in enumerate(body_items, start=1)]
         return f'<ul class="{cls}"{morph_attr("body")}{step_attrs("body")}>\n        ' + "\n        ".join(lis) + "\n      </ul>"
 
     def lead() -> str:
         """One body item reads as a lead paragraph, several as a list."""
         if len(body_items) == 1:
-            return f'<p class="nm-t-lead"{morph_attr("body1") or morph_attr("body")}{step_attrs("body1") or step_attrs("body")}>{_esc(body_items[0])}</p>'
+            return f'<p class="nm-t-lead"{morph_attr("body1") or morph_attr("body")}{step_attrs("body1") or step_attrs("body")}>{_text(body_items[0])}</p>'
         return body_list()
 
     stat_html = ""
@@ -1346,7 +2147,7 @@ def _build_slide(
         stat_html = (
             f'<div class="nm-stat-block"{morph_attr("stat")}{step_attrs("stat")}>'
             f'<span class="nm-t-num" data-entrance="count">{_esc(stat.get("value"))}</span>'
-            f'<p class="nm-t-body">{_esc(stat.get("label", ""))}</p></div>'
+            f'<p class="nm-t-body">{_text(stat.get("label", ""))}</p></div>'
         )
 
     # --- visual
@@ -1393,7 +2194,25 @@ def _build_slide(
                 for i, n, a in ns:
                     todos.append(f"step {n} {a} on diagram node \"{i}\" (data-node-steps on the figure; keep the node id when you edit the DSL)")
             visual_html = _diagram_html(slide, sid, node_ids, vattr + dg_attr)
-            todos.append(f"edit {vtype} labels/values ({_real_diagram_type(slide)[0]}) in the nm-diagram script block")
+            if _quantity_dsl(slide):
+                todos.append(f"{vtype} drawn from content.quantities ({_real_diagram_type(slide)[0]}); check the labels in the nm-diagram script block")
+            else:
+                todos.append(f"edit {vtype} labels/values ({_real_diagram_type(slide)[0]}) in the nm-diagram script block")
+        elif vtype == "table":
+            tb = plan_steps["table"]
+            tb_attr = ""
+            if tb:
+                used_keys.add("visual")
+                tb_attr = f' data-steps="{tb["mode"]}" data-step-from="{tb["start"]}"' + (f' data-steps-act="{tb["act"]}"' if tb["act"] != "reveal" else "")
+                todos.append(
+                    f"table builds one step per {'body row' if tb['mode'] == 'row' else 'data column'} from number {tb['start']} "
+                    f"(data-steps=\"{tb['mode']}\"); if you add other steps on this slide, number them after the table's"
+                )
+            visual_html = _table_html(slide, sid, vattr + tb_attr)
+        elif vtype == "equation":
+            if plan_steps["lines"]:
+                used_keys.add("visual")
+            visual_html = _equation_html(slide, sid, vattr, plan_steps["lines"])
         elif vtype == "motion":
             visual_html = (
                 f'<div class="nm-ph" data-nm-todo{vattr}>'
@@ -1406,7 +2225,7 @@ def _build_slide(
             todos.append("build the motion graphic (inline SVG)")
         pins_step = steps_map.get("visual")
         if pins_step and str(pins_step[1].get("act")) == "pins" and visual_html:
-            pin = '<span class="nm-pin" data-x="50" data-y="50" data-label="اكتب اسم الجزء" data-nm-todo>سطر قصير يشرح الجزء</span>'
+            pin = f'<span class="nm-pin" data-x="50" data-y="50" data-label="{_t("pin")[0]}" data-nm-todo>{_t("pin")[1]}</span>'
             visual_html = re.sub(r"(<!-- TODO)", pin + r"\1", visual_html, count=1) if "<!-- TODO" in visual_html else visual_html.replace("</figure>", pin + "</figure>", 1)
             todos.append("place one .nm-pin per part (data-x / data-y in percent of the figure)")
 
@@ -1435,9 +2254,9 @@ def _build_slide(
         kids = [visual_html, f'<figcaption class="nm-caption">{headline_html}</figcaption>' if headline_html else ""]
     elif comp.startswith("cards-") or comp.startswith("bento-"):
         cards = [
-            f'<article class="nm-card"{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_esc(item)}</p></article>'
+            f'<article class="nm-card"{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_text(item)}</p></article>'
             for n, item in enumerate(body_items, start=1)
-        ] or ['<article class="nm-card" data-nm-todo><p class="nm-t-body">اكتب نص البطاقة</p></article>'] * 3
+        ] or [f'<article class="nm-card" data-nm-todo><p class="nm-t-body">{_t("card")}</p></article>'] * 3
         if comp.startswith("bento-") and visual_html:
             cards.insert(0, f'<div class="nm-card is-quiet nm-card-figure">{visual_html}</div>')
         kids = [head(kicker_html, headline_html)] + cards
@@ -1448,20 +2267,22 @@ def _build_slide(
         a, b = body_items[:half], body_items[half:]
 
         def side(items: list[str], start: int, label: str) -> str:
-            lis = "".join(f'<li{morph_attr(f"body{start + k}")}{step_attrs(f"body{start + k}")}>{_esc(t)}</li>' for k, t in enumerate(items))
+            lis = "".join(f'<li{morph_attr(f"body{start + k}")}{step_attrs(f"body{start + k}")}>{_text(t)}</li>' for k, t in enumerate(items))
             return f'<div class="nm-side">\n      <h3 class="nm-t-h3" data-nm-todo>{label}</h3>\n      <ul class="nm-list">{lis}</ul>\n    </div>'
 
-        kids = [head(kicker_html, headline_html), side(a, 1, "الجانب الأول"), side(b, half + 1, "الجانب الثاني")]
+        kids = [head(kicker_html, headline_html), side(a, 1, _t("side1")), side(b, half + 1, _t("side2"))]
     elif comp == "quote":
-        quote = f'<blockquote{morph_attr("headline")}{step_attrs("headline")}>{_esc(headline or "")}</blockquote>'
-        cite = f'<cite{morph_attr("kicker")}{step_attrs("kicker")}>{_esc(kicker)}</cite>' if kicker else ""
+        quote = f'<blockquote{morph_attr("headline")}{step_attrs("headline")}>{_text(headline or "")}</blockquote>'
+        cite = f'<cite{morph_attr("kicker")}{step_attrs("kicker")}>{_text(kicker)}</cite>' if kicker else ""
         kids = [quote, cite]
     elif comp == "rail":
         kids = [f'<aside class="nm-rail-head">\n      {kicker_html}\n      {headline_html}\n    </aside>', f'<div class="nm-rail-main">\n      {lead()}\n      {stat_html}\n    </div>']
     elif comp == "steps":
         kids = [head(kicker_html, headline_html)] + [
-            f'<div{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_esc(t)}</p></div>' for n, t in enumerate(body_items, start=1)
+            f'<div{morph_attr(f"body{n}")}{step_attrs(f"body{n}")}><p class="nm-t-body">{_text(t)}</p></div>' for n, t in enumerate(body_items, start=1)
         ]
+    elif comp in PORTED_LAYOUTS:
+        kids = _ported_kids(comp, locals())
     else:
         kids = [head(kicker_html, headline_html, lead()), visual_html, stat_html]
     if visual_html and not any(visual_html in k for k in kids if k):
@@ -1485,6 +2306,8 @@ def _build_slide(
         "data-transition": _slide_transition(slide),
         "data-role": str(role),
     }
+    if advice and advice.get("still"):
+        attrs["data-nm-still"] = ""  # motion roles (NM-13): this slide's parts fade in together
     note = slide.get("speaker_note")
     note_html = f'\n    <aside class="nm-speaker-note" hidden>{_esc(note)}</aside>' if note else ""
     todo_text = "\n".join(f"       - {_cmt(t)}" for t in todos) if todos else "       - none"
@@ -1507,6 +2330,14 @@ def _theme_css_vars(tokens: dict[str, Any]) -> str:
     ):
         if key in tokens:
             lines.append(f"      {css}: {tokens[key]};")
+    # Text on an accent fill (accent diagram nodes): white on dark accents, the theme's dark colour on light ones.
+    if "accent" in tokens:
+        dark = min((tokens.get("paper", "#000000"), tokens.get("ink", "#000000")), key=lambda c: _luminance(_hex_to_rgb(c)) if _hex_to_rgb(c) else 1)
+        try:
+            on = "#FFFFFF" if contrast_ratio("#FFFFFF", tokens["accent"]) >= contrast_ratio(dark, tokens["accent"]) else dark
+            lines.append(f"      --nm-on-accent: {on};")
+        except (ValueError, TypeError):
+            pass
     radius = tokens.get("radius", 20)
     radius_css = f"{radius}px" if isinstance(radius, (int, float)) else str(radius)
     lines.append(f"      --nm-radius: {radius_css};")
@@ -1531,31 +2362,60 @@ TAILWIND_BLOCK = """<!-- Tailwind CDN (opt-in, scaffold --tailwind): needs netwo
 """
 
 
-def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False) -> tuple[str, list[tuple[Path, str]], int]:
+def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False,
+                font_files: Any = None) -> tuple[str, list[tuple[Path, str]], int]:
     template = (TEMPLATES_DIR / "deck-skeleton.html").read_text(encoding="utf-8")
-    tokens, _ = resolve_theme(plan.get("theme"))
-    pairing = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
-    font_modes = [{"className": f"font-mode-{p}", "label": FONT_MODE_LABELS[p]} for p in PAIRINGS]
+    _set_scaffold_context(plan)
+    _SCAFFOLD["advice"] = {e["index"] - 1: e for e in _represent().advise_plan(plan)["slides"]} if _has_content(plan) else {}
+    features = _plan_features(plan)
+    tokens, _ = resolve_theme(plan.get("theme"), plan)
+    requested = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
+    sources = _font_sources() if font_files is None else {name: Path(name) for name in font_files}
+    families = _available_families(sources)
+    pairing = resolve_pairing(requested, families)
+    usable = [p for p in PAIRINGS if resolve_pairing(p, families) == p]
+    labels = FONT_MODE_LABELS if _SCAFFOLD["lang"] == "ar" else FONT_MODE_LABELS_EN
+    font_modes = [{"className": f"font-mode-{p}", "label": labels[p]} for p in usable]
+    font_faces = "\n".join(
+        f"    @font-face {{ font-family: '{family}'; src: url('assets/fonts/{name}') format('{fmt}'); font-weight: {weight}; font-display: swap; }}"
+        for family, name, fmt, weight in FONT_CATALOGUE if name in sources
+    )
+    mode_css = "\n".join(
+        f"    body.font-mode-{p} {{ --nm-font-display: {PAIRING_FONTS[p][0]}; --nm-font-body: {PAIRING_FONTS[p][1]}; }}"
+        for p in usable
+    )
     slides_html: list[str] = []
     files: list[tuple[Path, str]] = []
     todo_count = 0
     section_no = 0
     for i, slide in enumerate(plan["slides"]):
-        if LAYOUT_ALIASES.get(str(slide.get("layout")), slide.get("layout")) == "section":
+        if LAYOUT_ALIASES.get(str(slide.get("layout")), slide.get("layout")) in ("section", "chapter", "waypoint"):
             section_no += 1
         s_html, todos, extra = _build_slide(slide, i, plan, out_dir, section_no)
         slides_html.append(s_html)
         files.extend(extra)
         todo_count += len(todos)
     replacements = {
-        "{{LANG}}": _esc(plan.get("lang", "ar")),
+        "{{LANG}}": _esc(_SCAFFOLD["lang"]),
+        "{{DIR}}": _DIR[_SCAFFOLD["lang"]],
         "{{TITLE}}": _esc(plan["title"]),
         "{{THEME_VARS}}": _theme_css_vars(tokens),
         "{{BODY_CLASS}}": f"font-mode-{pairing}",
         "{{MODE}}": _esc(plan.get("mode", "morph-and-zoom")),
         "{{FONT_MODES_JSON}}": json.dumps(font_modes, ensure_ascii=False),
+        "{{FONT_FACES}}": font_faces,
+        "{{FONT_MODE_CSS}}": mode_css,
+        "{{FONT_DISPLAY}}": PAIRING_FONTS[pairing][0],
+        "{{FONT_BODY}}": PAIRING_FONTS[pairing][1],
         "{{SLIDES}}": "\n\n".join(slides_html),
         "{{TAILWIND}}": TAILWIND_BLOCK if tailwind else "",
+        "{{EXTRA_CSS}}": "".join(
+            f'\n<link rel="stylesheet" href="assets/nm/{name}">' for name, on in (("nm-table.css", features["table"]), ("nm-math.css", features["math"])) if on
+        ),
+        "{{EXTRA_JS}}": "".join(
+            f'\n<script src="assets/nm/{name}"></script>'
+            for name, on in (("nm-table.js", features["table"]), ("vendor/temml.min.js", features["tex"]), ("nm-math.js", features["math"])) if on
+        ),
     }
     for key, value in replacements.items():
         template = template.replace(key, value)
@@ -1586,7 +2446,8 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
     deck_html, extra_files, todo_count = render_deck(plan, out_dir, tailwind=getattr(args, "tailwind", False))
 
     fonts = _stage_fonts(out_dir)
-    runtime = _stage_runtime(out_dir)
+    features = _plan_features(plan)
+    runtime = _stage_runtime(out_dir, math=features["tex"])
     for path, content in extra_files:
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -1600,8 +2461,16 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
         print(f"  warn    {w['code']}  {w['message']}")
     if fonts["status"] != "ok":
         print(f"Warning: fonts not staged: {fonts.get('message')}", file=sys.stderr)
+    requested = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
+    used = resolve_pairing(requested, set(fonts.get("families", [])))
+    if used != requested:
+        print(f"Note: font pairing \"{requested}\" needs fonts that are not installed; the deck uses \"{used}\". "
+              f"{fonts.get('missing_hint', '')}".rstrip())
     if runtime["status"] != "ok":
         print(f"Warning: runtime not staged: {runtime.get('message')}", file=sys.stderr)
+    elif features["tex"]:
+        print("Note: the plan writes formulas in TeX, so the optional converter (Temml, MIT) was staged into assets/nm/vendor/. "
+              "MathML in the plan needs nothing.")
     print(
         f"Scaffolded {len(plan['slides'])} slides to {out_path} ({todo_count} TODO items in HTML comments).\n"
         f"Next: fill each slide's TODO comments, then run audit-deck --html-path \"{out_path}\" and check --html-path \"{out_path}\"."
@@ -1614,7 +2483,9 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 _VISUAL_TAGS = {"svg", "img", "figure", "canvas", "iframe", "video"}
-_SKIP_TEXT_TAGS = {"script", "style", "template", "aside"}
+_VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+_ORDINAL_NUMBER = re.compile(r"^(0[1-9]|٠[١-٩])(?:[.\s)]|$)")
+_SKIP_TEXT_TAGS = {"script", "style", "template", "aside", "math"}  # formulas are not prose (digits, word counts)
 
 
 class _DeckDom(HTMLParser):
@@ -1633,12 +2504,16 @@ class _DeckDom(HTMLParser):
         self._src_tag: str | None = None
         self._src_depth = 0
         self._script_buf: list[str] | None = None
+        self._table = 0
+        self._stack: list[dict[str, Any]] = []
+        self._heading: dict[str, Any] | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         a = {k: (v if v is not None else "") for k, v in attrs}
         classes = a.get("class", "").split()
         if tag == "section" and "slide" in classes:
-            self.slides.append({"attrs": a, "words": 0, "has_visual": False, "todo": False})
+            self.slides.append({"attrs": a, "words": 0, "has_visual": False, "todo": False,
+                                "heading": False, "kicker": False, "cards3": False, "numbered": 0, "accent_word": 0})
             self._cur = len(self.slides) - 1
             self._depth = 1
         elif tag == "section" and self._cur is not None:
@@ -1653,6 +2528,23 @@ class _DeckDom(HTMLParser):
                 self.slides[self._cur]["todo"] = True
         if tag in _SKIP_TEXT_TAGS:
             self._skip.append(tag)
+        # template tells (NM-20): headings, kickers, card rows, a single coloured word in a title
+        if self._cur is not None:
+            sl = self.slides[self._cur]
+            if tag in ("h1", "h2"):
+                sl["heading"] = True
+                self._heading = {"tag": tag, "marks": 0}
+            elif self._heading is not None and tag in ("span", "em", "mark", "strong", "b") and (
+                    any("accent" in c for c in classes) or "color" in a.get("style", "")):
+                self._heading["marks"] += 1
+            if any(c in ("nm-kicker", "eyebrow", "kicker") for c in classes):
+                sl["kicker"] = True
+            if "nm-card" in classes and self._stack:
+                self._stack[-1]["cards"] += 1
+        if tag not in _VOID_TAGS:
+            self._stack.append({"tag": tag, "cards": 0})
+        if tag == "table":
+            self._table += 1
         # the image credits block (.nm-sources) is required boilerplate: not counted as slide text
         if self._src_tag is None and "nm-sources" in classes:
             self._src_tag, self._src_depth = tag, 1
@@ -1667,6 +2559,18 @@ class _DeckDom(HTMLParser):
             self._script_buf = None
         if tag in _SKIP_TEXT_TAGS and self._skip and self._skip[-1] == tag:
             self._skip.pop()
+        for k in range(len(self._stack) - 1, -1, -1):
+            if self._stack[k]["tag"] == tag:
+                if self._stack[k]["cards"] >= 3 and self._cur is not None:
+                    self.slides[self._cur]["cards3"] = True
+                del self._stack[k:]
+                break
+        if self._heading is not None and tag == self._heading["tag"]:
+            if self._heading["marks"] == 1 and self._cur is not None:
+                self.slides[self._cur]["accent_word"] += 1
+            self._heading = None
+        if tag == "table" and self._table:
+            self._table -= 1
         if self._src_tag == tag:
             self._src_depth -= 1
             if self._src_depth <= 0:
@@ -1683,8 +2587,11 @@ class _DeckDom(HTMLParser):
         if self._skip or self._src_tag is not None:
             return
         stripped = data.strip()
+        if stripped and self._cur is not None and _ORDINAL_NUMBER.match(stripped):
+            self.slides[self._cur]["numbered"] += 1
         if stripped and self._cur is not None:
-            self.slides[self._cur]["words"] += len(stripped.split())
+            if not self._table:  # table cells are data, read by row, not prose: no word budget
+                self.slides[self._cur]["words"] += len(stripped.split())
             self.visible_text.append(stripped)
 
 
@@ -1730,6 +2637,77 @@ def _vocab_error(where: str, attr: str, value: str, valid: tuple[str, ...]) -> s
     )
 
 
+def _template_tells(dom: Any, warnings: list[str]) -> list[str]:
+    """Marks of a deck assembled from a template rather than designed for its topic (roadmap NM-20). Warnings only:
+    each can be right on purpose, none is right on every slide."""
+    tells: list[str] = []
+    content = [(i, s) for i, s in enumerate(dom.slides) if s["attrs"].get("data-role") not in ("cover", "section", "quote", "closing")]
+    titled = [(i, s) for i, s in content if s["heading"]]
+    if len(titled) >= 4:
+        kick = [i + 1 for i, s in titled if s["kicker"]]
+        if len(kick) / len(titled) > 0.7:
+            tells.append(f"T101: a kicker (eyebrow line) sits above the title on {len(kick)} of {len(titled)} content slides; keep it only where it adds information (a chapter name, a source), not as decoration.")
+    if len(content) >= 4:
+        cards = [i + 1 for i, s in content if s["cards3"]]
+        if len(cards) > len(content) / 2:
+            tells.append(f"T102: rows of three or more identical cards on {len(cards)} of {len(content)} content slides ({', '.join(map(str, cards))}); give some of them a diagram, a table, a figure or one strong sentence instead.")
+    numbered = [i + 1 for i, s in enumerate(dom.slides) if s["numbered"] >= 2 and s["attrs"].get("data-role") not in ("process", "timeline")]
+    if numbered:
+        tells.append(f"T103: items numbered 01, 02... on slide(s) {', '.join(map(str, numbered))}, whose content is not a sequence; number only steps that happen in order.")
+    accented = [i + 1 for i, s in enumerate(dom.slides) if s["accent_word"]]
+    if len(accented) >= 2:
+        tells.append(f"T104: one coloured word in the title on slides {', '.join(map(str, accented))}; spend the accent on the one thing the slide proves, once in the deck.")
+    warnings.extend(tells)
+    return tells
+
+
+_DSL_RESERVED = {"unit", "x", "y", "max", "min", "value", "label", "sub", "center", "head", "actors", "lane", "title", "series"}
+
+
+def _audit_plan_data(dom: Any, base_dir: Path, warnings: list[str]) -> list[str]:
+    """Compare the drawn charts with the numbers the plan describes (content.quantities, NM-29): how many values a
+    chart draws, and whether the parts of a whole add up to 100. Only when deck.plan.json sits next to the deck."""
+    plan_path = base_dir / "deck.plan.json"
+    if not plan_path.is_file():
+        return []
+    try:
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not _has_content(plan):
+        return []
+    issues: list[str] = []
+    by_id = {s.get("id"): s for s in plan.get("slides") or [] if isinstance(s, dict)}
+    scripts: dict[int, list[str]] = {}
+    for slide_idx, code in dom.inline_scripts:
+        if slide_idx is not None:
+            scripts.setdefault(slide_idx, []).append(code)
+    nr = _represent()
+    for i, sl in enumerate(dom.slides):
+        plan_slide = by_id.get(sl["attrs"].get("id"))
+        content = (plan_slide or {}).get("content") if isinstance((plan_slide or {}).get("content"), dict) else None
+        qs = [q for q in (content or {}).get("quantities") or [] if isinstance(q, dict)]
+        if not qs or _visual_type(plan_slide) != "chart":
+            continue
+        dtype, _ = _real_diagram_type(plan_slide)
+        for code in scripts.get(i, []):
+            lines = [ln.strip() for ln in code.splitlines() if ln.strip()]
+            if dtype == "line":
+                xs = next((ln.split(":", 1)[1] for ln in lines if ln.lower().startswith("x:")), None)
+                drawn = [v for v in re.split(r"[,،]", xs)] if xs else []
+            else:
+                drawn = [ln for ln in lines if ":" in ln and ln.split(":", 1)[0].strip().lower() not in _DSL_RESERVED
+                         and nr._num(ln.split(":", 1)[1].split("|")[0]) is not None]
+            if dtype in ("bars", "donut", "line", "funnel") and len(drawn) != len(qs):
+                issues.append(f"Slide {i + 1}: the {dtype} chart draws {len(drawn)} values but the plan's content.quantities lists {len(qs)}; update one of them.")
+            if dtype == "donut" and (content or {}).get("kind") == "part-whole":
+                total = sum(nr._num(ln.split(":", 1)[1].split("|")[0].replace("!", "")) or 0 for ln in drawn)
+                if drawn and abs(total - 100) > 1:
+                    issues.append(f"Slide {i + 1}: the parts of the donut add up to {total:g}, not 100.")
+    warnings.extend(issues)
+    return issues
+
+
 def _audit_contract(
     content: str, base_dir: Path, asset_refs: set[str], errors: list[str], warnings: list[str]
 ) -> dict[str, Any]:
@@ -1762,7 +2740,7 @@ def _audit_contract(
         where = f"Slide {slide + 1}" if slide is not None else "Deck"
         checks: list[tuple[str, tuple[str, ...]]] = []
         if "data-act" in a:
-            checks.append(("data-act", ACTS))
+            checks.append(("data-act", RUNTIME_ACTS))
         if "data-transition" in a:
             checks.append(("data-transition", TRANSITIONS))
         if "data-nm-transition" in a:
@@ -1777,6 +2755,15 @@ def _audit_contract(
             checks.append(("data-type", diagram_types))
         if "data-steps" in a and "nm-diagram" in el["classes"]:
             checks.append(("data-steps", ("none", "all") + PROGRESSIVE_MODES))
+        if "nm-table" in el["classes"]:
+            if "data-steps" in a:
+                checks.append(("data-steps", ("none",) + TABLE_STEP_MODES))
+            if "data-steps-act" in a:
+                checks.append(("data-steps-act", ("reveal", "highlight", "focus", "zoom")))
+            for tok in re.split(r"[\s,;]+", a.get("data-highlight", "").strip()):
+                if tok and not _HIGHLIGHT_TOKEN.match(tok) and (slide, "data-highlight", tok) not in seen:
+                    seen.add((slide, "data-highlight", tok))
+                    vocab_errors.append(f'{where}: data-highlight entry "{tok}" is not r<row> or c<column> (for example "r2 c3")')
         for part in a.get("data-node-steps", "").split(","):
             bits = part.strip().split(":")
             if len(bits) >= 3 and bits[2] not in ACTS and (slide, "data-node-steps", bits[2]) not in seen:
@@ -1789,6 +2776,42 @@ def _audit_contract(
                 vocab_errors.append(_vocab_error(where, attr, value, valid))
     errors.extend(vocab_errors)
     contract["vocabulary_errors"] = vocab_errors
+
+    # tables and equations need their optional modules (roadmap NM-10, NM-11)
+    module_issues: list[str] = []
+    tables = [e for e in dom.elements if "nm-table" in e["classes"]]
+    has_tex = any("data-tex" in e["attrs"] for e in dom.elements)
+    has_term = any("data-term" in e["attrs"] for e in dom.elements)
+    has_math = has_tex or has_term or any(e["tag"] == "math" for e in dom.elements)
+    if tables:
+        if "nm-table.css" not in linked:
+            module_issues.append("warn:The deck has tables (figure.nm-table) but does not link assets/nm/nm-table.css; add it after nm-media.css.")
+        if "nm-table.js" not in linked:
+            stepped = any(e["attrs"].get("data-steps", "none") not in ("", "none") or e["attrs"].get("data-highlight") for e in tables)
+            module_issues.append(("error:" if stepped else "warn:") + "The deck has tables but does not link assets/nm/nm-table.js; their row/column steps, highlights and numeric alignment need it.")
+    if has_math and "nm-math.css" not in linked:
+        module_issues.append("warn:The deck has equations but does not link assets/nm/nm-math.css; add it after nm-media.css.")
+    if (has_tex or has_term) and "nm-math.js" not in linked:
+        module_issues.append("error:The deck uses data-tex or data-term but does not link assets/nm/nm-math.js; add it after nm-diagram.js.")
+    if has_tex:
+        if "temml.min.js" not in linked:
+            module_issues.append("error:data-tex needs the TeX converter: run `deck_helper.py stage-runtime --math --target-dir <project>` and link "
+                                 "assets/nm/vendor/temml.min.js before nm-math.js (or write the formula as MathML, which needs nothing).")
+        elif "nm-math.js" in linked and content.find("vendor/temml.min.js") > content.find("nm-math.js"):
+            module_issues.append("error:assets/nm/vendor/temml.min.js must be linked before nm-math.js.")
+    if any(e["attrs"].get("data-act") == "gsap" for e in dom.elements):
+        if "nm-gsap.js" not in linked:
+            module_issues.append("error:The deck uses data-act=\"gsap\" but does not link assets/nm/nm-gsap.js; add it after nm-deck.js.")
+        if not re.search(r"<script[^>]+src=[\"'][^\"']*gsap[^\"']*(?<!nm-gsap\.js)[\"']", content):
+            module_issues.append("warn:data-act=\"gsap\" needs GSAP itself (window.gsap), which the skill does not bundle; without it those elements only fade in. Link a local copy of GSAP before nm-gsap.js.")
+    bad_at = sorted({e["attrs"]["data-at"] for e in dom.elements if "data-at" in e["attrs"] and not re.fullmatch(r"\s*(?:(?:<|>|@[\w-]+)\s*)?(?:[+-]=\s*)?(?:-?[\d.]+\s*(?:ms|s)?)?\s*", e["attrs"]["data-at"]) or (e["attrs"].get("data-at", "x").strip() == "")})
+    for v in bad_at:
+        module_issues.append(f"warn:data-at=\"{v}\" cannot be read; write <, >, +=200, <+=150, 300 or @label (references/morph-and-motion.md).")
+    for issue in module_issues:
+        kind, msg = issue.split(":", 1)
+        (errors if kind == "error" else warnings).append(msg)
+    contract["tables"] = len(tables)
+    contract["equations"] = {"mathml": sum(1 for e in dom.elements if e["tag"] == "math"), "tex": sum(1 for e in dom.elements if "data-tex" in e["attrs"])}
 
     # morph ids
     morph_slides: dict[str, set[int]] = {}
@@ -1927,6 +2950,9 @@ def _audit_contract(
         warnings.append(f"Slide text mixes digit systems ({', '.join(used)}); use one system everywhere.")
     contract["digit_systems"] = used
 
+    contract["plan_data"] = _audit_plan_data(dom, base_dir, warnings)
+    contract["template_tells"] = _template_tells(dom, warnings)
+
     contract["slide_count"] = len(dom.slides)
     contract["motion_driven"] = bool(
         any("data-entrance" in e["attrs"] or "data-morph" in e["attrs"] or "data-step" in e["attrs"] or "nm-diagram" in e["classes"] for e in dom.elements)
@@ -1981,7 +3007,7 @@ def cmd_audit_deck(args: argparse.Namespace) -> int:
     font_face_blocks = "\n".join(re.findall(r"@font-face\s*\{[^}]+\}", content))
     has_display_font = bool(
         re.search(
-            r"font-family:\s*['\"](?:Thmanyah Serif Display|Qahwa Arabic|Setabr Display|Alkhalil Kufi|ZIAN)['\"]",
+            r"font-family:\s*['\"](?:Thmanyah Serif Display|Thmanyah Display|Qahwa Arabic|Setabr Display|Alkhalil Kufi|ZIAN|Readex Pro)['\"]",
             font_face_blocks,
         )
     )
@@ -1993,7 +3019,7 @@ def cmd_audit_deck(args: argparse.Namespace) -> int:
     )
     if not has_display_font:
         errors.append(
-            "Missing `@font-face` declaration for a bundled Display font (Thmanyah Serif Display, Qahwa Arabic, Setabr Display, Alkhalil Kufi, or ZIAN)."
+            "Missing `@font-face` declaration for a Display font (Thmanyah Display, Qahwa Arabic, Setabr Display, Alkhalil Kufi, ZIAN or Readex Pro)."
         )
     if not has_body_font:
         errors.append(
@@ -2023,6 +3049,12 @@ def cmd_audit_deck(args: argparse.Namespace) -> int:
 
     if missing_assets:
         errors.append(f"Missing {len(missing_assets)} referenced local asset file(s): {', '.join(missing_assets)}")
+        licensed = {name for family, name, _f, _w in FONT_CATALOGUE if family in USER_INSTALLED_FONTS}
+        if any(Path(m).name in licensed for m in missing_assets):
+            errors.append(
+                "Thmanyah/ZIAN fonts are not bundled (their licenses forbid redistribution). Install them and run "
+                "stage-fonts, or rerun scaffold so the deck uses the open pairing."
+            )
 
     # 4. Slide Positioning, 1920x1080 Stage & Hidden Controls Check
     slide_tags = re.findall(r"<section\b[^>]*class=[\"']([^\"']*\bslide\b[^\"']*)[\"'][^>]*>", content)
@@ -2136,6 +3168,17 @@ def cmd_check(args: argparse.Namespace) -> int:
         command += ["--shots", str(Path(args.shots).expanduser().resolve())]
     if args.slides:
         command += ["--slides", args.slides]
+    for flag, value in (("--save-baseline", args.save_baseline), ("--baseline", args.baseline)):
+        if value:
+            command += [flag, str(Path(value).expanduser().resolve())]
+    if args.baseline_tolerance is not None:
+        command += ["--baseline-tolerance", str(args.baseline_tolerance)]
+    if args.baseline_strict:
+        command.append("--baseline-strict")
+    if args.motion:
+        command.append("--motion")
+    if args.steps:
+        command.append("--steps")
     return subprocess.call(command)
 
 
@@ -2352,20 +3395,38 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_rt.add_argument("--target-dir", required=True, help="Target project directory where the HTML deck lives.")
     p_rt.add_argument("--inline", action="store_true", help="Also write assets/nm/nm-inline.html (all runtime CSS/JS as <style>/<script>) for single-file decks.")
+    p_rt.add_argument("--math", action="store_true", help="Also stage the optional TeX converter (Temml, MIT) into assets/nm/vendor/ for data-tex equations. Native MathML needs nothing.")
     p_rt.add_argument("--output", default=None, help="Optional JSON report path.")
     p_rt.set_defaults(func=cmd_stage_runtime)
 
     p_pinit = subparsers.add_parser("plan-init", help="Write <target-dir>/deck.plan.json from the bundled example or N stub slides.")
     p_pinit.add_argument("--target-dir", required=True, help="Project directory that will hold deck.plan.json.")
-    p_pinit.add_argument("--title", required=True, help="Deck title (Arabic).")
+    p_pinit.add_argument("--title", required=True, help="Deck title.")
+    p_pinit.add_argument("--lang", choices=LANGS, default="ar", help="Deck language: ar (right to left, default) or en.")
     p_pinit.add_argument("--slides", type=int, default=None, help="Number of stub slides (5..24). Omit to start from the full example.")
     p_pinit.add_argument("--force", action="store_true", help="Overwrite an existing deck.plan.json.")
+    p_pinit.add_argument("--advisor", action="store_true", help="Add an empty `content` block to every content slide and turn on the representation advice (plan-advise, NM-29).")
     p_pinit.set_defaults(func=cmd_plan_init)
 
     p_plint = subparsers.add_parser("plan-lint", help="Validate deck.plan.json and apply the motion-director design rules.")
     p_plint.add_argument("--plan", required=True, help="Path to deck.plan.json.")
     p_plint.add_argument("--output", default=None, help="Optional JSON report path.")
     p_plint.set_defaults(func=cmd_plan_lint)
+
+    p_td = subparsers.add_parser("theme-derive", help="Three palettes from the materials and tools of the topic, contrast-checked (NM-19).")
+    p_td.add_argument("--plan", required=True, help="Path to deck.plan.json (its title, text and content.entities are read).")
+    p_td.add_argument("--materials", default=None, help="Comma-separated materials of the topic; overrides what is found in the plan.")
+    p_td.add_argument("--mood", default=None, help="calm | energetic | serious | warm | cool | dark (Arabic words work too).")
+    p_td.add_argument("--previews", default=None, help="Write style-a/b/c.html (cover and one content slide in each palette) into this folder.")
+    p_td.add_argument("--apply", type=int, default=None, help="Write palette 1, 2 or 3 into the plan's theme as fixed colours.")
+    p_td.add_argument("--output", default=None, help="Optional JSON report path.")
+    p_td.set_defaults(func=cmd_theme_derive)
+
+    p_adv = subparsers.add_parser("plan-advise", help="Suggest representations, acts and Morph from each slide's described information (NM-29).")
+    p_adv.add_argument("--plan", required=True, help="Path to deck.plan.json.")
+    p_adv.add_argument("--output", default=None, help="advice.json path (default: next to the plan).")
+    p_adv.add_argument("--apply", action="store_true", help="Write the first suggestion into unlocked slides whose fit is weak or poor (the old plan is kept as .bak).")
+    p_adv.set_defaults(func=cmd_plan_advise)
 
     p_scaf = subparsers.add_parser("scaffold", help="Generate the deck HTML from a lint-clean deck.plan.json (stages fonts and runtime too).")
     p_scaf.add_argument("--plan", required=True, help="Path to deck.plan.json.")
@@ -2379,6 +3440,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_check.add_argument("--shots", default=None, help="Directory for screenshots and the contact sheet (default: <deck dir>/check-shots).")
     p_check.add_argument("--slides", default=None, help="Slides to check, e.g. 1-5 or 2,4,7 (default: all).")
     p_check.add_argument("--output", default=str(TEMP_DIR / "deck_check_report.json"), help="Output JSON report path.")
+    p_check.add_argument("--steps", action="store_true", help="Also screenshot every step (and compare them with --baseline).")
+    p_check.add_argument("--save-baseline", default=None, help="Save this run's screenshots into DIR as the visual baseline (NM-07).")
+    p_check.add_argument("--baseline", default=None, help="Compare the screenshots with the baseline in DIR (C-BASELINE, diff images in <shots>/diff/).")
+    p_check.add_argument("--baseline-tolerance", type=float, default=None, help="Share of differing pixels allowed (default 0.0005).")
+    p_check.add_argument("--baseline-strict", action="store_true", help="A baseline difference is an error, not a warning.")
+    p_check.add_argument("--motion", action="store_true", help="Also measure each slide's arrival at full speed (C-MOTION, C-JANK; NM-08).")
     p_check.set_defaults(func=cmd_check)
 
     return parser

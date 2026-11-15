@@ -1,6 +1,6 @@
 ---
 name: nevermind-slides
-description: "Transforms research papers, technical articles, or complex topics into Arabic story-driven explanations and cinematic 1920x1080 HTML presentations. A bundled runtime does all motion from data-* attributes (shared-element Morph with arcs and springs, ten narrative transitions, camera zoom, isolation acts that lift a part of a slide out to show details, declarative diagrams and charts), so the author writes a plan and plain HTML. Includes subject-first anatomy isometric figures drawn from the topic's own world, generated or web-sourced images cropped and toned to the deck, bundled Arabic fonts, zero emojis, and automated plan, audit and headless-Chrome checks."
+description: "Transforms research papers, technical articles, or complex topics into Arabic story-driven explanations and cinematic 1920x1080 HTML presentations. A bundled runtime does all motion from data-* attributes (shared-element Morph with arcs and springs, ten narrative transitions, camera zoom, isolation acts that lift a part of a slide out to show details, declarative diagrams and charts, data tables, native MathML equations), so the author writes a plan and plain HTML. Includes subject-first anatomy isometric figures drawn from the topic's own world, generated or web-sourced images cropped and toned to the deck, bundled Arabic fonts, zero emojis, and automated plan, audit and headless-Chrome checks."
 user-invocable: true
 compatibility: codex, claude-code, opencode, antigravity
 metadata:
@@ -9,7 +9,7 @@ metadata:
 
 # Nevermind Slides (`nevermind-slides`) v2
 
-`<SKILL_DIR>` is the folder containing this file. Everything is bundled inside it: fonts (`resources/fonts/`), the motion runtime (`resources/engine/nm-runtime/`), the `anatomy` isometric engine (`resources/engine/anatomy/`), the `frontend-slides` layout library (`resources/engine/frontend-slides/`), templates (`resources/templates/`) and the Nevermind Studio editor (`resources/nm-studio/nm-studio.mjs`).
+`<SKILL_DIR>` is the folder containing this file. Everything is bundled inside it: fonts with a redistributable license (`resources/fonts/`; Thmanyah and ZIAN are not bundled, see below), the motion runtime (`resources/engine/nm-runtime/`), the `anatomy` isometric engine (`resources/engine/anatomy/`), the layout presets the editor offers (`resources/layout-presets/`), templates (`resources/templates/`) and the Nevermind Studio editor (`resources/nm-studio/nm-studio.mjs`).
 
 All helper commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command>` (stdlib only; `uv run` also works).
 
@@ -22,6 +22,10 @@ All helper commands: `python3 "<SKILL_DIR>/scripts/deck_helper.py" <command>` (s
 3. **Every slide earns its motion from the story.** Each slide declares its narrative relation (`rel`) to the previous one. Continuity comes from shared elements (`morph`), not from effects.
 4. **Pictures come from the topic's own world.** Anatomy figures follow the subject-first ladder; a generic dial gauge or test rig is a failure unless the topic is that object.
 5. **Nothing is delivered until the gates pass:** `plan-lint`, `audit-deck`, `check` (headless Chrome), `image_fetch.py credits --check`, and `brief-check` for every anatomy figure.
+
+Fonts: Thmanyah and ZIAN are not bundled because their licenses forbid redistribution. `stage-fonts` copies them from the user's own font folders (or `NM_FONTS_DIR`) when present; otherwise `scaffold` switches the deck to the open pairing (`open`: Readex Pro + IBM Plex Sans Arabic) and prints a note. Never download or copy those fonts into the skill yourself; tell the user once, in Arabic, where to get them if they want them.
+
+English decks: set `"lang": "en"` in the plan (or `plan-init --lang en`); everything else is the same, left to right. In Arabic decks scaffold isolates risky Latin runs with `<bdi>`; do the same for text you add.
 
 Arabic and RTL rules everywhere: `dir="rtl"`, right-aligned text, never split Arabic words into letters, one digit system per deck (Arabic-Indic or Western), zero emojis (inline SVG icons only).
 
@@ -49,6 +53,7 @@ Users are usually non-technical. Never ask them to run commands.
 | Morph, transitions, steps, entrances, camera, keys | `references/morph-and-motion.md` |
 | Isolate part of a slide: focus, detail, lens, pins, slice | `references/focus-isolation.md` |
 | Diagrams, charts, connectors, `nm-l-*` layouts, type scale | `references/diagrams.md` |
+| Tables, equations, derivations, TeX | `references/tables-and-equations.md` |
 | Images when no generator exists: search, crop, tone, credits | `references/web-images.md` |
 | Runtime contract (API for advanced use only) | `references/runtime-contract.md` |
 | Anatomy: choose the subject | `resources/engine/anatomy/references/subject-first.md` |
@@ -93,12 +98,22 @@ Read the source and fill this table for yourself (one row per future slide). It 
 
 ### 2.2 Choose the visual for each slide
 
+Describe the information, then let the advisor propose: start with `plan-init --advisor` (or add `"advisor": true`), fill each content slide's `content` (`kind`: concept, comparison, process, causal, data, finding, argument, definition, hierarchy, part-whole, timeline; plus `items`, `dimensions`, `quantities`, `sequence`, `formula`, `detail`, `entities`), and run:
+
+```bash
+python3 "<SKILL_DIR>/scripts/deck_helper.py" plan-advise --plan "<project_dir>/deck.plan.json"
+```
+
+It prints, per slide, the current representation, how well it fits, the first suggestion with its reason in Arabic, and the acts (or "still": a definition, a quote or one number reads best without steps), and writes `advice.json`. Accept, override (`"visual": {"locked": true}` keeps your choice), or run `--apply` to write the suggestion into slides that fit poorly. Charts are then drawn from `content.quantities`. The table below is the same logic for a quick decision by hand.
+
 | The slide's idea is... | Visual | Plan `visual.type` |
 |---|---|---|
 | A physical mechanism, a place where the work happens, or a process with real objects | Anatomy isometric figure, subject-first | `anatomy` (`mode`: `animated` if the real subject moves and the motion is the point, else `static`) |
 | Steps, flow, architecture, hierarchy, cycle, actors exchanging messages | Diagram | `diagram` with `diagram_type`: flow, tree, cycle, hub, timeline, layers, swimlane, sequence |
 | Positioning, proportions, overlap, comparison of two options | Diagram | matrix, funnel, pyramid, venn, compare |
 | Numbers that matter | Chart | `chart`: bars, line, donut, gauge, stat |
+| Exact values to compare across rows and columns (results, measurements) | Table | `table` (`columns`, `rows`; 8 x 6 at most) |
+| A law, a definition, a loss function, a derivation | Equation (native MathML; TeX optional) | `equation` (`mathml`, `tex` or `lines`) |
 | A story, a human moment, a place, an atmosphere | Image (generated, else web) | `image` |
 | A strong sentence | Typography alone (quote layout) | `none` (never two in a row) |
 
@@ -129,9 +144,16 @@ Present the proposal to the user as a table: slide, visual type, subject (for an
 
 ### 2.5 Three live style previews
 
-1. Pick 3 distinct directions suited to the topic from `resources/templates/themes.json` (8 presets with tuned contrast) combined with a font pairing.
-2. For each, write `<project_dir>/.frontend-slides/slide-previews/style-a.html` (b, c): one real slide of the deck (the cover or the strongest concept slide), built with the runtime and `nm-layout.css`, 1920x1080, RTL, zero emojis. Fastest path: `plan-init` a 5-slide plan, set the theme, `scaffold --out` into the previews folder.
-3. Open all three with `open-files`.
+The colours come from the topic's own world (its materials and tools), not from a stock palette:
+
+```bash
+python3 "<SKILL_DIR>/scripts/deck_helper.py" theme-derive --plan "<project_dir>/deck.plan.json" \
+  --previews "<project_dir>/.frontend-slides/slide-previews"
+```
+
+1. It reads the plan (title, headlines, `content.entities`; or `--materials "ميناء، بحر"`, `--mood calm|energetic|serious|warm|cool|dark`) and prints three named palettes (light, tinted, dark) with their contrast, all checked: ink 7:1, muted 4.5:1, accents 3:1.
+2. `--previews` writes `style-a.html`, `style-b.html`, `style-c.html` (the cover and one content slide in each palette) with the runtime staged. Pair each with a font pairing if you like.
+3. Open all three with `open-files`. After the user picks, `theme-derive --apply 1|2|3` writes it into the plan. The eight presets in `resources/templates/themes.json` stay available; `paper` and `ink` are not the starting point.
 
 ### 2.6 Ask the user (one message, numbered Arabic menu, or the ask tool if available)
 
@@ -139,7 +161,7 @@ Present the proposal to the user as a table: slide, visual type, subject (for an
 2. **الطول:** قصير 5-7 / متوسط 8-12 (موصى به) / طويل 12-18
 3. **الكثافة:** متوازن (موصى به) / بصري أولاً / بطاقات مرجعية مفصّلة
 4. **مجسمات anatomy:** اعتماد المقترح (موصى به) / متحركة في كل الشروحات / ثابتة فقط / بدون anatomy
-5. **الخطوط:** ثمانية Display + KOMission وThmanyah Sans (موصى به) / قهوة + IBM Plex / سطبر أو زيان + Readex Pro / الخليل الكوفي + IBM Plex
+5. **الخطوط:** ريدكس + IBM Plex (مفتوحة، موصى به) / ثمانية Display + KOMission (إن كانت مثبّتة لدى المستخدم) / قهوة + IBM Plex / سطبر + Readex Pro / الخليل الكوفي + IBM Plex
 6. **الحركة:** Morph + تقريب الكاميرا بالأسهم (موصى به، `morph-and-zoom`) / Morph فقط (`morph-only`) / انتقال هادئ (`classic`)
 7. **النمط:** A / B / C من المعاينات المفتوحة
 
@@ -197,6 +219,10 @@ Work slide by slide. Keep the generated structure; change content, not scaffoldi
 
 Pick the type with the table at the top of `references/diagrams.md`. Re-use the same `data-id` on the next slide with a different type, layout or emphasis and the nodes morph across. Reveal progressively with `data-steps="rank|node|edge|series|all"`, or name nodes yourself with `data-node-steps="enc:1, probe:2:highlight"`. `data-grow="1"` keeps a sparse diagram at natural size (default grows it to fill its cell). Connect your own cards with `data-node="a"` and `data-links="a>b: تسمية; b~>c"` on a parent.
 
+### 3.4b Tables and equations
+
+Tables are a real `<table>` inside `figure.nm-table`; reveal or highlight them row by row with `data-steps="row|col"`. Equations are native `<math>` (no library); TeX in `data-tex` only when the user writes TeX (scaffold stages the converter). Put `data-term="x"` on the same part of consecutive formulas so it flies to the next slide. Details: `references/tables-and-equations.md`.
+
 ### 3.5 Anatomy figures
 
 For every `anatomy` slide:
@@ -244,7 +270,7 @@ python3 "<SKILL_DIR>/scripts/image_fetch.py" credits --project "<project_dir>" -
 ```
 
 1. `audit-deck`: `"passed": true`. It checks emojis, fonts, assets, vocabulary of every `data-*` value (with suggestions), morph pairing, step numbering, detail templates, anatomy briefs, credits, and hand-written navigation.
-2. `check`: opens the deck in headless Chrome, walks every slide and step, and reports text outside the stage, clipped or overlapping text, small text, low contrast, broken images, unloaded fonts and leftover morph ghosts. **Open the contact sheet PNG and look at it.** Fix anything that looks cramped, misaligned or empty, then rerun.
+2. `check`: opens the deck in headless Chrome, walks every slide and step, and reports text outside the stage, clipped or overlapping text, small text, low contrast, broken images, unloaded fonts, leftover morph ghosts, empty frames, broken Arabic joins, unisolated Latin runs, widows, dense slides, diagrams that use little of their box, nearly empty slides, drifting titles, tables that do not fit and formulas shown as raw TeX. Read `quality.json` in the shots folder: fix every `HOLD`, then the `FIX` items. **Open the contact sheet PNG and look at it.** Fix anything that looks cramped, misaligned or empty, then rerun.
 3. Clean previews: `cleanup-previews --target-dir "<project_dir>"`.
 4. Open the deck (`open-files`) and give a short Arabic summary: slide count, the visual plan, keys (الأسهم للتنقل، O للنظرة العامة، F ملء الشاشة، E تعديل النصوص، ? المساعدة).
 5. Offer the visual editor:

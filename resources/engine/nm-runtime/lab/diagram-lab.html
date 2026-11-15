@@ -331,6 +331,38 @@
   </div></div>
 </section>
 
+<section class="slide active" id="ex-errbars" data-lab="errbars - value ± err (NM-12)">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><h2 class="nm-t-h2">زمن الاستجابة مع هامش الخطأ</h2></header>
+    <figure class="nm-diagram" data-type="bars" data-orient="v" data-id="errbars" data-steps="series">
+      <script type="text/nm-diagram">
+        unit: ms
+        النموذج الأساسي: 42 ± 6
+        النموذج المضغوط: 18 ± 2 !
+        النموذج المقطّر: 21 ± 3
+      </script>
+    </figure>
+  </div></div>
+</section>
+
+<section class="slide active" id="ex-scatter" data-lab="scatter - axes with units, trend (NM-12)">
+  <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head"><h2 class="nm-t-h2">الدقة مقابل الحجم</h2></header>
+    <figure class="nm-diagram" data-type="scatter" data-id="scatter" data-steps="series">
+      <script type="text/nm-diagram">
+        x: عدد المعاملات | مليون
+        y: الدقة | ٪
+        trend: on
+        صغير: 22, 79.8
+        متوسط: 86, 83.0
+        كبير: 304, 85.2
+        مقطّر: 22, 83.9 !
+        مضغوط: 38, 81.1
+      </script>
+    </figure>
+  </div></div>
+</section>
+
 <section class="slide active" id="ex-line" data-lab="line - 3 series, area, end labels">
   <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure">
     <header class="nm-head"><p class="nm-kicker">الاتجاه</p><h2 class="nm-t-h2">المستخدمون النشطون شهريًا (ألف)</h2></header>

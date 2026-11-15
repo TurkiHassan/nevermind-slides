@@ -238,6 +238,9 @@
     var dirAttr = (document.body.getAttribute('dir') || document.documentElement.getAttribute('dir') || '').toLowerCase();
     if (!dirAttr) { document.body.setAttribute('dir', 'rtl'); dirAttr = 'rtl'; }
     rtl = dirAttr !== 'ltr';
+    var langAttr = (document.documentElement.getAttribute('lang') || document.body.getAttribute('lang') || '').toLowerCase();
+    T = rtl || /^ar\b/.test(langAttr) ? UI_TEXT.ar : UI_TEXT.en;
+    MODE_LABEL = T.modes;
 
     slides = $$(':scope > .slide', stage);
     if (!slides.length) slides = $$('.slide', stage);
@@ -308,6 +311,46 @@
   function makeCtx(slide, step, dir, instant, extra) {
     return Object.assign({ deck: deck, slide: slide, rig: rigOf(slide), step: step, dir: dir, instant: !!instant || instantNow() }, extra || {});
   }
+  /* data-at (roadmap NM-14): when an element starts inside its step, in the spirit of GSAP's position parameter.
+       (absent)   with the step (0ms)            "300"      300ms after the step starts
+       "<"        with the previous element      "<+=150"   150ms after the previous element starts
+       ">"        when the previous one ends     "+=200"    200ms after it ends ("-=200": 200ms before)
+       "@name"    at a label: data-at-label="name" on an element names the moment it starts ("@name+=100")
+     "Previous" is the previous element of the same step in document order. Only lasting acts with an entrance
+     (reveal, and plugins that read ctx.at) are timed; transient acts are not. Steps without data-at are untouched. */
+  function parseAt(v) {
+    v = String(v || '').trim();
+    var m = /^(?:(<|>|@[\w-]+))?\s*(?:([+-])=)?\s*(-?[\d.]+)?\s*(ms|s)?$/.exec(v);
+    if (!m || (!m[1] && !m[2] && m[3] == null)) return null;
+    var n = m[3] != null ? parseFloat(m[3]) * (m[4] === 's' ? 1000 : 1) : 0;
+    return { anchor: m[1] || (m[2] ? '>' : null), delta: m[2] === '-' ? -n : n, label: m[1] && m[1].charAt(0) === '@' ? m[1].slice(1) : null };
+  }
+  function stepTimer(step) {
+    if (!step.items.some(function (it) { return it.el.hasAttribute('data-at') || it.el.hasAttribute('data-at-label'); })) return null;
+    var prev = null, labels = {}, starts = new Map();
+    function endOf(e) {
+      var anims = e._nmAnims || [], end = starts.get(e) || 0;
+      anims.forEach(function (a) { var t = a.effect && a.effect.getTiming(); if (t) end = Math.max(end, (t.delay || 0) + (t.duration || 0)); });
+      return end;
+    }
+    return {
+      start: function (e) {
+        var spec = parseAt(e.getAttribute('data-at')), t = 0;
+        if (spec) {
+          if (spec.label) t = (labels[spec.label] || 0) + spec.delta;
+          else if (spec.anchor === '<') t = (prev ? starts.get(prev) : 0) + spec.delta;
+          else if (spec.anchor === '>') t = (prev ? endOf(prev) : 0) + spec.delta;
+          else t = spec.delta;
+        } else if (e.hasAttribute('data-at') && window.console) console.warn('[nm-deck] cannot read data-at="' + e.getAttribute('data-at') + '" (write <, >, +=200, <+=150, 300 or @label)');
+        t = Math.max(0, t);
+        starts.set(e, t);
+        var name = e.getAttribute('data-at-label');
+        if (name) labels[name] = t;
+        return t;
+      },
+      done: function (e) { prev = e; }
+    };
+  }
   function enterItem(slide, it, ctx) {
     it.el.classList.add('is-on');
     var a = acts[it.act];
@@ -342,9 +385,13 @@
     if (target > cur) {
       for (var i = cur + 1; i <= target; i++) {
         var stepI = steps[i - 1], last = i === target;
+        var timing = stepTimer(stepI);
         stepI.items.forEach(function (it) {
           if (isTransient(it.act) && (!last || o.deferTransient)) { it.el.classList.add('is-on'); return; }
-          enterItem(slide, it, makeCtx(slide, i, 1, instant || !last));
+          var ctx = makeCtx(slide, i, 1, instant || !last);
+          if (timing) ctx.at = timing.start(it.el);
+          enterItem(slide, it, ctx);
+          if (timing) timing.done(it.el);
         });
       }
     } else if (target < cur) {
@@ -492,7 +539,7 @@
     NM.registerAct('reveal', {
       enter: function (e, ctx) {
         if (ctx.instant) return;
-        playEntrance(e, e.getAttribute('data-entrance') || 'rise', { dir: ctx.dir, delay: parseFloat(e.getAttribute('data-entrance-delay')) || 0 }, entranceBucket);
+        e._nmAnims = playEntrance(e, e.getAttribute('data-entrance') || 'rise', { dir: ctx.dir, delay: (ctx.at || 0) + (parseFloat(e.getAttribute('data-entrance-delay')) || 0) }, entranceBucket);
       },
       exit: function (e, ctx) {
         if (ctx.instant) return;
@@ -797,6 +844,7 @@
       items.push({ el: e, kind: k, order: parseFloat(e.getAttribute('data-entrance-order')), delay: parseFloat(e.getAttribute('data-entrance-delay')) || 0 });
     });
     if (!items.length) return;
+    if (choreo() >= 2) { playChoreo(slide, items, startAt, o); return; }
     var sorted = readingSort(items.map(function (i) { return i.el; }));
     items.forEach(function (it) {
       var rank = sorted.indexOf(it.el);
@@ -809,6 +857,66 @@
       } else {
         d = startAt + (isFinite(it.order) ? (it.order - 1) * 120 : Math.min(rank, 9) * 75) + it.delay;
       }
+      playEntrance(it.el, it.kind, { dir: o.dir || 1, delay: d }, entranceBucket);
+    });
+  }
+
+  /* Choreography 2 (roadmap NM-13), opt-in with <body data-nm-choreo="2">; decks without it keep the stagger above.
+     Every automatic block gets a role: lead (the heading: it moves first), support (body, cards, figures: they
+     follow with gaps that shrink), deco (kicker, rules, section numbers: they fade, never travel) or static (no
+     entrance). data-motion-role on an element overrides the guess. A header holding several parts is opened so its
+     parts enter one by one and the header itself does not move: one entrance per container, never a parent and a
+     child at once. The whole arrival settles within 1200ms. A slide with data-nm-still (scaffold writes it when the
+     representation advice says a still slide reads best) fades its parts in together. */
+  var SUPPORT_GAPS = [120, 90, 70, 55, 45, 40, 35];
+  var STAGGER_CAP = 440;
+  function choreo() { return parseInt(body.getAttribute('data-nm-choreo'), 10) || 1; }
+  function motionRole(e) {
+    var r = e.getAttribute('data-motion-role');
+    if (r === 'lead' || r === 'support' || r === 'deco' || r === 'static') return r;
+    if (e.matches('h1,h2,h3,blockquote,.nm-t-display,.nm-t-h1,.nm-t-h2')) return 'lead';
+    if (e.matches('.nm-kicker,hr,.nm-rule,.nm-section-num,[aria-hidden="true"]')) return 'deco';
+    return 'support';
+  }
+  function openContainers(items, exclude) {
+    var out = [];
+    items.forEach(function (it) {
+      var e = it.el;
+      if (it.kind === 'auto' && e.matches('header,.nm-head,.nm-rail-head,.nm-rail-main')) {
+        var kids = Array.prototype.filter.call(e.children, usableBlock).filter(function (k) {
+          return !k.hasAttribute('data-step') && !k.hasAttribute('data-entrance') && !touches(k, exclude);
+        });
+        if (kids.length > 1) { kids.forEach(function (k) { out.push({ el: k, kind: 'auto' }); }); return; }
+      }
+      out.push(it);
+    });
+    return out;
+  }
+  function playChoreo(slide, items, startAt, o) {
+    var still = slide.hasAttribute('data-nm-still');
+    items = openContainers(items, o.exclude || new Set());
+    var autos = items.filter(function (i) { return i.kind === 'auto'; });
+    var sorted = readingSort(autos.map(function (i) { return i.el; }));
+    var leads = sorted.filter(function (e) { return motionRole(e) === 'lead'; });
+    var lead = leads[0] || null;
+    var supportAt = lead && !still ? SUPPORT_GAPS[0] : 0, k = 0;
+    sorted.forEach(function (e) {
+      var role = motionRole(e), kind, d;
+      if (role === 'static') return;
+      var r = rectInStage(e), big = r.w * r.h > W * H * 0.6;
+      if (still || role === 'deco') { kind = 'fade'; d = 0; }
+      else if (e === lead || role === 'lead') { kind = big ? 'fade' : 'rise'; d = 0; }
+      else {
+        kind = big ? 'fade' : 'rise';
+        d = Math.min(supportAt, STAGGER_CAP);
+        supportAt += SUPPORT_GAPS[Math.min(++k, SUPPORT_GAPS.length - 1)];
+      }
+      playEntrance(e, kind, { dir: o.dir || 1, delay: startAt + d }, entranceBucket);
+    });
+    // explicit data-entrance elements keep their own order and delay
+    items.forEach(function (it) {
+      if (it.kind === 'auto') return;
+      var d = startAt + (isFinite(it.order) ? (it.order - 1) * 120 : 0) + it.delay;
       playEntrance(it.el, it.kind, { dir: o.dir || 1, delay: d }, entranceBucket);
     });
   }
@@ -1763,11 +1871,27 @@
     edit: '<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
   };
   var MODE_ORDER = ['morph-and-zoom', 'morph-only', 'classic'];
-  var MODE_LABEL = {
-    'morph-and-zoom': 'الحركة: تحويل وتقريب بالأسهم',
-    'morph-only': 'الحركة: تحويل فقط (التقريب بالنقر)',
-    'classic': 'الحركة: انتقال كلاسيكي'
+  // Chrome strings in the deck's language: Arabic for lang="ar" (and any RTL deck), English otherwise.
+  var UI_TEXT = {
+    ar: {
+      modes: { 'morph-and-zoom': 'الحركة: تحويل وتقريب بالأسهم', 'morph-only': 'الحركة: تحويل فقط (التقريب بالنقر)', 'classic': 'الحركة: انتقال كلاسيكي' },
+      nav: 'التحكم في الشرائح', prev: 'السابق', next: 'التالي', camera: 'الكاميرا (Z)', cameraOverview: 'الكاميرا: نظرة عامة', motion: 'نمط الحركة',
+      font: 'الخط', overview: 'نظرة شاملة (O)', edit: 'تعديل النصوص (E)', full: 'ملء الشاشة (F)', keys: 'اختصارات المفاتيح (?)', keysTitle: 'اختصارات المفاتيح',
+      help: ['الخطوة أو الشريحة التالية', 'الخطوة أو الشريحة السابقة', 'تخطي الخطوات', 'الشريحة الأولى أو الأخيرة', 'نظرة شاملة على الشرائح',
+        'تقريب الكاميرا أو إلغاؤه', 'إلغاء التقريب أو الإغلاق', 'ملء الشاشة', 'شاشة سوداء', 'تعديل النصوص مباشرة', 'هذه القائمة'],
+      editBadge: 'وضع التعديل: اضغط E للخروج', section: 'قسم ', zoom: 'تقريب ', step: 'الخطوة ', steps: 'الخطوات: ', sections: ' أقسام', overviewGrid: 'نظرة شاملة على الشرائح'
+    },
+    en: {
+      modes: { 'morph-and-zoom': 'Motion: morph and zoom with the arrows', 'morph-only': 'Motion: morph only (zoom on click)', 'classic': 'Motion: classic transitions' },
+      nav: 'Slide controls', prev: 'Previous', next: 'Next', camera: 'Camera (Z)', cameraOverview: 'Camera: overview', motion: 'Motion mode',
+      font: 'Font', overview: 'Overview (O)', edit: 'Edit text (E)', full: 'Full screen (F)', keys: 'Keyboard shortcuts (?)', keysTitle: 'Keyboard shortcuts',
+      help: ['Next step or slide', 'Previous step or slide', 'Skip steps', 'First or last slide', 'Overview of all slides',
+        'Zoom the camera in or out', 'Release zoom or close', 'Full screen', 'Black screen', 'Edit text in place', 'This list'],
+      editBadge: 'Edit mode: press E to leave', section: 'Section ', zoom: 'Zoom ', step: 'Step ', steps: 'Steps: ', sections: ' sections', overviewGrid: 'Overview of all slides'
+    }
   };
+  var T = UI_TEXT.ar;
+  var MODE_LABEL = T.modes;
   var fontIndex = 0;
   var hud = {};
   function btn(id, cls, icon, label, title) {
@@ -1785,27 +1909,27 @@
     if (!nav) {
       nav = el('nav', 'deck-controls');
       nav.id = 'deckControls';
-      nav.setAttribute('aria-label', 'التحكم في الشرائح');
-      var prevB = btn('prevBtn', '', ICON.prev, 'السابق', 'السابق');
+      nav.setAttribute('aria-label', T.nav);
+      var prevB = btn('prevBtn', '', ICON.prev, T.prev, T.prev);
       var counter = el('span'); counter.id = 'slideCounter'; counter.dir = 'ltr';
-      var nextB = btn('nextBtn', 'nm-primary', '', null, 'التالي');
-      nextB.innerHTML = '<span>التالي</span>' + ICON.next;
-      var cam = btn('cameraStatusBtn', '', ICON.zoom, null, 'الكاميرا (Z)');
-      cam.insertAdjacentHTML('beforeend', '<span id="cameraStatusLabel">الكاميرا: نظرة عامة</span>');
-      var mode = btn('motionModeBtn', '', ICON.motion, null, 'نمط الحركة');
+      var nextB = btn('nextBtn', 'nm-primary', '', null, T.next);
+      nextB.innerHTML = '<span>' + T.next + '</span>' + ICON.next;
+      var cam = btn('cameraStatusBtn', '', ICON.zoom, null, T.camera);
+      cam.insertAdjacentHTML('beforeend', '<span id="cameraStatusLabel">' + T.cameraOverview + '</span>');
+      var mode = btn('motionModeBtn', '', ICON.motion, null, T.motion);
       mode.insertAdjacentHTML('beforeend', '<span id="motionModeLabel"></span>');
       nav.appendChild(prevB); nav.appendChild(counter); nav.appendChild(nextB);
       nav.appendChild(el('span', 'nm-sep')); nav.appendChild(cam); nav.appendChild(mode);
       if (fontModes().length) {
-        var fb = btn('fontToggleBtn', '', ICON.font, null, 'الخط');
+        var fb = btn('fontToggleBtn', '', ICON.font, null, T.font);
         fb.insertAdjacentHTML('beforeend', '<span id="fontModeLabel"></span>');
         nav.appendChild(el('span', 'nm-sep')); nav.appendChild(fb);
       }
       nav.appendChild(el('span', 'nm-sep'));
-      nav.appendChild(btn('nmOverviewBtn', 'nm-icon', ICON.grid, null, 'نظرة شاملة (O)'));
-      nav.appendChild(btn('nmEditBtn', 'nm-icon', ICON.edit, null, 'تعديل النصوص (E)'));
-      nav.appendChild(btn('nmFullBtn', 'nm-icon', ICON.full, null, 'ملء الشاشة (F)'));
-      nav.appendChild(btn('nmHelpBtn', 'nm-icon', ICON.help, null, 'اختصارات المفاتيح (?)'));
+      nav.appendChild(btn('nmOverviewBtn', 'nm-icon', ICON.grid, null, T.overview));
+      nav.appendChild(btn('nmEditBtn', 'nm-icon', ICON.edit, null, T.edit));
+      nav.appendChild(btn('nmFullBtn', 'nm-icon', ICON.full, null, T.full));
+      nav.appendChild(btn('nmHelpBtn', 'nm-icon', ICON.help, null, T.keys));
       body.appendChild(nav);
     }
     var bind = function (id, fn) {
@@ -1825,23 +1949,24 @@
     var prog = document.querySelector('.nm-progress');
     if (!prog) { prog = el('div', 'nm-progress', '<i></i>'); body.appendChild(prog); }
     var help = el('div', 'nm-help');
-    help.innerHTML = '<div class="nm-help-card" role="dialog" aria-label="اختصارات المفاتيح"><h2>اختصارات المفاتيح</h2><dl>' +
-      [['<kbd>&larr;</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd>', 'الخطوة أو الشريحة التالية'],
-       ['<kbd>&rarr;</kbd> <kbd>PgUp</kbd>', 'الخطوة أو الشريحة السابقة'],
-       ['<kbd>Shift</kbd> + <kbd>&larr;</kbd> <kbd>&rarr;</kbd>', 'تخطي الخطوات'],
-       ['<kbd>Home</kbd> <kbd>End</kbd>', 'الشريحة الأولى أو الأخيرة'],
-       ['<kbd>O</kbd> <kbd>G</kbd>', 'نظرة شاملة على الشرائح'],
-       ['<kbd>Z</kbd>', 'تقريب الكاميرا أو إلغاؤه'],
-       ['<kbd>Esc</kbd>', 'إلغاء التقريب أو الإغلاق'],
-       ['<kbd>F</kbd>', 'ملء الشاشة'],
-       ['<kbd>B</kbd>', 'شاشة سوداء'],
-       ['<kbd>E</kbd>', 'تعديل النصوص مباشرة'],
-       ['<kbd>?</kbd>', 'هذه القائمة']].map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') +
+    var fwd = rtl ? '&larr;' : '&rarr;', back = rtl ? '&rarr;' : '&larr;';
+    help.innerHTML = '<div class="nm-help-card" role="dialog" aria-label="' + T.keysTitle + '"><h2>' + T.keysTitle + '</h2><dl>' +
+      [['<kbd>' + fwd + '</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd>', T.help[0]],
+       ['<kbd>' + back + '</kbd> <kbd>PgUp</kbd>', T.help[1]],
+       ['<kbd>Shift</kbd> + <kbd>&larr;</kbd> <kbd>&rarr;</kbd>', T.help[2]],
+       ['<kbd>Home</kbd> <kbd>End</kbd>', T.help[3]],
+       ['<kbd>O</kbd> <kbd>G</kbd>', T.help[4]],
+       ['<kbd>Z</kbd>', T.help[5]],
+       ['<kbd>Esc</kbd>', T.help[6]],
+       ['<kbd>F</kbd>', T.help[7]],
+       ['<kbd>B</kbd>', T.help[8]],
+       ['<kbd>E</kbd>', T.help[9]],
+       ['<kbd>?</kbd>', T.help[10]]].map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') +
       '</dl></div>';
     help.addEventListener('click', function () { toggleHelp(false); });
     body.appendChild(help);
     body.appendChild(el('div', 'nm-blackout'));
-    body.appendChild(el('div', 'nm-badge', 'وضع التعديل: اضغط E للخروج'));
+    body.appendChild(el('div', 'nm-badge', T.editBadge));
 
     hud.counter = document.getElementById('slideCounter');
     hud.cam = document.getElementById('cameraStatusLabel');
@@ -1882,12 +2007,12 @@
       var real = st.steps.filter(function (s) { return !s.release; }).length;
       if (activeZoom) {
         var zi = zoomSteps.findIndex(function (s) { return s.items.indexOf(activeZoom) >= 0; });
-        var label = activeZoom.el.getAttribute('data-zoom-label') || activeZoom.el.getAttribute('data-step-label') || ('قسم ' + (zi + 1));
-        hud.cam.textContent = 'تقريب ' + (zi + 1) + '/' + zoomSteps.length + ': ' + label;
+        var label = activeZoom.el.getAttribute('data-zoom-label') || activeZoom.el.getAttribute('data-step-label') || (T.section + (zi + 1));
+        hud.cam.textContent = T.zoom + (zi + 1) + '/' + zoomSteps.length + ': ' + label;
       } else if (st.index > 0 && real) {
-        hud.cam.textContent = 'الخطوة ' + Math.min(st.index, real) + '/' + real;
+        hud.cam.textContent = T.step + Math.min(st.index, real) + '/' + real;
       } else {
-        hud.cam.textContent = zoomSteps.length ? 'الكاميرا: نظرة عامة (' + zoomSteps.length + ' أقسام)' : (real ? 'الخطوات: ' + real : 'الكاميرا: نظرة عامة');
+        hud.cam.textContent = zoomSteps.length ? T.cameraOverview + ' (' + zoomSteps.length + T.sections + ')' : (real ? T.steps + real : T.cameraOverview);
       }
     }
     if (hud.mode) hud.mode.textContent = MODE_LABEL[deck.mode] || deck.mode;
@@ -1999,7 +2124,7 @@
     var ov = el('div', 'nm-overview');
     ov.id = 'nmOverview';
     ov.setAttribute('role', 'dialog');
-    ov.setAttribute('aria-label', 'نظرة شاملة على الشرائح');
+    ov.setAttribute('aria-label', T.overviewGrid);
     var grid = el('div', 'nm-overview-grid');
     grid.style.height = px(L.height);
     var cards = slides.map(function (s, i) {
@@ -2195,7 +2320,8 @@
       return new Promise(function (resolve) {
         var calm = 0;
         (function tick() {
-          var busy = pendingTimers > 0 || !!flight;
+          // NM.pending: frames a plugin is still waiting on (nm-diagram arms on a double rAF after .active).
+          var busy = pendingTimers > 0 || !!flight || NM.pending > 0;
           if (!busy) live.forEach(function (a) { if (finiteRunning(a)) busy = true; });
           if (!busy) document.getAnimations().forEach(function (a) { if (finiteRunning(a)) busy = true; });
           calm = busy ? 0 : calm + 1;

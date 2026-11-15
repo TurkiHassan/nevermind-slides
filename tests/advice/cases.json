@@ -1,0 +1,1560 @@
+{
+ "note": "Labelled cases for plan-advise (roadmap NM-29, section 16.7). Written before the rules, by the same author (an AI agent); a second human labeller has not reviewed them yet. accept: representations a careful designer would accept for this information. Targets: first suggestion accepted in 85% of cases, one of the first three in 95%.",
+ "never": [
+  {
+   "id": "N1",
+   "rule": "chart:donut only for part-whole quantities that sum to about 100 (or one whole)"
+  },
+  {
+   "id": "N2",
+   "rule": "no chart:* without quantities"
+  },
+  {
+   "id": "N3",
+   "rule": "equation only when the information holds a formula"
+  },
+  {
+   "id": "N4",
+   "rule": "chart:line only for an ordered series of 3 or more quantities"
+  },
+  {
+   "id": "N5",
+   "rule": "chart:bars never for a qualitative comparison (options without quantities)"
+  }
+ ],
+ "cases": [
+  {
+   "id": "cmp-2x4",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2,
+      "criteria": 4
+     }
+    }
+   },
+   "accept": [
+    "table",
+    "diagram:compare"
+   ],
+   "note": "خادم سحابي مقابل خادم محلي على أربعة معايير"
+  },
+  {
+   "id": "cmp-3x5",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 3,
+      "criteria": 5
+     }
+    }
+   },
+   "accept": [
+    "table"
+   ],
+   "note": "ثلاث لغات برمجة على خمسة معايير"
+  },
+  {
+   "id": "cmp-2x2",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2,
+      "criteria": 2
+     }
+    }
+   },
+   "accept": [
+    "diagram:compare",
+    "table"
+   ],
+   "note": "قبل التدريب وبعده: السرعة والدقة وصفيًا"
+  },
+  {
+   "id": "cmp-2-qual",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "contrast",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2
+     }
+    }
+   },
+   "accept": [
+    "diagram:compare",
+    "none"
+   ],
+   "note": "النهج القديم مقابل الجديد"
+  },
+  {
+   "id": "cmp-4-cost",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 4
+     },
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 12,
+       "unit": "ريال"
+      },
+      {
+       "label": "q2",
+       "value": 18,
+       "unit": "ريال"
+      },
+      {
+       "label": "q3",
+       "value": 9,
+       "unit": "ريال"
+      },
+      {
+       "label": "q4",
+       "value": 25,
+       "unit": "ريال"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars",
+    "table"
+   ],
+   "note": "تكلفة أربعة نماذج"
+  },
+  {
+   "id": "cmp-2-qty",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2
+     },
+     "quantities": [
+      {
+       "label": "قبل",
+       "value": 22,
+       "unit": "حاوية/ساعة"
+      },
+      {
+       "label": "بعد",
+       "value": 31,
+       "unit": "حاوية/ساعة"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars",
+    "chart:stat",
+    "diagram:compare"
+   ],
+   "note": "الإنتاجية قبل وبعد"
+  },
+  {
+   "id": "cmp-5x3-qty",
+   "lang": "en",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 5,
+      "criteria": 3
+     },
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 1,
+       "unit": "%"
+      },
+      {
+       "label": "q2",
+       "value": 2,
+       "unit": "%"
+      },
+      {
+       "label": "q3",
+       "value": 3,
+       "unit": "%"
+      },
+      {
+       "label": "q4",
+       "value": 4,
+       "unit": "%"
+      },
+      {
+       "label": "q5",
+       "value": 5,
+       "unit": "%"
+      },
+      {
+       "label": "q6",
+       "value": 6,
+       "unit": "%"
+      },
+      {
+       "label": "q7",
+       "value": 7,
+       "unit": "%"
+      },
+      {
+       "label": "q8",
+       "value": 8,
+       "unit": "%"
+      },
+      {
+       "label": "q9",
+       "value": 9,
+       "unit": "%"
+      },
+      {
+       "label": "q10",
+       "value": 10,
+       "unit": "%"
+      },
+      {
+       "label": "q11",
+       "value": 11,
+       "unit": "%"
+      },
+      {
+       "label": "q12",
+       "value": 12,
+       "unit": "%"
+      },
+      {
+       "label": "q13",
+       "value": 13,
+       "unit": "%"
+      },
+      {
+       "label": "q14",
+       "value": 14,
+       "unit": "%"
+      },
+      {
+       "label": "q15",
+       "value": 15,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table"
+   ],
+   "note": "five models, three metrics"
+  },
+  {
+   "id": "cmp-2x6",
+   "lang": "en",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2,
+      "criteria": 6
+     }
+    }
+   },
+   "accept": [
+    "table"
+   ],
+   "note": "two vendors, six criteria"
+  },
+  {
+   "id": "cmp-3-qual",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 3
+     }
+    }
+   },
+   "accept": [
+    "diagram:compare",
+    "table"
+   ],
+   "note": "ثلاثة خيارات وصفية"
+  },
+  {
+   "id": "cmp-mixed",
+   "lang": "en",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2,
+      "criteria": 2
+     },
+     "quantities": [
+      {
+       "label": "price A",
+       "value": 40,
+       "unit": "$"
+      },
+      {
+       "label": "latency A",
+       "value": 12,
+       "unit": "ms"
+      },
+      {
+       "label": "price B",
+       "value": 55,
+       "unit": "$"
+      },
+      {
+       "label": "latency B",
+       "value": 7,
+       "unit": "ms"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table",
+    "diagram:compare"
+   ],
+   "note": "two options, price and latency"
+  },
+  {
+   "id": "fnd-1",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "finding",
+     "quantities": [
+      {
+       "label": "الاحتفاظ بعد شهر",
+       "value": 70,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:stat",
+    "none"
+   ],
+   "note": "رقم واحد"
+  },
+  {
+   "id": "fnd-1-gauge",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "finding",
+     "quantities": [
+      {
+       "label": "نسبة الإنجاز",
+       "value": 72,
+       "unit": "%"
+      }
+     ],
+     "detail": "standard"
+    }
+   },
+   "accept": [
+    "chart:stat",
+    "chart:gauge",
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "data-ts5",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "sequence": "ordered",
+     "quantities": [
+      {
+       "label": "2021",
+       "value": 10,
+       "unit": "مليون"
+      },
+      {
+       "label": "2022",
+       "value": 14,
+       "unit": "مليون"
+      },
+      {
+       "label": "2023",
+       "value": 19,
+       "unit": "مليون"
+      },
+      {
+       "label": "2024",
+       "value": 23,
+       "unit": "مليون"
+      },
+      {
+       "label": "2025",
+       "value": 31,
+       "unit": "مليون"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:line"
+   ],
+   "note": "إيرادات خمس سنوات"
+  },
+  {
+   "id": "data-ts3",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "sequence": "ordered",
+     "quantities": [
+      {
+       "label": "2023",
+       "value": 4,
+       "unit": ""
+      },
+      {
+       "label": "2024",
+       "value": 6,
+       "unit": ""
+      },
+      {
+       "label": "2025",
+       "value": 9,
+       "unit": ""
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:line",
+    "chart:bars"
+   ],
+   "note": ""
+  },
+  {
+   "id": "pw-4",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 40,
+       "unit": "%"
+      },
+      {
+       "label": "q2",
+       "value": 30,
+       "unit": "%"
+      },
+      {
+       "label": "q3",
+       "value": 20,
+       "unit": "%"
+      },
+      {
+       "label": "q4",
+       "value": 10,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:donut",
+    "chart:bars"
+   ],
+   "note": "توزيع الميزانية"
+  },
+  {
+   "id": "pw-3",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 55,
+       "unit": "%"
+      },
+      {
+       "label": "q2",
+       "value": 30,
+       "unit": "%"
+      },
+      {
+       "label": "q3",
+       "value": 15,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:donut",
+    "chart:bars"
+   ],
+   "note": ""
+  },
+  {
+   "id": "data-4",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 30,
+       "unit": "%"
+      },
+      {
+       "label": "q2",
+       "value": 55,
+       "unit": "%"
+      },
+      {
+       "label": "q3",
+       "value": 42,
+       "unit": "%"
+      },
+      {
+       "label": "q4",
+       "value": 70,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars"
+   ],
+   "note": "أربع فئات بوحدة واحدة"
+  },
+  {
+   "id": "data-9",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 10,
+       "unit": "ث"
+      },
+      {
+       "label": "q2",
+       "value": 11,
+       "unit": "ث"
+      },
+      {
+       "label": "q3",
+       "value": 12,
+       "unit": "ث"
+      },
+      {
+       "label": "q4",
+       "value": 13,
+       "unit": "ث"
+      },
+      {
+       "label": "q5",
+       "value": 14,
+       "unit": "ث"
+      },
+      {
+       "label": "q6",
+       "value": 15,
+       "unit": "ث"
+      },
+      {
+       "label": "q7",
+       "value": 16,
+       "unit": "ث"
+      },
+      {
+       "label": "q8",
+       "value": 17,
+       "unit": "ث"
+      },
+      {
+       "label": "q9",
+       "value": 18,
+       "unit": "ث"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table"
+   ],
+   "note": "تسع قياسات"
+  },
+  {
+   "id": "data-6",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 3,
+       "unit": "ms"
+      },
+      {
+       "label": "q2",
+       "value": 5,
+       "unit": "ms"
+      },
+      {
+       "label": "q3",
+       "value": 8,
+       "unit": "ms"
+      },
+      {
+       "label": "q4",
+       "value": 2,
+       "unit": "ms"
+      },
+      {
+       "label": "q5",
+       "value": 7,
+       "unit": "ms"
+      },
+      {
+       "label": "q6",
+       "value": 4,
+       "unit": "ms"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars",
+    "table"
+   ],
+   "note": ""
+  },
+  {
+   "id": "data-mixed",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "الكتلة",
+       "value": 5,
+       "unit": "كغ"
+      },
+      {
+       "label": "الطول",
+       "value": 2,
+       "unit": "م"
+      },
+      {
+       "label": "الزمن",
+       "value": 1.4,
+       "unit": "ث"
+      },
+      {
+       "label": "السرعة",
+       "value": 9,
+       "unit": "م/ث"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table"
+   ],
+   "note": "وحدات مختلفة"
+  },
+  {
+   "id": "fnd-x",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "finding",
+     "quantities": [
+      {
+       "label": "speed-up",
+       "value": 3.2,
+       "unit": "x"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:stat",
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "funnel",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "sequence": "ordered",
+     "quantities": [
+      {
+       "label": "زوار",
+       "value": 1000,
+       "unit": ""
+      },
+      {
+       "label": "مسجلون",
+       "value": 400,
+       "unit": ""
+      },
+      {
+       "label": "مشترون",
+       "value": 120,
+       "unit": ""
+      }
+     ]
+    }
+   },
+   "accept": [
+    "diagram:funnel",
+    "chart:bars"
+   ],
+   "note": "مراحل تتناقص"
+  },
+  {
+   "id": "data-2",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 64,
+       "unit": "ث"
+      },
+      {
+       "label": "q2",
+       "value": 36,
+       "unit": "ث"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars",
+    "chart:stat",
+    "table"
+   ],
+   "note": ""
+  },
+  {
+   "id": "proc-4",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 4,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:flow",
+    "diagram:timeline"
+   ],
+   "note": "أربع خطوات"
+  },
+  {
+   "id": "proc-6",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 6,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:flow"
+   ],
+   "note": ""
+  },
+  {
+   "id": "proc-cyc",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 4,
+     "sequence": "cyclic"
+    }
+   },
+   "accept": [
+    "diagram:cycle"
+   ],
+   "note": "دورة المياه"
+  },
+  {
+   "id": "proc-2",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 2,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:flow",
+    "none",
+    "diagram:compare"
+   ],
+   "note": ""
+  },
+  {
+   "id": "proc-5-en",
+   "lang": "en",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 5,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:flow"
+   ],
+   "note": ""
+  },
+  {
+   "id": "proc-3-deep",
+   "lang": "ar",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 3,
+     "sequence": "ordered",
+     "detail": "deep"
+    }
+   },
+   "accept": [
+    "diagram:flow"
+   ],
+   "note": ""
+  },
+  {
+   "id": "tl-5",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "timeline",
+     "items": 5,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:timeline"
+   ],
+   "note": "محطات تاريخية"
+  },
+  {
+   "id": "tl-3",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "timeline",
+     "items": 3
+    }
+   },
+   "accept": [
+    "diagram:timeline"
+   ],
+   "note": ""
+  },
+  {
+   "id": "tl-en",
+   "lang": "en",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "timeline",
+     "items": 4,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:timeline"
+   ],
+   "note": ""
+  },
+  {
+   "id": "hier-6",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "hierarchy",
+     "items": 6
+    }
+   },
+   "accept": [
+    "diagram:tree"
+   ],
+   "note": "هيكل تنظيمي"
+  },
+  {
+   "id": "hier-3",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "hierarchy",
+     "items": 3,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:pyramid",
+    "diagram:layers",
+    "diagram:tree"
+   ],
+   "note": "هرم الاحتياجات"
+  },
+  {
+   "id": "hier-en",
+   "lang": "en",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "hierarchy",
+     "items": 5
+    }
+   },
+   "accept": [
+    "diagram:tree",
+    "diagram:layers"
+   ],
+   "note": ""
+  },
+  {
+   "id": "pw-q5",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "items": 5
+    }
+   },
+   "accept": [
+    "diagram:hub",
+    "diagram:layers",
+    "anatomy"
+   ],
+   "note": "مكوّنات نظام"
+  },
+  {
+   "id": "pw-q3-ord",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "items": 3,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:layers",
+    "diagram:hub"
+   ],
+   "note": "طبقات حزمة برمجية"
+  },
+  {
+   "id": "pw-phys",
+   "lang": "en",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "items": 4,
+     "entities": [
+      "crane",
+      "stack",
+      "truck",
+      "quay"
+     ]
+    }
+   },
+   "accept": [
+    "anatomy",
+    "diagram:hub"
+   ],
+   "note": "parts of a port"
+  },
+  {
+   "id": "cause-3",
+   "lang": "ar",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "causal",
+     "items": 3,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:flow"
+   ],
+   "note": ""
+  },
+  {
+   "id": "cause-2",
+   "lang": "ar",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "causal",
+     "items": 2
+    }
+   },
+   "accept": [
+    "diagram:flow",
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "cause-en",
+   "lang": "en",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "causal",
+     "items": 3,
+     "entities": [
+      "valve",
+      "pump",
+      "pressure"
+     ]
+    }
+   },
+   "accept": [
+    "diagram:flow",
+    "anatomy"
+   ],
+   "note": ""
+  },
+  {
+   "id": "def-f",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "definition",
+     "formula": true
+    }
+   },
+   "accept": [
+    "equation"
+   ],
+   "note": "تعريف السرعة"
+  },
+  {
+   "id": "con-f",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "concept",
+     "formula": true
+    }
+   },
+   "accept": [
+    "equation"
+   ],
+   "note": ""
+  },
+  {
+   "id": "data-f",
+   "lang": "ar",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "formula": true,
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 9.8,
+       "unit": "م/ث²"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "equation",
+    "chart:stat"
+   ],
+   "note": ""
+  },
+  {
+   "id": "fnd-f-en",
+   "lang": "en",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "finding",
+     "formula": true
+    }
+   },
+   "accept": [
+    "equation"
+   ],
+   "note": "the loss function"
+  },
+  {
+   "id": "mech-f",
+   "lang": "ar",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 3,
+     "sequence": "ordered",
+     "formula": true
+    }
+   },
+   "accept": [
+    "equation",
+    "diagram:flow"
+   ],
+   "note": "اشتقاق من ثلاث خطوات"
+  },
+  {
+   "id": "def",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "definition"
+    }
+   },
+   "accept": [
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "def-en",
+   "lang": "en",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "definition"
+    }
+   },
+   "accept": [
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "arg-3",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "argument",
+     "items": 3
+    }
+   },
+   "accept": [
+    "none"
+   ],
+   "note": "ثلاث حجج"
+  },
+  {
+   "id": "arg-2",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "contrast",
+    "content": {
+     "kind": "argument",
+     "items": 2
+    }
+   },
+   "accept": [
+    "diagram:compare",
+    "none"
+   ],
+   "note": "رأيان متقابلان"
+  },
+  {
+   "id": "con-phys",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "concept",
+     "entities": [
+      "الرافعة",
+      "المكدس",
+      "الشاحنة"
+     ]
+    }
+   },
+   "accept": [
+    "anatomy",
+    "image"
+   ],
+   "note": ""
+  },
+  {
+   "id": "con-abs",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "concept"
+    }
+   },
+   "accept": [
+    "image",
+    "anatomy",
+    "none",
+    "diagram:hub"
+   ],
+   "note": ""
+  },
+  {
+   "id": "con-en",
+   "lang": "en",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "concept",
+     "entities": [
+      "neuron",
+      "synapse"
+     ]
+    }
+   },
+   "accept": [
+    "anatomy",
+    "image"
+   ],
+   "note": ""
+  },
+  {
+   "id": "con-4",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "concept",
+     "items": 4,
+     "sequence": "unordered"
+    }
+   },
+   "accept": [
+    "none",
+    "diagram:hub",
+    "image",
+    "anatomy"
+   ],
+   "note": ""
+  },
+  {
+   "id": "aud-gen-7",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 5,
+       "unit": "%"
+      },
+      {
+       "label": "q2",
+       "value": 9,
+       "unit": "%"
+      },
+      {
+       "label": "q3",
+       "value": 3,
+       "unit": "%"
+      },
+      {
+       "label": "q4",
+       "value": 7,
+       "unit": "%"
+      },
+      {
+       "label": "q5",
+       "value": 4,
+       "unit": "%"
+      },
+      {
+       "label": "q6",
+       "value": 8,
+       "unit": "%"
+      },
+      {
+       "label": "q7",
+       "value": 6,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars",
+    "table"
+   ],
+   "note": "",
+   "audience": "general"
+  },
+  {
+   "id": "aud-exp-3x4",
+   "lang": "en",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 3,
+      "criteria": 4
+     }
+    }
+   },
+   "accept": [
+    "table"
+   ],
+   "note": "",
+   "audience": "expert"
+  },
+  {
+   "id": "aud-exp-deep",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "detail": "deep",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 1,
+       "unit": "s"
+      },
+      {
+       "label": "q2",
+       "value": 2,
+       "unit": "s"
+      },
+      {
+       "label": "q3",
+       "value": 3,
+       "unit": "s"
+      },
+      {
+       "label": "q4",
+       "value": 4,
+       "unit": "s"
+      },
+      {
+       "label": "q5",
+       "value": 5,
+       "unit": "s"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table",
+    "chart:bars"
+   ],
+   "note": "",
+   "audience": "expert"
+  },
+  {
+   "id": "quote",
+   "lang": "ar",
+   "slide": {
+    "role": "quote",
+    "rel": "next",
+    "content": {
+     "kind": "argument",
+     "items": 1
+    }
+   },
+   "accept": [
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "cmp-2x3-contrast",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "contrast",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2,
+      "criteria": 3
+     }
+    }
+   },
+   "accept": [
+    "table",
+    "diagram:compare"
+   ],
+   "note": ""
+  },
+  {
+   "id": "pw-2",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "quantities": [
+      {
+       "label": "q1",
+       "value": 63,
+       "unit": "%"
+      },
+      {
+       "label": "q2",
+       "value": 37,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:donut",
+    "chart:bars",
+    "chart:stat"
+   ],
+   "note": ""
+  }
+ ]
+}

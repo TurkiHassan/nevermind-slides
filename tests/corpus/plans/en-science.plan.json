@@ -1,0 +1,257 @@
+{
+  "title": "Smaller models, same accuracy",
+  "lang": "en",
+  "theme": {
+    "preset": "mist"
+  },
+  "fonts": {
+    "pairing": "open"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "none",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Cover",
+      "role": "cover",
+      "layout": "cover",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "morph": [],
+      "steps": [],
+      "text": {
+        "kicker": "A machine learning paper, explained",
+        "headline": "Smaller models, same accuracy",
+        "body": [
+          "Distillation keeps the answers and drops the weight"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "title": "Architecture",
+      "role": "process",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow",
+        "ref": "arch"
+      },
+      "rel": "deeper",
+      "morph": [],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:rank"
+        }
+      ],
+      "text": {
+        "kicker": "The setup",
+        "headline": "A teacher trains a student"
+      }
+    },
+    {
+      "id": "s3",
+      "title": "Loss",
+      "role": "mechanism",
+      "layout": "split",
+      "visual": {
+        "type": "equation",
+        "tex": "\\mathcal{L} = (1-\\alpha)\\,\\mathrm{CE}(y, \\hat{y}) + \\alpha\\, T^2\\, \\mathrm{KL}(p_T \\,\\|\\, p_S) + \\data{term=lambda}{\\lambda} \\lVert \\theta \\rVert^2",
+        "caption": "Cross-entropy, distillation and weight decay"
+      },
+      "rel": "deeper",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "body1"
+        },
+        {
+          "act": "reveal",
+          "target": "body2"
+        }
+      ],
+      "text": {
+        "kicker": "The objective",
+        "headline": "One loss, three terms",
+        "body": [
+          "\\(\\alpha = 0.7\\) weights the teacher's soft labels",
+          "A temperature \\(T = 4\\) softens both distributions"
+        ]
+      }
+    },
+    {
+      "id": "s4",
+      "title": "Update",
+      "role": "mechanism",
+      "layout": "hero",
+      "visual": {
+        "type": "equation",
+        "lines": [
+          {
+            "tex": "\\theta_{k+1} = \\theta_k - \\eta\\, \\nabla_\\theta \\mathcal{L}",
+            "note": "One gradient step"
+          },
+          {
+            "tex": "\\nabla_\\theta \\lVert \\theta \\rVert^2 = 2\\,\\theta",
+            "note": "The decay term is linear"
+          },
+          {
+            "tex": "\\theta_{k+1} = (1 - 2\\eta\\data{term=lambda}{\\lambda})\\,\\theta_k - \\eta\\, \\nabla_\\theta \\mathcal{L}_{\\text{task}}",
+            "note": "Weights shrink every step"
+          }
+        ]
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual:line"
+        }
+      ],
+      "text": {
+        "kicker": "Training",
+        "headline": "Weight decay shrinks every step"
+      }
+    },
+    {
+      "id": "s5",
+      "title": "Results",
+      "role": "evidence",
+      "layout": "diagram",
+      "visual": {
+        "type": "table",
+        "ref": "results",
+        "columns": [
+          "Model",
+          "Params (M)",
+          "Top-1 (%)",
+          "Latency (ms)",
+          "Energy (J)"
+        ],
+        "rows": [
+          [
+            "Teacher",
+            "304",
+            "85.2",
+            "41.0",
+            "9.8"
+          ],
+          [
+            "Baseline small",
+            "22",
+            "79.8",
+            "6.1",
+            "1.4"
+          ],
+          [
+            "Pruned",
+            "38",
+            "81.1",
+            "8.9",
+            "2.0"
+          ],
+          [
+            "Quantized",
+            "86",
+            "83.0",
+            "12.4",
+            "2.6"
+          ],
+          [
+            "Distilled (ours)",
+            "22",
+            "83.9",
+            "6.1",
+            "1.4"
+          ],
+          [
+            "Distilled + int8",
+            "22",
+            "83.5",
+            "3.2",
+            "0.7"
+          ]
+        ],
+        "highlight": "r5",
+        "caption": "ImageNet validation, batch size 1 on one GPU"
+      },
+      "rel": "chapter",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "highlight",
+          "target": "visual:row"
+        }
+      ],
+      "text": {
+        "kicker": "Evidence",
+        "headline": "Results on ImageNet"
+      }
+    },
+    {
+      "id": "s6",
+      "title": "Training curve",
+      "role": "evidence",
+      "layout": "split",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "line",
+        "ref": "curve"
+      },
+      "rel": "next",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "draw",
+          "target": "visual:series"
+        }
+      ],
+      "text": {
+        "kicker": "Training",
+        "headline": "The student catches up by epoch 60",
+        "body": [
+          "Validation loss, teacher against student"
+        ]
+      }
+    },
+    {
+      "id": "s7",
+      "title": "Summary",
+      "role": "summary",
+      "layout": "cards",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "back-out",
+      "morph": [],
+      "steps": [
+        {
+          "act": "focus",
+          "target": "body1"
+        }
+      ],
+      "text": {
+        "kicker": "Takeaways",
+        "headline": "What to remember",
+        "body": [
+          "Distillation recovers four of five lost points",
+          "Latency and energy match the small baseline",
+          "Quantization stacks on top"
+        ]
+      }
+    }
+  ]
+}

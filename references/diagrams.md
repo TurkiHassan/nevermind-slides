@@ -27,7 +27,8 @@ Rules:
 | A process across teams / owners | `swimlane` |
 | Messages between actors over time | `sequence` |
 | Before / after, option A vs option B, point by point | `compare` |
-| Compare quantities across categories | `bars` |
+| Compare quantities across categories | `bars` (an uncertainty `42 ± 3` draws an error bar) |
+| Two measured quantities per item, their relation (size against accuracy) | `scatter` |
 | Trend over time (1-3 series) | `line` |
 | Share of a whole (2-6 parts) | `donut` |
 | One value against a target or range | `gauge` |
@@ -263,6 +264,25 @@ Add `data-dir="ttb"` for a vertical timeline (more than 7 items).
 </figure>
 ```
 
+### scatter (NM-12)
+
+```html
+<figure class="nm-diagram" data-type="scatter" data-id="size" data-steps="series">
+  <script type="text/nm-diagram">
+    x: عدد المعاملات | مليون
+    y: الدقة | ٪
+    trend: on
+    صغير: 22, 79.8
+    مقطّر: 22, 83.9 !
+    كبير: 304, 85.2
+  </script>
+</figure>
+```
+
+Each line is `label: x, y` in data units. `x:` and `y:` give the axis title and its unit; `trend: on` draws the least-squares line. Up to 10 points are labelled (beyond that only the accented ones). In right-to-left decks the horizontal axis grows from right to left, like the line chart. `data-steps="series"` reveals one point per step.
+
+Error bars: on `bars`, write a value with its uncertainty, `النموذج الأساسي: 42 ± 6` (or `42 +- 6`). The whisker and its caps join the bar's step; the axis takes the whisker into account. A value with no Arabic letters (`42 ± 6 ms`) is isolated left to right so its order cannot flip.
+
 ### bars (axis always starts at zero; a word unit such as `unit: ساعة` is printed after a space)
 ```html
 <figure class="nm-diagram" data-type="bars" data-id="growth" data-steps="series">
@@ -360,6 +380,25 @@ Put one composition class next to `nm-slide-pad` on the rig's child. Never posit
 | `nm-l-stat-row` | optional `nm-head`, then 2-6 blocks with `nm-t-num` + text |
 | `nm-l-compare` | optional header, then two sides |
 | `nm-l-steps` | optional `nm-head`, then 2-6 steps (auto-numbered) |
+
+Twelve more compositions, ported from the frontend-slides layout presets (MIT) and rewritten with logical properties. `scaffold` fills them from the plan when `layout` names them; a body item may carry its parts separated by ` | ` (value | label, date | title | description).
+
+| Class | Children | Good for |
+|---|---|---|
+| `nm-l-monolith` | kicker, centred display title, lead | a ceremonial cover |
+| `nm-l-ledger` | `nm-head`, two `.nm-side` (h3, then `.nm-row` blocks; `.is-favoured` on one) | two options compared point by point, rows aligned |
+| `nm-l-keynote` | `nm-head`, a block with `.nm-t-num` and its label, optional `.nm-keynote-rail` of 2-3 smaller figures | one number that carries the slide |
+| `nm-l-stat-strip` | `nm-head`, 2-4 blocks (`.nm-t-num`, label) under a hairline each | a few results of equal weight |
+| `nm-l-ledger-list` | `nm-head`, an `ol` of `li` (strong title, p) | a list read as ruled rows with numerals |
+| `nm-l-meridian` | `nm-head`, an `ol` of 3-6 `li` (small date, strong title, p), alternating above and below a track | milestones in time |
+| `nm-l-chapter` | `.nm-section-num` (giant, faint, cropped by the end edge), accent rule, kicker, title, lead, optional `.nm-chapter-rail` | a chapter divider |
+| `nm-l-waypoint` | title, an `ol` of the deck's parts with `li.is-current` | where we are in the talk |
+| `nm-l-plate` | a figure (img, figcaption on a plate), then `nm-head` | one strong photograph |
+| `nm-l-triptych` | `nm-head`, three figures with captions | three pictures of equal weight |
+| `nm-l-staircase` | `nm-head`, 3-5 blocks stepping inward | an argument that builds |
+| `nm-l-terminal` | title, then a `ul` strip of 2-3 columns (contacts, sources, next step) inside an inset frame | a closing slide |
+
+Right-to-left decks count list numerals in Arabic-Indic digits, left-to-right decks in Western digits (`nm-l-ledger-list`, `nm-l-steps`; `data-numerals="latin"` forces Western).
 
 Type: `nm-t-display` 124, `nm-t-h1` 84, `nm-t-h2` 62, `nm-t-h3` 42, `nm-t-lead` 36, `nm-t-body` 30, `nm-t-caption` 24, `nm-t-num` 168 (px). Body text never below 28px.
 Parts: `nm-head` (title group), `nm-kicker`, `nm-card` (`is-accent`, `is-quiet`), `nm-chip`, `nm-rule` (`is-accent`), `nm-list` (point list with accent ticks), `nm-stat-block` (`nm-t-num` + label), `nm-side` (a compare side), `nm-rail-head` / `nm-rail-main`, `nm-card-figure` (a figure inside a bento card), `nm-span-1..12`, `nm-gap-wide`, theme presets `nm-theme-light` / `nm-theme-dark`.

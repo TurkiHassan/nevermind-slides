@@ -5,7 +5,7 @@ import { request } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { MINIMAL, ROOT, tempCopyDeck } from './helpers.ts';
-import { ATTENTION } from './helpers.ts';
+import { SERVER_DECK } from './helpers.ts';
 
 const BUNDLE = join(ROOT, 'dist', 'nm-studio.mjs');
 let lone: string; // the bundle copied alone into an empty temp directory: no node_modules anywhere above it
@@ -65,7 +65,7 @@ function get(port: number, path: string): Promise<{ status: number; body: string
 
 describe('nm-studio edit (from the lone bundle)', () => {
   it('starts, serves state and a preview with the inlined edit layer, and stops on SIGINT even with an event stream open', async () => {
-    const { path } = tempCopyDeck(ATTENTION);
+    const { path } = tempCopyDeck(SERVER_DECK);
     const child = spawn(process.execPath, [lone, 'edit', path, '--no-open', '--port', '0'], { cwd: join(lone, '..'), stdio: ['ignore', 'pipe', 'pipe'] });
     const exited = new Promise<{ code: number | null; signal: string | null }>((ok) => child.on('exit', (code, signal) => ok({ code, signal })));
     let stdout = '';
@@ -87,7 +87,7 @@ describe('nm-studio edit (from the lone bundle)', () => {
     const t = url.searchParams.get('t')!;
     const st = await get(port, `/api/state?t=${t}`);
     expect(st.status).toBe(200);
-    expect(JSON.parse(st.body).info.slides).toHaveLength(7);
+    expect(JSON.parse(st.body).info.slides).toHaveLength((readFileSync(path, "utf8").match(/<section class="slide"/g) ?? []).length);
     const pv = await get(port, `/preview?t=${t}`);
     expect(pv.status).toBe(200);
     expect(pv.body).toContain('id="nm-edit-mode-js"');

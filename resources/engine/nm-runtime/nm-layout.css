@@ -58,7 +58,7 @@
 .nm-t-h3 { font-size: 42px; line-height: 1.45; font-weight: 700; }
 .nm-t-lead { font-size: 36px; line-height: 1.7; font-weight: 400; color: var(--nm-l-muted); margin: 0; text-wrap: pretty; }
 .nm-t-body { font-size: 30px; line-height: 1.8; margin: 0; text-wrap: pretty; }
-.nm-t-caption { font-size: 24px; line-height: 1.65; color: var(--nm-l-muted); margin: 0; }
+.nm-t-caption { font-size: 24px; line-height: 1.65; color: var(--nm-l-muted); margin: 0; text-wrap: pretty; }
 .nm-t-num { font-size: 168px; line-height: 1.05; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--nm-l-accent); }
 .nm-t-accent { color: var(--nm-l-accent); }
 .nm-t-muted { color: var(--nm-l-muted); }
@@ -76,8 +76,8 @@
   background: var(--nm-l-surface); border: 1.5px solid var(--nm-l-line);
   min-height: 0; overflow: hidden;
 }
-.nm-card > h3, .nm-card > .nm-card-title { margin: 0; font-family: var(--nm-l-display); font-size: 38px; line-height: 1.45; font-weight: 700; }
-.nm-card > p { margin: 0; font-size: 28px; line-height: 1.75; color: var(--nm-l-muted); }
+.nm-card > h3, .nm-card > .nm-card-title { margin: 0; font-family: var(--nm-l-display); font-size: 38px; line-height: 1.45; font-weight: 700; text-wrap: balance; }
+.nm-card > p { margin: 0; font-size: 28px; line-height: 1.75; color: var(--nm-l-muted); text-wrap: pretty; }
 .nm-card.is-accent { background: var(--nm-l-accent); border-color: var(--nm-l-accent); color: #fff; }
 .nm-card.is-accent > p { color: color-mix(in oklab, #fff 82%, transparent); }
 .nm-card.is-quiet { background: transparent; }
@@ -209,7 +209,7 @@
   content: ""; position: absolute; inset-block-start: 37px; inset-inline-start: 100px; inset-inline-end: 8px; block-size: 2px; background: var(--nm-l-line);
 }
 .nm-l-steps > :last-child::after { display: none; }
-.nm-l-steps[data-numerals="latin"] > :not(.nm-head)::before { content: counter(nm-step); }
+.nm-l-steps:is(:dir(ltr), [data-numerals="latin"]) > :not(.nm-head)::before { content: counter(nm-step); }
 
 /* section divider */
 .nm-l-section { align-content: center; row-gap: var(--nm-s-3); }
@@ -220,3 +220,156 @@
 /* wide gutters: use with data-links so connectors have room to route */
 .nm-gap-wide { --nm-gutter: 96px; column-gap: 96px; }
 .nm-gap-wide:is(.nm-l-bento-3, .nm-l-bento-4, .nm-l-bento-5, .nm-l-bento-6, .nm-l-cards-2, .nm-l-cards-3, .nm-l-cards-4) { row-gap: 88px; }
+
+/* =============================================================================================================
+   Compositions ported from the layout presets of zarazhangrui/frontend-slides (MIT, Copyright (c) 2025 Zara
+   Zhang; the presets themselves are kept in resources/layout-presets for the editor, roadmap NM-21). Rewritten for
+   Nevermind: logical properties (right to left is native), no Tailwind, the deck's own tokens and Arabic type
+   sizes (body 28px or more, labels 24px). Preset of origin in each heading.
+   ============================================================================================================= */
+
+/* ledger: two facing columns whose rows line up (comparison/ledger-versus). .nm-head, then two .nm-side, each an
+   h3 and rows (.nm-row: a title and an optional p). The rows of both sides share one pitch. */
+.nm-l-ledger { grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr); column-gap: var(--nm-s-7); grid-template-rows: auto minmax(0, 1fr); align-content: stretch; }
+.nm-l-ledger > .nm-head { grid-column: 1 / -1; }
+.nm-l-ledger > .nm-side:nth-of-type(1) { grid-column: 1; }
+.nm-l-ledger > .nm-side:nth-of-type(2) { grid-column: 3; }
+.nm-l-ledger::after { content: ""; grid-column: 2; grid-row: 2; background: var(--nm-l-line); }
+.nm-l-ledger > .nm-side { display: grid; grid-auto-rows: minmax(132px, auto); align-content: start; gap: 0; }
+.nm-l-ledger > .nm-side > h3 { margin: 0 0 var(--nm-s-3); font-family: var(--nm-l-display); font-size: 30px; font-weight: 700; color: var(--nm-l-muted); }
+.nm-l-ledger > .nm-side.is-favoured > h3 { color: var(--nm-l-accent); }
+.nm-l-ledger .nm-row { border-block-start: 1.5px solid var(--nm-l-line); padding-block: 22px; }
+.nm-l-ledger .nm-row > :first-child { margin: 0; font-family: var(--nm-l-display); font-size: 36px; font-weight: 700; line-height: 1.4; }
+.nm-l-ledger .nm-row > p { margin: 8px 0 0; font-size: 26px; line-height: 1.6; color: var(--nm-l-muted); }
+
+/* keynote: one giant figure with its label and reading, an optional rail of 2-3 smaller figures at the end side
+   (stats/keynote-figure). .nm-keynote (the figure block), .nm-keynote-rail (optional). */
+.nm-l-keynote { grid-template-columns: minmax(0, 1fr) 460px; column-gap: var(--nm-s-7); align-content: center; }
+.nm-l-keynote > * { grid-column: auto; }
+.nm-l-keynote > .nm-head, .nm-l-keynote > .nm-kicker { grid-column: 1 / -1; }
+.nm-l-keynote > :not(.nm-keynote-rail, .nm-head, .nm-kicker) { grid-column: 1; display: grid; gap: var(--nm-s-3); }
+.nm-l-keynote .nm-t-num { font-size: 300px; line-height: .95; color: var(--nm-l-ink); }
+.nm-l-keynote .nm-t-num > :is(small, .nm-unit) { font-size: .4em; color: var(--nm-l-accent); }
+.nm-l-keynote .nm-t-num + :is(p, .nm-t-body) { font-size: 32px; color: var(--nm-l-muted); max-inline-size: 28ch; margin: 0; }
+.nm-keynote-rail { grid-column: 2; display: grid; align-content: center; gap: 0; }
+.nm-keynote-rail > * { border-block-start: 1.5px solid var(--nm-l-line); padding-block: 24px 30px; }
+.nm-keynote-rail strong, .nm-keynote-rail .nm-t-num { display: block; font-family: var(--nm-l-display); font-size: 84px; line-height: 1; font-weight: 700; color: var(--nm-l-ink); }
+.nm-keynote-rail span, .nm-keynote-rail p { display: block; margin: 12px 0 0; font-size: 24px; color: var(--nm-l-muted); }
+
+/* stat strip: 3-4 equal tiles under a hairline each (stats/stat-strip). .nm-head, then one block per figure:
+   .nm-t-num, a label (p) and an optional small note. */
+.nm-l-stat-strip { --nm-n: 3; grid-template-columns: repeat(var(--nm-n), minmax(0, 1fr)); column-gap: var(--nm-s-6); grid-template-rows: auto minmax(0, 1fr); align-content: stretch; }
+.nm-l-stat-strip:has(> :nth-child(4 of :not(.nm-head)):last-child) { --nm-n: 4; }
+.nm-l-stat-strip:has(> :nth-child(2 of :not(.nm-head)):last-child) { --nm-n: 2; }
+.nm-l-stat-strip > .nm-head { grid-column: 1 / -1; }
+.nm-l-stat-strip > :not(.nm-head) { grid-column: auto; align-self: center; border-block-start: 1.5px solid var(--nm-l-line); padding-block-start: 36px; display: grid; gap: 18px; }
+.nm-l-stat-strip .nm-t-num { font-size: 128px; line-height: .95; color: var(--nm-l-ink); }
+.nm-l-stat-strip .nm-t-num > :is(small, .nm-unit) { font-size: .45em; color: var(--nm-l-accent); }
+.nm-l-stat-strip :is(p, .nm-t-body) { margin: 0; font-size: 28px; line-height: 1.5; color: var(--nm-l-muted); }
+.nm-l-stat-strip :is(small, .nm-t-caption):not(.nm-t-num *) { font-size: 22px; color: var(--nm-l-muted); }
+
+/* ledger list: ruled rows of numeral, title and description (list/ledger-list). .nm-head, then an ol or ul whose
+   li hold a title (strong or h3) and an optional p. */
+.nm-l-ledger-list { grid-template-rows: auto minmax(0, 1fr); align-content: stretch; }
+.nm-l-ledger-list > :is(ol, ul) { list-style: none; margin: 0; padding: 0; counter-reset: nm-ledger; align-self: center; }
+.nm-l-ledger-list > :is(ol, ul) > li { counter-increment: nm-ledger; display: grid; grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1.25fr); column-gap: var(--nm-s-5); align-items: baseline; padding-block: 26px; border-block-start: 1.5px solid var(--nm-l-line); }
+.nm-l-ledger-list > :is(ol, ul) > li::before { content: counter(nm-ledger, arabic-indic); font-family: var(--nm-l-display); font-size: 30px; font-weight: 700; color: var(--nm-l-accent); }
+/* left-to-right decks count in Western digits */
+.nm-l-ledger-list:is(:dir(ltr), [data-numerals="latin"]) > :is(ol, ul) > li::before { content: counter(nm-ledger); }
+.nm-l-ledger-list > :is(ol, ul) > li > :is(strong, h3) { margin: 0; font-family: var(--nm-l-display); font-size: 40px; line-height: 1.35; font-weight: 700; }
+.nm-l-ledger-list > :is(ol, ul) > li > p { margin: 0; font-size: 28px; line-height: 1.6; color: var(--nm-l-muted); }
+
+/* meridian: entries alternating above and below one horizontal track (timeline/meridian). .nm-head, then an ol
+   whose li hold a date (small or time), a title (strong) and an optional p; the last li is "now". */
+.nm-l-meridian { grid-template-rows: auto minmax(0, 1fr); align-content: stretch; }
+.nm-l-meridian > ol { --nm-n: 4; list-style: none; margin: 0; padding: 0; position: relative; display: grid; grid-template-columns: repeat(var(--nm-n), minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr) 4px minmax(0, 1fr); column-gap: var(--nm-s-4); }
+.nm-l-meridian > ol:has(> li:nth-child(3):last-child) { --nm-n: 3; }
+.nm-l-meridian > ol:has(> li:nth-child(5):last-child) { --nm-n: 5; }
+.nm-l-meridian > ol:has(> li:nth-child(6):last-child) { --nm-n: 6; }
+.nm-l-meridian > ol::before { content: ""; grid-column: 1 / -1; grid-row: 2; background: var(--nm-l-line); border-radius: 2px; }
+.nm-l-meridian > ol > li { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.nm-l-meridian > ol > li:nth-child(odd) { grid-row: 1; justify-content: flex-end; padding-block-end: 56px; }
+.nm-l-meridian > ol > li:nth-child(even) { grid-row: 3; justify-content: flex-start; padding-block-start: 56px; }
+.nm-l-meridian > ol > li:nth-child(1) { grid-column: 1; }
+.nm-l-meridian > ol > li:nth-child(2) { grid-column: 2; }
+.nm-l-meridian > ol > li:nth-child(3) { grid-column: 3; }
+.nm-l-meridian > ol > li:nth-child(4) { grid-column: 4; }
+.nm-l-meridian > ol > li:nth-child(5) { grid-column: 5; }
+.nm-l-meridian > ol > li:nth-child(6) { grid-column: 6; }
+.nm-l-meridian > ol > li::after { content: ""; position: absolute; inset-inline-start: 0; inline-size: 18px; block-size: 18px; border-radius: 50%; background: var(--nm-l-muted); }
+.nm-l-meridian > ol > li:nth-child(odd)::after { inset-block-end: -11px; }
+.nm-l-meridian > ol > li:nth-child(even)::after { inset-block-start: -11px; }
+.nm-l-meridian > ol > li:last-child::after { background: var(--nm-l-accent); box-shadow: 0 0 0 8px color-mix(in oklab, var(--nm-l-accent) 18%, transparent); }
+.nm-l-meridian > ol > li > :is(small, time) { font-size: 24px; font-weight: 700; color: var(--nm-l-accent); }
+.nm-l-meridian > ol > li > strong { font-family: var(--nm-l-display); font-size: 34px; line-height: 1.35; }
+.nm-l-meridian > ol > li > p { margin: 0; font-size: 26px; line-height: 1.55; color: var(--nm-l-muted); }
+
+/* chapter: a giant faint numeral cropped by the end edge, the title low at the start, an optional rail of all
+   chapters (section/chapter-gate). .nm-section-num, .nm-rule.is-accent, the title, a lead, .nm-chapter-rail. */
+.nm-l-chapter { align-content: end; row-gap: var(--nm-s-3); overflow: hidden; padding-block-end: 64px; }
+.nm-l-chapter > * { grid-column: 1 / span 8; position: relative; }
+.nm-l-chapter > .nm-section-num { grid-column: auto; grid-row: auto; /* auto lines: the padding box, not the grid area, contains it */ position: absolute; inset-inline-end: -40px; inset-block-start: 50%; translate: 0 -55%; margin: 0; font-family: var(--nm-l-display); font-size: 620px; line-height: .8; font-weight: 800; color: color-mix(in oklab, var(--nm-l-ink) 7%, var(--nm-l-paper)); pointer-events: none; }
+.nm-l-chapter > :is(h1, h2) { font-size: 124px; line-height: 1.15; }
+.nm-chapter-rail { grid-column: 1 / -1 !important; display: flex; flex-wrap: wrap; gap: var(--nm-s-6); margin: var(--nm-s-6) 0 0; padding: 26px 0 0; list-style: none; border-block-start: 1.5px solid var(--nm-l-line); font-size: 24px; color: var(--nm-l-muted); }
+.nm-chapter-rail > li { display: inline-flex; align-items: center; gap: 12px; }
+.nm-chapter-rail > li::before { content: ""; inline-size: 12px; block-size: 12px; border-radius: 50%; background: currentColor; }
+.nm-chapter-rail > li.is-current { color: var(--nm-l-accent); font-weight: 700; }
+.nm-chapter-rail > li.is-current ~ li { opacity: .6; }
+.nm-chapter-rail > li.is-current ~ li::before { background: none; border: 2px solid currentColor; box-sizing: border-box; }
+
+/* plate: one large image with a caption plate over its bottom start corner (image/plate-caption). A figure (img
+   and figcaption), then an optional .nm-head on the end side. */
+.nm-l-plate { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); column-gap: var(--nm-s-6); grid-template-rows: minmax(0, 1fr); align-content: stretch; }
+.nm-l-plate > * { grid-column: auto; }
+.nm-l-plate > figure { position: relative; margin: 0; block-size: 100%; border-radius: var(--nm-l-radius); overflow: hidden; }
+.nm-l-plate > figure > img { inline-size: 100%; block-size: 100%; object-fit: cover; display: block; }
+.nm-l-plate > figure > figcaption { position: absolute; inset-inline-start: 0; inset-block-end: 0; max-inline-size: 70%; padding: 22px 32px; background: var(--nm-l-paper); color: var(--nm-l-ink); font-size: 24px; line-height: 1.55; border-start-end-radius: var(--nm-l-radius); }
+.nm-l-plate > .nm-head { align-self: center; }
+
+/* triptych: three images of equal weight with a caption each (image/triptych). .nm-head, then three figures. */
+.nm-l-triptych { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto minmax(0, 1fr); align-content: stretch; column-gap: var(--nm-s-4); }
+.nm-l-triptych > .nm-head { grid-column: 1 / -1; }
+.nm-l-triptych > figure { grid-column: auto; margin: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 16px; min-block-size: 0; }
+.nm-l-triptych > figure > :first-child { inline-size: 100%; block-size: 100%; object-fit: cover; border-radius: var(--nm-l-radius); min-block-size: 0; }
+.nm-l-triptych > figure > figcaption { font-size: 24px; line-height: 1.5; color: var(--nm-l-muted); }
+
+/* monolith: a centred title under a plumb line from the top edge, metadata at the bottom (opening/monolith). */
+.nm-l-monolith { align-content: center; justify-items: center; text-align: center; row-gap: var(--nm-s-4); }
+.nm-l-monolith > * { grid-column: 2 / span 10; }
+.nm-l-monolith::before { content: ""; position: absolute; inset-block-start: 0; inset-inline-start: 50%; inline-size: 2px; block-size: 220px; background: var(--nm-l-accent); translate: -50% 0; }
+.nm-l-monolith > :is(h1, h2, .nm-t-display) { font-size: 144px; line-height: 1.15; }
+.nm-l-monolith > .nm-kicker::before { display: none; }
+.nm-l-monolith > :is(.nm-caption, small, footer) { grid-column: auto; position: absolute; inset-block-end: 72px; font-size: 24px; color: var(--nm-l-muted); }
+
+/* terminal: an inset hairline frame, the closing statement low at the start, a strip of 2-3 columns (contacts,
+   sources, next steps) along the bottom (closing/terminal-frame). */
+.nm-l-terminal { align-content: end; row-gap: var(--nm-s-5); }
+.nm-l-terminal::before { content: ""; position: absolute; inset: 48px; border: 1.5px solid var(--nm-l-line); border-radius: 4px; pointer-events: none; }
+.nm-l-terminal > * { grid-column: 1 / span 10; }
+.nm-l-terminal > :is(h1, h2) { font-size: 96px; line-height: 1.25; }
+.nm-l-terminal > :is(ul, .nm-terminal-strip) { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nm-s-5); margin: 0; padding: 26px 0 0; list-style: none; border-block-start: 1.5px solid var(--nm-l-line); font-size: 26px; line-height: 1.5; color: var(--nm-l-muted); }
+
+/* staircase: points that step down and inward one by one (list/staircase). .nm-head, then 3-5 blocks. */
+.nm-l-staircase { grid-template-rows: auto; align-content: center; row-gap: var(--nm-s-3); }
+.nm-l-staircase > :not(.nm-head) { grid-column: auto / span 7; padding-block: 18px; border-block-start: 1.5px solid var(--nm-l-line); font-size: 32px; line-height: 1.6; }
+.nm-l-staircase > :nth-child(2 of :not(.nm-head)) { grid-column: 2 / span 7; }
+.nm-l-staircase > :nth-child(3 of :not(.nm-head)) { grid-column: 3 / span 7; }
+.nm-l-staircase > :nth-child(4 of :not(.nm-head)) { grid-column: 4 / span 7; }
+.nm-l-staircase > :nth-child(5 of :not(.nm-head)) { grid-column: 5 / span 7; }
+.nm-l-staircase > :nth-child(1 of :not(.nm-head)) { grid-column: 1 / span 7; }
+.nm-l-staircase > :last-child:not(.nm-head) { border-block-start-color: var(--nm-l-accent); font-weight: 700; }
+
+/* waypoint: a centred title above a journey line, one node per part, the current node larger and in the accent
+   (section/waypoint). The title, then an ol of parts with li.is-current. */
+.nm-l-waypoint { align-content: center; justify-items: center; text-align: center; row-gap: var(--nm-s-7); }
+.nm-l-waypoint > * { grid-column: 2 / span 10; }
+.nm-l-waypoint > ol { --nm-n: 4; inline-size: 100%; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--nm-n), minmax(0, 1fr)); position: relative; }
+.nm-l-waypoint > ol:has(> li:nth-child(3):last-child) { --nm-n: 3; }
+.nm-l-waypoint > ol:has(> li:nth-child(5):last-child) { --nm-n: 5; }
+.nm-l-waypoint > ol:has(> li:nth-child(6):last-child) { --nm-n: 6; }
+.nm-l-waypoint > ol::before { content: ""; position: absolute; inset-inline: calc(50% / var(--nm-n)); inset-block-start: 15px; block-size: 2px; background: var(--nm-l-line); }
+.nm-l-waypoint > ol > li { position: relative; display: grid; justify-items: center; gap: 18px; padding-block-start: 0; font-size: 26px; color: var(--nm-l-muted); }
+.nm-l-waypoint > ol > li::before { content: ""; inline-size: 32px; block-size: 32px; border-radius: 50%; background: var(--nm-l-muted); box-shadow: 0 0 0 8px var(--nm-l-paper); }
+.nm-l-waypoint > ol > li.is-current { color: var(--nm-l-accent); font-weight: 700; }
+.nm-l-waypoint > ol > li.is-current::before { background: var(--nm-l-accent); transform: scale(1.4); }
+.nm-l-waypoint > ol > li.is-current ~ li::before { background: var(--nm-l-paper); border: 3px solid var(--nm-l-muted); box-sizing: border-box; }

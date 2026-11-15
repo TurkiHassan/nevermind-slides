@@ -1,0 +1,1053 @@
+{
+ "version": 1,
+ "note": "Representation rules for plan-advise (roadmap NM-29, section 16). Data, not code: each rule adds points to representations when its conditions hold; never-rules remove a representation unless their condition holds; ties follow the order of `representations`. Every rule has an Arabic and an English reason.",
+ "representations": {
+  "table": {
+   "ar": "جدول",
+   "en": "table",
+   "visual": {
+    "type": "table"
+   }
+  },
+  "equation": {
+   "ar": "معادلة",
+   "en": "equation",
+   "visual": {
+    "type": "equation"
+   }
+  },
+  "chart:bars": {
+   "ar": "أعمدة",
+   "en": "bar chart",
+   "visual": {
+    "type": "chart",
+    "diagram_type": "bars"
+   }
+  },
+  "chart:line": {
+   "ar": "خط بياني",
+   "en": "line chart",
+   "visual": {
+    "type": "chart",
+    "diagram_type": "line"
+   }
+  },
+  "chart:donut": {
+   "ar": "حلقة",
+   "en": "donut",
+   "visual": {
+    "type": "chart",
+    "diagram_type": "donut"
+   }
+  },
+  "chart:stat": {
+   "ar": "رقم بارز",
+   "en": "big number",
+   "visual": {
+    "type": "chart",
+    "diagram_type": "stat"
+   }
+  },
+  "chart:gauge": {
+   "ar": "مؤشر",
+   "en": "gauge",
+   "visual": {
+    "type": "chart",
+    "diagram_type": "gauge"
+   }
+  },
+  "diagram:compare": {
+   "ar": "مقارنة",
+   "en": "comparison",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "compare"
+   }
+  },
+  "diagram:flow": {
+   "ar": "تدفق",
+   "en": "flow",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "flow"
+   }
+  },
+  "diagram:cycle": {
+   "ar": "دورة",
+   "en": "cycle",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "cycle"
+   }
+  },
+  "diagram:timeline": {
+   "ar": "خط زمني",
+   "en": "timeline",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "timeline"
+   }
+  },
+  "diagram:tree": {
+   "ar": "شجرة",
+   "en": "tree",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "tree"
+   }
+  },
+  "diagram:pyramid": {
+   "ar": "هرم",
+   "en": "pyramid",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "pyramid"
+   }
+  },
+  "diagram:layers": {
+   "ar": "طبقات",
+   "en": "layers",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "layers"
+   }
+  },
+  "diagram:hub": {
+   "ar": "محور وأجزاء",
+   "en": "hub",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "hub"
+   }
+  },
+  "diagram:funnel": {
+   "ar": "قمع",
+   "en": "funnel",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "funnel"
+   }
+  },
+  "diagram:matrix": {
+   "ar": "مصفوفة",
+   "en": "matrix",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "matrix"
+   }
+  },
+  "diagram:venn": {
+   "ar": "تقاطع",
+   "en": "venn",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "venn"
+   }
+  },
+  "diagram:swimlane": {
+   "ar": "مسارات",
+   "en": "swimlane",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "swimlane"
+   }
+  },
+  "diagram:sequence": {
+   "ar": "تسلسل رسائل",
+   "en": "sequence",
+   "visual": {
+    "type": "diagram",
+    "diagram_type": "sequence"
+   }
+  },
+  "anatomy": {
+   "ar": "مجسّم",
+   "en": "anatomy figure",
+   "visual": {
+    "type": "anatomy",
+    "mode": "static"
+   }
+  },
+  "image": {
+   "ar": "صورة",
+   "en": "image",
+   "visual": {
+    "type": "image"
+   }
+  },
+  "motion": {
+   "ar": "رسم متحرك",
+   "en": "motion graphic",
+   "visual": {
+    "type": "motion"
+   }
+  },
+  "none": {
+   "ar": "طباعة وحدها",
+   "en": "type alone",
+   "visual": {
+    "type": "none"
+   }
+  }
+ },
+ "rules": [
+  {
+   "id": "A201",
+   "when": {
+    "kind": [
+     "comparison"
+    ],
+    "options": [
+     2,
+     null
+    ],
+    "criteria": [
+     3,
+     null
+    ]
+   },
+   "suggest": {
+    "table": 6,
+    "diagram:compare": 3
+   },
+   "ar": "مقارنة خيارات ({options}) على معايير ({criteria}): الجدول يُقرأ بالصفوف والأعمدة",
+   "en": "{options} options x {criteria} criteria: a table reads by rows and columns"
+  },
+  {
+   "id": "A202",
+   "when": {
+    "kind": [
+     "comparison",
+     "argument"
+    ],
+    "options": [
+     2,
+     3
+    ],
+    "criteria": [
+     0,
+     2
+    ],
+    "quantities": [
+     0,
+     0
+    ]
+   },
+   "suggest": {
+    "diagram:compare": 6,
+    "table": 2
+   },
+   "ar": "مقارنة نوعية بين خيارات ({options}): أعمدة متقابلة أوضح من الأرقام",
+   "en": "a qualitative comparison of {options} options: facing columns, not numbers"
+  },
+  {
+   "id": "A203",
+   "when": {
+    "kind": [
+     "comparison"
+    ],
+    "quantities": [
+     2,
+     null
+    ],
+    "units": [
+     "one",
+     "none"
+    ],
+    "criteria": [
+     0,
+     1
+    ]
+   },
+   "suggest": {
+    "chart:bars": 6,
+    "table": 3,
+    "chart:stat": 1
+   },
+   "ar": "قيم بوحدة واحدة لخيارات مختلفة ({n}): الأعمدة تقارن الأطوال",
+   "en": "{n} values in one unit for different options: bars compare lengths"
+  },
+  {
+   "id": "A204",
+   "when": {
+    "units": [
+     "mixed"
+    ],
+    "quantities": [
+     2,
+     null
+    ]
+   },
+   "suggest": {
+    "table": 7
+   },
+   "ar": "قيم بوحدات مختلفة ({units}) لا تجتمع على محور واحد: جدول",
+   "en": "values in different units ({units}) cannot share one axis: a table"
+  },
+  {
+   "id": "A205",
+   "when": {
+    "kind": [
+     "comparison"
+    ],
+    "options": [
+     4,
+     null
+    ],
+    "criteria": [
+     2,
+     null
+    ]
+   },
+   "suggest": {
+    "table": 2
+   },
+   "ar": "خيارات كثيرة بمعايير متعددة: الجدول يحفظ التفاصيل",
+   "en": "many options on several criteria: a table keeps the detail"
+  },
+  {
+   "id": "A210",
+   "when": {
+    "quantities": [
+     1,
+     1
+    ]
+   },
+   "suggest": {
+    "chart:stat": 6,
+    "none": 3,
+    "chart:gauge": 1
+   },
+   "ar": "رقم واحد: يُعرض كبيرًا وحده",
+   "en": "one number: show it large, alone"
+  },
+  {
+   "id": "A211",
+   "when": {
+    "time_series": true
+   },
+   "suggest": {
+    "chart:line": 7,
+    "chart:bars": 3
+   },
+   "ar": "قيم مرتبة في الزمن ({n}): الخط يُظهر الاتجاه",
+   "en": "{n} values ordered in time: a line shows the trend"
+  },
+  {
+   "id": "A212",
+   "when": {
+    "sum100": true
+   },
+   "suggest": {
+    "chart:donut": 7,
+    "chart:bars": 4
+   },
+   "ar": "أجزاء مجموعها ١٠٠٪: الحلقة تُظهر الحصص من الكل",
+   "en": "parts that add up to 100%: a donut shows shares of the whole"
+  },
+  {
+   "id": "A213",
+   "when": {
+    "kind": [
+     "data",
+     "finding",
+     "part-whole",
+     "evidence"
+    ],
+    "quantities": [
+     2,
+     7
+    ],
+    "units": [
+     "one",
+     "none"
+    ],
+    "time_series": false,
+    "sum100": false
+   },
+   "suggest": {
+    "chart:bars": 6,
+    "table": 2
+   },
+   "ar": "قيم بوحدة واحدة ({n}): الأعمدة تقارن الأطوال",
+   "en": "{n} values in one unit: bars compare lengths"
+  },
+  {
+   "id": "A214",
+   "when": {
+    "quantities": [
+     8,
+     null
+    ]
+   },
+   "suggest": {
+    "table": 7,
+    "chart:bars": 2
+   },
+   "ar": "قيم كثيرة ({n}): أكثر مما يقرؤه الرسم البياني بوضوح؛ جدول",
+   "en": "{n} values: more than a chart reads clearly; a table"
+  },
+  {
+   "id": "A215",
+   "when": {
+    "decreasing": true,
+    "sequence": [
+     "ordered"
+    ],
+    "quantities": [
+     3,
+     null
+    ],
+    "time_series": false
+   },
+   "suggest": {
+    "diagram:funnel": 8
+   },
+   "ar": "مراحل متتالية تتناقص: القمع يُظهر التسرّب بين المراحل",
+   "en": "stages that shrink in order: a funnel shows the drop-off"
+  },
+  {
+   "id": "A216",
+   "when": {
+    "kind": [
+     "part-whole"
+    ],
+    "quantities": [
+     2,
+     null
+    ],
+    "sum100": false
+   },
+   "suggest": {
+    "chart:bars": 5,
+    "table": 2
+   },
+   "ar": "أجزاء لا يكتمل مجموعها: الأعمدة بدل الحلقة",
+   "en": "parts that do not add up to a whole: bars, not a donut"
+  },
+  {
+   "id": "A220",
+   "when": {
+    "kind": [
+     "process"
+    ],
+    "items": [
+     3,
+     8
+    ],
+    "sequence": [
+     "ordered",
+     null
+    ]
+   },
+   "suggest": {
+    "diagram:flow": 6,
+    "diagram:timeline": 2
+   },
+   "ar": "خطوات بترتيب ({items}): مخطط تدفق",
+   "en": "{items} steps in order: a flow"
+  },
+  {
+   "id": "A221",
+   "when": {
+    "kind": [
+     "process",
+     "causal"
+    ],
+    "sequence": [
+     "cyclic"
+    ]
+   },
+   "suggest": {
+    "diagram:cycle": 8
+   },
+   "ar": "عملية تعود إلى بدايتها: دورة",
+   "en": "a process that returns to its start: a cycle"
+  },
+  {
+   "id": "A222",
+   "when": {
+    "kind": [
+     "process"
+    ],
+    "items": [
+     0,
+     2
+    ]
+   },
+   "suggest": {
+    "diagram:flow": 4,
+    "none": 3,
+    "diagram:compare": 2
+   },
+   "ar": "خطوتان فقط: سهم واحد يكفي",
+   "en": "two steps only: one arrow is enough"
+  },
+  {
+   "id": "A223",
+   "when": {
+    "kind": [
+     "timeline"
+    ]
+   },
+   "suggest": {
+    "diagram:timeline": 8
+   },
+   "ar": "أحداث على محور الزمن: خط زمني",
+   "en": "events along time: a timeline"
+  },
+  {
+   "id": "A224",
+   "when": {
+    "kind": [
+     "hierarchy"
+    ],
+    "items": [
+     5,
+     null
+    ]
+   },
+   "suggest": {
+    "diagram:tree": 6,
+    "diagram:layers": 3
+   },
+   "ar": "عناصر في تسلسل هرمي ({items}): شجرة",
+   "en": "{items} elements in a hierarchy: a tree"
+  },
+  {
+   "id": "A225",
+   "when": {
+    "kind": [
+     "hierarchy"
+    ],
+    "items": [
+     0,
+     4
+    ],
+    "sequence": [
+     "ordered"
+    ]
+   },
+   "suggest": {
+    "diagram:pyramid": 6,
+    "diagram:layers": 5,
+    "diagram:tree": 3
+   },
+   "ar": "مستويات قليلة بعضها فوق بعض: هرم أو طبقات",
+   "en": "a few levels on top of each other: a pyramid or layers"
+  },
+  {
+   "id": "A226",
+   "when": {
+    "kind": [
+     "hierarchy"
+    ],
+    "items": [
+     0,
+     4
+    ],
+    "sequence": [
+     "unordered",
+     "cyclic",
+     null
+    ]
+   },
+   "suggest": {
+    "diagram:tree": 6,
+    "diagram:layers": 3
+   },
+   "ar": "عناصر قليلة في تسلسل هرمي: شجرة",
+   "en": "a few elements in a hierarchy: a tree"
+  },
+  {
+   "id": "A227",
+   "when": {
+    "kind": [
+     "part-whole"
+    ],
+    "quantities": [
+     0,
+     0
+    ],
+    "entities": [
+     3,
+     null
+    ]
+   },
+   "suggest": {
+    "anatomy": 6,
+    "diagram:hub": 4
+   },
+   "ar": "أجزاء مادية مسمّاة ({entities}): مجسّم يُري الشيء نفسه",
+   "en": "named physical parts ({entities}): a figure of the thing itself"
+  },
+  {
+   "id": "A228",
+   "when": {
+    "kind": [
+     "part-whole"
+    ],
+    "quantities": [
+     0,
+     0
+    ],
+    "entities": [
+     0,
+     2
+    ],
+    "sequence": [
+     "ordered"
+    ]
+   },
+   "suggest": {
+    "diagram:layers": 6,
+    "diagram:hub": 3
+   },
+   "ar": "أجزاء بعضها فوق بعض: طبقات",
+   "en": "parts stacked on each other: layers"
+  },
+  {
+   "id": "A229",
+   "when": {
+    "kind": [
+     "part-whole"
+    ],
+    "quantities": [
+     0,
+     0
+    ],
+    "entities": [
+     0,
+     2
+    ],
+    "sequence": [
+     "unordered",
+     "cyclic",
+     null
+    ]
+   },
+   "suggest": {
+    "diagram:hub": 6,
+    "diagram:layers": 3,
+    "anatomy": 2
+   },
+   "ar": "كلٌّ وأجزاؤه: محور تتفرع منه الأجزاء",
+   "en": "a whole and its parts: a hub"
+  },
+  {
+   "id": "A230",
+   "when": {
+    "formula": true
+   },
+   "suggest": {
+    "equation": 8
+   },
+   "ar": "المعلومة صيغة: تُكتب معادلة لا جملة",
+   "en": "the information is a formula: write it as an equation, not a sentence"
+  },
+  {
+   "id": "A231",
+   "when": {
+    "kind": [
+     "causal"
+    ],
+    "sequence": [
+     "ordered",
+     "unordered",
+     null
+    ]
+   },
+   "suggest": {
+    "diagram:flow": 6,
+    "none": 1
+   },
+   "ar": "سبب يقود إلى نتيجة: أسهم بين المراحل",
+   "en": "a cause leading to an effect: arrows between stages"
+  },
+  {
+   "id": "A232",
+   "when": {
+    "kind": [
+     "causal"
+    ],
+    "entities": [
+     2,
+     null
+    ]
+   },
+   "suggest": {
+    "anatomy": 3
+   },
+   "ar": "الآلية تجري في أشياء مادية ({entities}): مجسّم ممكن",
+   "en": "the mechanism runs through physical things ({entities}): a figure can show it"
+  },
+  {
+   "id": "A233",
+   "when": {
+    "kind": [
+     "definition",
+     "argument"
+    ]
+   },
+   "suggest": {
+    "none": 6
+   },
+   "ar": "تعريف أو حجة: الطباعة وحدها أوضح من أي رسم",
+   "en": "a definition or an argument: type alone is clearer than a picture"
+  },
+  {
+   "id": "A234",
+   "when": {
+    "kind": [
+     "comparison",
+     "argument"
+    ],
+    "rel": [
+     "contrast"
+    ]
+   },
+   "suggest": {
+    "diagram:compare": 3
+   },
+   "ar": "الشريحة تقابل ما قبلها: المقارنة تُظهر التقابل",
+   "en": "the slide contrasts with the previous one: a comparison shows it"
+  },
+  {
+   "id": "A235",
+   "when": {
+    "kind": [
+     "concept"
+    ],
+    "entities": [
+     2,
+     null
+    ],
+    "formula": false
+   },
+   "suggest": {
+    "anatomy": 6,
+    "image": 4
+   },
+   "ar": "الفكرة تقوم على أشياء مادية ({entities}): مجسّم من عالم الموضوع",
+   "en": "the idea rests on physical things ({entities}): a figure from the topic's own world"
+  },
+  {
+   "id": "A236",
+   "when": {
+    "kind": [
+     "concept"
+    ],
+    "entities": [
+     0,
+     1
+    ],
+    "items": [
+     3,
+     null
+    ],
+    "formula": false
+   },
+   "suggest": {
+    "none": 5,
+    "diagram:hub": 3,
+    "image": 2
+   },
+   "ar": "نقاط متكافئة ({items}): بطاقات نصية",
+   "en": "{items} equal points: text cards"
+  },
+  {
+   "id": "A237",
+   "when": {
+    "kind": [
+     "concept"
+    ],
+    "entities": [
+     0,
+     1
+    ],
+    "items": [
+     0,
+     2
+    ],
+    "formula": false
+   },
+   "suggest": {
+    "image": 5,
+    "anatomy": 4,
+    "none": 2
+   },
+   "ar": "فكرة واحدة: صورة من عالم الموضوع تحملها",
+   "en": "one idea: a picture from the topic's world carries it"
+  },
+  {
+   "id": "A250",
+   "when": {
+    "kind": [
+     "process"
+    ],
+    "items": [
+     9,
+     null
+    ]
+   },
+   "suggest": {
+    "diagram:flow": 5,
+    "table": 3,
+    "diagram:timeline": 2
+   },
+   "ar": "خطوات كثيرة ({items}): أكثر مما يقرؤه تدفق واحد؛ قسّمها على شريحتين أو اجعلها جدولًا",
+   "en": "{items} steps: more than one flow reads; split it over two slides or use a table"
+  },
+  {
+   "id": "A251",
+   "when": {
+    "kind": [
+     "finding",
+     "data",
+     "evidence"
+    ],
+    "quantities": [
+     0,
+     0
+    ],
+    "formula": false
+   },
+   "suggest": {
+    "none": 5,
+    "diagram:hub": 2
+   },
+   "ar": "نتائج وصفية بلا أرقام: بطاقات نصية",
+   "en": "descriptive findings without numbers: text cards"
+  },
+  {
+   "id": "A252",
+   "when": {
+    "kind": [
+     "timeline"
+    ],
+    "quantities": [
+     3,
+     null
+    ],
+    "time_series": true
+   },
+   "suggest": {
+    "chart:line": 3
+   },
+   "ar": "أحداث لها قيم على مر الزمن: الخط يُظهر الاتجاه",
+   "en": "events that carry values over time: a line shows the trend"
+  },
+  {
+   "id": "A253",
+   "when": {
+    "kind": [
+     "comparison"
+    ],
+    "options": [
+     0,
+     1
+    ],
+    "quantities": [
+     0,
+     0
+    ]
+   },
+   "suggest": {
+    "diagram:compare": 5,
+    "table": 2
+   },
+   "ar": "مقارنة لم يُذكر عدد خياراتها: أعمدة متقابلة؛ اذكر الخيارات والمعايير في content.dimensions لاقتراح أدق",
+   "en": "a comparison with no options given: facing columns; state options and criteria in content.dimensions for a sharper suggestion"
+  },
+  {
+   "id": "A240",
+   "when": {
+    "audience": [
+     "expert"
+    ],
+    "any": [
+     {
+      "quantities": [
+       4,
+       null
+      ]
+     },
+     {
+      "options": [
+       3,
+       null
+      ]
+     }
+    ]
+   },
+   "suggest": {
+    "table": 3
+   },
+   "ar": "جمهور متخصص يقرأ القيم الدقيقة: الجدول",
+   "en": "an expert audience reads exact values: a table"
+  },
+  {
+   "id": "A241",
+   "when": {
+    "detail": [
+     "deep"
+    ],
+    "quantities": [
+     4,
+     null
+    ]
+   },
+   "suggest": {
+    "table": 2
+   },
+   "ar": "تفصيل عميق لقيم كثيرة: الجدول يحفظها كلها",
+   "en": "deep detail on many values: a table keeps them all"
+  },
+  {
+   "id": "A242",
+   "when": {
+    "audience": [
+     "general"
+    ],
+    "quantities": [
+     2,
+     7
+    ],
+    "units": [
+     "one",
+     "none"
+    ]
+   },
+   "suggest": {
+    "table": -1
+   },
+   "ar": "جمهور عام: الشكل قبل الأرقام",
+   "en": "a general audience: the shape before the numbers"
+  }
+ ],
+ "never": [
+  {
+   "id": "N1",
+   "drop": "chart:donut",
+   "unless": {
+    "sum100": true
+   },
+   "ar": "الحلقة لأجزاء مجموعها ١٠٠٪ فقط",
+   "en": "a donut only for parts that add up to 100%"
+  },
+  {
+   "id": "N2",
+   "drop_prefix": "chart:",
+   "unless": {
+    "quantities": [
+     1,
+     null
+    ]
+   },
+   "ar": "لا رسم بياني بلا أرقام",
+   "en": "no chart without numbers"
+  },
+  {
+   "id": "N3",
+   "drop": "equation",
+   "unless": {
+    "formula": true
+   },
+   "ar": "لا معادلة بلا صيغة",
+   "en": "no equation without a formula"
+  },
+  {
+   "id": "N4",
+   "drop": "chart:line",
+   "unless": {
+    "time_series": true
+   },
+   "ar": "الخط البياني لسلسلة مرتبة من ثلاث قيم فأكثر",
+   "en": "a line only for an ordered series of 3 or more values"
+  },
+  {
+   "id": "N5",
+   "drop": "chart:bars",
+   "unless": {
+    "quantities": [
+     2,
+     null
+    ]
+   },
+   "ar": "الأعمدة تحتاج قيمتين على الأقل",
+   "en": "bars need at least two values"
+  }
+ ],
+ "codes": [
+  {
+   "id": "A301",
+   "ar": "الشريحة تتعمق في جزء مما قبلها: عدسة أو تفصيل أو تقريب",
+   "en": "the slide goes deeper into part of the previous one: lens, detail or zoom"
+  },
+  {
+   "id": "A302",
+   "ar": "الشريحة تشترك مع ما قبلها في {entities}: انقلها بـ Morph",
+   "en": "the slide shares {entities} with the previous one: carry it with Morph"
+  },
+  {
+   "id": "A304",
+   "ar": "تفاصيل أكثر مما تتسع له الشريحة: فعل تفصيل",
+   "en": "more detail than the slide holds: a detail act"
+  },
+  {
+   "id": "A305",
+   "ar": "أجزاء مسمّاة ({n}) على صورة أو مجسّم: دبابيس مرقّمة",
+   "en": "{n} named parts on a picture or figure: numbered pins"
+  },
+  {
+   "id": "A306",
+   "ar": "عناصر تُشرح بترتيب ({n}): اكشفها خطوة خطوة",
+   "en": "{n} elements explained in order: reveal them step by step"
+  },
+  {
+   "id": "A310",
+   "ar": "عرض ثابت أوضح هنا: لا خطوات",
+   "en": "a still slide is clearer here: no steps"
+  },
+  {
+   "id": "A401",
+   "ar": "ثلاث شرائح متتالية بالشكل نفسه تحمل أنواعًا مختلفة من المعلومات",
+   "en": "three slides in a row look the same but carry different kinds of information"
+  },
+  {
+   "id": "A402",
+   "ar": "ثلاث شرائح متتالية بالشكل نفسه دون رابط سردي (Morph أو rel)",
+   "en": "three slides in a row look the same with no narrative link (Morph or rel)"
+  },
+  {
+   "id": "A200",
+   "ar": "صف المعلومة في content.kind لتحصل على اقتراح",
+   "en": "describe the information in content.kind to get a suggestion"
+  },
+  {
+   "id": "A290",
+   "ar": "التمثيل الحالي غير مناسب لهذه المعلومة",
+   "en": "the current representation does not fit this information"
+  },
+  {
+   "id": "A291",
+   "ar": "التمثيل الحالي ممكن لكن غيره أوضح",
+   "en": "the current representation works but another reads better"
+  },
+  {
+   "id": "A501",
+   "ar": "أجزاء الكل مجموعها {sum} لا ١٠٠",
+   "en": "the parts of the whole add up to {sum}, not 100"
+  },
+  {
+   "id": "A502",
+   "ar": "رسم بياني لقيم بوحدات مختلفة ({units})",
+   "en": "a chart of values in different units ({units})"
+  },
+  {
+   "id": "A503",
+   "ar": "عدد العناصر في content.items ({items}) يخالف عدد القيم في quantities ({n})",
+   "en": "content.items is {items} but quantities holds {n} values"
+  }
+ ]
+}

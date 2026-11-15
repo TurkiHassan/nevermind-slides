@@ -15,22 +15,11 @@
 <link rel="stylesheet" href="assets/nm/nm-media.css">
 
 <style>
-    /* ==== 1. BUNDLED LOCAL FONTS (assets/fonts/) ==== */
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
     @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
     @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
     @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
     @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
-    @font-face { font-family: 'ZIAN'; src: url('assets/fonts/ZIAN-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
     @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
     @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
     @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
@@ -47,8 +36,8 @@
       --nm-accent-2: #0F766E;
       --nm-surface: #FFFFFF;
       --nm-radius: 16px;
-      --nm-font-display: 'Thmanyah Display', serif;
-      --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
       --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
       /* legacy aliases */
       --lp-accent: var(--nm-accent);
@@ -60,11 +49,10 @@
     }
 
     /* Live font pairing classes on <body> */
-    body.font-mode-thmanyah { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif; }
-    body.font-mode-sans     { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'Thmanyah Sans', 'KOMission', sans-serif; }
-    body.font-mode-qahwa    { --nm-font-display: 'Qahwa Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
-    body.font-mode-setabr   { --nm-font-display: 'Setabr Display', 'ZIAN', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
-    body.font-mode-kufi     { --nm-font-display: 'Alkhalil Kufi', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
     body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
 
     html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
@@ -111,10 +99,10 @@
     .sc-sources ul { list-style: none; margin: 0; padding: 0; }
 </style>
 </head>
-<body dir="rtl" class="font-mode-sans" data-nm-mode="morph-and-zoom">
+<body dir="rtl" class="font-mode-open" data-nm-mode="morph-and-zoom">
 <script>
   window.NM_CONFIG = {
-    fontModes: [{"className": "font-mode-thmanyah", "label": "ثمانية + كومشن"}, {"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-sans", "label": "ثمانية سانس"}]
+    fontModes: [{"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-open", "label": "ريدكس + بلكس"}]
   };
 </script>
 <div class="deck-viewport">
@@ -146,7 +134,6 @@
       <img data-morph="port" src="assets/img/port-dusk.jpg" alt="رافعات حاويات على رصيف ميناء عند الغروب" style="object-position: 40% 55%">
     </figure>
     <header class="nm-head">
-      <p class="nm-kicker">لماذا الميناء</p>
       <h2 class="nm-t-h2">الميناء مفصل يربط البحر بالبر</h2>
       <ul class="nm-list">
         <li data-step="1" data-act="reveal">تمر عبر البحر نحو ٨٠٪ من حجم التجارة العالمية</li>
@@ -178,7 +165,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-hero-figure">
     <header class="nm-head">
-      <p class="nm-kicker">تشريح الرصيف</p>
       <h2 class="nm-t-h2">رصيف واحد وخمس محطات</h2>
     </header>
     <div class="sc-figure-cell">
@@ -308,7 +294,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
     <header class="nm-head">
-      <p class="nm-kicker">المشهد حيا</p>
       <h2 class="nm-t-h2">الرافعة تحدد إيقاع الرصيف كله</h2>
       <ul class="nm-list">
         <li data-step="1" data-act="reveal">الحاوية تنتظر الرافعة، والشاحنة تنتظر الحاوية</li>
@@ -316,7 +301,7 @@
       </ul>
     </header>
     <div class="sc-live" data-anatomy="supply-port" data-mode="animated" data-step="3" data-act="zoom" data-zoom-label="الرافعة" data-zoom-pad="60">
-      <iframe src="../../resources/engine/anatomy/examples/supply-port/supply-port-light.html" title="رصيف حاويات متحرك: رافعة ومكدس وشاحنات"></iframe>
+      <iframe src="assets/anatomy/supply-port-light.html" title="رصيف حاويات متحرك: رافعة ومكدس وشاحنات"></iframe>
     </div>
     </div>
   </div>
@@ -327,7 +312,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-hero-figure">
     <header class="nm-head">
-      <p class="nm-kicker">المسار</p>
       <h2 class="nm-t-h2" data-morph="title" data-morph-kind="words">رحلة الحاوية في ست محطات</h2>
       <p class="nm-t-lead">من لحظة الرسو إلى لحظة الخروج من البوابة، والمعين هو المحطة التي قد تعيد الحاوية خطوة إلى الوراء</p>
     </header>
@@ -347,7 +331,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-hero-figure">
     <header class="nm-head">
-      <p class="nm-kicker">المسؤوليات</p>
       <h2 class="nm-t-h2" data-morph="title" data-morph-kind="words">ست محطات وثلاث جهات مسؤولة</h2>
     </header>
     <figure class="nm-diagram" data-type="swimlane" data-id="journey" aria-label="ست محطات وثلاث جهات مسؤولة" data-node-steps="crane:1:lens, gate:2:focus">
@@ -382,7 +365,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
     <header class="nm-head">
-      <p class="nm-kicker">الدليل</p>
       <h2 class="nm-t-h2">الحاوية تنتظر أكثر مما تتحرك</h2>
       <p class="nm-t-lead">متوسط الساعات التي تقضيها الحاوية في كل محطة قبل أن تغادر الميناء</p>
     </header>
@@ -406,7 +388,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-cards-3 nm-gap-wide" data-links="c1>c2@1: يحرر الساحة; c2>c3@2: يسرع الخروج">
     <header class="nm-head">
-      <p class="nm-kicker">الحلول</p>
       <h2 class="nm-t-h2">ثلاث روافع تختصر الانتظار</h2>
     </header>
     <article class="nm-card is-accent" id="c1" data-node="c1" data-morph="automation" data-step="3" data-act="detail" data-detail="side">
@@ -493,7 +474,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-hero-figure">
     <header class="nm-head">
-      <p class="nm-kicker">خارطة الطريق</p>
       <h2 class="nm-t-h2">أربع مراحل حتى ميناء بلا ورق</h2>
       <p class="nm-t-lead">كل مرحلة تزيل نقطة انتظار واحدة من رحلة الحاوية، وتبني على ما قبلها</p>
     </header>
@@ -514,7 +494,6 @@
   <div class="camera-rig">
     <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
     <header class="nm-head">
-      <p class="nm-kicker">الخلاصة</p>
       <h2 class="nm-t-h1">في الميناء، الوقت هو البضاعة الحقيقية</h2>
       <p class="nm-t-lead">كل دقيقة توفرها الرافعة أو البوابة تصل في النهاية إلى رف المتجر</p>
       <section class="nm-sources sc-sources nm-t-caption" dir="rtl" lang="ar">

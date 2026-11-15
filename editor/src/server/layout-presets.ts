@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { setAttrSplices } from '../engine/attrs.ts';
@@ -27,7 +27,15 @@ export class LayoutPresetError extends Error {
   }
 }
 
-export const defaultLayoutPresetsRoot = () => process.env.NM_LAYOUT_PRESETS_DIR || join(homedir(), '.claude', 'skills', 'nevermind-slides', 'resources', 'engine', 'frontend-slides', 'layout-presets');
+// The presets live in the skill at resources/layout-presets (since roadmap NM-21); skills installed before that keep
+// them under resources/engine/frontend-slides/layout-presets.
+export const defaultLayoutPresetsRoot = () => {
+  if (process.env.NM_LAYOUT_PRESETS_DIR) return process.env.NM_LAYOUT_PRESETS_DIR;
+  const skill = join(homedir(), '.claude', 'skills', 'nevermind-slides', 'resources');
+  const current = join(skill, 'layout-presets');
+  const legacy = join(skill, 'engine', 'frontend-slides', 'layout-presets');
+  return existsSync(current) || !existsSync(legacy) ? current : legacy;
+};
 
 export function listLayoutPresets(): LayoutPreset[] {
   return CATALOG.map((preset) => ({ ...preset }));

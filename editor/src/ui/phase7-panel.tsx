@@ -8,10 +8,10 @@ import type { OutlineNode } from './types.ts';
 
 const copy = {
   ar: {
-    motion: 'الحركة', select: 'حدّد عنصرًا في الشريحة لتحرير حركته.', entrance: 'دخول العنصر', kind: 'نوع الدخول', order: 'الترتيب', delay: 'التأخير (ms)', previewEntrance: 'معاينة الدخول', morph: 'ربط Morph بالشريحة التالية', target: 'العنصر المقابل', link: 'إنشاء الربط', zoom: 'خطوات Zoom', addZoom: 'إضافة المحدد كخطوة', preview: 'معاينة', up: 'لأعلى', down: 'لأسفل', label: 'التسمية', anatomy: 'ألوان anatomy', identity: 'هوية العرض', colours: 'الألوان', fonts: 'ثنائية الخطوط', body: 'خط النص', display: 'خط العناوين', noConfig: 'لا يحتوي العرض على tailwind.config قابل للتحرير.', noNext: 'لا توجد شريحة تالية لربط Morph.',
+    motion: 'الحركة', select: 'حدّد عنصرًا في الشريحة لتحرير حركته.', entrance: 'دخول العنصر', kind: 'نوع الدخول', order: 'الترتيب', delay: 'التأخير (ms)', previewEntrance: 'معاينة الدخول', morph: 'ربط Morph بالشريحة التالية', target: 'العنصر المقابل', link: 'إنشاء الربط', zoom: 'خطوات Zoom', addZoom: 'إضافة المحدد كخطوة', preview: 'معاينة', up: 'لأعلى', down: 'لأسفل', label: 'التسمية', anatomy: 'ألوان anatomy', identity: 'هوية العرض', colours: 'الألوان', fonts: 'ثنائية الخطوط', body: 'خط النص', display: 'خط العناوين', noConfig: 'لا يحتوي العرض على tailwind.config قابل للتحرير.', noNext: 'لا توجد شريحة تالية لربط Morph.', steps: 'خطوات الشريحة', stepsHint: 'تُعدَّل في الخطة أو بملاحظة للوكيل', noSteps: 'لا خطوات في هذه الشريحة',
   },
   en: {
-    motion: 'Motion', select: 'Select an element on the slide to edit its motion.', entrance: 'Element entrance', kind: 'Entrance type', order: 'Order', delay: 'Delay (ms)', previewEntrance: 'Preview entrance', morph: 'Morph to next slide', target: 'Matching element', link: 'Create link', zoom: 'Zoom steps', addZoom: 'Add selection as step', preview: 'Preview', up: 'Move up', down: 'Move down', label: 'Label', anatomy: 'Anatomy colours', identity: 'Deck identity', colours: 'Colours', fonts: 'Font pairing', body: 'Body font', display: 'Display font', noConfig: 'This deck has no editable tailwind.config.', noNext: 'There is no next slide for a Morph pair.',
+    motion: 'Motion', select: 'Select an element on the slide to edit its motion.', entrance: 'Element entrance', kind: 'Entrance type', order: 'Order', delay: 'Delay (ms)', previewEntrance: 'Preview entrance', morph: 'Morph to next slide', target: 'Matching element', link: 'Create link', zoom: 'Zoom steps', addZoom: 'Add selection as step', preview: 'Preview', up: 'Move up', down: 'Move down', label: 'Label', anatomy: 'Anatomy colours', identity: 'Deck identity', colours: 'Colours', fonts: 'Font pairing', body: 'Body font', display: 'Display font', noConfig: 'This deck has no editable tailwind.config.', noNext: 'There is no next slide for a Morph pair.', steps: 'Slide steps', stepsHint: 'Change them in the plan or with a note for the agent', noSteps: 'This slide has no steps',
   },
 } as const;
 
@@ -76,6 +76,7 @@ export function MotionPanel() {
   const entrance = deck.entrances.find((item) => item.key === key);
   const zoom = deck.zoomSteps.filter((item) => item.slideKey === deck.slides[slide]?.key).sort((a, b) => a.step - b.step);
   const anatomy = deck.anatomy.find((item) => item.key === key);
+  const slideSteps = (deck.steps ?? []).filter((item) => item.slideKey === deck.slides[slide]?.key).sort((a, b) => a.step - b.step);
   const anatomyVariables = (() => {
     if (!anatomy) return {} as Record<string, string>;
     const variables = { ...anatomy.variables };
@@ -131,6 +132,14 @@ export function MotionPanel() {
         <button type="button" aria-label={s.up} onClick={() => reorderZoom(index, -1)}>↑</button><button type="button" aria-label={s.down} onClick={() => reorderZoom(index, 1)}>↓</button>
         <button type="button" onClick={() => editLayer()?.previewZoom(slide, index + 1)}>{s.preview}</button>
       </li>)}</ol>
+    </fieldset>
+    <fieldset data-testid="steps-readout"><legend>{s.steps}</legend>
+      {slideSteps.length === 0 ? <p class="hint">{s.noSteps}</p> : <>
+        <ol class="motion-list">{slideSteps.map((item) => <li key={item.key} aria-current={item.key === key ? 'true' : undefined}>
+          <span class="read">{item.step}</span> <span>{item.act}</span> <span class="hint">{elementByKey(item.key)?.tagName.toLowerCase() ?? ''}</span>
+        </li>)}</ol>
+        <p class="hint">{s.stepsHint}</p>
+      </>}
     </fieldset>
     {anatomy && Object.keys(anatomyVariables).length > 0 && <fieldset data-testid="anatomy-controls"><legend>{s.anatomy}</legend>{Object.entries(anatomyVariables).map(([variable, value]) => <label key={variable}>{variable}<input type="color" value={/^#[0-9a-f]{6}$/i.test(value) ? value : '#000000'} onChange={(e) => void postOps([anatomyColourOp(anatomy.key, variable, e.currentTarget.value)], { label: `Set ${variable}` })} /></label>)}</fieldset>}
   </div>;

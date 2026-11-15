@@ -5,7 +5,7 @@ import { request, type IncomingHttpHeaders } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { startEditorServer, type RunningServer, type ServerOptions } from '../../src/server/server.ts';
-import { ATTENTION, MINIMAL, fixturePath } from '../helpers.ts';
+import { ATTENTION, MINIMAL, SERVER_DECK, fixturePath } from '../helpers.ts';
 
 export interface Raw { status: number; headers: IncomingHttpHeaders; body: string; json: () => any }
 
@@ -51,8 +51,8 @@ export function tempDeck(rel = MINIMAL, dirName?: string): { dir: string; deckPa
   const dir = dirName ? join(base, dirName) : base;
   mkdirSync(dir, { recursive: true });
   const src = fixturePath(rel);
-  if (rel.startsWith('real/')) {
-    cpSync(dirname(src), dir, { recursive: true });
+  if (/^(real|legacy|showcase)\//.test(rel)) {
+    cpSync(dirname(src), dir, { recursive: true, dereference: true });
     return { dir, deckPath: join(dir, 'deck.html') };
   }
   cpSync(src, join(dir, 'deck.html'));
@@ -86,7 +86,7 @@ export async function startAt(deckPath: string, dir = dirname(deckPath), options
 }
 
 export const readDeck = (s: { deckPath: string }) => readFileSync(s.deckPath, 'utf8');
-export { ATTENTION, MINIMAL };
+export { ATTENTION, MINIMAL, SERVER_DECK };
 
 export interface SseEvent { event: string; data: any }
 

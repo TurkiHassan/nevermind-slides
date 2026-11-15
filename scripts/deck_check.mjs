@@ -7,15 +7,19 @@
 // re-launched with --experimental-websocket). Per slide it goes through every step with ?nm-speed=0,
 // waits for NM.test.settle(), then reports: console errors, elements leaving the 1920x1080 stage,
 // clipped text, overlapping text, small text, low contrast, broken images, missing fonts, leftover
-// morph ghosts and unreachable steps. Writes a JSON report, one PNG per slide and a contact sheet.
+// morph ghosts and unreachable steps, plus the visual quality checks of deck_quality.mjs (empty frames, Arabic
+// joining and digits, bidi runs, widows, density, diagram fill, empty slides, title drift). Writes a JSON report,
+// a quality report (quality.json: tier, confidence and fix per finding, scores), one PNG per slide and a contact
+// sheet.
 //
 // Exit codes: 0 clean, 1 problems found, 2 Node/Chrome unavailable.
 
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { crossSlide, pageCompare, pageMotion, pageQuality, qualityReport } from "./deck_quality.mjs";
 
 if (typeof WebSocket === "undefined" && !process.execArgv.includes("--experimental-websocket")) {
   const child = spawn(process.execPath, ["--experimental-websocket", ...process.argv.slice(1)], { stdio: "inherit" });
@@ -33,7 +37,13 @@ function usage() {
   --shots <dir>     screenshots + contact sheet (default: <deck dir>/check-shots)
   --slides <spec>   slides to check, 1-based: 3, 1-5 or 2,4,7 (default: all)
   --out <json>      JSON report (default: <shots>/report.json)
+  --quality <json>  quality report (default: <shots>/quality.json)
   --steps           also save a screenshot after every step
+  --save-baseline <dir>   copy every screenshot of this run into <dir> as the visual baseline (NM-07)
+  --baseline <dir>        compare every screenshot with <dir>; differences over the tolerance are C-BASELINE,
+                          with a diff image in <shots>/diff/ (same machine, same fonts and Chrome as the baseline)
+  --baseline-tolerance <r> share of differing pixels allowed (default 0.0005: an unchanged deck differs by 0, one changed word by about 0.002); --baseline-strict makes it an error
+  --motion          also arrive on every slide at full speed and measure the arrival (C-MOTION, C-JANK)
   --help            this text
 
 Exit codes: 0 clean, 1 problems found, 2 Node or Chrome unavailable.`);
@@ -48,7 +58,13 @@ function parse(argv) {
     if (a === "--shots") o.shots = next();
     else if (a === "--slides") o.slides = next();
     else if (a === "--out") o.out = next();
+    else if (a === "--quality") o.quality = next();
     else if (a === "--steps") o.steps = true;
+    else if (a === "--save-baseline") o.saveBaseline = next();
+    else if (a === "--baseline") o.baseline = next();
+    else if (a === "--baseline-tolerance") o.tolerance = Number(next());
+    else if (a === "--baseline-strict") o.strict = true;
+    else if (a === "--motion") o.motion = true;
     else if (a === "--help" || a === "-h") o.help = true;
     else rest.push(a);
   }
@@ -219,8 +235,17 @@ function pageInspect(idx) {
 
   // text blocks
   const texts = [];
+  const MATHML = "http://www.w3.org/1998/Math/MathML";
   for (const el of all) {
     if (inSvg(el) || decor(el)) continue;
+    // a formula is one text block: its tokens sit tight and scripts are smaller by design (NM-11)
+    if (el.namespaceURI === MATHML) {
+      if (el.localName !== "math" || (el.parentElement && el.parentElement.closest("math"))) continue;
+      const rc = el.getBoundingClientRect();
+      if (rc.width < 1 || rc.height < 1) continue;
+      texts.push({ el, client: { left: rc.left, top: rc.top, right: rc.right, bottom: rc.bottom }, rect: toStage({ left: rc.left, top: rc.top, width: rc.width, height: rc.height }), text: short(el.textContent.replace(/\s+/g, " ").trim()) });
+      continue;
+    }
     const own = Array.from(el.childNodes).filter((n) => n.nodeType === 3 && n.textContent.trim());
     if (!own.length) continue;
     const range = document.createRange();
@@ -506,6 +531,7 @@ async function main() {
     const shot = async (file) => {
       const r = await send("Page.captureScreenshot", { format: "png", clip: { x: 0, y: 0, width: 1920, height: 1080, scale: 1 } });
       writeFileSync(join(shots, file), Buffer.from(r.result.data, "base64"));
+      return r.result.data;
     };
 
     await send("Runtime.enable");
@@ -564,11 +590,15 @@ async function main() {
       const expected = walkable.length + (lastStep && lastStep.acts.some((a) => transient.has(a)) ? 1 : 0);
 
       const issues = [];
+      let metrics = null;
       let measured = false;
       const measure = async (stepNo) => {
         await evaluate(`Promise.all(Array.from(document.querySelectorAll('.slide')[${idx}].querySelectorAll('img')).map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r;setTimeout(r,3000)}))).then(()=>1)`);
         issues.push(...(await evaluate(`(${pageInspect.toString()})(${idx})`)));
-        await shot(`s${String(idx + 1).padStart(2, "0")}.png`);
+        const png = await shot(`s${String(idx + 1).padStart(2, "0")}.png`);
+        const q = await evaluate(`(${pageQuality.toString()})(${idx}, ${JSON.stringify(png)})`);
+        issues.push(...q.issues);
+        metrics = q.metrics;
         measured = true;
       };
       if (lastFull === 0) await measure(0);
@@ -598,12 +628,57 @@ async function main() {
         const external = c.kind === "network" && /^https?:/.test(c.url || "");
         issues.push({ code: "C-CONSOLE", severity: external ? "warn" : "error", message: `${c.kind}: ${c.text}${external ? " (external resource; ignore when offline)" : ""}`, selector: "" });
       }
-      reports.push({ slide: idx + 1, id: info.id, title: info.title, steps: { declared: walkable.length, reachable: reached > walkable.length && reached <= expected ? walkable.length : reached }, issues });
+      reports.push({ slide: idx + 1, id: info.id, title: info.title, steps: { declared: walkable.length, reachable: reached > walkable.length && reached <= expected ? walkable.length : reached }, issues, metrics });
     }
     // console messages produced before the first slide (page load)
     for (const c of consoleLog.filter((c) => c.slide === -1)) {
       const external = c.kind === "network" && /^https?:/.test(c.url || "");
       deckProblems.push({ code: "C-CONSOLE", severity: external ? "warn" : "error", message: `${c.kind}: ${c.text}${external ? " (external resource; ignore when offline)" : ""}` });
+    }
+
+    // visual baseline (NM-07): every screenshot of this run against the saved one
+    const shotFiles = readdirSync(shots).filter((f) => /^s\d\d(-step\d+)?\.png$/.test(f)).sort();
+    const slideOf = (f) => reports.find((r) => r.slide === Number(f.slice(1, 3)));
+    if (o.saveBaseline) {
+      const dir = resolve(o.saveBaseline);
+      mkdirSync(dir, { recursive: true });
+      for (const f of shotFiles) copyFileSync(join(shots, f), join(dir, f));
+    }
+    if (o.baseline) {
+      const dir = resolve(o.baseline), tol = Number.isFinite(o.tolerance) ? o.tolerance : 0.0005;
+      const diffDir = join(shots, "diff");
+      for (const f of shotFiles) {
+        const r = slideOf(f);
+        if (!r) continue;
+        r.baseline = r.baseline || [];
+        if (!existsSync(join(dir, f))) {
+          r.issues.push({ code: "C-BASELINE", severity: "warn", message: `no baseline image ${f} in ${dir}; save one with --save-baseline`, selector: "" });
+          continue;
+        }
+        const cmp = await evaluate(`(${pageCompare.toString()})(${JSON.stringify(readFileSync(join(shots, f)).toString("base64"))}, ${JSON.stringify(readFileSync(join(dir, f)).toString("base64"))})`);
+        r.baseline.push({ file: f, ratio: Math.round(cmp.ratio * 100000) / 100000 });
+        if (cmp.ratio > tol) {
+          let where = "";
+          if (cmp.diff) { mkdirSync(diffDir, { recursive: true }); writeFileSync(join(diffDir, f), Buffer.from(cmp.diff, "base64")); where = `; diff image diff/${f}`; }
+          r.issues.push({ code: "C-BASELINE", severity: o.strict ? "error" : "warn", message: `${f} differs from the baseline on ${(cmp.ratio * 100).toFixed(2)}% of its pixels (tolerance ${(tol * 100).toFixed(2)}%)${where}`, selector: "", evidence: { ratio: cmp.ratio, tolerance: tol } });
+        }
+      }
+    }
+
+    // motion and performance at full speed (NM-08)
+    if (o.motion && hasNM) {
+      const loaded = new Promise((done) => { onLoad = done; setTimeout(done, 15000); });
+      await send("Page.navigate", { url: pathToFileURL(deck).href });
+      await loaded;
+      for (let t = 0; t < 60 && !(await evaluate("!!(window.NM && NM.deck && document.body.classList.contains('nm-ready'))")); t++) await sleep(150);
+      for (const idx of wanted) {
+        const m = await evaluate(`(${pageMotion.toString()})(${idx})`);
+        const r = reports.find((x) => x.slide === idx + 1);
+        if (!r) continue;
+        r.motion = m;
+        if (m.settle_ms > 2000) r.issues.push({ code: "C-MOTION", severity: "warn", message: `the slide takes ${m.settle_ms}ms to arrive at full speed (budget 2000ms: transition, morph and entrances)`, selector: "", evidence: m });
+        if (m.long_frames) r.issues.push({ code: "C-JANK", severity: "warn", message: `${m.long_frames} frame(s) of 50ms or more while the slide arrives (longest ${m.longest_frame_ms}ms; scripts ${m.long_script_ms}ms, style, layout and paint ${m.long_render_ms}ms, other ${m.long_other_ms}ms)`, selector: "", evidence: m });
+      }
     }
 
     // contact sheet
@@ -631,11 +706,16 @@ async function main() {
       deckProblems.push({ code: "C-SHEET", severity: "warn", message: `contact sheet failed: ${e.message}` });
     }
 
+    crossSlide(reports);
     const errorCount = reports.reduce((n, r) => n + r.issues.filter((i) => i.severity === "error").length, 0) + deckProblems.filter((i) => i.severity === "error").length;
     const warnCount = reports.reduce((n, r) => n + r.issues.filter((i) => i.severity === "warn").length, 0) + deckProblems.filter((i) => i.severity === "warn").length;
     const report = { passed: errorCount === 0, html_path: deck, mode, runtime: hasNM ? "nm-v2" : "none", total_slides: total, checked: wanted.map((i) => i + 1), errors: errorCount, warnings: warnCount, deck: deckProblems, slides: reports, shots_dir: shots, contact_sheet: sheet };
     mkdirSync(dirname(outJson), { recursive: true });
     writeFileSync(outJson, JSON.stringify(report, null, 2) + "\n");
+    const quality = qualityReport(report);
+    const outQuality = resolve(o.quality ?? join(shots, "quality.json"));
+    mkdirSync(dirname(outQuality), { recursive: true });
+    writeFileSync(outQuality, JSON.stringify(quality, null, 2) + "\n");
 
     // compact table
     const pad = (s, n) => (String(s) + " ".repeat(n)).slice(0, n);
@@ -649,7 +729,9 @@ async function main() {
     }
     for (const d of deckProblems) console.log(`deck  ${d.severity}  ${d.code}  ${d.message}`);
     for (const r of reports) for (const i of r.issues.slice(0, 8)) console.log(`slide ${r.slide}  ${i.severity}  ${i.code}  ${i.message}${i.selector ? `  [${i.selector}]` : ""}`);
+    console.log(`Quality: score ${quality.score}/100, ${quality.summary.HOLD} hold, ${quality.summary.FIX} fix, ${quality.summary.NOTE} note`);
     console.log(`Report: ${outJson}`);
+    console.log(`Quality report: ${outQuality}`);
     console.log(`Screenshots: ${shots}${sheet ? `  Contact sheet: ${sheet}` : ""}`);
     finish(report.passed ? 0 : 1);
   } catch (e) {

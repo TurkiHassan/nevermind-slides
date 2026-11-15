@@ -1,0 +1,681 @@
+{
+  "title": "مدوّنة الاختبار",
+  "lang": "ar",
+  "theme": {
+    "preset": "paper"
+  },
+  "fonts": {
+    "pairing": "thmanyah"
+  },
+  "mode": "morph-and-zoom",
+  "image_source": "generate",
+  "slides": [
+    {
+      "id": "s1",
+      "title": "الغلاف",
+      "role": "cover",
+      "layout": "cover",
+      "visual": {
+        "type": "image",
+        "query": "describe the cover image, no text",
+        "ref": "image-1"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "مدوّنة الاختبار",
+        "body": [
+          "اكتب جملة افتتاحية قصيرة"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s2",
+      "title": "اكتب اسم الشريحة",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "anatomy",
+        "ref": "figure-2",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s3",
+      "title": "اكتب اسم الشريحة",
+      "role": "mechanism",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow",
+        "mode": "animated",
+        "ref": "visual-3"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "draw",
+          "target": "visual"
+        },
+        {
+          "act": "focus",
+          "target": "visual",
+          "note": "isolate the key part"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s4",
+      "title": "اكتب اسم الشريحة",
+      "role": "evidence",
+      "layout": "stat",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "visual-4"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "stat"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "stat": {
+          "value": "0%",
+          "label": "اكتب وصف الرقم"
+        },
+        "body": [
+          "اكتب مصدر الرقم"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s5",
+      "title": "اكتب اسم الشريحة",
+      "role": "comparison",
+      "layout": "compare",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "visual-5"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s6",
+      "title": "اكتب اسم الشريحة",
+      "role": "process",
+      "layout": "timeline",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "timeline",
+        "ref": "visual-6"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s7",
+      "title": "اكتب اسم الشريحة",
+      "role": "concept",
+      "layout": "split-rev",
+      "visual": {
+        "type": "anatomy",
+        "ref": "figure-7",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s8",
+      "title": "اكتب اسم الشريحة",
+      "role": "quote",
+      "layout": "quote",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب اسم القائل",
+        "headline": "اكتب الاقتباس هنا"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s9",
+      "title": "اكتب اسم الشريحة",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "anatomy",
+        "ref": "figure-9",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s10",
+      "title": "اكتب اسم الشريحة",
+      "role": "mechanism",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow",
+        "mode": "animated",
+        "ref": "visual-10"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "draw",
+          "target": "visual"
+        },
+        {
+          "act": "focus",
+          "target": "visual",
+          "note": "isolate the key part"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s11",
+      "title": "اكتب اسم الشريحة",
+      "role": "evidence",
+      "layout": "stat",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "visual-11"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "stat"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "stat": {
+          "value": "0%",
+          "label": "اكتب وصف الرقم"
+        },
+        "body": [
+          "اكتب مصدر الرقم"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s12",
+      "title": "اكتب اسم الشريحة",
+      "role": "comparison",
+      "layout": "compare",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "visual-12"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s13",
+      "title": "اكتب اسم الشريحة",
+      "role": "process",
+      "layout": "timeline",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "timeline",
+        "ref": "visual-13"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s14",
+      "title": "اكتب اسم الشريحة",
+      "role": "concept",
+      "layout": "split-rev",
+      "visual": {
+        "type": "anatomy",
+        "ref": "figure-14",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s15",
+      "title": "اكتب اسم الشريحة",
+      "role": "quote",
+      "layout": "quote",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب اسم القائل",
+        "headline": "اكتب الاقتباس هنا"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s16",
+      "title": "اكتب اسم الشريحة",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "anatomy",
+        "ref": "figure-16",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s17",
+      "title": "اكتب اسم الشريحة",
+      "role": "mechanism",
+      "layout": "diagram",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "flow",
+        "mode": "animated",
+        "ref": "visual-17"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "draw",
+          "target": "visual"
+        },
+        {
+          "act": "focus",
+          "target": "visual",
+          "note": "isolate the key part"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s18",
+      "title": "اكتب اسم الشريحة",
+      "role": "evidence",
+      "layout": "stat",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "visual-18"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "stat"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "stat": {
+          "value": "0%",
+          "label": "اكتب وصف الرقم"
+        },
+        "body": [
+          "اكتب مصدر الرقم"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s19",
+      "title": "اكتب اسم الشريحة",
+      "role": "comparison",
+      "layout": "compare",
+      "visual": {
+        "type": "chart",
+        "diagram_type": "bars",
+        "ref": "visual-19"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s20",
+      "title": "اكتب اسم الشريحة",
+      "role": "process",
+      "layout": "timeline",
+      "visual": {
+        "type": "diagram",
+        "diagram_type": "timeline",
+        "ref": "visual-20"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [
+        {
+          "act": "reveal",
+          "target": "visual"
+        }
+      ],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s21",
+      "title": "اكتب اسم الشريحة",
+      "role": "concept",
+      "layout": "split-rev",
+      "visual": {
+        "type": "anatomy",
+        "ref": "figure-21",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s22",
+      "title": "اكتب اسم الشريحة",
+      "role": "quote",
+      "layout": "quote",
+      "visual": {
+        "type": "none"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب اسم القائل",
+        "headline": "اكتب الاقتباس هنا"
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s23",
+      "title": "اكتب اسم الشريحة",
+      "role": "concept",
+      "layout": "split",
+      "visual": {
+        "type": "anatomy",
+        "ref": "figure-23",
+        "mode": "animated"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب نقطة قصيرة",
+          "اكتب نقطة ثانية"
+        ]
+      },
+      "speaker_note": ""
+    },
+    {
+      "id": "s24",
+      "title": "الخاتمة",
+      "role": "closing",
+      "layout": "center",
+      "visual": {
+        "type": "image",
+        "query": "describe the closing image, no text",
+        "ref": "image-24"
+      },
+      "rel": "next",
+      "transition": "auto",
+      "morph": [
+        "title"
+      ],
+      "steps": [],
+      "text": {
+        "kicker": "اكتب العنوان الفرعي",
+        "headline": "اكتب عنوان الشريحة",
+        "body": [
+          "اكتب خطوة عملية واحدة"
+        ]
+      },
+      "speaker_note": ""
+    }
+  ]
+}

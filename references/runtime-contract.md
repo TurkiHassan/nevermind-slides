@@ -22,9 +22,13 @@ The single source of truth for how the bundled runtime files fit together. A dec
 | `nm-focus.css`, `nm-focus.js` | Isolation acts: `focus`, `detail`, `lens`, `pins`, `slice` |
 | `nm-diagram.css`, `nm-diagram.js` | Declarative diagrams, connectors between DOM nodes, small charts |
 | `nm-media.css` | Image frames, focal crop, masks, duotone/grain treatments, slow camera moves |
+| `nm-table.css`, `nm-table.js` | Optional. Data tables: row and column steps, numeric alignment, highlight, fit between 20px and 36px |
+| `nm-math.css`, `nm-math.js` | Optional. Equations: native MathML (no library), `data-tex` through the optional converter, `data-term` morph pairs, fit |
+| `nm-gsap.js` | Optional GSAP adapter (`data-act="gsap"`); contains no GSAP and loads nothing, works only when the deck provides `window.gsap` |
+| `vendor/temml.min.js` | Optional, staged only by `stage-runtime --math`: TeX to MathML (Temml, MIT). Never fetched from the network |
 | `scripts/image_fetch.py` | Web image search, download, crop, treat, credits |
 
-Load order in a deck (end of `<body>`): `nm-deck.js`, then plugins in any order. CSS in `<head>`.
+Load order in a deck (end of `<body>`): `nm-deck.js`, then plugins in any order, except that `vendor/temml.min.js` comes before `nm-math.js`. CSS in `<head>`. The optional files are linked only by decks that use them; a deck without tables or formulas links exactly the files above.
 
 ```html
 <meta name="nm-runtime" content="2">
@@ -56,6 +60,7 @@ Load order in a deck (end of `<body>`): `nm-deck.js`, then plugins in any order.
 - Core injects everything else when missing: bottom controls (`#deckControls`, hidden until the bottom 32px hotzone `#controlsHotzone` is hovered), progress line, overview grid, key help, and two overlay layers inside the stage above all slides: `#nmGhostLayer` (morph ghosts) and `#nmOverlayLayer` (plugins).
 - `<section class="slide">` never carries class `relative`.
 - Body config attributes: `data-nm-mode` = `morph-and-zoom` (default) | `morph-only` | `classic`; `data-nm-transition` = deck default transition; `data-nm-automorph` = `on` (default) | `off`.
+- `data-nm-choreo="2"` on `<body>` (scaffold writes it; absent means the original stagger, unchanged): automatic entrances get a role, `lead` (headings: first), `support` (body, cards, figures: gaps 120, 90, 70, 55, 45, 40, 35ms, at most 440ms in all), `deco` (kicker, rules, section numbers: fade only) or `static` (none); `data-motion-role` on an element overrides the guess. Headers holding several parts are opened so the parts enter and the header does not: never a parent and a child at once. Arrival settles within 1200ms. `data-nm-still` on a slide fades its parts in together (scaffold writes it where the representation advice says a still slide reads best). Diagrams keep their own internal build.
 - Optional `window.NM_CONFIG = { fontModes: [{ className, label }], ... }` defined before `nm-deck.js`.
 
 ## 3. Global API (`window.NM`)
@@ -73,7 +78,9 @@ NM.dur                       // named durations in ms: { fast, base, slow, morph
 NM.animate(el, keyframes, opts) // WAAPI wrapper that honours speed 0 / reduced motion; returns Animation
 NM.speed                     // 1 normally, 0 when ?nm-speed=0, ?nm-print or reduced motion
 NM.unclass(el, ...names)     // remove state classes; drops an empty class="" so author markup round-trips byte-identical
-NM.test.settle()             // Promise resolved when no runtime animation is pending
+NM.test.settle()             // Promise resolved when no runtime animation, timer or plugin frame is pending
+NM.pending                   // number of frames plugins are still waiting on; a plugin increments it before a
+                             // requestAnimationFrame chain that changes state and decrements it after (settle waits)
 ```
 
 Controller:
@@ -90,6 +97,10 @@ DOM events on `document`: `nm:ready`, `nm:beforeslidechange`, `nm:slidechange` (
 
 State classes core maintains: `.slide.active` (also `.visible` for legacy CSS), `.slide.is-leaving`, `.is-on` on every step element that has been entered, `.is-current` on the step elements of the current step, `body.nm-ready`, `body.nm-overview`, `body.nm-instant` (speed 0: `?nm-speed=0`, `?nm-print`, reduced motion; every runtime CSS file drops its transitions and loops under it), `body.nm-print`. Core never leaves an empty `class=""` on author elements: stepping forward and back restores the markup byte for byte.
 
+Generated markup: every subtree a plugin builds inside author content carries `data-nm-generated="<kind>"` on its root (`diagram` for the `.nm-dg-canvas` of a figure, `links` for the `.nm-links` connector layer, `math` for the MathML, or the raw-TeX fallback, that nm-math renders inside a `data-tex` host). It is rendered from source (the DSL script, `data-links`) and is never saved; editors must not write it back and must edit the source instead.
+
+Runtime state on author elements (never saved, never part of the source; editors keep the file as written): nm-table writes `data-step`, `data-act` and `data-nm-tb-step` on the rows or cells it numbers, `.nm-tb-num` on numeric cells, `.nm-tb-hl` for `data-highlight`, `data-nm-step-base` and the `--nm-tb-fit` custom property on the figure; nm-math writes `data-morph="term-<x>"` and `data-nm-term-morph` on `data-term` parts without their own `data-morph`, `data-nm-math-error` on a `data-tex` host it could not convert, and `--nm-eq-fit` on an equation figure. nm-diagram already writes `data-nm-step-base`. Every plugin that changes layout after webfonts load counts that wait in `NM.pending`.
+
 Plugin hooks: while core measures the incoming side of a morph it puts `.nm-morph-measure` on each target element, so a plugin can cancel a pending entrance state for that instant (nm-diagram does this for its nodes); the ghost then flies to the element's real resting look. Overview thumbnails show every lasting step (`reveal`, `draw`) as on; transient acts are off. Clicking inside an `<iframe>` no longer captures the arrow keys: core takes keyboard focus back (opt out with `data-nm-keys="frame"` on the iframe). Edit mode (E) releases an open act first and skips text that plugins generate (diagram canvas, connector labels).
 
 ## 4. Step timeline (one numbering space per slide)
@@ -103,6 +114,11 @@ Any element inside a slide may carry `data-step="N"` (N ≥ 1) and `data-act="<a
 | `highlight` | core | element gets `.is-current` emphasis, nothing else changes | yes |
 | `focus`, `detail`, `lens`, `pins`, `slice` | nm-focus | isolation acts | yes |
 | `draw` | nm-diagram | strokes draw on | no |
+| `gsap` | nm-gsap | a GSAP tween on the step's timeline (`data-gsap` JSON: `from`, `duration`, `ease`); without `window.gsap` a plain fade | no |
+
+Timing inside a step (`data-at`, NM-14): `"<"` with the previous element of the step, `">"` or `"+=200"` when it ends (plus or minus ms), `"<+=150"` after it starts, `"300"` from the step start, `"@name"` at a label set by `data-at-label="name"`; `s` or `ms` units. Resolved by core into `ctx.at` (ms) for lasting acts; `reveal` adds it to the entrance delay. Steps without `data-at` are unchanged.
+
+Tables (`figure.nm-table`): `data-steps="row|col|none"` gives one step per body row or data column, numbered from `data-step-from` (else after the slide's other steps); `data-steps-act="reveal|highlight"` (reveal keeps the header visible, highlight takes the header cell along); `data-highlight="r2 c3"` is static emphasis. Equations: a derivation reveals `div.nm-eq-line` elements with ordinary `data-step`; `data-term="x"` on a formula part pairs it with the same term on the neighbouring slide for Morph.
 
 A transient act is exited before the next step is entered and when leaving the slide. When the last step of a slide holds a transient act, core adds one release step: the next arrow closes the act, the one after leaves the slide (`check` counts it as expected). Legacy `data-zoom-step="N"` + `data-zoom-label` equals `data-step="N" data-act="zoom"`; in `morph-only` and `classic` modes zoom steps are skipped by arrows and reachable by click.
 
@@ -117,7 +133,7 @@ A transient act is exited before the next step is entered and when leaving the s
 
 ## 6. Theme variables every file reads
 
-`--nm-paper` (slide background), `--nm-ink` (text), `--nm-muted`, `--nm-line` (rules/edges), `--nm-accent`, `--nm-accent-2`, `--nm-surface` (cards), `--nm-radius`, `--nm-font-display`, `--nm-font-body`. Each file provides fallbacks so it works with no tokens defined. Legacy `--lp-accent`, `--slide-bg`, `--stage-bg` are honoured as fallbacks.
+`--nm-paper` (slide background), `--nm-ink` (text), `--nm-muted`, `--nm-line` (rules/edges), `--nm-accent`, `--nm-accent-2`, `--nm-surface` (cards), `--nm-radius`, `--nm-font-display`, `--nm-font-body`, `--nm-on-accent` (text on an accent fill; scaffold picks white or the theme's dark colour by contrast; absent means white). Each file provides fallbacks so it works with no tokens defined. Legacy `--lp-accent`, `--slide-bg`, `--stage-bg` are honoured as fallbacks.
 
 ## 7. Legacy names that must keep working
 

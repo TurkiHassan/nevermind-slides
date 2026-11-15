@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="nm-runtime" content="2">
+<meta name="nm-stage" content="1920x1080">
+<meta name="generator" content="nevermind-slides scaffold">
+<title>كيف يتعلّم الدماغ</title>
+
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+
+<style>
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
+    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
+    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+
+    /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
+    :root {
+      --nm-paper: #FAF7F0;
+      --nm-ink: #1B1A17;
+      --nm-muted: #5E5A50;
+      --nm-line: #D9D3C4;
+      --nm-accent: #B4441F;
+      --nm-accent-2: #1F5F5B;
+      --nm-surface: #FFFFFF;
+      --nm-on-accent: #FFFFFF;
+      --nm-radius: 20px;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+      --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      /* legacy aliases */
+      --lp-accent: var(--nm-accent);
+      --slide-bg: var(--nm-paper);
+      --stage-bg: var(--nm-paper);
+      --lp-font-display: var(--nm-font-display);
+      --lp-font-body: var(--nm-font-body);
+      --lp-font-mono: var(--nm-font-mono);
+    }
+
+    /* Live font pairing classes on <body> */
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
+    body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
+
+    html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
+</style>
+</head>
+<body dir="rtl" class="font-mode-open" data-nm-mode="morph-and-zoom" data-nm-choreo="2">
+<script>
+  window.NM_CONFIG = {
+    fontModes: [{"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-open", "label": "ريدكس + بلكس"}]
+  };
+</script>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+  <!-- 1. s1 / cover / layout cover -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/cover-brain.jpg (generate)
+  -->
+  <section class="slide" id="s1" data-title="الغلاف" data-rel="next" data-transition="auto" data-role="cover">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <header class="nm-head">
+      <p class="nm-kicker">علم الأعصاب</p>
+      <h1 class="nm-t-h1" data-morph="title">كيف يتعلّم الدماغ</h1>
+      <p class="nm-t-lead">رحلة من الخلية العصبية إلى العادة</p>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s1.svg" alt="abstract luminous neural pathways, warm paper tones, no text" data-todo-src="assets/img/cover-brain.jpg"><!-- TODO: save the real image as assets/img/cover-brain.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: abstract luminous neural pathways, warm paper tones, no text) --></figure>
+    </div>
+    <aside class="nm-speaker-note" hidden>ابدأ بالسؤال: ما الذي يتغيّر داخلك حين تتعلّم شيئًا جديدًا؟</aside>
+  </div>
+  </section>
+
+  <!-- 2. s2 / concept / layout split -> nm-l-split
+       TODO:
+       - fill the <template data-detail-for="s2-visual"> (one title, one or two sentences, up to four bullets or three stats)
+       - build anatomy figure "neuron" (animated) and write neuron.brief.json
+       - step 1 reveal body1: الجسم الخلوي
+       - step 2 reveal body2: المحور
+       - step 3 detail visual: تكبير نقطة التشابك
+  -->
+  <section class="slide" id="s2" data-title="الخلية العصبية" data-rel="deeper" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">الوحدة الأساسية</p>
+      <h2 class="nm-t-h2" data-morph="title">خلية واحدة تحمل الإشارة</h2>
+      <ul class="nm-list">
+        <li data-step="1" data-act="reveal">الجسم الخلوي يجمع الإشارات</li>
+        <li data-step="2" data-act="reveal">المحور ينقلها إلى الخلية التالية</li>
+      </ul>
+    </header>
+    <div class="nm-ph" data-anatomy="neuron" data-mode="animated" data-nm-todo data-morph="visual" data-step="3" data-act="detail" id="s2-visual" data-detail="side"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="36" height="30" rx="4"/><circle cx="17" cy="20" r="4"/><path d="M8 35l11-10 8 7 6-5 9 8"/></svg><span class="nm-ph-label">anatomy: neuron (animated)</span><!-- TODO: build the figure per resources/engine/anatomy/SKILL.md (node build.mjs), save assets/anatomy/neuron.brief.json, then replace this placeholder with the built SVG inside a div that keeps data-anatomy="neuron" --></div>
+    <template data-detail-for="s2-visual">
+      <small data-nm-todo>اكتب سطرا تمهيديا</small>
+      <h3 data-nm-todo>اكتب عنوان التفصيل</h3>
+      <p data-nm-todo>جملة أو جملتان تشرحان العنصر.</p>
+    </template>
+    </div>
+    <aside class="nm-speaker-note" hidden>اترك الرسم يتحرّك قبل أن تشرح.</aside>
+  </div>
+  </section>
+
+  <!-- 3. s3 / mechanism / layout diagram -> nm-l-hero-figure
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="all"); if you add or remove nodes, renumber the other data-step values on this slide
+       - step 2 focus on diagram node "synapse" (data-node-steps on the figure; keep the node id when you edit the DSL)
+       - edit diagram labels/values (flow) in the nm-diagram script block
+  -->
+  <section class="slide" id="s3" data-title="مسار الإشارة" data-rel="next" data-transition="auto" data-role="mechanism">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">الآلية</p>
+      <h2 class="nm-t-h2">من المستقبِل إلى التشابك</h2>
+    </header>
+    <figure class="nm-diagram" data-type="flow" data-id="signal-path" aria-label="مسار الإشارة" data-nm-todo data-morph="visual" data-steps="all" data-step-from="1" data-node-steps="synapse:2:focus">
+    <script type="text/nm-diagram">
+      synapse[العنصر الأول] -> n1[العنصر الثاني] -> n2[العنصر الثالث]
+      n1.accent
+    </script>
+  </figure>
+    </div>
+    <aside class="nm-speaker-note" hidden>اربط كل عقدة بما رأيناه في الشريحة السابقة.</aside>
+  </div>
+  </section>
+
+  <!-- 4. s4 / comparison / layout compare -> nm-l-hero-figure
+       TODO:
+       - edit chart labels/values (bars) in the nm-diagram script block
+  -->
+  <section class="slide" id="s4" data-title="قبل التدريب وبعده" data-rel="contrast" data-transition="wipe" data-role="comparison">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">مقارنة</p>
+      <h2 class="nm-t-h2">التكرار يقوّي الاتصال</h2>
+      <ul class="nm-list">
+        <li data-step="1" data-act="reveal">قبل التدريب: اتصال ضعيف</li>
+        <li data-step="2" data-act="reveal">بعد التدريب: اتصال أقوى وأسرع</li>
+      </ul>
+    </header>
+    <figure class="nm-diagram" data-type="bars" data-id="before-after" aria-label="قبل التدريب وبعده" data-nm-todo data-morph="visual">
+    <script type="text/nm-diagram">
+      unit: %
+      العنصر الأول: 30
+      العنصر الثاني: 55 !
+      العنصر الثالث: 42
+      العنصر الرابع: 70
+    </script>
+  </figure>
+    </div>
+    <aside class="nm-speaker-note" hidden>قارن العمودين بصريًا ولا تقرأ الأرقام.</aside>
+  </div>
+  </section>
+
+  <!-- 5. s5 / evidence / layout stat -> nm-l-split
+       TODO:
+       - diagram builds its own steps from number 2 (data-steps="all"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit chart labels/values (line) in the nm-diagram script block
+  -->
+  <section class="slide" id="s5" data-title="الدليل" data-rel="next" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="1:1">
+    <header class="nm-head">
+      <p class="nm-kicker">دراسة</p>
+      <h2 class="nm-t-h2">التدريب المتباعد يرفع الاحتفاظ</h2>
+      <p class="nm-t-lead">المقارنة بين مجموعتين على مدى شهر</p>
+      <div class="nm-stat-block" data-step="1" data-act="reveal"><span class="nm-t-num" data-entrance="count">70%</span><p class="nm-t-body">احتفاظ بالمعلومة بعد شهر</p></div>
+    </header>
+    <figure class="nm-diagram" data-type="line" data-id="retention-curve" aria-label="الدليل" data-nm-todo data-morph="visual" data-steps="all" data-step-from="2">
+    <script type="text/nm-diagram">
+      x: 2023, 2024, 2025, 2026
+      series السلسلة الأولى: 12, 18, 25, 31
+      series السلسلة الثانية: 20, 22, 23, 26
+    </script>
+  </figure>
+    </div>
+    <aside class="nm-speaker-note" hidden>الرقم هو البطل. اترك الصمت بعده.</aside>
+  </div>
+  </section>
+
+  <!-- 6. s6 / process / layout timeline -> nm-l-hero-figure
+       TODO:
+       - diagram builds its own steps from number 1 (data-steps="all"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit diagram labels/values (timeline) in the nm-diagram script block
+       - step 2 (highlight) target "node:repeat" was not found; add data-step="2" data-act="highlight" to the right element
+  -->
+  <section class="slide" id="s6" data-title="مسار التعلّم" data-rel="time" data-transition="push" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">العملية</p>
+      <h2 class="nm-t-h2">أربع مراحل من الانتباه إلى العادة</h2>
+    </header>
+    <figure class="nm-diagram" data-type="timeline" data-id="learning-steps" aria-label="مسار التعلّم" data-nm-todo data-steps="all" data-step-from="1">
+    <script type="text/nm-diagram">
+      2024: البداية | اكتب ما حدث
+      2025: التوسع | اكتب ما حدث !
+      2026: الهدف
+    </script>
+  </figure>
+    </div>
+    <aside class="nm-speaker-note" hidden>مرّ على المراحل بالترتيب مع الحركة.</aside>
+  </div>
+  </section>
+
+  <!-- 7. s7 / quote / layout quote -> nm-l-quote
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s7" data-title="اقتباس" data-rel="chapter" data-transition="auto" data-role="quote">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-quote">
+    <blockquote data-morph="title">الخلايا التي تنشط معًا ترتبط معًا</blockquote>
+    <cite>من يتعلّم يتغيّر</cite>
+    </div>
+    <aside class="nm-speaker-note" hidden>توقّف هنا. شريحة للتنفّس.</aside>
+  </div>
+  </section>
+
+  <!-- 8. s8 / closing / layout center -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/closing-path.jpg (generate)
+  -->
+  <section class="slide" id="s8" data-title="الخاتمة" data-rel="back-out" data-transition="auto" data-role="closing">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="7:5">
+    <header class="nm-head">
+      <p class="nm-kicker">الخلاصة</p>
+      <h2 class="nm-t-h2" data-morph="title">كرّر بذكاء واترك الدماغ يعيد البناء</h2>
+      <p class="nm-t-lead">ابدأ اليوم بجلسة قصيرة</p>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8.svg" alt="single winding path toward light, minimal, warm tones, no text" data-todo-src="assets/img/closing-path.jpg"><!-- TODO: save the real image as assets/img/closing-path.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: single winding path toward light, minimal, warm tones, no text) --></figure>
+    </div>
+    <aside class="nm-speaker-note" hidden>اختم بفعل واحد يستطيع الجمهور القيام به غدًا.</aside>
+  </div>
+  </section>
+  </main>
+</div>
+
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+</body>
+</html>

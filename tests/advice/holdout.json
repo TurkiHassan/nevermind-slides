@@ -1,0 +1,699 @@
+{
+ "note": "Hold-out cases for plan-advise, written after the rules were frozen (commit c71ea85) and committed before the engine was run on them. Measured once; the rules are not tuned on this set.",
+ "cases": [
+  {
+   "id": "h-cmp-2x3-qty",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2,
+      "criteria": 3
+     },
+     "quantities": [
+      {
+       "label": "item 1",
+       "value": 1,
+       "unit": "%"
+      },
+      {
+       "label": "item 2",
+       "value": 2,
+       "unit": "%"
+      },
+      {
+       "label": "item 3",
+       "value": 3,
+       "unit": "%"
+      },
+      {
+       "label": "item 4",
+       "value": 4,
+       "unit": "%"
+      },
+      {
+       "label": "item 5",
+       "value": 5,
+       "unit": "%"
+      },
+      {
+       "label": "item 6",
+       "value": 6,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table",
+    "chart:bars"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-cmp-6-pct",
+   "lang": "en",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 6
+     },
+     "quantities": [
+      {
+       "label": "item 1",
+       "value": 12,
+       "unit": "%"
+      },
+      {
+       "label": "item 2",
+       "value": 40,
+       "unit": "%"
+      },
+      {
+       "label": "item 3",
+       "value": 33,
+       "unit": "%"
+      },
+      {
+       "label": "item 4",
+       "value": 18,
+       "unit": "%"
+      },
+      {
+       "label": "item 5",
+       "value": 27,
+       "unit": "%"
+      },
+      {
+       "label": "item 6",
+       "value": 9,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars",
+    "table"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-quarters",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "sequence": "ordered",
+     "quantities": [
+      {
+       "label": "Q1",
+       "value": 3,
+       "unit": "M$"
+      },
+      {
+       "label": "Q2",
+       "value": 4,
+       "unit": "M$"
+      },
+      {
+       "label": "Q3",
+       "value": 4.5,
+       "unit": "M$"
+      },
+      {
+       "label": "Q4",
+       "value": 6,
+       "unit": "M$"
+      },
+      {
+       "label": "Q1 2026",
+       "value": 7,
+       "unit": "M$"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:line",
+    "chart:bars"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-pw-995",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "quantities": [
+      {
+       "label": "item 1",
+       "value": 30,
+       "unit": "٪"
+      },
+      {
+       "label": "item 2",
+       "value": 25,
+       "unit": "٪"
+      },
+      {
+       "label": "item 3",
+       "value": 20,
+       "unit": "٪"
+      },
+      {
+       "label": "item 4",
+       "value": 15,
+       "unit": "٪"
+      },
+      {
+       "label": "item 5",
+       "value": 9.5,
+       "unit": "٪"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:donut",
+    "chart:bars"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-pw-85",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "quantities": [
+      {
+       "label": "item 1",
+       "value": 40,
+       "unit": "%"
+      },
+      {
+       "label": "item 2",
+       "value": 30,
+       "unit": "%"
+      },
+      {
+       "label": "item 3",
+       "value": 15,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars",
+    "table"
+   ],
+   "note": "أجزاء لا يكتمل مجموعها"
+  },
+  {
+   "id": "h-fnd-2-mixed",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "finding",
+     "quantities": [
+      {
+       "label": "latency",
+       "value": 12,
+       "unit": "ms"
+      },
+      {
+       "label": "accuracy",
+       "value": 91,
+       "unit": "%"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table",
+    "none",
+    "chart:stat"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-proc-8",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 8,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:flow",
+    "diagram:timeline"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-proc-10",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 10,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:flow",
+    "table",
+    "diagram:timeline"
+   ],
+   "note": "عشر خطوات"
+  },
+  {
+   "id": "h-feedback",
+   "lang": "en",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "causal",
+     "items": 3,
+     "sequence": "cyclic"
+    }
+   },
+   "accept": [
+    "diagram:cycle"
+   ],
+   "note": "a feedback loop"
+  },
+  {
+   "id": "h-tl-values",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "timeline",
+     "sequence": "ordered",
+     "quantities": [
+      {
+       "label": "2020",
+       "value": 1,
+       "unit": ""
+      },
+      {
+       "label": "2022",
+       "value": 3,
+       "unit": ""
+      },
+      {
+       "label": "2024",
+       "value": 8,
+       "unit": ""
+      },
+      {
+       "label": "2026",
+       "value": 15,
+       "unit": ""
+      }
+     ]
+    }
+   },
+   "accept": [
+    "diagram:timeline",
+    "chart:line"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-hier-7-ord",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "hierarchy",
+     "items": 7,
+     "sequence": "ordered"
+    }
+   },
+   "accept": [
+    "diagram:tree",
+    "diagram:pyramid",
+    "diagram:layers"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-con-formula",
+   "lang": "en",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "concept",
+     "formula": "E = mc^2"
+    }
+   },
+   "accept": [
+    "equation"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-def-phys",
+   "lang": "ar",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "definition",
+     "entities": [
+      "المكبس",
+      "الأسطوانة",
+      "الصمام"
+     ]
+    }
+   },
+   "accept": [
+    "none",
+    "anatomy",
+    "image"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-arg-4",
+   "lang": "en",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "argument",
+     "items": 4
+    }
+   },
+   "accept": [
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-one-nounit",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "عدد المشاركين",
+       "value": 1200
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:stat",
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-dec-unordered",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "quantities": [
+      {
+       "label": "item 1",
+       "value": 90,
+       "unit": "ث"
+      },
+      {
+       "label": "item 2",
+       "value": 60,
+       "unit": "ث"
+      },
+      {
+       "label": "item 3",
+       "value": 30,
+       "unit": "ث"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:bars"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-cmp-2-mixed",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 2
+     },
+     "quantities": [
+      {
+       "label": "السعر",
+       "value": 40,
+       "unit": "ريال"
+      },
+      {
+       "label": "الزمن",
+       "value": 12,
+       "unit": "د"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "table",
+    "diagram:compare"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-pw-6-en",
+   "lang": "en",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "part-whole",
+     "items": 6
+    }
+   },
+   "accept": [
+    "diagram:hub",
+    "diagram:layers"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-con-1-en",
+   "lang": "en",
+   "slide": {
+    "role": "concept",
+    "rel": "next",
+    "content": {
+     "kind": "concept",
+     "items": 1
+    }
+   },
+   "accept": [
+    "image",
+    "anatomy",
+    "none"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-monthly",
+   "lang": "en",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "data",
+     "sequence": "ordered",
+     "quantities": [
+      {
+       "label": "Month 1",
+       "value": 3,
+       "unit": "k"
+      },
+      {
+       "label": "Month 2",
+       "value": 4,
+       "unit": "k"
+      },
+      {
+       "label": "Month 3",
+       "value": 4,
+       "unit": "k"
+      },
+      {
+       "label": "Month 4",
+       "value": 5,
+       "unit": "k"
+      },
+      {
+       "label": "Month 5",
+       "value": 7,
+       "unit": "k"
+      },
+      {
+       "label": "Month 6",
+       "value": 6,
+       "unit": "k"
+      },
+      {
+       "label": "Month 7",
+       "value": 8,
+       "unit": "k"
+      },
+      {
+       "label": "Month 8",
+       "value": 9,
+       "unit": "k"
+      },
+      {
+       "label": "Month 9",
+       "value": 9,
+       "unit": "k"
+      },
+      {
+       "label": "Month 10",
+       "value": 11,
+       "unit": "k"
+      },
+      {
+       "label": "Month 11",
+       "value": 12,
+       "unit": "k"
+      },
+      {
+       "label": "Month 12",
+       "value": 14,
+       "unit": "k"
+      }
+     ]
+    }
+   },
+   "accept": [
+    "chart:line",
+    "table"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-cmp-3x3-exp",
+   "lang": "ar",
+   "slide": {
+    "role": "comparison",
+    "rel": "next",
+    "content": {
+     "kind": "comparison",
+     "dimensions": {
+      "options": 3,
+      "criteria": 3
+     }
+    }
+   },
+   "accept": [
+    "table"
+   ],
+   "note": "",
+   "audience": "expert"
+  },
+  {
+   "id": "h-cause-phys",
+   "lang": "en",
+   "slide": {
+    "role": "mechanism",
+    "rel": "next",
+    "content": {
+     "kind": "causal",
+     "items": 4,
+     "entities": [
+      "piston",
+      "crank",
+      "valve",
+      "spark"
+     ]
+    }
+   },
+   "accept": [
+    "diagram:flow",
+    "anatomy"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-cycle-6",
+   "lang": "ar",
+   "slide": {
+    "role": "process",
+    "rel": "next",
+    "content": {
+     "kind": "process",
+     "items": 6,
+     "sequence": "cyclic"
+    }
+   },
+   "accept": [
+    "diagram:cycle"
+   ],
+   "note": ""
+  },
+  {
+   "id": "h-fnd-qual",
+   "lang": "ar",
+   "slide": {
+    "role": "evidence",
+    "rel": "next",
+    "content": {
+     "kind": "finding",
+     "items": 3
+    }
+   },
+   "accept": [
+    "none",
+    "diagram:hub"
+   ],
+   "note": "ثلاث نتائج وصفية بلا أرقام"
+  }
+ ]
+}

@@ -93,9 +93,29 @@ function removalRange(text: string, n: SourceNode): { start: number; end: number
   return { start: n.start, end: n.end };
 }
 
+/**
+ * Removing an element also removes the <template data-detail-for="id"> of every id it takes with it (runtime v2
+ * detail act): the template belongs to that element and is meaningless without it.
+ */
 export function removeSplices(doc: SourceDoc, id: number): Splice[] {
   const n = requireMovable(doc, id);
-  return [{ ...removalRange(doc.text, n), text: '' }];
+  const gone = new Set(subtree(doc, n).map((x) => findAttr(x, 'id')?.value).filter((v): v is string => !!v));
+  const own = new Set(subtree(doc, n).map((x) => x.id));
+  const splices: Splice[] = [{ ...removalRange(doc.text, n), text: '' }];
+  if (gone.size) {
+    for (const t of doc.nodes) {
+      if (t.tag !== 'template' || own.has(t.id) || t.start < 0) continue;
+      const target = findAttr(t, 'data-detail-for')?.value;
+      if (target && gone.has(target)) splices.push({ ...removalRange(doc.text, t), text: '' });
+    }
+  }
+  splices.sort((a, b) => a.start - b.start);
+  try {
+    checkSplices(doc.text.length, splices);
+  } catch {
+    return [splices.find((x) => x.start === removalRange(doc.text, n).start)!]; // overlapping ranges: keep the plain removal; lint reports the orphan
+  }
+  return splices;
 }
 
 export function moveSplices(doc: SourceDoc, id: number, parentId: number, index: number): Splice[] {
@@ -148,9 +168,14 @@ export function renamedCopy(doc: SourceDoc, n: SourceNode): string {
   const nodes = subtree(doc, n);
   const allIds = new Set(doc.nodes.map((x) => findAttr(x, 'id')?.value).filter((v): v is string => !!v));
   const allMorph = new Set(doc.nodes.map((x) => findAttr(x, 'data-morph')?.value).filter((v): v is string => !!v));
+  const allNodes = new Set(doc.nodes.map((x) => findAttr(x, 'data-node')?.value).filter((v): v is string => !!v));
   const ids = new Map<string, string>();
   const morphs = new Map<string, string>();
+  const dataNodes = new Map<string, string>();
   for (const x of nodes) {
+    // data-node names a connector endpoint (runtime v2 data-links): a copy needs its own name, or links get ambiguous
+    const dn = findAttr(x, 'data-node')?.value;
+    if (dn && !dataNodes.has(dn)) dataNodes.set(dn, uniqueName(dn, allNodes));
     const v = findAttr(x, 'id')?.value;
     if (v && !ids.has(v)) ids.set(v, uniqueName(v, allIds));
     const m = findAttr(x, 'data-morph')?.value;
@@ -167,6 +192,8 @@ export function renamedCopy(doc: SourceDoc, n: SourceNode): string {
       let next = a.value;
       if (lname === 'id') next = ids.get(a.value) ?? a.value;
       else if (lname === 'data-morph') next = morphs.get(a.value) ?? a.value;
+      else if (lname === 'data-node') next = dataNodes.get(a.value) ?? a.value;
+      else if (lname === 'data-detail-for') next = ids.get(a.value) ?? a.value;
       else if (ID_LIST_ATTRS.includes(lname)) next = a.value.split(/(\s+)/).map((t) => ids.get(t) ?? t).join('');
       else if (HREF_ATTRS.includes(lname) && a.value.startsWith('#') && ids.has(a.value.slice(1))) next = '#' + ids.get(a.value.slice(1));
       else next = renameUrls(a.value);

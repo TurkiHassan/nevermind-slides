@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: deck_helper (plan-lint, scaffold, audit, fonts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s tests/python -v
+
+  runtime:
+    name: runtime contract, golden corpus, visual parity, editor guard (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Playwright
+        working-directory: tests/runtime
+        run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
+      - name: Runtime tests (pinned Playwright 1.63.0 Chromium, 1920x1080, deviceScaleFactor 1)
+        working-directory: tests/runtime
+        run: npm test
+
+  deck-check:
+    name: showcase gates (audit, headless Chrome check, credits)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Stage the showcase outside the repository
+        run: |
+          cp -r examples/showcase "$RUNNER_TEMP/showcase"
+          python scripts/deck_helper.py stage-fonts --target-dir "$RUNNER_TEMP/showcase"
+          python scripts/deck_helper.py stage-runtime --target-dir "$RUNNER_TEMP/showcase"
+      - run: python scripts/deck_helper.py plan-lint --plan "$RUNNER_TEMP/showcase/deck.plan.json"
+      - run: python scripts/deck_helper.py audit-deck --html-path "$RUNNER_TEMP/showcase/deck.html"
+      - run: python scripts/deck_helper.py check --html-path "$RUNNER_TEMP/showcase/deck.html" --shots "$RUNNER_TEMP/shots"
+      - run: python scripts/image_fetch.py credits --project "$RUNNER_TEMP/showcase" --check "$RUNNER_TEMP/showcase/deck.html"
+      - name: Every corpus deck passes check (Arabic, English, bidi, stubs)
+        run: |
+          python tests/corpus/build.py --out "$RUNNER_TEMP/corpus"
+          for deck in "$RUNNER_TEMP"/corpus/*/deck.html; do
+            node scripts/deck_check.mjs "$deck" --shots "$(dirname "$deck")/shots"
+          done
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: showcase-shots
+          path: ${{ runner.temp }}/shots
+          if-no-files-found: ignore
+
+  editor:
+    name: Nevermind Studio (typecheck, tests, bundle in sync)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: editor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: editor/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npx tsc --noEmit -p .
+      - run: npx vitest run
+      - name: Bundled editor matches its source
+        run: |
+          npm run build
+          if ! cmp -s dist/nm-studio.mjs ../resources/nm-studio/nm-studio.mjs; then
+            echo "::error::resources/nm-studio/nm-studio.mjs is not the build of editor/. Run 'npm run build' in editor/ and copy dist/nm-studio.mjs over it."
+            exit 1
+          fi

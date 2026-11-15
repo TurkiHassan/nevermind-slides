@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="nm-runtime" content="2">
+<meta name="nm-stage" content="1920x1080">
+<meta name="generator" content="nevermind-slides scaffold">
+<title>The smart palm farm</title>
+
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+
+<style>
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
+    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
+    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+
+    /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
+    :root {
+      --nm-paper: #F4F5EC;
+      --nm-ink: #1E2418;
+      --nm-muted: #555D47;
+      --nm-line: #D3D8C2;
+      --nm-accent: #4F6B1F;
+      --nm-accent-2: #B5532A;
+      --nm-surface: #FFFFFF;
+      --nm-on-accent: #FFFFFF;
+      --nm-radius: 18px;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+      --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      /* legacy aliases */
+      --lp-accent: var(--nm-accent);
+      --slide-bg: var(--nm-paper);
+      --stage-bg: var(--nm-paper);
+      --lp-font-display: var(--nm-font-display);
+      --lp-font-body: var(--nm-font-body);
+      --lp-font-mono: var(--nm-font-mono);
+    }
+
+    /* Live font pairing classes on <body> */
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
+    body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
+
+    html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
+</style>
+</head>
+<body dir="ltr" class="font-mode-open" data-nm-mode="morph-and-zoom" data-nm-choreo="2">
+<script>
+  window.NM_CONFIG = {
+    fontModes: [{"className": "font-mode-qahwa", "label": "Qahwa"}, {"className": "font-mode-setabr", "label": "Setabr"}, {"className": "font-mode-kufi", "label": "Kufi"}, {"className": "font-mode-open", "label": "Readex + Plex"}]
+  };
+</script>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+  <!-- 1. s1 / cover / layout monolith -> nm-l-monolith
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s1" data-title="The smart palm farm" data-rel="next" data-transition="auto" data-role="cover">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-monolith">
+    <p class="nm-kicker">Modern farming</p>
+    <h1 class="nm-t-display">The smart palm farm</h1>
+    <p class="nm-t-lead">How sensors cut water use</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 2. s2 / concept / layout split -> nm-l-split
+       TODO:
+       - edit diagram labels/values (flow) in the nm-diagram script block
+  -->
+  <section class="slide" id="s2" data-title="The idea" data-rel="deeper" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">The idea</p>
+      <h2 class="nm-t-h2">The sensor decides when to water</h2>
+      <ul class="nm-list">
+        <li>Moisture is read every hour</li>
+        <li>Watering starts only when needed</li>
+      </ul>
+    </header>
+    <figure class="nm-diagram" data-type="flow" data-id="s2-diagram" aria-label="The idea" data-nm-todo>
+    <script type="text/nm-diagram">
+      n1[Item 1] -> n2[Item 2] -> n3[Item 3]
+      n2.accent
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 3. s3 / comparison / layout ledger -> nm-l-ledger
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s3" data-title="Comparison" data-rel="contrast" data-transition="auto" data-role="comparison">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-ledger">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">Fixed schedule against sensing</h2>
+    </header>
+    <div class="nm-side is-favoured">
+      <h3 data-nm-todo>First side</h3><div class="nm-row"><p>Fixed schedule</p><p>twice a day whatever the weather</p></div><div class="nm-row"><p>High waste</p><p>water sinks below the roots</p></div>
+    </div>
+    <div class="nm-side">
+      <h3 data-nm-todo>Second side</h3><div class="nm-row"><p>Watering by reading</p><p>only when the soil dries</p></div><div class="nm-row"><p>Less waste</p><p>water stays at the roots</p></div>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. s4 / evidence / layout hero -> nm-l-hero-figure
+       TODO:
+       - edit chart labels/values (bars) in the nm-diagram script block
+  -->
+  <section class="slide" id="s4" data-title="Numbers" data-rel="deeper" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">Results</p>
+      <h2 class="nm-t-h2" data-morph="title">Water use on three farms</h2>
+    </header>
+    <figure class="nm-diagram" data-type="bars" data-id="s4-diagram" aria-label="Numbers" data-nm-todo>
+    <script type="text/nm-diagram">
+      unit: %
+      First item: 30
+      Second item: 55 !
+      Third item: 42
+      Fourth item: 70
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 5. s5 / evidence / layout keynote -> nm-l-keynote
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s5" data-title="Key number" data-rel="deeper" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-keynote">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">Water saved in the first year</h2>
+    </header>
+    <div><span class="nm-t-num" data-entrance="count">38%</span><p>less than fixed watering</p></div>
+    <div class="nm-keynote-rail"><div><strong>1200</strong><span>cubic metres per hectare</span></div><div><strong>4</strong><span>months to pay back</span></div></div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 6. s6 / concept / layout plate -> nm-l-plate
+       TODO:
+       - replace placeholder image with assets/img/field.jpg (web)
+  -->
+  <section class="slide" id="s6" data-title="The field" data-rel="chapter" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-plate">
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s6.svg" alt="date palm farm irrigation sensor" data-todo-src="assets/img/field.jpg"><!-- TODO: save the real image as assets/img/field.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: date palm farm irrigation sensor) --></figure>
+    <header class="nm-head">
+      <p class="nm-kicker">In the field</p>
+      <h2 class="nm-t-h2" data-morph="title">A sensor in every row</h2>
+      <p class="nm-t-lead">The sensor sits half a metre deep near the roots</p>
+    </header>
+    </div>
+  </div>
+  </section>
+
+  <!-- 7. s7 / evidence / layout stat-strip -> nm-l-stat-strip
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s7" data-title="Indicators" data-rel="next" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-stat-strip">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">Three indicators after a year</h2>
+    </header>
+    <div><span class="nm-t-num">38%</span><p>less water</p></div>
+    <div><span class="nm-t-num">12%</span><p>more dates</p></div>
+    <div><span class="nm-t-num">90%</span><p>farmers satisfied</p></div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 8. s8 / concept / layout triptych -> nm-l-triptych
+       TODO:
+       - replace placeholder image with assets/img/sensor.jpg (web)
+  -->
+  <section class="slide" id="s8" data-title="Pictures" data-rel="contrast" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-triptych">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">Sensor, pump and app</h2>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8.svg" alt="soil moisture sensor" data-todo-src="assets/img/sensor.jpg"><!-- TODO: save the real image as assets/img/sensor.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: soil moisture sensor) --></figure>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8-2.svg" alt=""><figcaption data-nm-todo>Write the card text</figcaption></figure>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s8-3.svg" alt=""><figcaption data-nm-todo>Write the card text</figcaption></figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 9. s9 / process / layout ledger-list -> nm-l-ledger-list
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s9" data-title="Steps" data-rel="chapter" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-ledger-list">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">Four steps to install</h2>
+    </header>
+    <ol>
+        <li data-step="1" data-act="focus"><strong>Survey</strong><p>map the soil types</p></li>
+        <li><strong>Place</strong><p>one sensor per twenty palms</p></li>
+        <li><strong>Connect</strong><p>sensors talk to the pump</p></li>
+        <li><strong>Watch</strong><p>the app warns of faults</p></li>
+      </ol>
+    </div>
+  </div>
+  </section>
+
+  <!-- 10. s10 / process / layout split -> nm-l-split
+       TODO:
+       - edit diagram labels/values (cycle) in the nm-diagram script block
+  -->
+  <section class="slide" id="s10" data-title="Cycle" data-rel="deeper" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">The loop</p>
+      <h2 class="nm-t-h2">Reading and watering repeat daily</h2>
+    </header>
+    <figure class="nm-diagram" data-type="cycle" data-id="s10-diagram" aria-label="Cycle" data-nm-todo>
+    <script type="text/nm-diagram">
+      center: Cycle
+      n1[Item 1]
+      n2[Item 2]
+      n3[Item 3]
+      n1.accent
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 11. s11 / section / layout chapter -> nm-l-chapter
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s11" data-title="Part two" data-rel="chapter" data-transition="auto" data-role="section">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-chapter">
+    <p class="nm-section-num" aria-hidden="true">01</p>
+    <hr class="nm-rule is-accent">
+    <p class="nm-kicker">Part two</p>
+    <h2 class="nm-t-h1" data-morph="title">From trial to scale</h2>
+    <p class="nm-t-lead">What changed after the first season</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 12. s12 / process / layout hero -> nm-l-hero-figure
+       TODO:
+       - edit diagram labels/values (timeline) in the nm-diagram script block
+  -->
+  <section class="slide" id="s12" data-title="Stages" data-rel="next" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">Project stages</h2>
+    </header>
+    <figure class="nm-diagram" data-type="timeline" data-id="s12-diagram" aria-label="Stages" data-nm-todo>
+    <script type="text/nm-diagram">
+      2024: Start | Write what happened
+      2025: Growth | Write what happened !
+      2026: Goal
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 13. s13 / process / layout meridian -> nm-l-meridian
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s13" data-title="History" data-rel="time" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-meridian">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">Four milestones</h2>
+    </header>
+    <ol>
+        <li><small>2022</small><strong>Trial</strong><p>one farm</p></li>
+        <li><small>2023</small><strong>Growth</strong><p>three farms</p></li>
+        <li><small>2024</small><strong>Link</strong><p>one shared app</p></li>
+        <li><small>2025</small><strong>Today</strong><p>fifty farms</p></li>
+      </ol>
+    </div>
+  </div>
+  </section>
+
+  <!-- 14. s14 / evidence / layout split -> nm-l-split
+       TODO:
+       - edit chart labels/values (line) in the nm-diagram script block
+  -->
+  <section class="slide" id="s14" data-title="Trend" data-rel="next" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">Use falls every year</h2>
+    </header>
+    <figure class="nm-diagram" data-type="line" data-id="s14-diagram" aria-label="Trend" data-nm-todo>
+    <script type="text/nm-diagram">
+      x: 2023, 2024, 2025, 2026
+      series First series: 12, 18, 25, 31
+      series Second series: 20, 22, 23, 26
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 15. s15 / section / layout waypoint -> nm-l-waypoint
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s15" data-title="Where we are" data-rel="chapter" data-transition="auto" data-role="section">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-waypoint">
+    <h2 class="nm-t-h1">Where we are now</h2>
+    <ol><li>The idea</li><li class="is-current">Results</li><li>Scaling</li><li>Next step</li></ol>
+    </div>
+  </div>
+  </section>
+
+  <!-- 16. s16 / mechanism / layout hero -> nm-l-hero-figure
+       TODO:
+       - edit diagram labels/values (tree) in the nm-diagram script block
+  -->
+  <section class="slide" id="s16" data-title="Structure" data-rel="deeper" data-transition="auto" data-role="mechanism">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">From sensor to decision</h2>
+    </header>
+    <figure class="nm-diagram" data-type="tree" data-id="s16-diagram" aria-label="Structure" data-nm-todo>
+    <script type="text/nm-diagram">
+      n1[Item 1]
+        n2[Item 2]
+        n3[Item 3]
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 17. s17 / summary / layout staircase -> nm-l-staircase
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s17" data-title="Lessons" data-rel="back-out" data-transition="auto" data-role="summary">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-staircase">
+    <header class="nm-head">
+      <h2 class="nm-t-h2">Three lessons</h2>
+    </header>
+    <p>Start with one farm</p>
+    <p>Measure before deciding</p>
+    <p>Scale when the numbers hold</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 18. s18 / concept / layout split -> nm-l-split
+       TODO:
+       - replace placeholder image with assets/img/after.jpg (web)
+  -->
+  <section class="slide" id="s18" data-title="After" data-rel="time" data-transition="auto" data-role="concept">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="1:1">
+    <header class="nm-head">
+      <h2 class="nm-t-h2" data-morph="title">The farm three years on</h2>
+    </header>
+    <figure class="nm-img nm-ph-frame" data-nm-todo><img src="assets/img/_placeholders/s18.svg" alt="green date palm farm" data-todo-src="assets/img/after.jpg"><!-- TODO: save the real image as assets/img/after.jpg (scripts/image_fetch.py auto/fit/treat), then set src to it (query: green date palm farm) --></figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 19. s19 / closing / layout terminal -> nm-l-terminal
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s19" data-title="Closing" data-rel="back-out" data-transition="auto" data-role="closing">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-terminal">
+    <h2 class="nm-t-h1" data-morph="title">Water is enough when measured</h2>
+    <ul><li>Contact: the project team</li><li>Sources: farm reports</li><li>Next: the 2026 season</li></ul>
+    </div>
+  </div>
+  </section>
+  </main>
+</div>
+
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+</body>
+</html>

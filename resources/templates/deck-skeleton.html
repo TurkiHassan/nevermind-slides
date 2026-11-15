@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{LANG}}" dir="rtl">
+<html lang="{{LANG}}" dir="{{DIR}}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,36 +12,17 @@
 <link rel="stylesheet" href="assets/nm/nm-layout.css">
 <link rel="stylesheet" href="assets/nm/nm-focus.css">
 <link rel="stylesheet" href="assets/nm/nm-diagram.css">
-<link rel="stylesheet" href="assets/nm/nm-media.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">{{EXTRA_CSS}}
 
 <style>
-    /* ==== 1. BUNDLED LOCAL FONTS (assets/fonts/) ==== */
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Display'; src: url('assets/fonts/thmanyahserifdisplay-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
-    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Light.otf') format('opentype'); font-weight: 300; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
-    @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
-    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
-    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
-    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
-    @font-face { font-family: 'ZIAN'; src: url('assets/fonts/ZIAN-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
-    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
-    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
-    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
-    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
-    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
+{{FONT_FACES}}
 
     /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
     :root {
 {{THEME_VARS}}
-      --nm-font-display: 'Thmanyah Display', serif;
-      --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif;
+      --nm-font-display: {{FONT_DISPLAY}};
+      --nm-font-body: {{FONT_BODY}};
       --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
       /* legacy aliases */
       --lp-accent: var(--nm-accent);
@@ -53,11 +34,7 @@
     }
 
     /* Live font pairing classes on <body> */
-    body.font-mode-thmanyah { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'KOMission', 'Thmanyah Sans', sans-serif; }
-    body.font-mode-sans     { --nm-font-display: 'Thmanyah Display', serif; --nm-font-body: 'Thmanyah Sans', 'KOMission', sans-serif; }
-    body.font-mode-qahwa    { --nm-font-display: 'Qahwa Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
-    body.font-mode-setabr   { --nm-font-display: 'Setabr Display', 'ZIAN', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
-    body.font-mode-kufi     { --nm-font-display: 'Alkhalil Kufi', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+{{FONT_MODE_CSS}}
     body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
 
     html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
@@ -69,7 +46,7 @@
     .nm-ph-frame { block-size: 100%; }
 </style>
 </head>
-<body dir="rtl" class="{{BODY_CLASS}}" data-nm-mode="{{MODE}}">
+<body dir="{{DIR}}" class="{{BODY_CLASS}}" data-nm-mode="{{MODE}}" data-nm-choreo="2">
 <script>
   window.NM_CONFIG = {
     fontModes: {{FONT_MODES_JSON}}
@@ -83,6 +60,6 @@
 
 <script src="assets/nm/nm-deck.js"></script>
 <script src="assets/nm/nm-focus.js"></script>
-<script src="assets/nm/nm-diagram.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>{{EXTRA_JS}}
 </body>
 </html>

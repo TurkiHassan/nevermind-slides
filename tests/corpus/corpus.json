@@ -1,0 +1,69 @@
+{
+  "note": "Golden corpus. Every deck here is built from files in this repository only. See README.md before changing a golden file.",
+  "decks": [
+    {
+      "name": "ar-example",
+      "kind": "plan",
+      "source": "resources/templates/deck.plan.example.json",
+      "covers": "8-slide plan: every visual type (image, anatomy, diagram, chart, none), detail and focus steps, every rel"
+    },
+    {
+      "name": "ar-stubs-24",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-stubs-24.plan.json",
+      "covers": "largest allowed deck (24 slides) from plan-init stubs: the repeating layout cycle and placeholder visuals"
+    },
+    {
+      "name": "ar-showcase",
+      "kind": "deck",
+      "source": "examples/showcase",
+      "covers": "hand-finished 14-slide deck: every morph kind, nine transitions, every isolation act, diagrams, charts, live anatomy iframe"
+    },
+    {
+      "name": "en-general",
+      "kind": "plan",
+      "source": "tests/corpus/plans/en-general.plan.json",
+      "covers": "English, left to right: Morph (title, chart), every rel, flow with rank steps and a node focus, detail on a stat, compare, timeline, quote"
+    },
+    {
+      "name": "ar-bidi",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-bidi.plan.json",
+      "covers": "Arabic with English terms, versions, units and years in parentheses; Western digits in an Arabic deck; scaffold isolates risky runs with <bdi>"
+    },
+    {
+      "name": "ar-science",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-science.plan.json",
+      "covers": "Arabic science deck: native MathML equations, a derivation revealed line by line with data-term morphs, inline TeX in Arabic sentences and a TeX display formula (Temml staged by scaffold), an 8x5 measurement table with row steps and a static highlight, a 3x4 table with column highlight steps, a line chart; Western digits in an Arabic deck"
+    },
+    {
+      "name": "en-science",
+      "kind": "plan",
+      "source": "tests/corpus/plans/en-science.plan.json",
+      "covers": "English machine-learning paper: architecture flow with rank steps, a TeX loss with inline TeX, a TeX derivation with a data-term morph, a 6x5 results table with row highlight steps and a static highlight, a training curve, a focus step"
+    },
+    {
+      "name": "ar-advisor",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-advisor.plan.json",
+      "covers": "representation advice (NM-29): advisor on, content on every content slide; charts drawn from content.quantities (stat, donut, line), the reason for each representation in the slide comment, still slides (one number, a definition), a qualitative comparison as a table"
+    },
+    {
+      "name": "ar-layouts",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-layouts.plan.json",
+      "covers": "the twelve compositions ported from frontend-slides (NM-21) in Arabic, right to left: ledger, keynote, stat-strip, ledger-list, meridian, chapter, plate, triptych, monolith, terminal, staircase, waypoint"
+    },
+    {
+      "name": "en-layouts",
+      "kind": "plan",
+      "source": "tests/corpus/plans/en-layouts.plan.json",
+      "covers": "the same twelve compositions in English, left to right"
+    }
+  ],
+  "planned": [],
+  "elsewhere": {
+    "legacy-v1": "editor/fixtures/legacy/attention and editor/fixtures/legacy/mechanistic (v1 markup), covered by the editor suite"
+  }
+}

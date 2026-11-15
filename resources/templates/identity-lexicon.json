@@ -1,0 +1,735 @@
+{
+ "version": 1,
+ "note": "Materials and tools of a topic, mapped to colour (OKLCH hue in degrees, accent chroma). theme-derive (NM-19) finds them in the plan and builds three palettes. Data, not code; add words freely. Hues of unrelated domains are kept 25 degrees or more apart where possible.",
+ "materials": [
+  {
+   "id": "container",
+   "ar": "حاويات الميناء",
+   "en": "container orange",
+   "keys_ar": [
+    "ميناء",
+    "موانئ",
+    "حاوية",
+    "حاويات",
+    "رافعة",
+    "رافعات",
+    "سفينة",
+    "سفن",
+    "رصيف",
+    "شحن"
+   ],
+   "keys_en": [
+    "port",
+    "container",
+    "crane",
+    "ship",
+    "quay",
+    "harbor",
+    "harbour",
+    "shipping",
+    "cargo"
+   ],
+   "hue": 45,
+   "chroma": 0.15
+  },
+  {
+   "id": "sea",
+   "ar": "بحر",
+   "en": "sea",
+   "keys_ar": [
+    "بحر",
+    "بحار",
+    "محيط",
+    "موج",
+    "ساحل",
+    "بحري"
+   ],
+   "keys_en": [
+    "sea",
+    "ocean",
+    "wave",
+    "coast",
+    "marine"
+   ],
+   "hue": 205,
+   "chroma": 0.1
+  },
+  {
+   "id": "water",
+   "ar": "ماء",
+   "en": "water",
+   "keys_ar": [
+    "ماء",
+    "مياه",
+    "مطر",
+    "نهر",
+    "أنهار",
+    "سحاب"
+   ],
+   "keys_en": [
+    "water",
+    "rain",
+    "river",
+    "cloud"
+   ],
+   "hue": 222,
+   "chroma": 0.12
+  },
+  {
+   "id": "ice",
+   "ar": "جليد",
+   "en": "ice",
+   "keys_ar": [
+    "ثلج",
+    "جليد",
+    "قطب"
+   ],
+   "keys_en": [
+    "ice",
+    "snow",
+    "glacier",
+    "polar"
+   ],
+   "hue": 195,
+   "chroma": 0.06
+  },
+  {
+   "id": "sky",
+   "ar": "سماء",
+   "en": "sky",
+   "keys_ar": [
+    "سماء",
+    "هواء",
+    "طيران",
+    "طائرة",
+    "جو"
+   ],
+   "keys_en": [
+    "sky",
+    "air",
+    "flight",
+    "aircraft",
+    "aviation",
+    "atmosphere"
+   ],
+   "hue": 245,
+   "chroma": 0.13
+  },
+  {
+   "id": "space",
+   "ar": "فضاء",
+   "en": "space",
+   "keys_ar": [
+    "فضاء",
+    "نجم",
+    "نجوم",
+    "مجرة",
+    "كون",
+    "كوكب",
+    "مدار"
+   ],
+   "keys_en": [
+    "space",
+    "star",
+    "galaxy",
+    "cosmos",
+    "planet",
+    "orbit"
+   ],
+   "hue": 285,
+   "chroma": 0.12
+  },
+  {
+   "id": "fire",
+   "ar": "لهب",
+   "en": "flame",
+   "keys_ar": [
+    "نار",
+    "لهب",
+    "حريق",
+    "احتراق"
+   ],
+   "keys_en": [
+    "fire",
+    "flame",
+    "burn",
+    "combustion"
+   ],
+   "hue": 33,
+   "chroma": 0.19
+  },
+  {
+   "id": "sun",
+   "ar": "شمس",
+   "en": "sun",
+   "keys_ar": [
+    "شمس",
+    "شمسية"
+   ],
+   "keys_en": [
+    "sun",
+    "solar"
+   ],
+   "hue": 78,
+   "chroma": 0.16
+  },
+  {
+   "id": "electric",
+   "ar": "كهرباء",
+   "en": "electric",
+   "keys_ar": [
+    "كهرباء",
+    "كهربائي",
+    "كهربائية",
+    "تيار",
+    "جهد",
+    "بطارية"
+   ],
+   "keys_en": [
+    "electric",
+    "electricity",
+    "current",
+    "voltage",
+    "battery",
+    "power",
+    "grid"
+   ],
+   "hue": 100,
+   "chroma": 0.15
+  },
+  {
+   "id": "plant",
+   "ar": "نبات",
+   "en": "leaf",
+   "keys_ar": [
+    "نبات",
+    "نباتات",
+    "شجر",
+    "شجرة",
+    "غابة",
+    "زراعة",
+    "زراعي",
+    "عشب",
+    "ورقة",
+    "بذور"
+   ],
+   "keys_en": [
+    "plant",
+    "tree",
+    "forest",
+    "farm",
+    "agriculture",
+    "leaf",
+    "seed",
+    "crop"
+   ],
+   "hue": 138,
+   "chroma": 0.13
+  },
+  {
+   "id": "palm",
+   "ar": "نخيل",
+   "en": "date palm",
+   "keys_ar": [
+    "نخيل",
+    "نخلة",
+    "تمر",
+    "واحة"
+   ],
+   "keys_en": [
+    "palm",
+    "date",
+    "oasis"
+   ],
+   "hue": 65,
+   "chroma": 0.11
+  },
+  {
+   "id": "soil",
+   "ar": "تربة",
+   "en": "soil",
+   "keys_ar": [
+    "تربة",
+    "تراب",
+    "طين"
+   ],
+   "keys_en": [
+    "soil",
+    "earth",
+    "clay",
+    "mud"
+   ],
+   "hue": 55,
+   "chroma": 0.07
+  },
+  {
+   "id": "sand",
+   "ar": "رمل",
+   "en": "sand",
+   "keys_ar": [
+    "رمل",
+    "رمال",
+    "صحراء",
+    "كثيب"
+   ],
+   "keys_en": [
+    "sand",
+    "desert",
+    "dune"
+   ],
+   "hue": 80,
+   "chroma": 0.08
+  },
+  {
+   "id": "stone",
+   "ar": "حجر",
+   "en": "stone",
+   "keys_ar": [
+    "حجر",
+    "صخر",
+    "صخور",
+    "جبل",
+    "جبال"
+   ],
+   "keys_en": [
+    "stone",
+    "rock",
+    "mountain",
+    "granite"
+   ],
+   "hue": 70,
+   "chroma": 0.03
+  },
+  {
+   "id": "wood",
+   "ar": "خشب",
+   "en": "wood",
+   "keys_ar": [
+    "خشب",
+    "أخشاب"
+   ],
+   "keys_en": [
+    "wood",
+    "timber"
+   ],
+   "hue": 58,
+   "chroma": 0.1
+  },
+  {
+   "id": "steel",
+   "ar": "فولاذ",
+   "en": "steel",
+   "keys_ar": [
+    "فولاذ",
+    "صلب",
+    "حديد",
+    "معدن",
+    "معادن",
+    "سبيكة"
+   ],
+   "keys_en": [
+    "steel",
+    "iron",
+    "metal",
+    "alloy"
+   ],
+   "hue": 250,
+   "chroma": 0.02
+  },
+  {
+   "id": "rust",
+   "ar": "صدأ",
+   "en": "rust",
+   "keys_ar": [
+    "صدأ",
+    "تآكل"
+   ],
+   "keys_en": [
+    "rust",
+    "corrosion"
+   ],
+   "hue": 42,
+   "chroma": 0.12
+  },
+  {
+   "id": "copper",
+   "ar": "نحاس",
+   "en": "copper",
+   "keys_ar": [
+    "نحاس"
+   ],
+   "keys_en": [
+    "copper",
+    "bronze"
+   ],
+   "hue": 52,
+   "chroma": 0.12
+  },
+  {
+   "id": "gold",
+   "ar": "ذهب",
+   "en": "gold",
+   "keys_ar": [
+    "ذهب",
+    "ذهبي"
+   ],
+   "keys_en": [
+    "gold",
+    "golden"
+   ],
+   "hue": 85,
+   "chroma": 0.13
+  },
+  {
+   "id": "oil",
+   "ar": "نفط",
+   "en": "crude oil",
+   "keys_ar": [
+    "نفط",
+    "بترول",
+    "غاز",
+    "مصفاة",
+    "تكرير"
+   ],
+   "keys_en": [
+    "oil",
+    "petroleum",
+    "gas",
+    "refinery"
+   ],
+   "hue": 95,
+   "chroma": 0.05
+  },
+  {
+   "id": "blood",
+   "ar": "دم",
+   "en": "blood",
+   "keys_ar": [
+    "دم",
+    "قلب",
+    "شريان",
+    "وريد",
+    "دورة دموية"
+   ],
+   "keys_en": [
+    "blood",
+    "heart",
+    "artery",
+    "vein",
+    "cardiac"
+   ],
+   "hue": 22,
+   "chroma": 0.17
+  },
+  {
+   "id": "brain",
+   "ar": "دماغ",
+   "en": "neural pink",
+   "keys_ar": [
+    "دماغ",
+    "مخ",
+    "عصب",
+    "أعصاب",
+    "عصبية",
+    "ذاكرة",
+    "تعلم",
+    "يتعلم"
+   ],
+   "keys_en": [
+    "brain",
+    "neuron",
+    "neural",
+    "memory",
+    "cognition",
+    "learning"
+   ],
+   "hue": 345,
+   "chroma": 0.14
+  },
+  {
+   "id": "cell",
+   "ar": "خلية",
+   "en": "cell violet",
+   "keys_ar": [
+    "خلية",
+    "خلايا",
+    "جين",
+    "جينات",
+    "حمض نووي",
+    "بكتيريا",
+    "بروتين"
+   ],
+   "keys_en": [
+    "cell",
+    "gene",
+    "dna",
+    "bacteria",
+    "protein"
+   ],
+   "hue": 320,
+   "chroma": 0.12
+  },
+  {
+   "id": "medicine",
+   "ar": "دواء",
+   "en": "clinical teal",
+   "keys_ar": [
+    "دواء",
+    "أدوية",
+    "طب",
+    "طبي",
+    "مستشفى",
+    "علاج",
+    "مريض",
+    "صحة"
+   ],
+   "keys_en": [
+    "medicine",
+    "drug",
+    "hospital",
+    "clinic",
+    "patient",
+    "health",
+    "therapy"
+   ],
+   "hue": 190,
+   "chroma": 0.1
+  },
+  {
+   "id": "data",
+   "ar": "بيانات",
+   "en": "signal indigo",
+   "keys_ar": [
+    "بيانات",
+    "برمجة",
+    "خوارزمية",
+    "حاسوب",
+    "برمجيات",
+    "نموذج",
+    "نماذج",
+    "ذكاء اصطناعي",
+    "تعلم آلي",
+    "شبكة عصبية"
+   ],
+   "keys_en": [
+    "data",
+    "code",
+    "algorithm",
+    "computer",
+    "software",
+    "model",
+    "models",
+    "ai",
+    "machine",
+    "neural network",
+    "distillation"
+   ],
+   "hue": 268,
+   "chroma": 0.15
+  },
+  {
+   "id": "money",
+   "ar": "مال",
+   "en": "money green",
+   "keys_ar": [
+    "مال",
+    "تمويل",
+    "بنك",
+    "مصرف",
+    "استثمار",
+    "اقتصاد",
+    "سوق",
+    "أسهم"
+   ],
+   "keys_en": [
+    "money",
+    "finance",
+    "bank",
+    "investment",
+    "economy",
+    "market",
+    "stock"
+   ],
+   "hue": 160,
+   "chroma": 0.1
+  },
+  {
+   "id": "law",
+   "ar": "قانون",
+   "en": "court navy",
+   "keys_ar": [
+    "قانون",
+    "قضاء",
+    "محكمة",
+    "دستور",
+    "تشريع"
+   ],
+   "keys_en": [
+    "law",
+    "court",
+    "legal",
+    "constitution",
+    "policy"
+   ],
+   "hue": 262,
+   "chroma": 0.06
+  },
+  {
+   "id": "defense",
+   "ar": "دفاع",
+   "en": "field olive",
+   "keys_ar": [
+    "عسكري",
+    "جيش",
+    "دفاع",
+    "قتال",
+    "ميدان"
+   ],
+   "keys_en": [
+    "army",
+    "defense",
+    "military",
+    "combat",
+    "field"
+   ],
+   "hue": 118,
+   "chroma": 0.07
+  },
+  {
+   "id": "gravity",
+   "ar": "جاذبية",
+   "en": "gravity blue",
+   "keys_ar": [
+    "جاذبية",
+    "سقوط",
+    "يسقط",
+    "تسقط",
+    "سرعة",
+    "تسارع",
+    "فيزياء",
+    "حركة"
+   ],
+   "keys_en": [
+    "gravity",
+    "fall",
+    "falling",
+    "velocity",
+    "acceleration",
+    "physics",
+    "motion"
+   ],
+   "hue": 300,
+   "chroma": 0.17
+  },
+  {
+   "id": "coffee",
+   "ar": "قهوة",
+   "en": "coffee",
+   "keys_ar": [
+    "قهوة",
+    "بن"
+   ],
+   "keys_en": [
+    "coffee"
+   ],
+   "hue": 55,
+   "chroma": 0.06
+  },
+  {
+   "id": "glass",
+   "ar": "زجاج",
+   "en": "glass",
+   "keys_ar": [
+    "زجاج"
+   ],
+   "keys_en": [
+    "glass"
+   ],
+   "hue": 200,
+   "chroma": 0.04
+  },
+  {
+   "id": "textile",
+   "ar": "نسيج",
+   "en": "indigo dye",
+   "keys_ar": [
+    "نسيج",
+    "قماش",
+    "خيوط",
+    "حياكة"
+   ],
+   "keys_en": [
+    "textile",
+    "fabric",
+    "weaving",
+    "thread"
+   ],
+   "hue": 280,
+   "chroma": 0.1
+  },
+  {
+   "id": "night",
+   "ar": "ليل",
+   "en": "night",
+   "keys_ar": [
+    "ليل",
+    "ظلام"
+   ],
+   "keys_en": [
+    "night",
+    "dark"
+   ],
+   "hue": 270,
+   "chroma": 0.06
+  }
+ ],
+ "moods": {
+  "calm": {
+   "ar": [
+    "هادئ",
+    "هادئة",
+    "سكينة"
+   ],
+   "chroma": 0.75
+  },
+  "energetic": {
+   "ar": [
+    "حيوي",
+    "حيوية",
+    "نشط"
+   ],
+   "chroma": 1.25
+  },
+  "serious": {
+   "ar": [
+    "رسمي",
+    "رسمية",
+    "جاد"
+   ],
+   "chroma": 0.8
+  },
+  "warm": {
+   "ar": [
+    "دافئ",
+    "دافئة"
+   ],
+   "paper_hue": 70
+  },
+  "cool": {
+   "ar": [
+    "بارد",
+    "باردة"
+   ],
+   "paper_hue": 240
+  },
+  "dark": {
+   "ar": [
+    "ليلي",
+    "داكن",
+    "داكنة",
+    "مظلم"
+   ],
+   "dark_first": true
+  }
+ }
+}

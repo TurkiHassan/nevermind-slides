@@ -369,6 +369,22 @@
     return (el.textContent || '').trim().length > 0;
   }
 
+  // Runtime-generated markup (runtime contract: "Generated markup") is drawn from source and never saved. A text
+  // session on it, or on an element that contains it, would write the drawing back into the deck: refuse, and say
+  // why. Classes cover decks whose staged runtime predates data-nm-generated.
+  var GENERATED = '[data-nm-generated],.nm-dg-canvas,.nm-links';
+  // A formula (native <math>, or a data-tex host the runtime converts) is edited through its source, never retyped.
+  var FORMULA = 'math,[data-tex]';
+  function readOnlyReason(el) {
+    if (!el || !el.closest) return null;
+    if (el.closest(FORMULA)) return 'math';
+    if (el.closest(GENERATED)) return 'generated';
+    if (el.matches('.nm-diagram')) return 'diagram';
+    if (el.querySelector(FORMULA)) return 'contains-math'; // before generated: TeX hosts hold generated MathML
+    if (el.querySelector(GENERATED + ',.nm-diagram')) return 'contains-generated';
+    return null;
+  }
+
   function textNodes(el) {
     var out = [];
     var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -424,6 +440,8 @@
     if (textSession && textSession.key === key) return { key: key, text: sessionText(textSession.el) };
     if (textSession) endText(true);
     var el = keyedElement(key);
+    var readOnly = readOnlyReason(el);
+    if (readOnly) return { key: key, readOnly: readOnly };
     if (!editableText(el)) return null;
     var prior = el.getAttribute('contenteditable');
     var priorSpellcheck = el.getAttribute('spellcheck');
@@ -554,6 +572,7 @@
     slides: slides,
     hitLocal: hitLocal,
     beginText: beginText,
+    readOnlyReason: function (key) { return readOnlyReason(keyedElement(key)); },
     endText: endText,
     activeText: activeText,
     previewEntrance: previewEntrance,

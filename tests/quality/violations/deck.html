@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>مخالفات الجودة</title>
+<meta name="nm-runtime" content="2">
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+<link rel="stylesheet" href="assets/nm/nm-table.css">
+<link rel="stylesheet" href="assets/nm/nm-math.css">
+<style>
+  @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; }
+  @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; }
+  :root { --nm-paper: #f4f6f8; --nm-ink: #14202b; --nm-muted: #4a5866; --nm-line: #c9d2db; --nm-accent: #1d5fa8; --nm-accent-2: #0f7a6c; --nm-surface: #ffffff;
+           --nm-font-display: 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+  html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+</style>
+</head>
+<body dir="rtl" data-nm-mode="morph-and-zoom" data-nm-automorph="off">
+<!-- Fixture for tests/runtime/quality.test.mjs: one deliberate violation per quality code (slides 2 to 11),
+     clean slides around them (1, 9, 10, 12, 13). Slides 14 and 15 break C-TABLE and C-MATH, slide 16 is a clean
+     table with an inline formula. Not a deck to imitate. -->
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+    <section class="slide" data-title="ش1" data-role="cover" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-title"><p class="nm-kicker">اختبار الجودة</p><h1 class="nm-t-display">عرض الفحوص البصرية</h1><p class="nm-t-lead">كل شريحة تحمل مخالفة واحدة مقصودة</p></div></div>
+    </section>
+    <section class="slide" data-title="ش2" data-role="concept" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-split"><header class="nm-head"><h2 class="nm-t-h1">إطار فارغ</h2><p class="nm-t-lead">الصفحة المضمّنة غير موجودة</p></header><iframe src="assets/missing/figure.html" title="غائب" style="inline-size:100%;block-size:640px;border:0;background:#ddd"></iframe></div></div>
+    </section>
+    <section class="slide" data-title="ش3" data-role="concept" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-split"><header class="nm-head"><h2 class="nm-t-h1">حروف مفصولة</h2><p class="nm-t-lead" style="letter-spacing:0.12em">التباعد بين الحروف يقطع الوصل</p><p class="nm-t-lead">كلمة مقسومة: <span>المد</span><span>ينة</span> هنا</p></header><div class="nm-card" style="block-size:600px"><p class="nm-t-body">بطاقة جانبية فيها نص كاف ليحمل الشريحة حبرًا</p></div></div></div>
+    </section>
+    <section class="slide" data-title="ش4" data-role="evidence" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-split"><header class="nm-head"><h2 class="nm-t-h1">نص مختلط الاتجاه</h2><p class="nm-t-lead" id="bad-bidi">أصدرت الشركة نموذج GPT-4 (2023) الجديد</p><p class="nm-t-lead">والنسخة المعزولة <bdi>Claude (2024)</bdi> سليمة</p><p class="nm-t-body">بلغت النسبة ٧٠٪ في التجربة</p></header><div class="nm-card" style="block-size:600px"><p class="nm-t-body">بطاقة جانبية</p></div></div></div>
+    </section>
+    <section class="slide" data-title="ش5" data-role="concept" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-split"><header class="nm-head"><h2 class="nm-t-h1">عنوان من عدة كلمات متتابعة<br>وحيدة</h2><p class="nm-t-lead">السطر الأخير من العنوان كلمة واحدة</p></header><div class="nm-card" style="block-size:600px"><p class="nm-t-body">بطاقة</p></div></div></div>
+    </section>
+    <section class="slide" data-title="ش6" data-role="concept" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-rail"><header class="nm-rail-head"><h2 class="nm-t-h1">نص كثيف</h2></header><div class="nm-rail-main"><p class="nm-t-body">كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة</p></div></div></div>
+    </section>
+    <section class="slide" data-title="ش7" data-role="concept" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-split"><header class="nm-head"><h2 class="nm-t-h3">شبه فارغة</h2></header><div></div></div></div>
+    </section>
+    <section class="slide" data-title="ش8" data-role="mechanism" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head"><h2 class="nm-t-h1">مخطط صغير في صندوق كبير</h2></header><figure class="nm-diagram" data-type="flow" data-id="tiny" data-grow="1"><script type="text/nm-diagram">
+ a[أ] -> b[ب]
+</script></figure></div></div>
+    </section>
+    <section class="slide" data-title="ش9" data-role="mechanism" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head"><h2 class="nm-t-h1">عنوان في مكانه الأول</h2></header><figure class="nm-diagram" data-type="flow" data-id="d9"><script type="text/nm-diagram">
+ a[أ] -> b[ب] -> c[ج] -> d[د]
+</script></figure></div></div>
+    </section>
+    <section class="slide" data-title="ش10" data-role="mechanism" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head"><h2 class="nm-t-h1">عنوان في مكانه الثاني</h2></header><figure class="nm-diagram" data-type="flow" data-id="d10"><script type="text/nm-diagram">
+ a[أ] -> b[ب] -> c[ج] -> d[د]
+</script></figure></div></div>
+    </section>
+    <section class="slide" data-title="ش11" data-role="mechanism" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head" style="padding-block-start:90px"><h2 class="nm-t-h1">عنوان انزاح إلى الأسفل</h2></header><figure class="nm-diagram" data-type="flow" data-id="d11"><script type="text/nm-diagram">
+ a[أ] -> b[ب] -> c[ج] -> d[د]
+</script></figure></div></div>
+    </section>
+    <section class="slide" data-title="ش12" data-role="mechanism" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head"><h2 class="nm-t-h1">عنوان في مكانه الثالث</h2></header><figure class="nm-diagram" data-type="flow" data-id="d12"><script type="text/nm-diagram">
+ a[أ] -> b[ب] -> c[ج] -> d[د]
+</script></figure></div></div>
+    </section>
+    <section class="slide" data-title="ش13" data-role="closing" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-title"><h2 class="nm-t-h1">خاتمة سليمة</h2><p class="nm-t-lead">لا مخالفات هنا</p></div></div>
+    </section>
+    <section class="slide" data-title="ش14" data-role="evidence" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head"><h2 class="nm-t-h1">جدول أطول من مكانه</h2></header><figure class="nm-table" data-id="tall"><table><thead><tr><th scope="col">الصف</th><th scope="col">أ</th><th scope="col">ب</th><th scope="col">ملاحظة</th></tr></thead><tbody><tr><th scope="row">الصف 1</th><td>3</td><td>7</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 2</th><td>6</td><td>14</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 3</th><td>9</td><td>21</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 4</th><td>12</td><td>28</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 5</th><td>15</td><td>35</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 6</th><td>18</td><td>42</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 7</th><td>21</td><td>49</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 8</th><td>24</td><td>56</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 9</th><td>27</td><td>63</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 10</th><td>30</td><td>70</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 11</th><td>33</td><td>77</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 12</th><td>36</td><td>84</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 13</th><td>39</td><td>91</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 14</th><td>42</td><td>98</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 15</th><td>45</td><td>105</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 16</th><td>48</td><td>112</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 17</th><td>51</td><td>119</td><td>قيمة طويلة نسبيا في الخلية</td></tr><tr><th scope="row">الصف 18</th><td>54</td><td>126</td><td>قيمة طويلة نسبيا في الخلية</td></tr></tbody></table></figure></div></div>
+    </section>
+    <section class="slide" data-title="ش15" data-role="concept" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head"><h2 class="nm-t-h1">معادلة بلا محوّل</h2><p class="nm-t-lead">النسبة تساوي \frac{a}{b} في هذا السطر</p></header><figure class="nm-equation" data-id="raw"><span class="nm-math" data-display="block" data-tex="E = mc^2"></span></figure></div></div>
+    </section>
+    <section class="slide" data-title="ش16" data-role="evidence" data-transition="none">
+      <div class="camera-rig"><div class="nm-slide-pad nm-l-hero-figure"><header class="nm-head"><h2 class="nm-t-h1">جدول ومعادلة سليمان</h2><p class="nm-t-lead">الطاقة <math><mi>E</mi><mo>=</mo><mi>m</mi><msup><mi>c</mi><mn>2</mn></msup></math> تزيد ٣ مرات</p></header><figure class="nm-table" data-id="ok" data-highlight="r2"><table><thead><tr><th scope="col">المادة</th><th scope="col">الكتلة</th><th scope="col">الطاقة</th></tr></thead><tbody><tr><th scope="row">حديد</th><td>١٢</td><td>٣٤</td></tr><tr><th scope="row">نحاس</th><td>٨</td><td>٢١</td></tr><tr><th scope="row">ذهب</th><td>٥</td><td>١٣</td></tr></tbody></table></figure></div></div>
+    </section>
+  </main>
+</div>
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+<script src="assets/nm/nm-table.js"></script>
+<script src="assets/nm/nm-math.js"></script>
+</body>
+</html>

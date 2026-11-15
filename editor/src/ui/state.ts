@@ -53,7 +53,7 @@ export type Banner =
   | { kind: 'error'; message: string };
 export const banner = signal<Banner | null>(null);
 /** A quiet status message, by dictionary key so it follows a language switch. */
-export type ToastKey = 'agentUpdated' | 'savedToast' | 'resolvedReload' | 'resolvedOk';
+export type ToastKey = 'agentUpdated' | 'savedToast' | 'resolvedReload' | 'resolvedOk' | 'readOnlyGenerated' | 'readOnlyMath';
 export const toast = signal<ToastKey | null>(null);
 
 export const slideCount = computed(() => info.value?.slides.length ?? 0);
@@ -65,3 +65,8 @@ export function slideTitle(i: number): string | null {
 
 /** The export dialog is open. */
 export const exportOpen = signal(false);
+
+/** The diagram source dialog: the figure being edited and its <script type="text/nm-diagram"> block. */
+export const diagramSource = signal<{ figureKey: NodeKey; sourceKey: NodeKey } | null>(null);
+/** The formula whose source is open for editing: MathML inner markup of a <math> root, or the TeX of a data-tex host. */
+export const formulaSource = signal<{ key: NodeKey; kind: 'mathml' | 'tex'; source: string } | null>(null);

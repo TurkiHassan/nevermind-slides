@@ -142,6 +142,32 @@ Unmarked top-level blocks of each slide rise in automatically, in reading order 
 - `data-entrance-auto="off"` on a slide (or `<body>`): no automatic entrances, only marked elements animate.
 - Elements that arrive by morph never play an entrance.
 
+### Timing inside one step (`data-at`)
+
+Elements that share a step start together. To choreograph them, give each a position, in the spirit of GSAP's
+position parameter:
+
+```html
+<p data-step="2">يبدأ مع الخطوة</p>
+<p data-step="2" data-at="<+=200">بعد بداية السابق بـ 200ms</p>
+<p data-step="2" data-at=">">حين ينتهي السابق</p>
+<p data-step="2" data-at="300" data-at-label="mid">بعد 300ms من بداية الخطوة</p>
+<p data-step="2" data-at="@mid+=50">بعد النقطة المسمّاة بـ 50ms</p>
+```
+
+`<` with the previous element, `>` or `+=N` when it ends (`-=N` overlaps), `<+=N` after it starts, a number from
+the step start, `@label`. "Previous" means the previous element of the same step in document order. Only lasting
+acts are timed (`reveal`, `gsap`); at `?nm-speed=0` everything is shown at once.
+
+### Optional GSAP (`nm-gsap.js`)
+
+The skill does not bundle GSAP (GreenSock's own license) and does not recommend it by default. A deck that already
+loads GSAP locally can link `assets/nm/nm-gsap.js` after `nm-deck.js` and use `data-step="N" data-act="gsap"
+data-gsap='{"from": {"x": 80, "opacity": 0}, "duration": 0.6, "ease": "power2.out"}'`. Each step's gsap elements share
+one timeline placed by `data-at`; going back kills it. Without `window.gsap` they fade in and the console says so.
+
+Decks from `scaffold` carry `<body data-nm-choreo="2">` (motion roles, NM-13): the heading leads, body parts, cards and figures follow with gaps that shrink (120, 90, 70... ms), kickers, rules and section numbers only fade, a header's parts enter one by one while the header itself stays put, and the arrival settles within 1200ms. `data-motion-role="lead|support|deco|static"` overrides the guess on one element. A slide with `data-nm-still` (written where `plan-advise` says a still slide reads best) fades its parts in together. Remove the body attribute to get the original stagger back.
+
 ## 5. Steps inside a slide
 
 Arrow keys run steps first, then move to the next slide.

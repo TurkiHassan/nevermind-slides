@@ -58,6 +58,11 @@ export interface DeckInfo {
   morph: Record<string, NodeKey[]>;
   zoomSteps: { slideId: number; id: number; step: number; label: string | null; key: NodeKey; slideKey: NodeKey | null }[];
   entrances: { slideId: number; id: number; kind: string; order: number; delay: number; legacy: boolean; key: NodeKey; slideKey: NodeKey | null }[];
+  steps: { slideId: number; id: number; step: number; act: string; key: NodeKey; slideKey: NodeKey | null }[];
+  diagrams: { slideId: number; id: number; type: string; dataId: string | null; sourceId: number | null; key: NodeKey; slideKey: NodeKey | null; sourceKey: NodeKey | null }[];
+  detailTemplates: { id: number; target: string; key: NodeKey }[];
+  tables: { slideId: number; id: number; tableId: number | null; dataId: string | null; rows: number; columns: number; steps: string | null; stepsAct: string | null; highlight: string | null; key: NodeKey; slideKey: NodeKey | null; tableKey: NodeKey | null }[];
+  equations: { slideId: number; id: number; kind: 'mathml' | 'tex'; display: boolean; source: string; terms: string[]; key: NodeKey; slideKey: NodeKey | null }[];
   anatomy: { slideId: number; id: number; kind: 'svg' | 'iframe'; name: string; variables: Record<string, string>; key: NodeKey; slideKey: NodeKey | null }[];
   identity: { colours: Record<string, unknown>; fonts: Record<string, unknown> };
   runtime: { version: number | null; native: boolean };
@@ -107,6 +112,8 @@ export interface DiskChangedEvent {
 }
 
 /** The edit layer inside the preview frame (src/server/edit-layer/edit-mode.js). */
+export type ReadOnlyReason = 'diagram' | 'generated' | 'contains-generated' | 'math' | 'contains-math';
+
 export interface EditLayer {
   goTo(i: number): void;
   hitLocal(x: number, y: number): { key: NodeKey; tag: string } | null;
@@ -114,7 +121,9 @@ export interface EditLayer {
   freeze(on: boolean): void;
   isFrozen(): boolean;
   slides(): Element[];
-  beginText(key: NodeKey): { key: NodeKey; text: string } | null;
+  /** A text session, or why the element is read-only (runtime-generated content), or null when it has no text. */
+  beginText(key: NodeKey): { key: NodeKey; text: string } | { key: NodeKey; readOnly: ReadOnlyReason } | null;
+  readOnlyReason(key: NodeKey): ReadOnlyReason | null;
   endText(commit: boolean): TextSessionResult | null;
   activeText(): { key: NodeKey; text: string } | null;
   previewEntrance(slide: number): void;

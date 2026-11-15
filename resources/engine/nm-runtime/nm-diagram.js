@@ -26,7 +26,12 @@
     try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return 0; } catch (e) { /* noop */ }
     return 1;
   }
-  function raf2(fn) { requestAnimationFrame(function () { requestAnimationFrame(fn); }); }
+  // Counted in NM.pending so NM.test.settle() (and deck_check) waits for the frames, not just the animations.
+  function raf2(fn) {
+    var NMg = window.NM = window.NM || {};
+    NMg.pending = (NMg.pending || 0) + 1;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { NMg.pending--; fn(); }); });
+  }
 
   var AR_DIG = '٠١٢٣٤٥٦٧٨٩';
   var FA_DIG = '۰۱۲۳۴۵۶۷۸۹';
@@ -278,7 +283,7 @@
     if (ci < 0) { var sp0 = splitPipe(line); M.items.push({ key: '', label: sp0.label, sub: sp0.sub, accent: accent, line: lineNo }); return; }
     var key = line.slice(0, ci).trim(), val = line.slice(ci + 1).trim();
     var lk = key.toLowerCase();
-    var DIRECTIVES = { x: 1, y: 1, quad: 1, center: 1, centre: 1, unit: 1, max: 1, min: 1, value: 1, label: 1, sub: 1, head: 1, area: 1, title: 1, orient: 1, note: 1 };
+    var DIRECTIVES = { x: 1, y: 1, quad: 1, center: 1, centre: 1, unit: 1, max: 1, min: 1, value: 1, label: 1, sub: 1, head: 1, area: 1, title: 1, orient: 1, note: 1, trend: 1 };
     if (DIRECTIVES[lk]) {
       if (lk === 'head') {
         var hp = val.split('|');
@@ -353,8 +358,8 @@
         sub: it.sub || '', accent: !!(it.accent || it.highlight), line: i + 1 });
     });
     (data.series || []).forEach(function (s) { M.series.push({ name: s.name || '', raw: (s.values || s.data || []).map(String), accent: !!s.accent }); });
-    ['x', 'y', 'quad', 'center', 'unit', 'max', 'min', 'value', 'label', 'sub', 'head', 'area', 'title', 'actors', 'orient'].forEach(function (k) {
-      if (data[k] != null) M.opts[k] = Array.isArray(data[k]) && k !== 'actors' ? data[k].join(k === 'quad' || k === 'head' || k === 'x' && type === 'matrix' ? ' | ' : ', ') : data[k];
+    ['x', 'y', 'quad', 'center', 'unit', 'max', 'min', 'value', 'label', 'sub', 'head', 'area', 'title', 'actors', 'orient', 'trend'].forEach(function (k) {
+      if (data[k] != null) M.opts[k] = Array.isArray(data[k]) && k !== 'actors' ? data[k].join(k === 'quad' || k === 'head' || (k === 'x' || k === 'y') && (type === 'matrix' || type === 'scatter') ? ' | ' : ', ') : data[k];
     });
     return M.finish();
   }
@@ -427,6 +432,7 @@
     fig.classList.add('nm-dg', 'nm-dg-t-' + this.type);
     if (!fig.hasAttribute('role')) fig.setAttribute('role', 'img');
     this.canvas = h('div', 'nm-dg-canvas', null);
+    this.canvas.setAttribute('data-nm-generated', 'diagram'); // rendered from the DSL: not source, editors keep out
     this.svg = sv('svg', { 'class': 'nm-dg-svg', 'aria-hidden': 'true' }, this.canvas);
     this.defs = sv('defs', null, this.svg);
     this.gBack = sv('g', { 'class': 'nm-dg-back' }, this.svg);
@@ -1741,7 +1747,9 @@
   function chartItems(M) {
     return M.items.filter(function (it) { return it.key || it.label; }).map(function (it) {
       var lab = it.key ? it.key : it.label, raw = it.key ? it.label : '';
-      return { label: lab, raw: raw, value: parseNum(raw), sub: it.sub, accent: it.accent };
+      // "42 ± 3" (or 42 +- 3): a value with its uncertainty, drawn as an error bar (roadmap NM-12)
+      var em = String(raw).match(/(?:±|\+\/?-)\s*([\d٠-٩۰-۹]+(?:[.٫][\d٠-٩۰-۹]+)?)/);
+      return { label: lab, raw: raw, value: parseNum(raw), err: em ? Math.abs(parseNum(em[1])) : 0, sub: it.sub, accent: it.accent };
     });
   }
   /* word units (ساعة, days) get a space; symbols (%, ٪, $) stick to the number */
@@ -1756,17 +1764,32 @@
     return L;
   }
 
+  /* "42 ± 6 ms" inside an Arabic slide: without isolation the bidi algorithm reverses it. A value with no Arabic
+     letters reads left to right; one with an Arabic unit keeps the slide's direction (its natural reading). */
+  function errDir(d, L) {
+    if (d.err && !/[\u0621-\u064A]/.test(L.el.textContent)) { L.el.setAttribute('dir', 'ltr'); L.el.style.unicodeBidi = 'isolate'; }
+    return L;
+  }
   LAYOUTS.bars = function (M, D) {
     var rtl = D.ctxDir('row').rtl, W = D.W, H = D.H;
     var data = chartItems(M), n = data.length, unit = M.opts.unit || '';
     if (!n) return;
     var orient = (D.opt('orient', M.opts.orient || 'h') || 'h').charAt(0).toLowerCase();
     var any = data.some(function (d) { return d.accent; });
-    var lo = Math.min(0, Math.min.apply(null, data.map(function (d) { return d.value || 0; }))), hi = Math.max(0, Math.max.apply(null, data.map(function (d) { return d.value || 0; })));
+    var lo = Math.min(0, Math.min.apply(null, data.map(function (d) { return (d.value || 0) - (d.err || 0); }))), hi = Math.max(0, Math.max.apply(null, data.map(function (d) { return (d.value || 0) + (d.err || 0); })));
     if (hi === lo) hi = lo + 1;
+    /* error bar: a whisker from value - err to value + err with caps, part of the bar's step */
+    function whisker(i, a, b, at, cap, horizontal) {
+      var g = horizontal ? { x1: r1(a), y1: r1(at), x2: r1(b), y2: r1(at) } : { x1: r1(at), y1: r1(a), x2: r1(at), y2: r1(b) };
+      D.shape('err' + i, 'line', Object.assign(g, { 'class': 'nm-dg-errbar' }), D.gFront, { seq: i });
+      [a, b].forEach(function (e, k) {
+        var c = horizontal ? { x1: r1(e), y1: r1(at - cap), x2: r1(e), y2: r1(at + cap) } : { x1: r1(at - cap), y1: r1(e), x2: r1(at + cap), y2: r1(e) };
+        D.shape('errcap' + i + '-' + k, 'line', Object.assign(c, { 'class': 'nm-dg-errbar' }), D.gFront, { seq: i });
+      });
+    }
     if (orient !== 'v') {
       var labs = data.map(function (d, i) { return D.label('bl' + i, esc(d.label) + (d.sub ? '<span>' + esc(d.sub) + '</span>' : ''), 'nm-dg-blabel' + (d.accent ? ' is-accent' : ''), W * 0.32); });
-      var vals = data.map(function (d, i) { return countLabel(D, 'bv' + i, unitText(d.raw, unit), 'nm-dg-bvalue' + (d.accent || !any ? ' is-accent' : ''), 260); });
+      var vals = data.map(function (d, i) { return errDir(d, countLabel(D, 'bv' + i, unitText(d.raw, unit), 'nm-dg-bvalue' + (d.accent || !any ? ' is-accent' : ''), 260)); });
       var labW = Math.max.apply(null, labs.map(function (L) { return L.w; })), valW = Math.max.apply(null, vals.map(function (L) { return L.w; }));
       var rowH = clamp(H / n, 46, 108), barT = Math.min(rowH * 0.58, 52);
       rowH = Math.max(rowH, Math.max.apply(null, labs.map(function (L) { return L.h; })) + 14);
@@ -1779,14 +1802,19 @@
         bar.style.transformOrigin = (x1 < z ? '100%' : '0%') + ' 50%';
         bar.style.setProperty('--dg-axis', 'x');
         D.put(labs[i], rtl ? W - labs[i].w / 2 : labs[i].w / 2, cy, { seq: i });
-        var dir = x1 < z ? -1 : 1;
-        D.put(vals[i], x1 + dir * (12 + vals[i].w / 2), cy, { seq: i });
+        var dir = x1 < z ? -1 : 1, far = x1;
+        if (d.err) {
+          var ea = zx((d.value || 0) - d.err), eb = zx((d.value || 0) + d.err);
+          whisker(i, ea, eb, cy, barT * 0.32, true);
+          far = dir > 0 ? Math.max(x1, ea, eb) : Math.min(x1, ea, eb);
+        }
+        D.put(vals[i], far + dir * (12 + vals[i].w / 2), cy, { seq: i });
       });
       D.shape('base', 'line', { x1: r1(z), y1: -6, x2: r1(z), y2: r1(totalH + 6), 'class': 'nm-dg-baseline' }, D.gFront);
     } else {
       var colW = W / n, barW = Math.min(colW * 0.56, 110);
       var labsV = data.map(function (d, i) { return D.label('bl' + i, esc(d.label) + (d.sub ? '<span>' + esc(d.sub) + '</span>' : ''), 'nm-dg-blabel is-center' + (d.accent ? ' is-accent' : ''), colW - 12); });
-      var valsV = data.map(function (d, i) { return countLabel(D, 'bv' + i, unitText(d.raw, unit), 'nm-dg-bvalue' + (d.accent || !any ? ' is-accent' : ''), colW); });
+      var valsV = data.map(function (d, i) { return errDir(d, countLabel(D, 'bv' + i, unitText(d.raw, unit), 'nm-dg-bvalue' + (d.accent || !any ? ' is-accent' : ''), colW)); });
       var labH = Math.max.apply(null, labsV.map(function (L) { return L.h; })), valH = Math.max.apply(null, valsV.map(function (L) { return L.h; }));
       var base = H - labH - 18, availV = base - valH - 14;
       var zy = function (v) { return base - (v - lo) / (hi - lo) * availV; }, z0 = zy(0);
@@ -1795,10 +1823,88 @@
         var bar = D.shape('bar' + i, 'rect', { x: r1(cx - barW / 2), y: r1(Math.min(y1, z0)), width: r1(barW), height: r1(Math.max(2, Math.abs(z0 - y1))), rx: 4, 'class': 'nm-dg-bar is-v' + (d.accent || !any ? ' is-accent' : '') }, D.gBack, { seq: i });
         bar.style.transformOrigin = '50% ' + (y1 < z0 ? '100%' : '0%');
         D.put(labsV[i], cx, base + 14 + labsV[i].h / 2, { seq: i });
-        D.put(valsV[i], cx, (y1 < z0 ? y1 - 10 - valsV[i].h / 2 : y1 + 10 + valsV[i].h / 2), { seq: i });
+        var farY = y1;
+        if (d.err) {
+          var ya = zy((d.value || 0) - d.err), yb = zy((d.value || 0) + d.err);
+          whisker(i, ya, yb, cx, barW * 0.22, false);
+          farY = y1 < z0 ? Math.min(y1, ya, yb) : Math.max(y1, ya, yb);
+        }
+        D.put(valsV[i], cx, (y1 < z0 ? farY - 10 - valsV[i].h / 2 : farY + 10 + valsV[i].h / 2), { seq: i });
       });
       D.shape('base', 'line', { x1: -6, y1: r1(z0), x2: r1(W + 6), y2: r1(z0), 'class': 'nm-dg-baseline' }, D.gFront);
     }
+  };
+
+  /* scatter (roadmap NM-12): points "label: x, y" in data units on two numeric axes.
+     x: title | unit and y: title | unit name the axes; trend: on draws the least-squares line. */
+  LAYOUTS.scatter = function (M, D) {
+    var rtl = D.ctxDir('row').rtl, W = D.W, H = D.H, o = M.opts;
+    var xa = splitAll(o.x), ya = splitAll(o.y);
+    var pts = M.items.filter(function (it) { return it.key || it.label; }).map(function (it, i) {
+      var raw = it.key ? it.label : it.label, v = String(it.raw || raw).split(/\s*[,،]\s*/).map(parseNum);
+      return { label: it.key || '', x: v[0], y: v[1], accent: it.accent, raw: String(it.raw || raw) };
+    }).filter(function (p) { return !isNaN(p.x) && !isNaN(p.y); });
+    if (!pts.length) return;
+    var digits = digitSystem(pts.map(function (p) { return p.raw; }).join(''));
+    function axis(vals) {
+      var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+      var lo = mn >= 0 && mn < mx * 0.45 ? 0 : mn, step = niceStep((mx - lo) || 1, 4);
+      lo = Math.floor(lo / step) * step; var hi = Math.ceil(mx / step) * step; if (hi <= lo) hi = lo + step;
+      var dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9)), ticks = [];
+      for (var t = lo; t <= hi + step / 2; t += step) ticks.push(t);
+      return { lo: lo, hi: hi, ticks: ticks, dec: dec };
+    }
+    var AX = axis(pts.map(function (p) { return p.x; })), AY = axis(pts.map(function (p) { return p.y; }));
+    var fmt = function (v, A) { return withDigits(v.toFixed(A.dec), digits); };
+    var yl = AY.ticks.map(function (v, i) { return D.label('syt' + i, fmt(v, AY), 'nm-dg-tick', 160); });
+    var xl = AX.ticks.map(function (v, i) { return D.label('sxt' + i, fmt(v, AX), 'nm-dg-tick is-x', 160); });
+    var tickW = Math.max.apply(null, yl.map(function (L) { return L.w; })), tickH = Math.max.apply(null, xl.map(function (L) { return L.h; }));
+    var YT = ya[0] ? D.label('syT', esc(ya[0]) + (ya[1] ? ' <span>(' + esc(ya[1]) + ')</span>' : ''), 'nm-dg-axtitle', W * 0.5) : null;
+    var XT = xa[0] ? D.label('sxT', esc(xa[0]) + (xa[1] ? ' <span>(' + esc(xa[1]) + ')</span>' : ''), 'nm-dg-axtitle', W * 0.6) : null;
+    var top = YT ? YT.h + 18 : 12, bottom = tickH + 16 + (XT ? XT.h + 14 : 0), side = tickW + 18, far = 24;
+    var pw = W - side - far, ph = H - top - bottom;
+    var px0 = rtl ? far : side, px1 = px0 + pw, py0 = top, py1 = top + ph;
+    var X = function (v) { var t = (v - AX.lo) / (AX.hi - AX.lo); return rtl ? px1 - t * pw : px0 + t * pw; };
+    var Y = function (v) { return py1 - (v - AY.lo) / (AY.hi - AY.lo) * ph; };
+    AY.ticks.forEach(function (v, i) {
+      var y = Y(v);
+      D.shape('sgy' + i, 'line', { x1: r1(px0), y1: r1(y), x2: r1(px1), y2: r1(y), 'class': i === 0 ? 'nm-dg-baseline' : 'nm-dg-grid' });
+      D.put(yl[i], rtl ? px1 + 14 + yl[i].w / 2 : px0 - 14 - yl[i].w / 2, y, false);
+    });
+    AX.ticks.forEach(function (v, i) {
+      var x = X(v);
+      D.shape('sgx' + i, 'line', { x1: r1(x), y1: r1(py0), x2: r1(x), y2: r1(py1), 'class': i === 0 ? 'nm-dg-baseline' : 'nm-dg-grid' });
+      D.put(xl[i], x, py1 + 12 + xl[i].h / 2, false);
+    });
+    if (YT) D.put(YT, rtl ? px1 - YT.w / 2 : px0 + YT.w / 2, py0 - 12 - YT.h / 2, false);
+    if (XT) D.put(XT, (px0 + px1) / 2, py1 + tickH + 26 + XT.h / 2, false);
+    if (/^(on|true|1)$/.test(D.opt('trend', o.trend || '')) && pts.length > 2) {
+      var n = pts.length, sx = 0, sy = 0, sxx = 0, sxy = 0;
+      pts.forEach(function (p) { sx += p.x; sy += p.y; sxx += p.x * p.x; sxy += p.x * p.y; });
+      var den = n * sxx - sx * sx;
+      if (den) {
+        var b = (n * sxy - sx * sy) / den, a = (sy - b * sx) / n;
+        var xs = [AX.lo, AX.hi].map(function (x) { return clamp(x, AX.lo, AX.hi); });
+        var ys = xs.map(function (x) { return clamp(a + b * x, AY.lo, AY.hi); });
+        D.shape('trend', 'line', { x1: r1(X(xs[0])), y1: r1(Y(ys[0])), x2: r1(X(xs[1])), y2: r1(Y(ys[1])), 'class': 'nm-dg-trend' }, D.gBack, { seq: n });
+      }
+    }
+    var any = pts.some(function (p) { return p.accent; });
+    var placed = [];
+    pts.forEach(function (p, i) {
+      var cx = X(p.x), cy = Y(p.y);
+      D.shape('pt' + i, 'circle', { cx: r1(cx), cy: r1(cy), r: p.accent ? 12 : 9, 'class': 'nm-dg-point' + (p.accent || !any ? ' is-accent' : '') }, D.gFront, { seq: i });
+      if (!p.label || (pts.length > 10 && !p.accent)) return;
+      var L = D.label('spl' + i, esc(p.label), 'nm-dg-plabel' + (p.accent ? ' is-accent' : ''), 280);
+      var lx = rtl ? cx - 16 - L.w / 2 : cx + 16 + L.w / 2, ly = cy;
+      if (rtl ? lx - L.w / 2 < px0 : lx + L.w / 2 > px1) lx = rtl ? cx + 16 + L.w / 2 : cx - 16 - L.w / 2;
+      for (var k = 0; k < placed.length; k++) {
+        var q = placed[k];
+        if (Math.abs(q.x - lx) < (q.w + L.w) / 2 && Math.abs(q.y - ly) < (q.h + L.h) / 2) { ly = q.y + (ly <= q.y ? -1 : 1) * ((q.h + L.h) / 2 + 2); k = -1; }
+      }
+      placed.push({ x: lx, y: ly, w: L.w, h: L.h });
+      D.put(L, lx, ly, { seq: i });
+    });
   };
 
   LAYOUTS.line = function (M, D) {
@@ -2014,6 +2120,7 @@
     this.box = host.querySelector(':scope > .camera-rig') || host;
     if (getComputedStyle(this.box).position === 'static') this.box.style.position = 'relative';
     this.layer = h('div', 'nm-links nm-dg', null);
+    this.layer.setAttribute('data-nm-generated', 'links'); // connector layer drawn from data-links: not source
     this.svg = sv('svg', { 'class': 'nm-dg-svg', 'aria-hidden': 'true' }, this.layer);
     this.gBack = sv('g', null, this.svg); this.gEdges = sv('g', { 'class': 'nm-dg-edges' }, this.svg); this.gFront = sv('g', null, this.svg);
     this.html = h('div', 'nm-dg-html', this.layer);

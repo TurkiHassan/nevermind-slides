@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="nm-runtime" content="2">
+<meta name="nm-stage" content="1920x1080">
+<meta name="generator" content="nevermind-slides scaffold">
+<title>كيف يرفع الميناء إنتاجيته</title>
+
+<link rel="stylesheet" href="assets/nm/nm-deck.css">
+<link rel="stylesheet" href="assets/nm/nm-layout.css">
+<link rel="stylesheet" href="assets/nm/nm-focus.css">
+<link rel="stylesheet" href="assets/nm/nm-diagram.css">
+<link rel="stylesheet" href="assets/nm/nm-media.css">
+<link rel="stylesheet" href="assets/nm/nm-table.css">
+
+<style>
+    /* ==== 1. LOCAL FONTS (assets/fonts/; only the files stage-fonts found) ==== */
+    @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Qahwa Arabic'; src: url('assets/fonts/Qahwa-Arabic-Black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Setabr Display'; src: url('assets/fonts/SetabrDisplay-Regular.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'Alkhalil Kufi'; src: url('assets/fonts/Alkhalil-Kufi.otf') format('opentype'); font-weight: 400 800; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('assets/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); font-weight: 600 700; font-display: swap; }
+    @font-face { font-family: 'Zain Rounded'; src: url('assets/fonts/ZainRounded-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    @font-face { font-family: 'Readex Pro'; src: url('assets/fonts/ReadexPro-VF.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+
+    /* ==== 2. THEME TOKENS (generated from deck.plan.json; edit the plan, not this block) ==== */
+    :root {
+      --nm-paper: #F3EBDD;
+      --nm-ink: #2B2118;
+      --nm-muted: #6B5A47;
+      --nm-line: #D8C9AE;
+      --nm-accent: #8A4B16;
+      --nm-accent-2: #2F6B4F;
+      --nm-surface: #FBF6EC;
+      --nm-on-accent: #FFFFFF;
+      --nm-radius: 24px;
+      --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif;
+      --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif;
+      --nm-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      /* legacy aliases */
+      --lp-accent: var(--nm-accent);
+      --slide-bg: var(--nm-paper);
+      --stage-bg: var(--nm-paper);
+      --lp-font-display: var(--nm-font-display);
+      --lp-font-body: var(--nm-font-body);
+      --lp-font-mono: var(--nm-font-mono);
+    }
+
+    /* Live font pairing classes on <body> */
+    body.font-mode-qahwa { --nm-font-display: 'Qahwa Arabic', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Zain Rounded', sans-serif; }
+    body.font-mode-setabr { --nm-font-display: 'Setabr Display', 'ZIAN', 'Readex Pro', sans-serif; --nm-font-body: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-kufi { --nm-font-display: 'Alkhalil Kufi', 'Readex Pro', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', sans-serif; }
+    body.font-mode-open { --nm-font-display: 'Readex Pro', 'IBM Plex Sans Arabic', sans-serif; --nm-font-body: 'IBM Plex Sans Arabic', 'Readex Pro', sans-serif; }
+    body[class*="font-mode-"] { --lp-font-display: var(--nm-font-display); --lp-font-body: var(--nm-font-body); }
+
+    html, body { margin: 0; height: 100%; background: var(--nm-paper); color: var(--nm-ink); font-family: var(--nm-font-body); }
+
+    /* ==== 3. SCAFFOLD PLACEHOLDERS (remove with the last data-nm-todo) ==== */
+    .nm-ph { box-sizing: border-box; inline-size: 100%; block-size: 100%; min-block-size: 240px; display: grid; place-items: center; align-content: center; gap: 16px; margin: 0; border: 3px dashed var(--nm-line); border-radius: var(--nm-radius); background: var(--nm-surface); color: var(--nm-muted); font-size: 28px; text-align: center; }
+    .nm-ph svg { inline-size: 96px; block-size: 96px; stroke: var(--nm-accent); fill: none; stroke-width: 3; }
+    .nm-ph-label { font-size: 28px; color: var(--nm-muted); }
+    .nm-ph-frame { block-size: 100%; }
+</style>
+</head>
+<body dir="rtl" class="font-mode-open" data-nm-mode="morph-and-zoom" data-nm-choreo="2">
+<script>
+  window.NM_CONFIG = {
+    fontModes: [{"className": "font-mode-qahwa", "label": "قهوة"}, {"className": "font-mode-setabr", "label": "ستابر"}, {"className": "font-mode-kufi", "label": "كوفي"}, {"className": "font-mode-open", "label": "ريدكس + بلكس"}]
+  };
+</script>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+  <!-- 1. s1 / cover / layout cover -> nm-l-title
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s1" data-title="الغلاف" data-rel="next" data-transition="auto" data-role="cover">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-title">
+    <p class="nm-kicker">عمليات الموانئ</p>
+    <h1 class="nm-t-display" data-morph="title">كيف يرفع الميناء إنتاجيته</h1>
+    <p class="nm-t-lead">أرقام من سنة تشغيل كاملة</p>
+    </div>
+  </div>
+  </section>
+
+  <!-- 2. s2 / evidence / layout stat -> nm-l-split
+       TODO:
+       - representation: chart:stat (good; A210: رقم واحد: يُعرض كبيرًا وحده)
+       - keep this slide still (عرض ثابت أوضح هنا: لا خطوات)
+       - chart drawn from content.quantities (stat); check the labels in the nm-diagram script block
+  -->
+  <section class="slide" id="s2" data-title="المؤشر" data-rel="next" data-transition="auto" data-role="evidence" data-nm-still>
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="1:1">
+    <header class="nm-head">
+      <p class="nm-kicker">النتيجة</p>
+      <h2 class="nm-t-h2" data-morph="title">إحدى وثلاثون حاوية في الساعة</h2>
+    </header>
+    <figure class="nm-diagram" data-type="stat" data-id="s2-diagram" aria-label="المؤشر">
+    <script type="text/nm-diagram">
+      حاويات في الساعة لكل رافعة: 31 !
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 3. s3 / concept / layout center -> nm-l-title
+       TODO:
+       - representation: none (good; A233: تعريف أو حجة: الطباعة وحدها أوضح من أي رسم)
+       - keep this slide still (عرض ثابت أوضح هنا: لا خطوات)
+  -->
+  <section class="slide" id="s3" data-title="التعريف" data-rel="deeper" data-transition="auto" data-role="concept" data-nm-still>
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-title">
+    <p class="nm-kicker">المصطلح</p>
+    <h2 class="nm-t-h1">الإنتاجية: حاويات لكل رافعة في الساعة</h2>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. s4 / process / layout diagram -> nm-l-hero-figure
+       TODO:
+       - representation: diagram:flow (good; A220: خطوات بترتيب (٤): مخطط تدفق)
+       - diagram builds its own steps from number 1 (data-steps="rank"); if you add or remove nodes, renumber the other data-step values on this slide
+       - edit diagram labels/values (flow) in the nm-diagram script block
+  -->
+  <section class="slide" id="s4" data-title="المسار" data-rel="chapter" data-transition="auto" data-role="process">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">رحلة الحاوية</p>
+      <h2 class="nm-t-h2">أربع محطات من السفينة إلى البوابة</h2>
+    </header>
+    <figure class="nm-diagram" data-type="flow" data-id="route" aria-label="المسار" data-nm-todo data-steps="rank" data-step-from="1">
+    <script type="text/nm-diagram">
+      n1[العنصر الأول] -> n2[العنصر الثاني] -> n3[العنصر الثالث] -> n4[العنصر الرابع]
+      n2.accent
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 5. s5 / evidence / layout split -> nm-l-split
+       TODO:
+       - representation: chart:donut (good; A212: أجزاء مجموعها ١٠٠٪: الحلقة تُظهر الحصص من الكل)
+       - chart drawn from content.quantities (donut); check the labels in the nm-diagram script block
+  -->
+  <section class="slide" id="s5" data-title="الوقت الضائع" data-rel="deeper" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-split" data-ratio="5:7">
+    <header class="nm-head">
+      <p class="nm-kicker">أين يضيع الوقت</p>
+      <h2 class="nm-t-h2">نصف الوقت الضائع انتظار</h2>
+      <p class="nm-t-lead">حصص من ساعات التوقف خلال سنة</p>
+    </header>
+    <figure class="nm-diagram" data-type="donut" data-id="lost-time" aria-label="الوقت الضائع">
+    <script type="text/nm-diagram">
+      انتظار الشاحنات: 45 !
+      إعادة الترتيب: 30
+      الأعطال: 15
+      أخرى: 10
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 6. s6 / evidence / layout hero -> nm-l-hero-figure
+       TODO:
+       - representation: chart:line (good; A211: قيم مرتبة في الزمن (٥): الخط يُظهر الاتجاه)
+       - diagram builds its own steps from number 1 (data-steps="series"); if you add or remove nodes, renumber the other data-step values on this slide
+       - chart drawn from content.quantities (line); check the labels in the nm-diagram script block
+  -->
+  <section class="slide" id="s6" data-title="الاتجاه" data-rel="time" data-transition="auto" data-role="evidence">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">خمس سنوات</p>
+      <h2 class="nm-t-h2">الإنتاجية ترتفع كل عام</h2>
+    </header>
+    <figure class="nm-diagram" data-type="line" data-id="trend" aria-label="الاتجاه" data-steps="series" data-step-from="1">
+    <script type="text/nm-diagram">
+      x: 2021, 2022, 2023, 2024, 2025
+      series الاتجاه: 22, 24, 27, 29, 31
+    </script>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 7. s7 / comparison / layout compare -> nm-l-hero-figure
+       TODO:
+       - representation: table (good; A201: مقارنة خيارات (٢) على معايير (٤): الجدول يُقرأ بالصفوف والأعمدة)
+       - table builds one step per body row from number 1 (data-steps="row"); if you add other steps on this slide, number them after the table's
+  -->
+  <section class="slide" id="s7" data-title="الخياران" data-rel="contrast" data-transition="auto" data-role="comparison">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-hero-figure">
+    <header class="nm-head">
+      <p class="nm-kicker">القرار</p>
+      <h2 class="nm-t-h2">جدولة الشاحنات قبل شراء رافعة</h2>
+    </header>
+    <figure class="nm-table" data-id="s7-table" aria-label="الخياران" data-steps="row" data-step-from="1" data-steps-act="highlight">
+    <table>
+      <thead>
+        <tr><th scope="col">المعيار</th><th scope="col">جدولة الشاحنات</th><th scope="col">رافعة إضافية</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">التكلفة</th><td>منخفضة</td><td>مرتفعة</td></tr>
+        <tr><th scope="row">زمن التنفيذ</th><td>شهر</td><td>سنة</td></tr>
+        <tr><th scope="row">الأثر المتوقع</th><td>+12%</td><td>+18%</td></tr>
+        <tr><th scope="row">المخاطر</th><td>قليلة</td><td>متوسطة</td></tr>
+      </tbody>
+    </table>
+  </figure>
+    </div>
+  </div>
+  </section>
+
+  <!-- 8. s8 / closing / layout cards -> nm-l-cards-3
+       TODO:
+       - none
+  -->
+  <section class="slide" id="s8" data-title="الخاتمة" data-rel="back-out" data-transition="auto" data-role="closing">
+  <div class="camera-rig">
+    <div class="nm-slide-pad nm-l-cards-3">
+    <header class="nm-head">
+      <p class="nm-kicker">الخلاصة</p>
+      <h2 class="nm-t-h2">ابدأ بالانتظار لا بالرافعات</h2>
+    </header>
+    <article class="nm-card" data-step="1" data-act="focus"><p class="nm-t-body">الانتظار نصف الوقت الضائع</p></article>
+    <article class="nm-card"><p class="nm-t-body">الجدولة أرخص وأسرع</p></article>
+    <article class="nm-card"><p class="nm-t-body">الرافعة الإضافية خطوة لاحقة</p></article>
+    </div>
+  </div>
+  </section>
+  </main>
+</div>
+
+<script src="assets/nm/nm-deck.js"></script>
+<script src="assets/nm/nm-focus.js"></script>
+<script src="assets/nm/nm-diagram.js"></script>
+<script src="assets/nm/nm-table.js"></script>
+</body>
+</html>

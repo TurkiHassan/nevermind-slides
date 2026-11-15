@@ -275,6 +275,9 @@ for (const deck of decks) {
         for (let tries = 0; tries < 8 && !op; tries++) op = randomOp(d.doc, d.tokens, rng, { scope: rng() < 0.5 ? 'slides' : 'all' });
         if (!op) continue;
         const before = snapshot(d);
+        // A duplicate copies data-nm-mark, so a mark can sit on several elements: count them.
+        const marksBefore = new Map<string, number>();
+        for (const b of before) marksBefore.set(b.mark, (marksBefore.get(b.mark) ?? 0) + 1);
         const target = 'id' in op ? (op.id as number) : -1;
         const targetKey = target >= 0 ? d.refs.keyOf(target) : '';
         let tx;
@@ -300,8 +303,9 @@ for (const deck of decks) {
             expect(markOf(d.doc, id), `${where}: key resolves to its own element`).toBe(b.mark);
             survivedChecks++;
           } else {
-            // 2. no spurious loss: a key may only vanish when its element is gone
-            expect(marksAfter.has(b.mark), `${where}: key of ${b.mark} lost while the element is still there`).toBe(false);
+            // 2. no spurious loss: a key may only vanish when an element carrying its mark is gone
+            expect((marksAfter.get(b.mark)?.length ?? 0) < (marksBefore.get(b.mark) ?? 0),
+              `${where}: key of ${b.mark} lost while the element is still there`).toBe(true);
           }
         }
         // 3. a duplicate leaves the original in place (the copy goes right after it)

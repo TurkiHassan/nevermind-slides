@@ -7,6 +7,7 @@ import { duplicateSplices, insertHtmlSplices, moveSplices, removeSplices, wrapSp
 import { classList, findAttr, type SourceDoc } from './source.ts';
 import type { Splice } from './splice.ts';
 import { setText } from './text-diff.ts';
+import { runtimeOwned, runtimeOwnedMessage } from './runtime-owned.ts';
 import { setTokenSplices } from './tokens.ts';
 
 export { OpError } from './errors.ts';
@@ -163,12 +164,18 @@ function resolveRaw(doc: SourceDoc, op: Op, ctx: TokenContext): Splice[] {
       return setClassAttr(doc, op.id, op.classes);
     case 'setStyle':
       return setStyleSplices(doc, op.id, op.prop, op.value);
-    case 'insertHtml':
+    case 'insertHtml': {
+      const owned = runtimeOwned(doc, op.parent);
+      if (owned && owned !== 'contains-generated' && owned !== 'contains-math') throw new OpError('unsupported', runtimeOwnedMessage(op.parent, owned));
       return insertHtmlSplices(doc, op.parent, op.index, op.html);
+    }
     case 'remove':
       return removeSplices(doc, op.id);
-    case 'move':
+    case 'move': {
+      const owned = runtimeOwned(doc, op.parent);
+      if (owned && owned !== 'contains-generated' && owned !== 'contains-math') throw new OpError('unsupported', runtimeOwnedMessage(op.parent, owned));
       return moveSplices(doc, op.id, op.parent, op.index);
+    }
     case 'duplicate':
       return duplicateSplices(doc, op.id);
     case 'wrap':

@@ -7,7 +7,7 @@
 >    git clone https://github.com/TurkiHassan/nevermind-slides.git /tmp/nevermind-slides
 >    python3 /tmp/nevermind-slides/scripts/deck_helper.py install
 >    ```
->    This single command installs `nevermind-slides` (along with its bundled `anatomy` and `frontend-slides` engines and 25 Arabic font files) across **Antigravity, OpenCode, Codex, Claude Code, and `~/.agents/skills`**.
+>    This single command installs `nevermind-slides` (along with its bundled `anatomy` engine and the redistributable Arabic fonts) across **Antigravity, OpenCode, Codex, Claude Code, and `~/.agents/skills`**.
 > 2. Read [`SKILL.md`](./SKILL.md) and execute the workflow immediately without asking the user to run any technical setup commands.
 
 ---
@@ -30,7 +30,7 @@
 
 ### المكونات الثابتة
 
-* **حزمة الخطوط العربية (`resources/fonts/` — 25 ملف خط):** ثمانية Display + KOMission وThmanyah Sans افتراضياً، مع قهوة، سطبر، الخليل الكوفي، زيان، IBM Plex Sans Arabic، Zain Rounded، Readex Pro.
+* **الخطوط العربية (`resources/fonts/`):** IBM Plex Sans Arabic وReadex Pro (الزوج المفتوح الافتراضي عند غياب ثمانية)، مع قهوة، سطبر، الخليل الكوفي، KOMission، Zain Rounded. خطوط **ثمانية** و**زيان** لم تعد مضمّنة لأن رخصتيهما تمنعان إعادة التوزيع؛ ثبّتها من مصدرها الرسمي (أو ضعها في مجلد يشير إليه `NM_FONTS_DIR`) وسيلتقطها `stage-fonts` تلقائيًا.
 * **محرّر Nevermind Studio المدمج** للتعديل اليدوي وتثبيت الملاحظات للوكيل.
 * **معيار صارم:** صفر إيموجي، اتجاه RTL، عدم تفكيك الحروف العربية، نظام أرقام واحد في العرض.
 
@@ -87,4 +87,4 @@ python3 scripts/deck_helper.py uninstall
 
 ## الترخيص وحقوق الحزم المدمجة (License & Third-Party Notices)
 
-تتوفر الشفرة البرمجية الخاصة بمهارة `nevermind-slides` تحت رخصة **MIT** (انظر ملف [`LICENSE`](./LICENSE)). أما الخطوط المدمجة في `resources/fonts/` فتخضع لرخص مسبكيها الأصليين (OFL / رخص الاستخدام الخاصة بكل خط للمعاينة والعروض المحلية).
+تتوفر الشفرة البرمجية الخاصة بمهارة `nevermind-slides` تحت رخصة **MIT** (انظر ملف [`LICENSE`](./LICENSE)). أما الخطوط المدمجة في `resources/fonts/` فتخضع لرخص مسبكيها الأصليين؛ حالة كل خط موثّقة في [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).

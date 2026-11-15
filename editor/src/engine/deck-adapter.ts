@@ -2,6 +2,7 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseToken, type TokenContext } from './class-algebra.ts';
+import { isMathRoot } from './runtime-owned.ts';
 import { classList, findAttr, isWithin, RAW_TEXT_TAGS, type SourceDoc, type SourceNode } from './source.ts';
 import { visibleText } from './text-diff.ts';
 import { flattenColors, readTokens } from './tokens.ts';
@@ -15,6 +16,16 @@ export interface DeckInfo {
   zoomSteps: { slideId: number; id: number; step: number; label: string | null }[];
   entrances: { slideId: number; id: number; kind: string; order: number; delay: number; legacy: boolean }[];
   anatomy: { slideId: number; id: number; kind: 'svg' | 'iframe'; name: string; variables: Record<string, string> }[];
+  /** Runtime v2 step timeline: data-step / data-act (references/runtime-contract.md section 4). */
+  steps: { slideId: number; id: number; step: number; act: string }[];
+  /** Runtime v2 diagrams: the figure and its DSL source block (null when the figure has none). */
+  diagrams: { slideId: number; id: number; type: string; dataId: string | null; sourceId: number | null }[];
+  /** Runtime v2 detail templates and the element id they belong to. */
+  detailTemplates: { id: number; target: string }[];
+  /** Tables (figure.nm-table, NM-10): the figure, its <table>, size, and the steps the runtime builds from it. */
+  tables: { slideId: number; id: number; tableId: number | null; dataId: string | null; rows: number; columns: number; steps: string | null; stepsAct: string | null; highlight: string | null }[];
+  /** Formulas (NM-11): a native <math> root (source = its inner MathML) or a data-tex host (source = the TeX). */
+  equations: { slideId: number; id: number; kind: 'mathml' | 'tex'; display: boolean; source: string; terms: string[] }[];
   identity: { colours: Record<string, unknown>; fonts: Record<string, unknown> };
   runtime: { version: number | null; native: boolean };
   tailwind: 'local' | 'cdn' | 'none';
@@ -93,7 +104,51 @@ export function inspectDeck(doc: SourceDoc): DeckInfo {
   const zoomSteps: DeckInfo['zoomSteps'] = [];
   const entrances: DeckInfo['entrances'] = [];
   const anatomy: DeckInfo['anatomy'] = [];
+  const steps: DeckInfo['steps'] = [];
+  const diagrams: DeckInfo['diagrams'] = [];
+  const detailTemplates: DeckInfo['detailTemplates'] = [];
+  const tables: DeckInfo['tables'] = [];
+  const equations: DeckInfo['equations'] = [];
+  const descendants = (root: SourceNode) => {
+    const out: SourceNode[] = [];
+    const stack = [...root.children];
+    while (stack.length) { const c = doc.nodes[stack.pop() as number]; out.push(c); stack.push(...c.children); }
+    return out;
+  };
   for (const n of doc.nodes) {
+    const st = findAttr(n, 'data-step');
+    if (st && /^\d+$/.test(st.value.trim())) {
+      steps.push({ slideId: slideOf(doc, n.id, slideIds), id: n.id, step: Number(st.value), act: findAttr(n, 'data-act')?.value || 'reveal' });
+    }
+    if (classList(n).includes('nm-diagram')) {
+      const source = n.children.map((c) => doc.nodes[c]).find((c) => c.tag === 'script' && (findAttr(c, 'type')?.value ?? '').trim().toLowerCase() === 'text/nm-diagram');
+      diagrams.push({ slideId: slideOf(doc, n.id, slideIds), id: n.id, type: findAttr(n, 'data-type')?.value || 'flow', dataId: findAttr(n, 'data-id')?.value ?? null, sourceId: source?.id ?? null });
+    }
+    if (classList(n).includes('nm-table')) {
+      const table = descendants(n).find((c) => c.tag === 'table') ?? null;
+      const rows = table ? tableRows(doc, table) : [];
+      const head = table ? rows.filter((r) => inThead(doc, r)).length : 0;
+      tables.push({
+        slideId: slideOf(doc, n.id, slideIds), id: n.id, tableId: table?.id ?? null, dataId: findAttr(n, 'data-id')?.value ?? null,
+        rows: rows.length - head, columns: Math.max(0, ...rows.map((r) => rowWidth(doc, r))),
+        steps: findAttr(n, 'data-steps')?.value ?? null, stepsAct: findAttr(n, 'data-steps-act')?.value ?? null, highlight: findAttr(n, 'data-highlight')?.value ?? null,
+      });
+    }
+    const tex = findAttr(n, 'data-tex');
+    if (tex || isMathRoot(doc, n)) {
+      const terms = [...new Set([n, ...descendants(n)].map((c) => findAttr(c, 'data-term')?.value).filter((v): v is string => !!v))];
+      if (tex) for (const m of tex.value.matchAll(/\\data\{\s*term\s*=\s*([^},]+)\}/g)) if (!terms.includes(m[1].trim())) terms.push(m[1].trim());
+      equations.push({
+        slideId: slideOf(doc, n.id, slideIds), id: n.id, kind: tex ? 'tex' : 'mathml',
+        display: tex ? findAttr(n, 'data-display')?.value === 'block' : findAttr(n, 'display')?.value === 'block',
+        source: tex ? tex.value : n.endTagStart !== null ? doc.text.slice(n.startTagEnd, n.endTagStart) : '',
+        terms,
+      });
+    }
+    if (n.tag === 'template') {
+      const target = findAttr(n, 'data-detail-for')?.value;
+      if (target) detailTemplates.push({ id: n.id, target });
+    }
     const m = findAttr(n, 'data-morph');
     if (m && m.value) (morph[m.value] ??= []).push(n.id);
     const z = findAttr(n, 'data-zoom-step');
@@ -154,12 +209,32 @@ export function inspectDeck(doc: SourceDoc): DeckInfo {
     zoomSteps,
     entrances,
     anatomy,
+    steps,
+    diagrams,
+    detailTemplates,
+    tables,
+    equations,
     identity: { colours, fonts: identityFonts },
     runtime: { version: runtimeVersion !== null && Number.isFinite(runtimeVersion) ? runtimeVersion : null, native: runtimeMeta !== undefined },
     tailwind,
     legacyEditor: doc.nodes.some((n) => findAttr(n, 'data-edit') !== undefined),
   };
 }
+
+function tableRows(doc: SourceDoc, table: SourceNode): SourceNode[] {
+  const out: SourceNode[] = [];
+  const walk = (n: SourceNode) => {
+    for (const c of n.children.map((i) => doc.nodes[i])) {
+      if (c.tag === 'tr') out.push(c);
+      else if (['thead', 'tbody', 'tfoot'].includes(c.tag)) walk(c);
+    }
+  };
+  walk(table);
+  return out;
+}
+const inThead = (doc: SourceDoc, tr: SourceNode) => tr.parent !== null && doc.nodes[tr.parent].tag === 'thead';
+const cellsOf = (doc: SourceDoc, tr: SourceNode) => tr.children.map((i) => doc.nodes[i]).filter((c) => c.tag === 'td' || c.tag === 'th');
+const rowWidth = (doc: SourceDoc, tr: SourceNode) => cellsOf(doc, tr).reduce((w, c) => w + Math.max(1, Number(findAttr(c, 'colspan')?.value) || 1), 0);
 
 // ---------------------------------------------------------------------------------------------------------------
 // Lint
@@ -310,6 +385,56 @@ export function lintDeck(doc: SourceDoc, info: DeckInfo, deckDir: string): LintI
     if (face && Number.isFinite(weight) && !face.weights.includes(weight)) {
       push('missing-font-weight', 'warn', n.id, `${w.raw} asks for weight ${weight} of "${face.family}", which only has ${face.weights.join(', ')}`);
     }
+  }
+
+  // runtime v2 integrity (NM-23): references that an edit can break
+  const slideOfNode = (id: number) => { for (let p: number | null = id; p !== null; p = doc.nodes[p].parent) if (info.slides.some((sl) => sl.id === p)) return p; return null; };
+  const morphSeen = new Map<string, number>();
+  for (const n of doc.nodes) {
+    const m = findAttr(n, 'data-morph')?.value;
+    if (!m) continue;
+    const key = `${slideOfNode(n.id)}|${m}`;
+    if (morphSeen.has(key)) push('duplicate-morph', 'warn', n.id, `data-morph "${m}" appears twice on one slide; a shared element needs one element per slide`);
+    else morphSeen.set(key, n.id);
+  }
+  const ids = new Set(doc.nodes.map((n) => findAttr(n, 'data-detail-id')?.value ?? findAttr(n, 'id')?.value).filter((v): v is string => !!v));
+  for (const t of info.detailTemplates) {
+    if (!ids.has(t.target)) push('orphan-detail-template', 'warn', t.id, `<template data-detail-for="${t.target}"> has no element with that id`);
+  }
+  const templated = new Set(info.detailTemplates.map((t) => t.target));
+  for (const st of info.steps) {
+    if (st.act !== 'detail') continue;
+    const n = doc.nodes[st.id];
+    const name = findAttr(n, 'data-detail-id')?.value ?? findAttr(n, 'id')?.value;
+    if ((!name || !templated.has(name)) && findAttr(n, 'data-detail-text') === undefined) {
+      push('detail-without-content', 'warn', st.id, 'a detail step needs a <template data-detail-for> matching its id, or data-detail-text');
+    }
+  }
+  for (const host of doc.nodes) {
+    const raw = findAttr(host, 'data-links')?.value;
+    if (!raw) continue;
+    const names = new Set<string>();
+    const stack = [...host.children];
+    while (stack.length) { const c = doc.nodes[stack.pop() as number]; const dn = findAttr(c, 'data-node')?.value; if (dn) names.add(dn); stack.push(...c.children); }
+    for (const part of raw.split(';')) {
+      const ends = /^\s*([^<>~:@\s-]+)\s*(?:<>|~>|>|-)\s*([^:@\s]+)/.exec(part.split(':')[0]);
+      if (!ends) continue;
+      for (const e of [ends[1], ends[2]]) if (!names.has(e)) push('dangling-link', 'warn', host.id, `data-links names "${e}", but no data-node="${e}" is inside this element`);
+    }
+  }
+
+  // tables and formulas (NM-10, NM-11): what an edit can break
+  for (const t of info.tables) {
+    if (t.tableId === null) { push('table-without-table', 'warn', t.id, 'figure.nm-table holds no <table>'); continue; }
+    const rows = tableRows(doc, doc.nodes[t.tableId]);
+    const spans = rows.some((r) => cellsOf(doc, r).some((c) => (Number(findAttr(c, 'rowspan')?.value) || 1) > 1));
+    const widths = new Set(rows.map((r) => rowWidth(doc, r)));
+    if (!spans && widths.size > 1) push('table-ragged', 'warn', t.id, `table rows hold different numbers of cells (${[...widths].sort((a, b) => a - b).join(', ')}); give every row the same number`);
+  }
+  const hasConverter = doc.nodes.some((n) => n.tag === 'script' && /temml/i.test(findAttr(n, 'src')?.value ?? ''));
+  for (const e of info.equations) {
+    if (e.kind === 'tex' && !hasConverter) push('tex-without-converter', 'warn', e.id, 'data-tex needs the TeX converter (assets/nm/vendor/temml.min.js, staged by deck_helper.py stage-runtime --math); without it the formula shows as raw TeX');
+    if (e.kind === 'tex' && /^\s*(\$|\\\(|\\\[)/.test(e.source)) push('tex-delimiters', 'warn', e.id, 'data-tex starts with a $, \\( or \\[ delimiter; write the formula without delimiters');
   }
 
   if (info.tailwind === 'cdn') {
