@@ -87,4 +87,4 @@ python3 scripts/deck_helper.py uninstall
 
 ## الترخيص وحقوق الحزم المدمجة (License & Third-Party Notices)
 
-تتوفر الشفرة البرمجية الخاصة بمهارة `nevermind-slides` تحت رخصة **MIT** (انظر ملف [`LICENSE`](./LICENSE)). أما الخطوط المدمجة في `resources/fonts/` فتخضع لرخص مسبكيها الأصليين (OFL / رخص الاستخدام الخاصة بكل خط للمعاينة والعروض المحلية).
+تتوفر الشفرة البرمجية الخاصة بمهارة `nevermind-slides` تحت رخصة **MIT** (انظر ملف [`LICENSE`](./LICENSE)). أما الخطوط المدمجة في `resources/fonts/` فتخضع لرخص مسبكيها الأصليين؛ حالة كل خط موثّقة في [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).

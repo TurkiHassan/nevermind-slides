@@ -13,10 +13,7 @@ Fonts and the runtime are not committed. Stage them before opening the deck (fro
 ```bash
 python3 scripts/deck_helper.py stage-fonts --target-dir examples/showcase
 python3 scripts/deck_helper.py stage-runtime --target-dir examples/showcase
-node resources/engine/anatomy/examples/supply-port/build.mjs --light
 ```
-
-The last command builds the live port page used on the anatomy slide (built pages are not committed).
 
 Then open `deck.html` in Chrome. Checks:
 
@@ -30,5 +27,7 @@ python3 scripts/image_fetch.py credits --project examples/showcase --check examp
 The three photos are synthetic images drawn locally with Pillow (the build ran without network), registered
 with `image_fetch.py fetch --url file://...`, then cropped with `fit` and given one duotone treatment with
 `treat`. Their originals in `assets/img/src/` are not committed. `plate-waves.svg` is an `image_fetch.py
-placeholder` plate. The live anatomy slide loads the page from
-`resources/engine/anatomy/examples/supply-port/`, so open the deck from inside the repository.
+placeholder` plate. The live anatomy slide loads `assets/anatomy/supply-port-light.html`, a self-contained page committed with
+the example (built with `node resources/engine/anatomy/examples/supply-port/build.mjs --light`, then copied
+here). Rebuild and copy it again after changing the supply-port figure. The deck no longer reads anything
+outside its own folder, so it can be copied anywhere.
