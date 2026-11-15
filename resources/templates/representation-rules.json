@@ -780,6 +780,64 @@
    "en": "one idea: a picture from the topic's world carries it"
   },
   {
+   "id": "A250",
+   "when": {
+    "kind": [
+     "process"
+    ],
+    "items": [
+     9,
+     null
+    ]
+   },
+   "suggest": {
+    "diagram:flow": 5,
+    "table": 3,
+    "diagram:timeline": 2
+   },
+   "ar": "{items} خطوات: أكثر مما يقرؤه تدفق واحد؛ قسّمها على شريحتين أو اجعلها جدولًا",
+   "en": "{items} steps: more than one flow reads; split it over two slides or use a table"
+  },
+  {
+   "id": "A251",
+   "when": {
+    "kind": [
+     "finding",
+     "data",
+     "evidence"
+    ],
+    "quantities": [
+     0,
+     0
+    ],
+    "formula": false
+   },
+   "suggest": {
+    "none": 5,
+    "diagram:hub": 2
+   },
+   "ar": "نتائج وصفية بلا أرقام: بطاقات نصية",
+   "en": "descriptive findings without numbers: text cards"
+  },
+  {
+   "id": "A252",
+   "when": {
+    "kind": [
+     "timeline"
+    ],
+    "quantities": [
+     3,
+     null
+    ],
+    "time_series": true
+   },
+   "suggest": {
+    "chart:line": 3
+   },
+   "ar": "أحداث لها قيم على مر الزمن: الخط يُظهر الاتجاه",
+   "en": "events that carry values over time: a line shows the trend"
+  },
+  {
    "id": "A240",
    "when": {
     "audience": [
