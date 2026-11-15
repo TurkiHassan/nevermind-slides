@@ -5,7 +5,7 @@ import { EditorDocument } from '../../src/engine/document.ts';
 import { parseSource } from '../../src/engine/source.ts';
 import { RefMap } from '../../src/engine/refs.ts';
 import { fixturePath } from '../helpers.ts';
-import { ATTENTION, MINIMAL, collectEvents, raw, readDeck, startTest, tempDeck, type TestServer } from './helpers.ts';
+import { SERVER_DECK, MINIMAL, collectEvents, raw, readDeck, startTest, tempDeck, type TestServer } from './helpers.ts';
 
 const servers: TestServer[] = [];
 const start = async (rel = MINIMAL, dirName?: string) => {
@@ -138,7 +138,7 @@ describe('preview', () => {
   });
 
   it('has data-nm-key on every patchable body element, the edit layer first in <head>, and is the deck byte for byte otherwise', async () => {
-    const s = await start(ATTENTION);
+    const s = await start(SERVER_DECK);
     const r = await raw(s.port, `/preview?t=${s.token}`);
     expect(r.status).toBe(200);
     expect(r.headers['content-type']).toMatch(/text\/html/);
@@ -164,7 +164,7 @@ describe('preview', () => {
   });
 
   it('serves assets relative to the deck, including a name with Arabic letters and spaces', async () => {
-    const s = await start(ATTENTION);
+    const s = await start(SERVER_DECK);
     writeFileSync(join(s.dir, 'assets', 'صورة تجريبية.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
     const png = readdirAsset(s.dir);
     const r = await raw(s.port, `/deck/assets/img/${encodeURIComponent(png)}?t=${s.token}`);
@@ -185,7 +185,7 @@ function readdirAsset(dir: string): string {
 
 describe('a deck under a path with spaces and Arabic letters (Review Focus 4)', () => {
   it('serves, applies ops and saves', async () => {
-    const src = fixturePath(ATTENTION);
+    const src = fixturePath(SERVER_DECK);
     const base = tempDeck(MINIMAL, 'منهج الجامعة/عرض الانتباه — نسخة 1').dir;
     cpSync(join(src, '..', 'assets'), join(base, 'assets'), { recursive: true });
     cpSync(src, join(base, 'عرض تقديمي.html'));
@@ -210,7 +210,7 @@ describe('a deck under a path with spaces and Arabic letters (Review Focus 4)', 
 
 describe('save', () => {
   it('opening and saving with no ops leaves the file byte-identical and its mtime unchanged', async () => {
-    const s = await start(ATTENTION);
+    const s = await start(SERVER_DECK);
     const before = readFileSync(s.deckPath);
     const m0 = statSync(s.deckPath).mtimeMs;
     await new Promise((r) => setTimeout(r, 30));
@@ -223,7 +223,7 @@ describe('save', () => {
   });
 
   it('ops then save: the file equals the EditorDocument text, and only the touched lines differ', async () => {
-    const s = await start(ATTENTION);
+    const s = await start(SERVER_DECK);
     const original = readDeck(s);
     const mirror = EditorDocument.fromText(original);
     const d = parseSource(original);
@@ -253,7 +253,7 @@ describe('save', () => {
   });
 
   it('a second tab edit landing while the save is in flight keeps the document dirty against the new file', async () => {
-    const s = await start(ATTENTION);
+    const s = await start(SERVER_DECK);
     const { key } = await keyOfTag(s, 'p');
     const { key: key2 } = await keyOfTag(s, 'span', (n) => n.children.length === 0);
     expect((await s.ops([{ kind: 'setText', id: key, text: 'ZZ-one-ZZ' }])).status).toBe(200);
@@ -383,11 +383,11 @@ describe('POST /api/ops', () => {
 
 describe('state and outline', () => {
   it('GET /api/state has fingerprint, dirty, undo flags, info with keys, and lint', async () => {
-    const s = await start(ATTENTION);
+    const s = await start(SERVER_DECK);
     const st = await s.state();
     expect(st).toMatchObject({ dirty: false, canUndo: false, canRedo: false, conflict: null });
     expect(st.fingerprint).toMatch(/^[0-9a-f]{64}$/);
-    expect(st.info.slides).toHaveLength(7);
+    expect(st.info.slides).toHaveLength((readDeck(s).match(/<section class="slide"/g) ?? []).length);
     expect(st.info.slides[0].key).toMatch(/^n[0-9a-z]+$/);
     expect(Array.isArray(st.info.tokens.colors)).toBe(true);
     expect(Array.isArray(st.lint)).toBe(true);

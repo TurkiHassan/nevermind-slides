@@ -26,7 +26,12 @@
     try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return 0; } catch (e) { /* noop */ }
     return 1;
   }
-  function raf2(fn) { requestAnimationFrame(function () { requestAnimationFrame(fn); }); }
+  // Counted in NM.pending so NM.test.settle() (and deck_check) waits for the frames, not just the animations.
+  function raf2(fn) {
+    var NMg = window.NM = window.NM || {};
+    NMg.pending = (NMg.pending || 0) + 1;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { NMg.pending--; fn(); }); });
+  }
 
   var AR_DIG = '٠١٢٣٤٥٦٧٨٩';
   var FA_DIG = '۰۱۲۳۴۵۶۷۸۹';

@@ -73,7 +73,9 @@ NM.dur                       // named durations in ms: { fast, base, slow, morph
 NM.animate(el, keyframes, opts) // WAAPI wrapper that honours speed 0 / reduced motion; returns Animation
 NM.speed                     // 1 normally, 0 when ?nm-speed=0, ?nm-print or reduced motion
 NM.unclass(el, ...names)     // remove state classes; drops an empty class="" so author markup round-trips byte-identical
-NM.test.settle()             // Promise resolved when no runtime animation is pending
+NM.test.settle()             // Promise resolved when no runtime animation, timer or plugin frame is pending
+NM.pending                   // number of frames plugins are still waiting on; a plugin increments it before a
+                             // requestAnimationFrame chain that changes state and decrements it after (settle waits)
 ```
 
 Controller:

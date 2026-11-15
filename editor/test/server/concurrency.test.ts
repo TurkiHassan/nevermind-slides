@@ -6,12 +6,12 @@ import { EditorDocument } from '../../src/engine/document.ts';
 import type { Op } from '../../src/engine/ops.ts';
 import { loadDeck, saveDeck } from '../../src/engine/file-store.ts';
 import { watchDeck } from '../../src/server/watch.ts';
-import { ATTENTION, ROOT } from '../helpers.ts';
+import { SERVER_DECK, ROOT } from '../helpers.ts';
 import { MINIMAL, collectEvents, raw, readDeck, startTest, tempDeck, type TestServer } from './helpers.ts';
 
 const CLI = join(ROOT, 'src', 'cli', 'nm-studio.ts');
 const servers: TestServer[] = [];
-const start = async (rel = ATTENTION) => {
+const start = async (rel = SERVER_DECK) => {
   const s = await startTest(rel);
   servers.push(s);
   return s;

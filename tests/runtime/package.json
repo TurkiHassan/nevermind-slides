@@ -1,0 +1,12 @@
+{
+  "name": "nevermind-runtime-tests",
+  "private": true,
+  "type": "module",
+  "description": "Contract tests for resources/engine/nm-runtime (references/runtime-contract.md). Not shipped with the skill.",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 contract.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

@@ -1,10 +1,14 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { createPortableHtml } from '../../src/export/portable-html.ts';
-import { ATTENTION, MECHANISTIC, tempCopyDeck } from '../helpers.ts';
+import { ATTENTION, MECHANISTIC, fixturePath, tempCopyDeck } from '../helpers.ts';
+
+// These decks are private (fixtures/real/ is not in git); without them the tests are skipped, not failed.
+const hasAttention = existsSync(fixturePath(ATTENTION));
+const hasMechanistic = existsSync(fixturePath(MECHANISTIC));
 
 describe('portable export of the real decks', () => {
-  it('makes the attention deck self-contained: no deck-relative reference survives', async () => {
+  it.skipIf(!hasAttention)('makes the attention deck self-contained: no deck-relative reference survives', async () => {
     const copy = tempCopyDeck(ATTENTION);
     const source = readFileSync(copy.path, 'utf8');
     const { html, manifest } = await createPortableHtml({ deckPath: copy.path, source });
@@ -16,7 +20,7 @@ describe('portable export of the real decks', () => {
     expect(manifest.remote).toEqual([]);
   });
 
-  it('refuses the mechanistic deck by default (Tailwind CDN, Google Fonts) and exports it when remote is allowed', async () => {
+  it.skipIf(!hasMechanistic)('refuses the mechanistic deck by default (Tailwind CDN, Google Fonts) and exports it when remote is allowed', async () => {
     const copy = tempCopyDeck(MECHANISTIC);
     const source = readFileSync(copy.path, 'utf8');
     await expect(createPortableHtml({ deckPath: copy.path, source })).rejects.toMatchObject({ code: 'remote-asset' });

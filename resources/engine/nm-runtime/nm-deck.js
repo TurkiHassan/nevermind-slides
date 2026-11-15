@@ -2195,7 +2195,8 @@
       return new Promise(function (resolve) {
         var calm = 0;
         (function tick() {
-          var busy = pendingTimers > 0 || !!flight;
+          // NM.pending: frames a plugin is still waiting on (nm-diagram arms on a double rAF after .active).
+          var busy = pendingTimers > 0 || !!flight || NM.pending > 0;
           if (!busy) live.forEach(function (a) { if (finiteRunning(a)) busy = true; });
           if (!busy) document.getAnimations().forEach(function (a) { if (finiteRunning(a)) busy = true; });
           calm = busy ? 0 : calm + 1;

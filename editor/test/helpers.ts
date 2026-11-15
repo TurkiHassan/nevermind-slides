@@ -24,6 +24,10 @@ export const ATTENTION = 'real/attention/deck.html';
 export const MECHANISTIC = 'real/mechanistic/deck.html';
 export const MINIMAL = 'synthetic/minimal-deck.html';
 export const EDGE = 'synthetic/edge-cases.html';
+/** The repository's own worked example (fixtures/showcase links to examples/showcase); always present. */
+export const SHOWCASE = 'showcase/deck.html';
+/** A real deck with assets for server tests: the private attention deck when present, else the showcase. */
+export const SERVER_DECK = existsSync(fixturePath(ATTENTION)) ? ATTENTION : SHOWCASE;
 
 /** Every fixture plus CRLF and BOM variants generated in memory. Real decks are null when absent. */
 export const ALL_FIXTURES: Fixture[] = [
@@ -50,9 +54,9 @@ export function tempCopyDeck(rel: string): { dir: string; path: string } {
   if (!existsSync(src)) throw new Error(`fixture missing: ${rel}`);
   const dir = mkdtempSync(join(tmpdir(), 'nm-studio-test-'));
   const srcDir = dirname(src);
-  if (rel.startsWith('real/')) cpSync(srcDir, dir, { recursive: true });
+  if (rel.startsWith('real/') || rel.startsWith('showcase/')) cpSync(srcDir, dir, { recursive: true, dereference: true });
   else cpSync(src, join(dir, 'deck.html'));
-  const name = rel.startsWith('real/') ? rel.split('/').pop()! : 'deck.html';
+  const name = rel.startsWith('real/') || rel.startsWith('showcase/') ? rel.split('/').pop()! : 'deck.html';
   return { dir, path: join(dir, name) };
 }
 
