@@ -98,6 +98,14 @@ Read the source and fill this table for yourself (one row per future slide). It 
 
 ### 2.2 Choose the visual for each slide
 
+Describe the information, then let the advisor propose: start with `plan-init --advisor` (or add `"advisor": true`), fill each content slide's `content` (`kind`: concept, comparison, process, causal, data, finding, argument, definition, hierarchy, part-whole, timeline; plus `items`, `dimensions`, `quantities`, `sequence`, `formula`, `detail`, `entities`), and run:
+
+```bash
+python3 "<SKILL_DIR>/scripts/deck_helper.py" plan-advise --plan "<project_dir>/deck.plan.json"
+```
+
+It prints, per slide, the current representation, how well it fits, the first suggestion with its reason in Arabic, and the acts (or "still": a definition, a quote or one number reads best without steps), and writes `advice.json`. Accept, override (`"visual": {"locked": true}` keeps your choice), or run `--apply` to write the suggestion into slides that fit poorly. Charts are then drawn from `content.quantities`. The table below is the same logic for a quick decision by hand.
+
 | The slide's idea is... | Visual | Plan `visual.type` |
 |---|---|---|
 | A physical mechanism, a place where the work happens, or a process with real objects | Anatomy isometric figure, subject-first | `anatomy` (`mode`: `animated` if the real subject moves and the motion is the point, else `static`) |

@@ -43,14 +43,21 @@ def code_text(code: str, lang: str, **values: Any) -> str:
     """The Arabic or English text of an act, fit or integrity code, with its placeholders filled."""
     for c in rules()["codes"]:
         if c["id"] == code:
-            return _fill(c["ar" if lang == "ar" else "en"], values)
+            return _fill(c["ar" if lang == "ar" else "en"], values, lang)
     raise KeyError(code)
 
 
-def _fill(template: str, values: dict[str, Any]) -> str:
+_TO_AR = str.maketrans("0123456789.", "٠١٢٣٤٥٦٧٨٩٫")
+
+
+def _fill(template: str, values: dict[str, Any], lang: str = "en") -> str:
+    """Fill {placeholders}; numbers in Arabic text use Arabic-Indic digits."""
     out = template
     for k, v in values.items():
-        out = out.replace("{" + k + "}", str(v))
+        text = str(int(v) if isinstance(v, float) and v.is_integer() else v)
+        if lang == "ar" and isinstance(v, (int, float)):
+            text = text.translate(_TO_AR)
+        out = out.replace("{" + k + "}", text)
     return out
 
 
@@ -200,7 +207,7 @@ def _rule_text(rule_id: str, f: dict[str, Any], lang: str) -> str:
                 "options": f["options"], "criteria": f["criteria"], "n": f["quantities"], "items": f["items"],
                 "units": "، ".join(f["unit_list"]) if lang == "ar" else ", ".join(f["unit_list"]),
                 "entities": "، ".join(f["entity_list"][:4]) if lang == "ar" else ", ".join(f["entity_list"][:4]),
-            })
+            }, lang)
     raise KeyError(rule_id)
 
 
@@ -434,7 +441,8 @@ def table(advice: dict[str, Any]) -> str:
         if e.get("still"):
             motion = "ثابتة" if ar else "still"
         else:
-            motion = "، ".join(f"{a['act']} {a['target']}" for a in e["acts"]) if ar else ", ".join(f"{a['act']} {a['target']}" for a in e["acts"])
+            parts = [f"{a['act']} {a['target']}" for a in e["acts"]] + [f"Morph: {'، '.join(m['entities']) if ar else ', '.join(m['entities'])}" for m in e.get("morph", [])]
+            motion = ("، " if ar else ", ").join(parts)
         why = (rec["text_ar"] if ar else rec["text_en"]) if rec else (e.get("note", {}).get("ar" if ar else "en", ""))
         rows.append(f"| {e['index']} {e['slide']} | {name(e['current'])} | {fit_names[e['fit']]} | {name(rec['visual']) if rec else '-'} | {why} | {motion or '-'} |")
     for r in advice["repetition"]:

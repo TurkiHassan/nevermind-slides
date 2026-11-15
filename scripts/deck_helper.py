@@ -37,6 +37,9 @@ Subcommands:
                     paste-in snippet; `--math` adds the optional TeX converter (Temml).
   plan-init         Write <target-dir>/deck.plan.json from the bundled example (or N stub slides).
   plan-lint         Validate deck.plan.json and apply the motion-director design rules.
+  plan-advise       Suggest a representation, acts and Morph for each slide from its described
+                    information (`content`), with reasons in Arabic and English (advice.json).
+                    `--apply` writes the first suggestion into unlocked slides that fit poorly.
   scaffold          Generate the full deck HTML from a lint-clean plan (also stages fonts and runtime).
   check             Run the headless-Chrome runtime checks (scripts/deck_check.mjs): overflow,
                     contrast, fonts, images, steps, console errors, screenshots and a contact sheet.
@@ -521,6 +524,27 @@ DIGIT_GROUPS = {
 
 # Emoji plus invisible emoji glue (variation selector-16, zero-width joiner, keycap)
 PLAN_EMOJI_REGEX = re.compile(EMOJI_REGEX.pattern[:-2] + "\uFE0F\u20E3]+")
+
+
+_REPRESENT: Any = None
+
+
+def _represent() -> Any:
+    """scripts/nm_represent.py (representation intelligence, NM-29), loaded next to this file."""
+    global _REPRESENT
+    if _REPRESENT is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("nm_represent", Path(__file__).resolve().parent / "nm_represent.py")
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        sys.modules["nm_represent"] = module
+        spec.loader.exec_module(module)
+        _REPRESENT = module
+    return _REPRESENT
+
+
+def _has_content(plan: Any) -> bool:
+    return isinstance(plan, dict) and any(isinstance(s, dict) and isinstance(s.get("content"), dict) for s in plan.get("slides") or [])
 
 
 def _closest(value: str, options: Any) -> str:
@@ -1042,6 +1066,36 @@ def lint_plan(plan: Any) -> dict[str, Any]:
     if len(used) > 1:
         warn("R121", f"deck text mixes digit systems ({', '.join(used)}); pick one and use it everywhere")
 
+    # representation advice (NM-29): advisory warnings only, and only when the plan asks for them
+    still_slides: set[int] = set()
+    if plan.get("advisor") is True:
+        nr = _represent()
+        for i, slide in enumerate(slides):
+            content = slide.get("content")
+            if content is not None and not isinstance(content, dict):
+                warn("A200", f"slide {i + 1} ({slide.get('id', '?')}): `content` must be an object describing the information", i + 1)
+                continue
+            kind = (content or {}).get("kind")
+            if kind and kind not in nr.KINDS:
+                hint = _closest(kind, nr.KINDS)
+                warn("A200", f"slide {i + 1} ({slide.get('id', '?')}): content.kind \"{kind}\" is unknown" + (f"; did you mean \"{hint}\"?" if hint else f"; use one of: {', '.join(nr.KINDS)}"), i + 1)
+        advice = nr.advise_plan(plan)
+        names = nr.rules()["representations"]
+        for e in advice["slides"]:
+            where = f"slide {e['index']} ({e['slide']})"
+            if e["fit"] == "unknown" and slides[e["index"] - 1].get("role") not in ("cover", "closing", "section"):
+                warn("A200", f"{where}: {nr.code_text('A200', 'en')}", e["index"])
+            if e["fit"] in ("poor", "weak") and not e.get("locked") and e["recommend"]:
+                rec = e["recommend"][0]
+                code = "A290" if e["fit"] == "poor" else "A291"
+                warn(code, f"{where}: {nr.code_text(code, 'en')}: {names.get(e['current'], {}).get('en', e['current'])} -> {names[rec['visual']]['en']} ({rec['why'][0]}: {rec['text_en']}); run plan-advise, or lock the visual", e["index"])
+            for c in e.get("checks", []):
+                warn(c["code"], f"{where}: {c['en']}", e["index"])
+            if e.get("still"):
+                still_slides.add(e["index"])
+        for r in advice["repetition"]:
+            warn(r["code"], f"slides {', '.join(map(str, r['slides']))}: {r['en']}", r["slides"][0])
+
     slide_reports = []
     for i, slide in enumerate(slides):
         sc = motion_score(slide, slides[i - 1] if i else None)
@@ -1066,7 +1120,8 @@ def lint_plan(plan: Any) -> dict[str, Any]:
         "slides": slide_reports,
         "motion_summary": {
             "average": round(sum(scores) / len(scores), 1) if scores else 0,
-            "flat_slides": [r["slide"] for r in slide_reports if r["motion_score"] <= 2],
+            # a slide the advisor marks still (definition, quote, one number) is not flat: stillness is its point
+            "flat_slides": [r["slide"] for r in slide_reports if r["motion_score"] <= 2 and r["slide"] not in still_slides],
         },
     }
 
@@ -1109,6 +1164,44 @@ def cmd_plan_lint(args: argparse.Namespace) -> int:
     if args.output:
         print(f"Report written to {Path(args.output).expanduser().resolve()}")
     return 0 if report["passed"] else 1
+
+
+def cmd_plan_advise(args: argparse.Namespace) -> int:
+    plan_path = Path(args.plan).expanduser().resolve()
+    plan, problem = _load_plan(plan_path)
+    if problem or not isinstance(plan, dict):
+        print(f"Plan advise FAILED: {problem or 'plan must be a JSON object'}", file=sys.stderr)
+        return 1
+    nr = _represent()
+    advice = nr.advise_plan(plan)
+    out = Path(args.output).expanduser().resolve() if args.output else plan_path.parent / "advice.json"
+    out.write_text(nr.advice_json(advice), encoding="utf-8")
+    print(nr.table(advice))
+    described = sum(1 for e in advice["slides"] if e["fit"] != "unknown")
+    print(f"\nAdvice for {described} of {len(advice['slides'])} slides written to {out}")
+    if not described:
+        print("No slide describes its information yet: add content.kind (and items, quantities, entities...) to the slides; see references/deck-plan.md.")
+    if args.apply:
+        before = lint_plan(plan)
+        new, applied, skipped = nr.apply_advice(plan, advice)
+        after = lint_plan(new)
+        old_errs = {(e["code"], e["slide"]) for e in before["errors"]}
+        broke = sorted({e["slide"] for e in after["errors"] if (e["code"], e["slide"]) not in old_errs and e["slide"]})
+        for idx in broke:  # never let advice break the plan: keep the author's visual on that slide
+            new["slides"][idx - 1]["visual"] = plan["slides"][idx - 1].get("visual")
+            sid = plan["slides"][idx - 1].get("id")
+            applied = [a for a in applied if not a.startswith(f"{sid}:")]
+            skipped.append(f"{sid}: the suggestion would break plan-lint ({', '.join(e['code'] for e in after['errors'] if e['slide'] == idx)}); kept the current visual")
+        if applied:
+            shutil.copy2(plan_path, plan_path.with_name(plan_path.name + ".bak"))
+            write_json_output(plan_path, new)
+        for line in applied:
+            print(f"  applied  {line}")
+        for line in skipped:
+            print(f"  skipped  {line}")
+        if not applied:
+            print("Nothing to apply: every described slide fits, is locked, or needs data first.")
+    return 0
 
 
 # ---------------------------------------------------------------------------
@@ -1231,8 +1324,15 @@ def cmd_plan_init(args: argparse.Namespace) -> int:
             print("Error: --slides must be between 5 and 24.", file=sys.stderr)
             return 1
         plan = make_stub_plan(args.title, args.slides, getattr(args, "lang", "ar"))
+    if getattr(args, "advisor", False):
+        plan["advisor"] = True
+        plan.setdefault("audience", "general")
+        for slide in plan["slides"]:
+            if slide.get("role") not in ("cover", "closing"):
+                slide.setdefault("content", {"kind": "", "items": 0, "quantities": [], "entities": []})
     write_json_output(out, plan)
-    print(f"Plan written to {out} ({len(plan['slides'])} slides). Fill it in, then run: plan-lint --plan {out}")
+    nxt = "plan-advise" if getattr(args, "advisor", False) else "plan-lint"
+    print(f"Plan written to {out} ({len(plan['slides'])} slides). Fill it in, then run: {nxt} --plan {out}")
     return 0
 
 
@@ -1441,6 +1541,11 @@ def _plan_uses_arabic_digits(plan: dict[str, Any]) -> bool:
         return False
     # formulas are not text: digits inside MathML or TeX do not decide the deck's digit system
     def no_formulas(slide: Any) -> Any:
+        if isinstance(slide, dict) and isinstance(slide.get("content"), dict):
+            # numbers in content.quantities are data (JSON numbers are always written 0-9); the deck formats them
+            content = slide["content"]
+            qs = [{k: v for k, v in q.items() if k != "value"} if isinstance(q, dict) else q for q in content.get("quantities") or []]
+            slide = {**slide, "content": {k: v for k, v in content.items() if k not in ("quantities", "items", "dimensions", "formula")} | {"quantities": qs}}
         if not isinstance(slide, dict) or _visual_of(slide).get("type") != "equation":
             return slide
         visual = {k: v for k, v in _visual_of(slide).items() if k not in ("mathml", "tex", "lines")}
@@ -1549,7 +1654,11 @@ def _plan_steps(slide: dict[str, Any]) -> dict[str, Any]:
 def _starter_nodes(slide: dict[str, Any], node_ids: list[str]) -> list[str]:
     ids = list(node_ids)
     k = 1
-    while len(ids) < 3:
+    content = slide.get("content") if isinstance(slide.get("content"), dict) else {}
+    items = content.get("items")
+    # as many starter nodes as the information has elements (content.items, NM-29), 3 when the plan does not say
+    want = max(3, min(6, items)) if isinstance(items, int) and not isinstance(items, bool) and items > 0 else 3
+    while len(ids) < want:
         cand = f"n{k}"
         k += 1
         if cand not in ids:
@@ -1557,8 +1666,41 @@ def _starter_nodes(slide: dict[str, Any], node_ids: list[str]) -> list[str]:
     return ids
 
 
+_DSL_KEYS = re.compile(r"[:|!\n]")
+
+
+def _quantity_dsl(slide: dict[str, Any]) -> tuple[list[str], dict[str, int]] | None:
+    """Chart DSL drawn from the plan's own numbers (content.quantities, NM-29) instead of starter data, or None."""
+    content = slide.get("content") if isinstance(slide.get("content"), dict) else {}
+    qs = [q for q in content.get("quantities") or [] if isinstance(q, dict) and q.get("value") is not None]
+    dtype, _ = _real_diagram_type(slide)
+    if not qs or _visual_type(slide) != "chart" or dtype not in ("bars", "donut", "line", "stat", "gauge", "funnel"):
+        return None
+    clean = lambda t: _DSL_KEYS.sub(" ", str(t)).strip()
+    to_ar = str.maketrans("0123456789.", "٠١٢٣٤٥٦٧٨٩٫")
+    val = lambda v: str(v).translate(to_ar) if _SCAFFOLD["arabic_digits"] else _num(str(v))  # the deck's digit system
+    units = sorted({str(q.get("unit") or "").strip() for q in qs} - {""})
+    unit = units[0] if len(units) == 1 else ""
+    nums = [float(nr_v) if (nr_v := _represent()._num(q.get("value"))) is not None else 0.0 for q in qs]
+    top = nums.index(max(nums))
+    if dtype == "line":
+        title = clean(slide.get("title") or "series")
+        return [f"x: {', '.join(clean(q.get('label')) for q in qs)}", f"series {title}: {', '.join(val(q.get('value')) for q in qs)}"], {"series": 1}
+    if dtype == "gauge":
+        q = qs[0]
+        return [f"value: {val(q.get('value'))}", f"max: {val(100) if unit in ('%', '٪') else val(max(nums) or 1)}"] + ([f"unit: {unit}"] if unit else []) + [f"label: {clean(q.get('label'))}"], {"series": 1}
+    if dtype == "stat":
+        return [f"{clean(q.get('label'))}: {val(q.get('value'))}{_num(str(q.get('unit') or ''))}" + (" !" if i == top else "") for i, q in enumerate(qs)], {"series": len(qs)}
+    lines = [f"unit: {unit}"] if unit and dtype == "bars" else []
+    lines += [f"{clean(q.get('label'))}: {val(q.get('value'))}" + (" !" if i == top else "") for i, q in enumerate(qs)]
+    return lines, {"series": len(qs)}
+
+
 def _starter_dsl(slide: dict[str, Any], node_ids: list[str]) -> tuple[list[str], dict[str, int]]:
     """Starter DSL lines that nm-diagram.js renders as is, plus how many steps each step mode makes."""
+    from_plan = _quantity_dsl(slide)
+    if from_plan:
+        return from_plan
     dtype, _ = _real_diagram_type(slide)
     ids = _starter_nodes(slide, node_ids)
     n = len(ids)
@@ -1601,7 +1743,8 @@ def _diagram_html(slide: dict[str, Any], sid: str, node_ids: list[str], attr_ext
     label = _esc(slide.get("title") or sid)
     did = _esc(visual.get("ref") or f"{sid}-diagram")
     extra_attr = _attrs(extra) if extra else ""
-    head = f'<figure class="nm-diagram" data-type="{_esc(dtype)}" data-id="{did}" aria-label="{label}"{extra_attr} data-nm-todo{attr_extra}>'
+    todo = "" if _quantity_dsl(slide) else " data-nm-todo"  # numbers from content.quantities are the author's own
+    head = f'<figure class="nm-diagram" data-type="{_esc(dtype)}" data-id="{did}" aria-label="{label}"{extra_attr}{todo}{attr_extra}>'
     lines, _ = _starter_dsl(slide, node_ids)
     body = "\n".join("      " + l for l in lines)
     return f'{head}\n    <script type="text/nm-diagram">\n{body}\n    </script>\n  </figure>'
@@ -1730,6 +1873,18 @@ def _build_slide(
     plan_steps = _plan_steps(slide)
     steps_map: dict[str, tuple[int, dict[str, Any]]] = plan_steps["elements"]
     todos.extend(plan_steps["todos"])
+    advice = (_SCAFFOLD.get("advice") or {}).get(idx)
+    if advice and advice["fit"] != "unknown":
+        lang_key = "text_ar" if _SCAFFOLD["lang"] == "ar" else "text_en"
+        rec = advice["recommend"][0] if advice["recommend"] else None
+        line = f"representation: {advice['current']} ({advice['fit']}"
+        if rec and rec["visual"] != advice["current"]:
+            line += f"; plan-advise suggests {rec['visual']}, {rec['why'][0]}: {rec[lang_key]}"
+        elif rec:
+            line += f"; {rec['why'][0]}: {rec[lang_key]}"
+        todos.append(line + ")")
+        if advice.get("still"):
+            todos.append("keep this slide still (" + advice["still_why"]["ar" if _SCAFFOLD["lang"] == "ar" else "en"] + ")")
     used_keys: set[str] = set()
     templates: list[str] = []
     templated: set[str] = set()
@@ -1860,7 +2015,10 @@ def _build_slide(
                 for i, n, a in ns:
                     todos.append(f"step {n} {a} on diagram node \"{i}\" (data-node-steps on the figure; keep the node id when you edit the DSL)")
             visual_html = _diagram_html(slide, sid, node_ids, vattr + dg_attr)
-            todos.append(f"edit {vtype} labels/values ({_real_diagram_type(slide)[0]}) in the nm-diagram script block")
+            if _quantity_dsl(slide):
+                todos.append(f"{vtype} drawn from content.quantities ({_real_diagram_type(slide)[0]}); check the labels in the nm-diagram script block")
+            else:
+                todos.append(f"edit {vtype} labels/values ({_real_diagram_type(slide)[0]}) in the nm-diagram script block")
         elif vtype == "table":
             tb = plan_steps["table"]
             tb_attr = ""
@@ -2025,6 +2183,7 @@ def render_deck(plan: dict[str, Any], out_dir: Path, tailwind: bool = False,
                 font_files: Any = None) -> tuple[str, list[tuple[Path, str]], int]:
     template = (TEMPLATES_DIR / "deck-skeleton.html").read_text(encoding="utf-8")
     _set_scaffold_context(plan)
+    _SCAFFOLD["advice"] = {e["index"] - 1: e for e in _represent().advise_plan(plan)["slides"]} if _has_content(plan) else {}
     features = _plan_features(plan)
     tokens, _ = resolve_theme(plan.get("theme"))
     requested = (plan.get("fonts") or {}).get("pairing", "thmanyah") if isinstance(plan.get("fonts"), dict) else "thmanyah"
@@ -2263,6 +2422,53 @@ def _vocab_error(where: str, attr: str, value: str, valid: tuple[str, ...]) -> s
     )
 
 
+_DSL_RESERVED = {"unit", "x", "y", "max", "min", "value", "label", "sub", "center", "head", "actors", "lane", "title", "series"}
+
+
+def _audit_plan_data(dom: Any, base_dir: Path, warnings: list[str]) -> list[str]:
+    """Compare the drawn charts with the numbers the plan describes (content.quantities, NM-29): how many values a
+    chart draws, and whether the parts of a whole add up to 100. Only when deck.plan.json sits next to the deck."""
+    plan_path = base_dir / "deck.plan.json"
+    if not plan_path.is_file():
+        return []
+    try:
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not _has_content(plan):
+        return []
+    issues: list[str] = []
+    by_id = {s.get("id"): s for s in plan.get("slides") or [] if isinstance(s, dict)}
+    scripts: dict[int, list[str]] = {}
+    for slide_idx, code in dom.inline_scripts:
+        if slide_idx is not None:
+            scripts.setdefault(slide_idx, []).append(code)
+    nr = _represent()
+    for i, sl in enumerate(dom.slides):
+        plan_slide = by_id.get(sl["attrs"].get("id"))
+        content = (plan_slide or {}).get("content") if isinstance((plan_slide or {}).get("content"), dict) else None
+        qs = [q for q in (content or {}).get("quantities") or [] if isinstance(q, dict)]
+        if not qs or _visual_type(plan_slide) != "chart":
+            continue
+        dtype, _ = _real_diagram_type(plan_slide)
+        for code in scripts.get(i, []):
+            lines = [ln.strip() for ln in code.splitlines() if ln.strip()]
+            if dtype == "line":
+                xs = next((ln.split(":", 1)[1] for ln in lines if ln.lower().startswith("x:")), None)
+                drawn = [v for v in re.split(r"[,،]", xs)] if xs else []
+            else:
+                drawn = [ln for ln in lines if ":" in ln and ln.split(":", 1)[0].strip().lower() not in _DSL_RESERVED
+                         and nr._num(ln.split(":", 1)[1].split("|")[0]) is not None]
+            if dtype in ("bars", "donut", "line", "funnel") and len(drawn) != len(qs):
+                issues.append(f"Slide {i + 1}: the {dtype} chart draws {len(drawn)} values but the plan's content.quantities lists {len(qs)}; update one of them.")
+            if dtype == "donut" and (content or {}).get("kind") == "part-whole":
+                total = sum(nr._num(ln.split(":", 1)[1].split("|")[0].replace("!", "")) or 0 for ln in drawn)
+                if drawn and abs(total - 100) > 1:
+                    issues.append(f"Slide {i + 1}: the parts of the donut add up to {total:g}, not 100.")
+    warnings.extend(issues)
+    return issues
+
+
 def _audit_contract(
     content: str, base_dir: Path, asset_refs: set[str], errors: list[str], warnings: list[str]
 ) -> dict[str, Any]:
@@ -2496,6 +2702,8 @@ def _audit_contract(
     if len(used) > 1:
         warnings.append(f"Slide text mixes digit systems ({', '.join(used)}); use one system everywhere.")
     contract["digit_systems"] = used
+
+    contract["plan_data"] = _audit_plan_data(dom, base_dir, warnings)
 
     contract["slide_count"] = len(dom.slides)
     contract["motion_driven"] = bool(
@@ -2938,12 +3146,19 @@ def build_parser() -> argparse.ArgumentParser:
     p_pinit.add_argument("--lang", choices=LANGS, default="ar", help="Deck language: ar (right to left, default) or en.")
     p_pinit.add_argument("--slides", type=int, default=None, help="Number of stub slides (5..24). Omit to start from the full example.")
     p_pinit.add_argument("--force", action="store_true", help="Overwrite an existing deck.plan.json.")
+    p_pinit.add_argument("--advisor", action="store_true", help="Add an empty `content` block to every content slide and turn on the representation advice (plan-advise, NM-29).")
     p_pinit.set_defaults(func=cmd_plan_init)
 
     p_plint = subparsers.add_parser("plan-lint", help="Validate deck.plan.json and apply the motion-director design rules.")
     p_plint.add_argument("--plan", required=True, help="Path to deck.plan.json.")
     p_plint.add_argument("--output", default=None, help="Optional JSON report path.")
     p_plint.set_defaults(func=cmd_plan_lint)
+
+    p_adv = subparsers.add_parser("plan-advise", help="Suggest representations, acts and Morph from each slide's described information (NM-29).")
+    p_adv.add_argument("--plan", required=True, help="Path to deck.plan.json.")
+    p_adv.add_argument("--output", default=None, help="advice.json path (default: next to the plan).")
+    p_adv.add_argument("--apply", action="store_true", help="Write the first suggestion into unlocked slides whose fit is weak or poor (the old plan is kept as .bak).")
+    p_adv.set_defaults(func=cmd_plan_advise)
 
     p_scaf = subparsers.add_parser("scaffold", help="Generate the deck HTML from a lint-clean deck.plan.json (stages fonts and runtime too).")
     p_scaf.add_argument("--plan", required=True, help="Path to deck.plan.json.")

@@ -64,6 +64,38 @@ Inline formulas inside any text: write TeX between `\(` and `\)` (in JSON: `"\\(
 
 On a diagram or chart, `reveal` or `draw` on `visual` builds the whole figure in one step. Write `visual:rank` (graph diagrams) or `visual:series` (charts) to build it piece by piece; the diagram then takes a block of step numbers, so later steps are renumbered for you. If you edit the diagram by hand afterwards, renumber the other `data-step` values on that slide.
 
+## Describing the information (`content`) and `plan-advise` (NM-29)
+
+Optional. A slide may say what its information is; `plan-advise` then suggests how to show it. The decision happens here, in the plan, never in the runtime. Without `content` nothing changes.
+
+```json
+"content": {
+  "kind": "comparison",
+  "items": 4,
+  "dimensions": { "options": 2, "criteria": 4 },
+  "quantities": [ { "label": "قبل", "value": 22, "unit": "حاوية/ساعة" } ],
+  "sequence": "ordered",
+  "formula": false,
+  "detail": "standard",
+  "entities": ["الرافعة", "المكدس"]
+}
+```
+
+| Field | Values and effect |
+|---|---|
+| `kind` | `concept comparison process causal data finding argument definition hierarchy part-whole timeline` (required for advice) |
+| `items` | how many elements (steps, parts, points); also the number of starter nodes scaffold writes |
+| `dimensions` | `options` x `criteria` of a comparison (2 x 4 suggests a table) |
+| `quantities` | the numbers, in order, with label and unit. A `chart` visual is drawn from them (bars, donut, line, stat, gauge, funnel) in the deck's digit system; `audit-deck` warns when the drawn chart and the plan disagree |
+| `sequence` | `ordered` (flow, line), `unordered`, `cyclic` (cycle) |
+| `formula` | `true`, or the formula itself (MathML or TeX) so `--apply` can write the equation |
+| `detail` | `overview` (no progressive reveal), `standard`, `deep` (detail act, tables for many values) |
+| `entities` | named things on the slide; one shared with the previous slide suggests Morph; three or more on a picture suggest pins |
+
+Deck level: `"audience": "general" | "practitioner" | "expert"` (experts get tables for exact values sooner) and `"advisor": true` (advisory A-codes in `plan-lint`).
+
+`plan-advise --plan FILE [--output advice.json] [--apply]` prints a table in the plan's language and writes `advice.json`: per slide `current`, `fit` (`good`, `fair`, `weak`, `poor`, `unknown`), up to three suggestions with reason codes and Arabic and English text, `acts` (or `still`), `morph`, and data `checks`; plus `repetition` across slides. Deterministic. `--apply` writes the first suggestion into slides whose fit is weak or poor and whose visual is not locked, only when scaffold can build it from the plan (a table needs `quantities`, an equation needs the formula in `content.formula`, an image needs an image source), keeps the old plan as `.bak`, and never applies a change that would make `plan-lint` fail. The rules are data: `resources/templates/representation-rules.json`.
+
 ## Design rules (plan-lint)
 
 Errors block `scaffold`. Warnings are advice.
@@ -97,6 +129,17 @@ Errors block `scaffold`. Warnings are advice.
 | R127 | error | An equation (or each derivation line) needs exactly one of `mathml` (one `<math>` element, no scripts or event handlers) or `tex`. |
 | R128 | error | `tex` starts with a `$`, `\(` or `\[` delimiter. Write the formula without delimiters. |
 | R129 | warn | A derivation of more than 4 lines. Continue on the next slide and link the shared terms with `data-term`. |
+
+With `"advisor": true` only (advisory, never errors):
+
+| Code | Rule |
+|---|---|
+| A200 | A content slide does not describe its information (`content.kind` missing or unknown). |
+| A290 / A291 | The current representation does not fit (a never-rule: a donut for parts that do not make 100, a chart without numbers, an equation without a formula, a line without a series, bars for one value) / works but another reads better. Lock the visual to keep your choice. |
+| A401 / A402 | Three slides in a row look the same (layout, visual, number of items, acts) but carry different kinds of information / with no narrative link. A series of the same kind linked by Morph is not flagged. |
+| A501 A502 A503 | Parts of a whole that do not add up to 100; a chart of values in different units; `items` that disagrees with the number of `quantities`. |
+
+The motion note (`slides with little motion`) skips slides the advisor marks still (a definition, a quote, one number).
 
 The report also lists a per-slide motion score (0 to 10) and the slides that are flat (score 2 or less). Give flat slides a morph, a step or an isolation act.
 

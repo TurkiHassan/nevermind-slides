@@ -210,7 +210,7 @@
     "table": 6,
     "diagram:compare": 3
    },
-   "ar": "{options} خيارات × {criteria} معايير: الجدول يُقرأ بالصفوف والأعمدة",
+   "ar": "مقارنة خيارات ({options}) على معايير ({criteria}): الجدول يُقرأ بالصفوف والأعمدة",
    "en": "{options} options x {criteria} criteria: a table reads by rows and columns"
   },
   {
@@ -237,7 +237,7 @@
     "diagram:compare": 6,
     "table": 2
    },
-   "ar": "مقارنة نوعية بين {options} خيارات: عمودان متقابلان أوضح من الأرقام",
+   "ar": "مقارنة نوعية بين خيارات ({options}): أعمدة متقابلة أوضح من الأرقام",
    "en": "a qualitative comparison of {options} options: facing columns, not numbers"
   },
   {
@@ -264,7 +264,7 @@
     "table": 3,
     "chart:stat": 1
    },
-   "ar": "{n} قيم بوحدة واحدة لخيارات مختلفة: الأعمدة تقارن الأطوال",
+   "ar": "قيم بوحدة واحدة لخيارات مختلفة ({n}): الأعمدة تقارن الأطوال",
    "en": "{n} values in one unit for different options: bars compare lengths"
   },
   {
@@ -330,7 +330,7 @@
     "chart:line": 7,
     "chart:bars": 3
    },
-   "ar": "{n} قيم مرتبة في الزمن: الخط يُظهر الاتجاه",
+   "ar": "قيم مرتبة في الزمن ({n}): الخط يُظهر الاتجاه",
    "en": "{n} values ordered in time: a line shows the trend"
   },
   {
@@ -369,7 +369,7 @@
     "chart:bars": 6,
     "table": 2
    },
-   "ar": "{n} قيم بوحدة واحدة: الأعمدة تقارن الأطوال",
+   "ar": "قيم بوحدة واحدة ({n}): الأعمدة تقارن الأطوال",
    "en": "{n} values in one unit: bars compare lengths"
   },
   {
@@ -384,7 +384,7 @@
     "table": 7,
     "chart:bars": 2
    },
-   "ar": "{n} قيمة: أكثر مما يقرؤه الرسم البياني بوضوح؛ جدول",
+   "ar": "قيم كثيرة ({n}): أكثر مما يقرؤه الرسم البياني بوضوح؛ جدول",
    "en": "{n} values: more than a chart reads clearly; a table"
   },
   {
@@ -444,7 +444,7 @@
     "diagram:flow": 6,
     "diagram:timeline": 2
    },
-   "ar": "{items} خطوات بترتيب: مخطط تدفق",
+   "ar": "خطوات بترتيب ({items}): مخطط تدفق",
    "en": "{items} steps in order: a flow"
   },
   {
@@ -511,7 +511,7 @@
     "diagram:tree": 6,
     "diagram:layers": 3
    },
-   "ar": "{items} عناصر في تسلسل هرمي: شجرة",
+   "ar": "عناصر في تسلسل هرمي ({items}): شجرة",
    "en": "{items} elements in a hierarchy: a tree"
   },
   {
@@ -752,7 +752,7 @@
     "diagram:hub": 3,
     "image": 2
    },
-   "ar": "{items} نقاط متكافئة: بطاقات نصية",
+   "ar": "نقاط متكافئة ({items}): بطاقات نصية",
    "en": "{items} equal points: text cards"
   },
   {
@@ -795,7 +795,7 @@
     "table": 3,
     "diagram:timeline": 2
    },
-   "ar": "{items} خطوات: أكثر مما يقرؤه تدفق واحد؛ قسّمها على شريحتين أو اجعلها جدولًا",
+   "ar": "خطوات كثيرة ({items}): أكثر مما يقرؤه تدفق واحد؛ قسّمها على شريحتين أو اجعلها جدولًا",
    "en": "{items} steps: more than one flow reads; split it over two slides or use a table"
   },
   {
@@ -836,6 +836,28 @@
    },
    "ar": "أحداث لها قيم على مر الزمن: الخط يُظهر الاتجاه",
    "en": "events that carry values over time: a line shows the trend"
+  },
+  {
+   "id": "A253",
+   "when": {
+    "kind": [
+     "comparison"
+    ],
+    "options": [
+     0,
+     1
+    ],
+    "quantities": [
+     0,
+     0
+    ]
+   },
+   "suggest": {
+    "diagram:compare": 5,
+    "table": 2
+   },
+   "ar": "مقارنة لم يُذكر عدد خياراتها: أعمدة متقابلة؛ اذكر الخيارات والمعايير في content.dimensions لاقتراح أدق",
+   "en": "a comparison with no options given: facing columns; state options and criteria in content.dimensions for a sharper suggestion"
   },
   {
    "id": "A240",
@@ -974,12 +996,12 @@
   },
   {
    "id": "A305",
-   "ar": "{n} أجزاء مسمّاة على صورة أو مجسّم: دبابيس مرقّمة",
+   "ar": "أجزاء مسمّاة ({n}) على صورة أو مجسّم: دبابيس مرقّمة",
    "en": "{n} named parts on a picture or figure: numbered pins"
   },
   {
    "id": "A306",
-   "ar": "{n} عناصر تُشرح بترتيب: كشفها خطوة خطوة",
+   "ar": "عناصر تُشرح بترتيب ({n}): اكشفها خطوة خطوة",
    "en": "{n} elements explained in order: reveal them step by step"
   },
   {
@@ -1024,7 +1046,7 @@
   },
   {
    "id": "A503",
-   "ar": "content.items = {items} لكن quantities فيها {n} قيم",
+   "ar": "عدد العناصر في content.items ({items}) يخالف عدد القيم في quantities ({n})",
    "en": "content.items is {items} but quantities holds {n} values"
   }
  ]

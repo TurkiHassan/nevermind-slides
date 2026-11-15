@@ -8,7 +8,9 @@
   "additionalProperties": true,
   "properties": {
     "title": { "type": "string", "minLength": 1 },
-    "lang": { "enum": ["ar"], "default": "ar" },
+    "lang": { "enum": ["ar", "en"], "default": "ar" },
+    "advisor": { "type": "boolean", "default": false, "description": "Turn on the representation advice in plan-lint (advisory A-codes, never errors). plan-advise works either way." },
+    "audience": { "enum": ["general", "practitioner", "expert"], "default": "general", "description": "Who reads the deck; experts get tables for exact values sooner" },
     "theme": {
       "type": "object",
       "description": "Either a preset name from themes.json, custom tokens, or a preset plus overrides.",
@@ -49,6 +51,20 @@
         "title": { "type": "string", "description": "Short label used as data-title and in the overview grid" },
         "role": { "enum": ["cover", "section", "concept", "mechanism", "evidence", "comparison", "process", "quote", "summary", "closing"] },
         "layout": { "type": "string", "description": "short name (cover section split split-rev hero stat cards compare diagram timeline quote center list) or a real nm-l-* composition without the prefix (title, hero-figure, bento-4, cards-3, stat-row, rail, steps, ...)" },
+        "content": {
+          "type": "object",
+          "description": "Optional description of the slide's information (NM-29). plan-advise turns it into a suggested representation, acts and Morph. Absent: no advice, the tools behave as before.",
+          "properties": {
+            "kind": { "enum": ["concept", "comparison", "process", "causal", "data", "finding", "argument", "definition", "hierarchy", "part-whole", "timeline", ""] },
+            "items": { "type": "integer", "minimum": 0, "description": "How many elements the information has (steps, parts, points)" },
+            "dimensions": { "type": "object", "properties": { "options": { "type": "integer" }, "criteria": { "type": "integer" } } },
+            "quantities": { "type": "array", "items": { "type": "object", "properties": { "label": { "type": "string" }, "value": { "type": ["number", "string"] }, "unit": { "type": "string" } } }, "description": "The numbers, in order; a chart visual is drawn from them" },
+            "sequence": { "enum": ["ordered", "unordered", "cyclic"] },
+            "formula": { "type": ["boolean", "string"], "description": "true, or the formula itself (MathML or TeX) so --apply can write the equation" },
+            "detail": { "enum": ["overview", "standard", "deep"] },
+            "entities": { "type": "array", "items": { "type": "string" }, "description": "Named things the slide talks about; shared with the previous slide they suggest Morph" }
+          }
+        },
         "visual": {
           "type": "object",
           "properties": {
@@ -64,6 +80,8 @@
             "caption": { "type": "string", "description": "table or equation: a caption under the visual" },
             "mathml": { "type": "string", "description": "equation: one native <math> element (the default, needs no library); data-term=\"x\" on a part links it to the same term on the next slide" },
             "tex": { "type": "string", "description": "equation: TeX without $ delimiters; scaffold stages the optional Temml converter. \\data{term=x}{...} links a term" },
+            "why": { "type": "string", "description": "Why this representation (plan-advise --apply writes the reason here)" },
+            "locked": { "type": "boolean", "default": false, "description": "plan-advise never changes a locked visual" },
             "lines": { "type": "array", "items": { "type": "object", "properties": { "mathml": { "type": "string" }, "tex": { "type": "string" }, "note": { "type": "string" } } }, "description": "equation: a derivation, one formula per line with an optional note; step target visual:line reveals them in order" }
           }
         },

@@ -42,6 +42,12 @@
       "kind": "plan",
       "source": "tests/corpus/plans/en-science.plan.json",
       "covers": "English machine-learning paper: architecture flow with rank steps, a TeX loss with inline TeX, a TeX derivation with a data-term morph, a 6x5 results table with row highlight steps and a static highlight, a training curve, a focus step"
+    },
+    {
+      "name": "ar-advisor",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-advisor.plan.json",
+      "covers": "representation advice (NM-29): advisor on, content on every content slide; charts drawn from content.quantities (stat, donut, line), the reason for each representation in the slide comment, still slides (one number, a definition), a qualitative comparison as a table"
     }
   ],
   "planned": [],
