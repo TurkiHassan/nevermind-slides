@@ -139,3 +139,13 @@ When you change the plan after editing the HTML, do not rerun `scaffold --force`
 | C-GHOST | Morph ghosts left after a transition. |
 | C-STEPS | Declared steps are not all reachable with the arrow keys (the release step core adds after a final transient act is expected, not counted as extra). |
 | C-CONSOLE | Console error or exception. Network errors for external hosts are warnings when offline (for example the Tailwind CDN of a `--tailwind` deck). |
+| C-FRAME | error: an iframe or anatomy figure shows nothing (missing file, a path outside the deck folder, an empty page). |
+| C-ARABIC | error: positive letter-spacing on Arabic text, or one Arabic word split across elements (the letters lose their joins). Warning: Arabic-Indic and Western digits on one slide. |
+| C-BIDI | warn: Latin or numeric text with punctuation inside Arabic (`GPT-4 (2023)`) and not isolated. Wrap it in `<bdi>`. |
+| C-WIDOW | warn: a title ends with one word on its own line. |
+| C-DENSITY | warn: more than 60 words of visible text (diagram labels and the image sources block excluded). |
+| C-FILL | warn: a diagram draws on less than 45% of its box. Let it grow (`data-grow`) or give it a smaller cell. |
+| C-EMPTY | warn: a content slide carries ink on less than 4% of the stage (cover, section, quote and closing exempt). |
+| C-DRIFT | warn: the title of a top-anchored composition sits more than 8px from the titles of the other slides with the same composition. |
+
+`check` also writes `quality.json` next to `report.json`: every finding with a tier (`HOLD` must be fixed before delivery, `FIX` should be, `NOTE` is advice), a confidence (`confident`, `likely`, `possible`), the evidence and a one-line fix, plus a score per slide and for the deck (`100 - 25 x HOLD - 5 x FIX - 1 x NOTE`). Fix every HOLD, then read the FIX items. Thresholds were calibrated on the golden corpus: the finished showcase passes with three diagram-fill notes.

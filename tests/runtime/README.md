@@ -16,6 +16,7 @@ NODE_PATH=$(npm root -g) npm test
 | `contract.test.mjs` | API, navigation, deep links, byte-identical markup after steps forward and back, semantic round trip, semantic parity of full motion and `?nm-speed=0` at every position, morph targets ending where the instant render puts them, reduced motion, interruption, lab pages |
 | `corpus.test.mjs` | every position of every corpus deck against `tests/corpus/golden/*.semantic.json`, plus invariants (one active slide, no ghosts, no running animations after settle, revealed elements shown, every transient act closed by the release step, diagrams armed and fully shown) |
 | `visual.test.mjs` | the frame after full motion equals the instant frame, with thresholds calibrated on every run |
+| `quality.test.mjs` | every visual quality code (NM-05) fires on the slide of `tests/quality/violations` built to break it and stays silent on clean slides; the finished showcase raises only its three known diagram-fill notes; `quality.json` classifies every finding |
 | `editor-guard.test.mjs` | the bundled editor refuses to write runtime-generated content, a no-op save is byte-identical, a supported edit changes one line |
 
 ## Visual thresholds (calibrated, not uniform)

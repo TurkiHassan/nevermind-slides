@@ -246,7 +246,7 @@ python3 "<SKILL_DIR>/scripts/image_fetch.py" credits --project "<project_dir>" -
 ```
 
 1. `audit-deck`: `"passed": true`. It checks emojis, fonts, assets, vocabulary of every `data-*` value (with suggestions), morph pairing, step numbering, detail templates, anatomy briefs, credits, and hand-written navigation.
-2. `check`: opens the deck in headless Chrome, walks every slide and step, and reports text outside the stage, clipped or overlapping text, small text, low contrast, broken images, unloaded fonts and leftover morph ghosts. **Open the contact sheet PNG and look at it.** Fix anything that looks cramped, misaligned or empty, then rerun.
+2. `check`: opens the deck in headless Chrome, walks every slide and step, and reports text outside the stage, clipped or overlapping text, small text, low contrast, broken images, unloaded fonts, leftover morph ghosts, empty frames, broken Arabic joins, unisolated Latin runs, widows, dense slides, diagrams that use little of their box, nearly empty slides and drifting titles. Read `quality.json` in the shots folder: fix every `HOLD`, then the `FIX` items. **Open the contact sheet PNG and look at it.** Fix anything that looks cramped, misaligned or empty, then rerun.
 3. Clean previews: `cleanup-previews --target-dir "<project_dir>"`.
 4. Open the deck (`open-files`) and give a short Arabic summary: slide count, the visual plan, keys (الأسهم للتنقل، O للنظرة العامة، F ملء الشاشة، E تعديل النصوص، ? المساعدة).
 5. Offer the visual editor:
