@@ -20,8 +20,9 @@ jobs:
       - run: python -m unittest discover -s tests/python -v
 
   runtime:
-    name: runtime contract (Playwright)
+    name: runtime contract, golden corpus, visual parity, editor guard (Playwright)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,7 +34,7 @@ jobs:
       - name: Install Playwright
         working-directory: tests/runtime
         run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
-      - name: Contract tests
+      - name: Runtime tests (pinned Playwright 1.63.0 Chromium, 1920x1080, deviceScaleFactor 1)
         working-directory: tests/runtime
         run: npm test
 

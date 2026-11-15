@@ -10,6 +10,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { readState, walk } from "./semantic.mjs";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -193,4 +194,65 @@ describe("lab pages", () => {
       await page.close();
     });
   }
+});
+
+describe("semantic state (roadmap NM-03)", () => {
+  it("stepping forward and back restores each slide's semantic state", async () => {
+    const { page, errors } = await open("?nm-speed=0");
+    const total = await page.evaluate(() => NM.deck.slides.length);
+    for (let i = 0; i < total; i++) {
+      await page.evaluate((i) => NM.deck.go(i), i); await settle(page);
+      const before = await page.evaluate(readState);
+      let n = 0;
+      for (;;) {
+        const prev = await state(page);
+        await press(page, NEXT);
+        const s = await state(page);
+        if (s.slide !== i) { await press(page, PREV); break; }
+        if (s.step === prev.step) break;
+        n++;
+      }
+      await press(page, PREV, (await state(page)).step);
+      const back = await page.evaluate(readState);
+      const { running: r1, ...a } = before, { running: r2, ...b } = back;
+      assert.deepEqual(b, a, `slide ${i + 1} after ${n} steps forward and back`);
+    }
+    assert.deepEqual(errors, []);
+    await page.close();
+  });
+
+  it("full motion and ?nm-speed=0 reach the same semantic state at every position", async () => {
+    const fast = await open("?nm-speed=0");
+    const slow = await open("");
+    const a = await walk(fast.page, NEXT);
+    const b = await walk(slow.page, NEXT);
+    assert.equal(b.length, a.length, "number of positions");
+    a.forEach((s, i) => {
+      const { running: r1, ...x } = s, { running: r2, ...y } = b[i];
+      assert.deepEqual(y, x, `slide ${s.slide} step ${s.step}`);
+      assert.equal(r2, 0, `slide ${s.slide} step ${s.step}: animations still running after settle`);
+    });
+    assert.deepEqual(slow.errors, []);
+    await Promise.all([fast.page.close(), slow.page.close()]);
+  });
+
+  it("morph targets end exactly where the instant render puts them", async () => {
+    const rects = (page) => page.evaluate(() => [...NM.deck.slides[NM.deck.index].querySelectorAll("[data-morph]")]
+      .map((e) => { const r = NM.geom.rectInStage(e); return [e.getAttribute("data-morph"), Math.round(r.x), Math.round(r.y), Math.round(r.w), Math.round(r.h), getComputedStyle(e).opacity]; }));
+    const motion = await open("");
+    const total = await motion.page.evaluate(() => NM.deck.slides.length);
+    let checked = 0;
+    for (let i = 2; i <= total; i++) {
+      await motion.page.keyboard.press(`Shift+${NEXT}`); await settle(motion.page);
+      const m = await rects(motion.page);
+      if (!m.length) continue;
+      const direct = await open("?nm-speed=0", `#/${i}`);
+      assert.deepEqual(m, await rects(direct.page), `slide ${i}`);
+      await direct.page.close();
+      checked++;
+    }
+    assert.ok(checked >= 5, `only ${checked} slides with morph targets`);
+    assert.equal(await motion.page.evaluate(() => document.getElementById("nmGhostLayer").childElementCount), 0);
+    await motion.page.close();
+  });
 });

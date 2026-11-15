@@ -356,6 +356,9 @@ FONT_EXTENSIONS = (".otf", ".ttf", ".woff2")
 
 
 def _user_font_dirs() -> list[Path]:
+    # NM_FONTS_BUNDLED_ONLY=1: bundled fonts only (golden tests must not depend on what a machine has installed).
+    if os.environ.get("NM_FONTS_BUNDLED_ONLY") == "1":
+        return []
     dirs: list[Path] = []
     env = os.environ.get("NM_FONTS_DIR")
     if env:

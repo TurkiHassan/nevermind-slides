@@ -1,0 +1,32 @@
+{
+  "note": "Golden corpus. Every deck here is built from files in this repository only. See README.md before changing a golden file.",
+  "decks": [
+    {
+      "name": "ar-example",
+      "kind": "plan",
+      "source": "resources/templates/deck.plan.example.json",
+      "covers": "8-slide plan: every visual type (image, anatomy, diagram, chart, none), detail and focus steps, every rel"
+    },
+    {
+      "name": "ar-stubs-24",
+      "kind": "plan",
+      "source": "tests/corpus/plans/ar-stubs-24.plan.json",
+      "covers": "largest allowed deck (24 slides) from plan-init stubs: the repeating layout cycle and placeholder visuals"
+    },
+    {
+      "name": "ar-showcase",
+      "kind": "deck",
+      "source": "examples/showcase",
+      "covers": "hand-finished 14-slide deck: every morph kind, nine transitions, every isolation act, diagrams, charts, live anatomy iframe"
+    }
+  ],
+  "planned": [
+    { "name": "en-general", "needs": "NM-09 (plan-lint accepts lang: en)" },
+    { "name": "ar-bidi", "needs": "NM-09 (bidi isolation rules)" },
+    { "name": "ar-science", "needs": "NM-10 nm-table and NM-11 nm-math" },
+    { "name": "en-science", "needs": "NM-09, NM-10, NM-11" }
+  ],
+  "elsewhere": {
+    "legacy-v1": "editor/fixtures/legacy/attention and editor/fixtures/legacy/mechanistic (v1 markup), covered by the editor suite"
+  }
+}
