@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الانتباه هو كل ما تحتاجه</title>
+<!-- Synthetic stand-in for the private legacy deck fixtures/real/attention (v1 skill output: local Tailwind,
+     inline legacy editor marks data-edit, Thmanyah and KOMission faces). The font files are placeholders. -->
+<script src="assets/tailwind.js"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: {
+        ink: 'var(--ink)',
+        cream: 'var(--cream)',
+        bone: 'var(--bone)',
+        navy: 'var(--navy)',
+        blue: 'var(--blue)',
+        verm: 'var(--verm)',
+        muted: 'var(--muted)',
+        line: 'var(--line)'
+      },
+      fontFamily: {
+        display: ['Thmanyah Serif Display', 'serif'],
+        body: ['Thmanyah Sans', 'sans-serif'],
+        kom: ['KOMission', 'sans-serif'],
+        mono: ['ui-monospace', 'monospace']
+      }
+    } }
+  };
+</script>
+<style>
+  @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Light.otf') format('opentype'); font-weight: 300; }
+  @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Regular.otf') format('opentype'); font-weight: 400; }
+  @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Medium.otf') format('opentype'); font-weight: 500; }
+  @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Bold.otf') format('opentype'); font-weight: 700; }
+  @font-face { font-family: 'Thmanyah Sans'; src: url('assets/fonts/thmanyahsans-Black.otf') format('opentype'); font-weight: 900; }
+  @font-face { font-family: 'Thmanyah Serif Display'; src: url('assets/fonts/thmanyahserifdisplay-Light.otf') format('opentype'); font-weight: 300; }
+  @font-face { font-family: 'Thmanyah Serif Display'; src: url('assets/fonts/thmanyahserifdisplay-Regular.otf') format('opentype'); font-weight: 400; }
+  @font-face { font-family: 'Thmanyah Serif Display'; src: url('assets/fonts/thmanyahserifdisplay-Medium.otf') format('opentype'); font-weight: 500; }
+  @font-face { font-family: 'Thmanyah Serif Display'; src: url('assets/fonts/thmanyahserifdisplay-Bold.otf') format('opentype'); font-weight: 700; }
+  @font-face { font-family: 'Thmanyah Serif Display'; src: url('assets/fonts/thmanyahserifdisplay-Black.otf') format('opentype'); font-weight: 900; }
+  @font-face { font-family: 'KOMission'; src: url('assets/fonts/KOMission-Black.otf') format('opentype'); font-weight: 100 900; }
+  :root { --ink: #171614; --cream: #fbf8f0; --bone: #efe8da; --navy: #111f56; --blue: #2747c9; --verm: #ed3b2f; --muted: #6b665c; --line: #d8d0bf; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+  .deck-viewport { position: fixed; inset: 0; overflow: hidden; }
+  .deck-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+  .slide { position: absolute; inset: 0; background: var(--cream); visibility: hidden; opacity: 0; }
+  .slide.active { visibility: visible; opacity: 1; }
+</style>
+</head>
+<body class="font-body text-ink">
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+    <section class="slide active" data-slide="1">
+      <div class="absolute right-[104px] top-[132px] w-[1080px]">
+        <span class="font-kom text-[13px] tracking-[0.08em] text-verm">ورقة تأسيسية في الترجمة الآلية</span>
+        <h1 class="font-display font-black text-[96px] leading-[1.1] mt-[24px]" data-edit="s1-title">
+          <span class="block text-blue">الانتباه</span>
+          <span class="block font-display text-ink">هو كل ما تحتاجه</span>
+        </h1>
+
+        <p class="font-body text-[29px] leading-[1.75] text-muted w-[900px] mr-0 ml-auto mt-[34px]" data-edit="s1-lede">
+          تشريح المعمارية التي غيّرت الترجمة الآلية عام ٢٠١٧ ثم صارت أساس النماذج اللغوية الكبيرة.
+        </p>
+        <div class="reveal d4 grid gap-[24px] mt-[34px] text-right">
+          <span class="text-[22px] text-cream/70 bg-navy rounded-[14px] pt-[24px] pb-[24px] pl-[24px]">نُشرت عام 2017</span>
+          <span class="text-[22px] opacity-80 font-bold">ثمانية مؤلفين</span>
+        </div>
+      </div>
+      <img class="absolute left-[96px] bottom-[80px] w-[480px] h-[300px] rounded-full" src="assets/img/stack.svg" alt="">
+    </section>
+
+    <section class="slide" data-slide="2">
+      <div class="absolute right-[96px] top-[640px] w-[900px] z-10">
+        <h2 class="font-display text-[64px] leading-[1.1] font-black" data-edit="s2-title">طابور لا ينتهي</h2>
+        <p class="text-[29px] leading-[1.75] mt-[24px] mb-[16px]" data-edit="s2-body">الشبكات التكرارية تقرأ الجملة كلمةً بعد كلمة، فلا تستطيع العمل بالتوازي.</p>
+        <p class="text-[24px] text-muted mb-[24px] pl-[32px]" data-edit="s2-note">كل كلمة تنتظر التي قبلها.</p>
+      </div>
+      <div class="absolute left-[120px] bottom-[64px] relative z-20 opacity-60 -translate-x-1/2">
+        <span class="font-kom text-[22px]">المدخلات</span>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="3">
+      <div class="absolute right-[104px] top-[132px] w-[1080px] pt-[40px] pb-[40px]">
+        <h2 class="font-display text-[64px] text-center" data-edit="s3-title">كل كلمة تنظر إلى الجميع</h2>
+        <ul class="grid gap-[40px] mt-[24px]">
+          <li class="text-[29px]" data-edit="s3-a">الاستعلام يسأل عمّا يبحث عنه.</li>
+          <li class="text-[29px]" data-edit="s3-b">المفتاح يعلن ما يحمله.</li>
+          <li class="text-[29px]" data-edit="s3-c">القيمة هي ما يُنقل فعلًا.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="4">
+      <div class="absolute right-[96px] top-[132px] w-[900px]">
+        <h2 class="font-display text-[64px]" data-edit="s4-title">رؤوس متعددة</h2>
+        <p class="text-[29px] leading-[1.75] ml-[12px]" data-edit="s4-body">ثمانية رؤوس تنظر إلى الجملة من زوايا مختلفة في الوقت نفسه.</p>
+        <p class="text-[24px] pr-[26px] h-[6px]" data-edit="s4-note">ثم تُدمج النتائج في متجه واحد.</p>
+      </div>
+      <iframe class="absolute left-[96px] top-[132px] w-[480px] h-[300px]" data-anatomy="attention-flow" src="assets/anatomy/attention-flow.html" title="تدفق الانتباه"></iframe>
+      <div class="absolute left-[96px] top-[640px] rotate-[-4deg] translate-y-[8px] bg-cream">
+        <span class="font-kom text-[22px] tracking-[0.02em]">Multi-Head</span>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="5">
+      <div class="absolute right-[104px] top-[132px] w-[1080px]">
+        <h2 class="font-display text-[64px]" data-edit="s5-title">الموضع بلا تكرار</h2>
+        <p class="text-[29px]" data-edit="s5-body">موجات الجيب وجيب التمام تمنح كل موضع بصمة فريدة.</p>
+        <p class="text-[24px] text-muted" data-edit="s5-note">فتعرف الشبكة ترتيب الكلمات دون أن تقرأها بالتتابع.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="6">
+      <div class="absolute right-[96px] top-[640px] w-[900px]">
+        <h2 class="font-display text-[64px]" data-edit="s6-title">النتيجة</h2>
+        <p class="text-[29px]" data-edit="s6-body">أفضل جودة ترجمة في وقت تدريب أقل بكثير.</p>
+        <p class="text-[24px]" data-edit="s6-note">BLEU 28.4 على الإنجليزية إلى الألمانية.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-slide="7">
+      <div class="absolute right-[104px] top-[132px] w-[1080px]">
+        <h2 class="font-display text-[64px]" data-edit="s7-title">ما بعد الورقة</h2>
+        <p class="text-[29px]" data-edit="s7-body">كل نموذج لغوي كبير اليوم يقف على هذه الفكرة.</p>
+        <p class="text-[24px] text-muted" data-edit="s7-note">من الترجمة إلى الصور والصوت والشيفرة.</p>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

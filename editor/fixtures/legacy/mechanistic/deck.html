@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التفسير الآلي للنماذج</title>
+<!-- Synthetic stand-in for the private fixtures/real/mechanistic deck (v1 skill output: Tailwind and Google Fonts
+     from the network, nested colour tokens, Morph pairs and camera zoom steps, no legacy editor marks). -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;700&display=swap">
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: {
+        outer: '#0b1b2b',
+        tab: { mint: '#5fd3a6' },
+        lp: { bg: '#0f2338', fg: '#e8eef5', accent: '#4fb3e8' },
+        accent: '#4fb3e8'
+      },
+      fontFamily: {
+        komission: ['KOMission', 'sans-serif'],
+        display: ['Readex Pro', 'sans-serif']
+      }
+    } }
+  };
+</script>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1b2b; }
+  .deck-viewport { position: fixed; inset: 0; overflow: hidden; }
+  .deck-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+  .slide { position: absolute; inset: 0; visibility: hidden; opacity: 0; }
+  .slide.active { visibility: visible; opacity: 1; }
+</style>
+</head>
+<body class="font-komission">
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+    <section class="slide active" data-title="تفسير آلي للنماذج">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">تفسير آلي للنماذج</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">كيف نقرأ ما يحدث داخل الشبكة العصبية</p>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="hero-visual-card"><span class="text-accent text-[28px]">hero visual card</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="لماذا نفتح الصندوق">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">لماذا نفتح الصندوق</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">النموذج يعطي إجابة لكنه لا يشرح طريقه إليها</p>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="hero-visual-card"><span class="text-accent text-[28px]">hero visual card</span></div>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="pillar-expression"><span class="text-accent text-[28px]">pillar expression</span></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="1" data-zoom-label="تفصيل 1"><p class="text-[40px] text-outer">ملاحظة 1: النموذج يعطي إجابة لكنه لا يشرح طريقه إليها في الحالة 1.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="2" data-zoom-label="تفصيل 2"><p class="text-[32px] text-outer">ملاحظة 2: النموذج يعطي إجابة لكنه لا يشرح طريقه إليها في الحالة 2.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="3" data-zoom-label="تفصيل 3"><p class="text-[28px] text-outer">ملاحظة 3: النموذج يعطي إجابة لكنه لا يشرح طريقه إليها في الحالة 3.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="4" data-zoom-label="تفصيل 4"><p class="text-[40px] text-outer">ملاحظة 4: النموذج يعطي إجابة لكنه لا يشرح طريقه إليها في الحالة 4.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="التعبير">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">التعبير</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">نحدد الميزات التي تمثلها كل خلية عصبية</p>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="pillar-expression"><span class="text-accent text-[28px]">pillar expression</span></div>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="pillar-monitoring"><span class="text-accent text-[28px]">pillar monitoring</span></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="1" data-zoom-label="تفصيل 1"><p class="text-[40px] text-outer">ملاحظة 1: نحدد الميزات التي تمثلها كل خلية عصبية في الحالة 1.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="2" data-zoom-label="تفصيل 2"><p class="text-[32px] text-outer">ملاحظة 2: نحدد الميزات التي تمثلها كل خلية عصبية في الحالة 2.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="3" data-zoom-label="تفصيل 3"><p class="text-[28px] text-outer">ملاحظة 3: نحدد الميزات التي تمثلها كل خلية عصبية في الحالة 3.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="4" data-zoom-label="تفصيل 4"><p class="text-[40px] text-outer">ملاحظة 4: نحدد الميزات التي تمثلها كل خلية عصبية في الحالة 4.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="المراقبة">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">المراقبة</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">نتابع الميزات أثناء التشغيل لنكتشف السلوك غير المتوقع</p>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="pillar-monitoring"><span class="text-accent text-[28px]">pillar monitoring</span></div>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="pillar-reliance"><span class="text-accent text-[28px]">pillar reliance</span></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="1" data-zoom-label="تفصيل 1"><p class="text-[40px] text-outer">ملاحظة 1: نتابع الميزات أثناء التشغيل لنكتشف السلوك غير المتوقع في الحالة 1.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="2" data-zoom-label="تفصيل 2"><p class="text-[32px] text-outer">ملاحظة 2: نتابع الميزات أثناء التشغيل لنكتشف السلوك غير المتوقع في الحالة 2.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="3" data-zoom-label="تفصيل 3"><p class="text-[28px] text-outer">ملاحظة 3: نتابع الميزات أثناء التشغيل لنكتشف السلوك غير المتوقع في الحالة 3.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="4" data-zoom-label="تفصيل 4"><p class="text-[40px] text-outer">ملاحظة 4: نتابع الميزات أثناء التشغيل لنكتشف السلوك غير المتوقع في الحالة 4.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="الاعتماد">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">الاعتماد</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">نقرر متى نثق بالنموذج ومتى نتوقف</p>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="pillar-reliance"><span class="text-accent text-[28px]">pillar reliance</span></div>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="equation-box"><span class="text-accent text-[28px]">equation box</span></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="1" data-zoom-label="تفصيل 1"><p class="text-[40px] text-outer">ملاحظة 1: نقرر متى نثق بالنموذج ومتى نتوقف في الحالة 1.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="2" data-zoom-label="تفصيل 2"><p class="text-[32px] text-outer">ملاحظة 2: نقرر متى نثق بالنموذج ومتى نتوقف في الحالة 2.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="3" data-zoom-label="تفصيل 3"><p class="text-[28px] text-outer">ملاحظة 3: نقرر متى نثق بالنموذج ومتى نتوقف في الحالة 3.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="المعادلة">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">المعادلة</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">تفكيك التنشيط إلى مجموع ميزات متفرقة</p>
+        <div class="bg-lp-bg rounded-[24px] p-[32px]" data-morph="equation-box"><span class="text-accent text-[28px]">equation box</span></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="1" data-zoom-label="تفصيل 1"><p class="text-[40px] text-outer">ملاحظة 1: تفكيك التنشيط إلى مجموع ميزات متفرقة في الحالة 1.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="2" data-zoom-label="تفصيل 2"><p class="text-[32px] text-outer">ملاحظة 2: تفكيك التنشيط إلى مجموع ميزات متفرقة في الحالة 2.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="3" data-zoom-label="تفصيل 3"><p class="text-[28px] text-outer">ملاحظة 3: تفكيك التنشيط إلى مجموع ميزات متفرقة في الحالة 3.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="4" data-zoom-label="تفصيل 4"><p class="text-[40px] text-outer">ملاحظة 4: تفكيك التنشيط إلى مجموع ميزات متفرقة في الحالة 4.</p></div>
+        <img class="w-[320px]" src="assets/img/probe.svg" alt="">
+      </div>
+    </section>
+
+    <section class="slide" data-title="الحدود">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">الحدود</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">بعض الميزات تتراكب ولا تنفصل بسهولة</p>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="1" data-zoom-label="تفصيل 1"><p class="text-[40px] text-outer">ملاحظة 1: بعض الميزات تتراكب ولا تنفصل بسهولة في الحالة 1.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="الخلاصة">
+      <div class="camera-rig">
+        <h2 class="font-display text-[72px] text-lp-fg">الخلاصة</h2>
+        <p class="text-[32px] text-lp-fg leading-[1.6]">التفسير الآلي يحول الصندوق الأسود إلى خريطة</p>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="1" data-zoom-label="تفصيل 1"><p class="text-[40px] text-outer">ملاحظة 1: التفسير الآلي يحول الصندوق الأسود إلى خريطة في الحالة 1.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="2" data-zoom-label="تفصيل 2"><p class="text-[32px] text-outer">ملاحظة 2: التفسير الآلي يحول الصندوق الأسود إلى خريطة في الحالة 2.</p></div>
+        <div class="bg-tab-mint/20 p-[24px]" data-zoom-step="4" data-zoom-label="تفصيل 3"><p class="text-[28px] text-outer">ملاحظة 3: التفسير الآلي يحول الصندوق الأسود إلى خريطة في الحالة 3.</p></div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

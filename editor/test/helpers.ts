@@ -20,14 +20,17 @@ export interface Fixture { name: string; text: string | null; real: boolean }
 const minimal = loadFixture('synthetic/minimal-deck.html');
 const edge = loadFixture('synthetic/edge-cases.html');
 
-export const ATTENTION = 'real/attention/deck.html';
-export const MECHANISTIC = 'real/mechanistic/deck.html';
+// The original real decks are private (fixtures/real/ is git-ignored). A clean clone uses the synthetic stand-ins in
+// fixtures/legacy/, built with the same traits (v1 markup, Tailwind config, tokens, fonts, Morph and zoom steps).
+const realOr = (real: string, standIn: string) => (existsSync(fixturePath(real)) ? real : standIn);
+export const ATTENTION = realOr('real/attention/deck.html', 'legacy/attention/deck.html');
+export const MECHANISTIC = realOr('real/mechanistic/deck.html', 'legacy/mechanistic/deck.html');
 export const MINIMAL = 'synthetic/minimal-deck.html';
 export const EDGE = 'synthetic/edge-cases.html';
 /** The repository's own worked example (fixtures/showcase links to examples/showcase); always present. */
 export const SHOWCASE = 'showcase/deck.html';
 /** A real deck with assets for server tests: the private attention deck when present, else the showcase. */
-export const SERVER_DECK = existsSync(fixturePath(ATTENTION)) ? ATTENTION : SHOWCASE;
+export const SERVER_DECK = ATTENTION.startsWith('real/') ? ATTENTION : SHOWCASE;
 
 /** Every fixture plus CRLF and BOM variants generated in memory. Real decks are null when absent. */
 export const ALL_FIXTURES: Fixture[] = [
@@ -54,9 +57,9 @@ export function tempCopyDeck(rel: string): { dir: string; path: string } {
   if (!existsSync(src)) throw new Error(`fixture missing: ${rel}`);
   const dir = mkdtempSync(join(tmpdir(), 'nm-studio-test-'));
   const srcDir = dirname(src);
-  if (rel.startsWith('real/') || rel.startsWith('showcase/')) cpSync(srcDir, dir, { recursive: true, dereference: true });
+  if (/^(real|legacy|showcase)\//.test(rel)) cpSync(srcDir, dir, { recursive: true, dereference: true });
   else cpSync(src, join(dir, 'deck.html'));
-  const name = rel.startsWith('real/') || rel.startsWith('showcase/') ? rel.split('/').pop()! : 'deck.html';
+  const name = /^(real|legacy|showcase)\//.test(rel) ? rel.split('/').pop()! : 'deck.html';
   return { dir, path: join(dir, name) };
 }
 

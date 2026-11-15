@@ -51,7 +51,7 @@ export function tempDeck(rel = MINIMAL, dirName?: string): { dir: string; deckPa
   const dir = dirName ? join(base, dirName) : base;
   mkdirSync(dir, { recursive: true });
   const src = fixturePath(rel);
-  if (rel.startsWith('real/') || rel.startsWith('showcase/')) {
+  if (/^(real|legacy|showcase)\//.test(rel)) {
     cpSync(dirname(src), dir, { recursive: true, dereference: true });
     return { dir, deckPath: join(dir, 'deck.html') };
   }
