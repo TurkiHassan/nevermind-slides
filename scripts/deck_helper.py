@@ -852,6 +852,26 @@ def _lint_equation(visual: dict[str, Any], where: str, i: int, err: Any, warn: A
         warn("R129", f"{where}: derivation has {len(sources)} lines; keep at most 4 on one slide and continue on the next (link terms with data-term)", i + 1)
 
 
+def _slide_fingerprint(slide: dict[str, Any]) -> tuple[str, str, str, tuple[str, ...]]:
+    """What a slide looks like, for R104/R105: composition, visual, how many points, which acts."""
+    layout = str(slide.get("layout") or "")
+    comp = LAYOUT_ALIASES.get(layout, layout)
+    text = slide.get("text") if isinstance(slide.get("text"), dict) else {}
+    body = [b for b in text.get("body") or [] if isinstance(b, str)]
+    n = len(body)
+    bucket = "0" if n == 0 else "1-2" if n <= 2 else "3-5" if n <= 5 else "6+"
+    acts = tuple(sorted({str(st.get("act")) for st in _slide_steps(slide)}))
+    return comp, _represent().visual_key(slide), bucket, acts
+
+
+_TITLE_MORPHS = {"title", "headline", "kicker"}
+
+
+def _intentional_series(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    """Two slides that share a morph id other than the title carry one element on purpose (a visual, a number)."""
+    return bool((set(_slide_morph(a)) & set(_slide_morph(b))) - _TITLE_MORPHS)
+
+
 def lint_plan(plan: Any) -> dict[str, Any]:
     errors: list[dict[str, Any]] = []
     warnings: list[dict[str, Any]] = []
@@ -1026,17 +1046,21 @@ def lint_plan(plan: Any) -> dict[str, Any]:
     if slides and slides[-1].get("role") not in ("closing", "summary"):
         err("R102", f"slide {n} must have role \"closing\" or \"summary\"", n)
 
-    # layout repetition
+    # repetition by fingerprint (decision D9): two slides look alike when their composition (after the short
+    # names are resolved), visual, number of points and acts are the same, whatever the layout is called. A series
+    # carried by a shared element other than the title (Morph of a visual, a figure, a number) is intentional.
+    prints = [_slide_fingerprint(sl) for sl in slides]
     run = 1
     for i in range(1, n):
-        if slides[i].get("layout") and slides[i].get("layout") == slides[i - 1].get("layout"):
+        if slides[i].get("layout") and prints[i] == prints[i - 1] and not _intentional_series(slides[i - 1], slides[i]):
             run += 1
         else:
             run = 1
+        what = f"{prints[i][0]} with {prints[i][1]}, {prints[i][2]} points"
         if run == 3:
-            err("R104", f"slide {i + 1} ({slides[i].get('id', '?')}): layout \"{slides[i].get('layout')}\" is used on 3 slides in a row; change one of them", i + 1)
+            err("R104", f"slide {i + 1} ({slides[i].get('id', '?')}): three slides in a row look the same ({what}); change the composition or the visual of one, or carry one element across them with a morph id", i + 1)
         elif run == 2:
-            warn("R105", f"slide {i + 1} ({slides[i].get('id', '?')}): layout \"{slides[i].get('layout')}\" repeats the previous slide; vary it if you can", i + 1)
+            warn("R105", f"slide {i + 1} ({slides[i].get('id', '?')}): looks the same as the previous slide ({what}); vary it if you can", i + 1)
 
     # continuity and morph pairing
     for i in range(1, n):

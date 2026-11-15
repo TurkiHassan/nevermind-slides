@@ -106,15 +106,33 @@ class DesignRulesTest(unittest.TestCase):
         return dh.lint_plan(plan)
 
     def test_r104_r105_layout_repetition(self):
+        """R104/R105 compare what slides look like (decision D9), not the layout names."""
         slides = stub_slides(8)
+        slides[1]["steps"] = []
         for k in (2, 3):
             slides[k]["layout"] = "split"
         slides[1]["layout"] = "cards"
         report = self.lint({"title": "t", "slides": slides})
         self.assertIn("R105", codes(report, "warnings"))
         self.assertNotIn("R104", codes(report))
-        slides[1]["layout"] = "split"
+        # a different name for the same composition still counts
+        slides[1]["layout"] = "split-rev"
         self.assertIn("R104", codes(self.lint({"title": "t", "slides": slides})))
+        # the same name with a different visual, number of points or acts does not
+        for change in (
+            lambda s: s.__setitem__("visual", {"type": "chart", "chart_type": "bar", "ref": "c"}),
+            lambda s: s["text"].__setitem__("body", ["أ", "ب", "ج", "د"]),
+            lambda s: s.__setitem__("steps", [{"act": "focus", "target": "visual"}]),
+        ):
+            varied = [dict(x, text=dict(x["text"])) for x in slides]
+            change(varied[2])
+            self.assertNotIn("R104", codes(self.lint({"title": "t", "slides": varied})))
+        # a series carried by a shared visual is intentional
+        for k in (1, 2, 3):
+            slides[k]["morph"] = ["title", "flow"]
+        report = self.lint({"title": "t", "slides": slides})
+        self.assertNotIn("R104", codes(report))
+        self.assertNotIn("R105", codes(report))
 
     def test_r106_unlinked_slide(self):
         slides = stub_slides(6)

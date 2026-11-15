@@ -107,8 +107,8 @@ Errors block `scaffold`. Warnings are advice.
 | R101 | error | Slide 1 has role `cover`. |
 | R102 | error | Last slide has role `closing` or `summary`. |
 | R103 | error | 5 to 24 slides. |
-| R104 | error | The same layout on 3 slides in a row. Change one. |
-| R105 | warn | The same layout on 2 slides in a row. |
+| R104 | error | Three slides in a row look the same: same composition (short layout names resolved, so `split` and `split-rev` count as one), same visual kind, same number of points (0, 1-2, 3-5, 6+) and same acts. Change the composition or the visual of one. Slides that share a morph id other than `title`/`headline`/`kicker` are an intentional series and are not counted. |
+| R105 | warn | Two slides in a row look the same, by the same fingerprint as R104. |
 | R106 | error | Every slide after the first must link to the previous one: share a morph id, or set a non-auto `transition`, or a `rel` other than `next` (chapter, contrast, deeper, back-out, time each pick a transition). |
 | R107 | error | A morph id must also be on the previous or next slide. |
 | R108 | error | At most one `detail`, `slice` or `lens` act per slide. |
